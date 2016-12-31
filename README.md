@@ -25,10 +25,10 @@ Clean code generator for Laravel framework that will save you time! This awesome
 > If you don't already have `LaravelCollective Forms & HTML package` installed it will be installed for you. However you'll still have to update your config/app.php to bootstrap the package to the framework.
 
 
- Using the command line execute the following command 
- ```
- composer require crestapps/laravel-code-generator --dev
- ```
+Using the command line execute the following command 
+```
+composer require crestapps/laravel-code-generator --dev
+```
  
 Open the `config/app.php` file in your project and do the following two steps
 First, look for the `providers` array. Add the following service provider to it.
