@@ -1,0 +1,50 @@
+@extends('{{layoutName}}')
+
+@section('content')
+
+<div class="panel panel-default">
+    <div class="panel-heading clearfix">
+
+        <span class="pull-left">
+            {{modelNameClass}} {{ ${{modelName}}->{{primaryKey}} }}
+        </span>
+
+        <div class="btn-group btn-group-xs pull-right" role="group">
+
+
+            <a href="{{ route('{{indexRouteName}}') }}" class="btn btn-primary" title="Show all {{modelNamePlural}}">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"/>
+            </a>
+
+            <a href="{{ route('{{editRouteName}}', ${{modelName}}->{{primaryKey}} ) }}" class="btn btn-primary" title="Edit {{modelNameClass}}">
+                <span class="glyphicon glyphicon-pencil" aria-hidden="true"/>
+            </a>
+
+            {!! Form::open([
+                'method' =>'DELETE',
+                'route'  => ['{{destroyRouteName}}', ${{modelName}}->{{primaryKey}}],
+                'style' => 'display: inline'
+            ]) !!}
+                {!! Form::button('<span class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete {{modelNameClass}}" />', 
+                    [   
+                        'type'    => 'submit',
+                        'class'   => 'btn btn-danger btn-xs',
+                        'title'   => 'Delete {{modelNameClass}}',
+                        'onclick' => 'return confirm("Confirm delete?")'
+                    ])
+                !!}
+            {!! Form::close() !!}
+
+        </div>
+
+    </div>
+
+    <div class="panel-body">
+        <dl class="dl-horizontal">
+{{tableRows}}
+        </dl>
+
+    </div>
+</div>
+
+@endsection

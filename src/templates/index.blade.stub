@@ -1,0 +1,88 @@
+@extends('{{layoutName}}')
+
+@section('content')
+
+    @if(Session::has('success_message'))
+        <div class="alert alert-success">
+            <span class="glyphicon glyphicon-ok"></span>
+            {!! session('success_message') !!}
+
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+        </div>
+    @endif
+
+    <div class="panel panel-default">
+
+
+
+        <div class="panel-heading clearfix">
+
+            <span class="pull-left">
+                {{modelNamePlural}}
+            </span>
+
+            <div class="btn-group btn-group-xs pull-right" role="group">
+
+                <a href="{{ route('{{createRouteName}}') }}" class="btn btn-primary" title="Add {{modelNameClass}}">
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true" />
+                </a>
+
+            </div>
+
+        </div>
+
+        
+        <div class="panel-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+{{headerCells}}
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach(${{modelNamePlural}} as ${{modelName}})
+                        <tr>
+{{bodyCells}}
+                            <td>
+                                <a href="{{ route('{{showRouteName}}', ${{modelName}}->{{primaryKey}} ) }}" class="btn btn-success btn-xs" title="View {{modelNameClass}}">
+                                    <span class="glyphicon glyphicon-folder-open" aria-hidden="true"/>
+                                </a>
+                                <a href="{{ route('{{editRouteName}}', ${{modelName}}->{{primaryKey}} ) }}" class="btn btn-primary btn-xs" title="Edit {{modelNameClass}}">
+                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"/>
+                                </a>
+                                {!! Form::open([
+                                    'method' =>'DELETE',
+                                    'route'  => ['{{destroyRouteName}}', ${{modelName}}->{{primaryKey}}],
+                                    'style'  => 'display:inline'
+                                ]) !!}
+                                    {!! Form::button('<span class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete {{modelNameClass}}" />', 
+                                        [   
+                                            'type'    => 'submit',
+                                            'class'   => 'btn btn-danger btn-xs',
+                                            'title'   => 'Delete {{modelNameClass}}',
+                                            'onclick' => 'return confirm("Confirm delete?")'
+                                        ])
+                                    !!}
+                                {!! Form::close() !!}
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+
+                <div class="pagination-wrapper">
+                    {!! ${{modelNamePlural}}->render() !!}
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+@endsection

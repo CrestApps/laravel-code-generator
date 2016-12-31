@@ -1,0 +1,9 @@
+0000000000000000000000000000000000000000 6ab5595d3b27a73fec02cea20e1a00a7fb19a683 Majd Alhayek <mike@checkboxsigns.com> 1482519765 -0800	commit (initial): First commit
+6ab5595d3b27a73fec02cea20e1a00a7fb19a683 da9c4757ddb2bc41671fdb1fb4afc48ba7ea4eff Majd Alhayek <mike@checkboxsigns.com> 1482523314 -0800	commit: This version is in a good working condition. Some of the code need some cleaning. Also, some of the methods are missing documentation.
+da9c4757ddb2bc41671fdb1fb4afc48ba7ea4eff 4321a8e0c455fe32af9cc5100f9cd76ce358fac5 Majd Alhayek <mike@checkboxsigns.com> 1482607119 -0800	commit: Document all methods and fix few bugs with raw fields option
+4321a8e0c455fe32af9cc5100f9cd76ce358fac5 5bac98084754ab2e7e44d603d0c411ae9e67ba4e Majd Alhayek <mike@checkboxsigns.com> 1482796431 -0800	commit: updated the readme file
+5bac98084754ab2e7e44d603d0c411ae9e67ba4e 9bdb9ccb51fef52e7389e5fc6d7ba3b2518612ba Majd Alhayek <mike@checkboxsigns.com> 1482797479 -0800	commit: fix the composer,json file
+9bdb9ccb51fef52e7389e5fc6d7ba3b2518612ba 8942a94c81ca5138a88a97e6b960d948dee8908e Majd Alhayek <mike@checkboxsigns.com> 1482868441 -0800	commit: Update the readme file with installation instruction and full documentation link
+8942a94c81ca5138a88a97e6b960d948dee8908e 6fc6c98226385a8ca8aae528c293b6e49af82b16 Majd Alhayek <mike@checkboxsigns.com> 1482967580 -0800	commit: fix the read me file. Update the composer file to execute composer dumo-autoload and publish the vendor files
+6fc6c98226385a8ca8aae528c293b6e49af82b16 5fab731e3793888b751ce453aaaacb229ca1235a Majd Alhayek <mike@checkboxsigns.com> 1482968131 -0800	commit: fix an error in the composer file
+5fab731e3793888b751ce453aaaacb229ca1235a 342dadb21806087e1cceed3587d477dc2b0d2133 Majd Alhayek <mike@checkboxsigns.com> 1483063583 -0800	commit: Fix the readme.md file

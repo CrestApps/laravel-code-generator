@@ -1,0 +1,25 @@
+
+    Route::get('/', '{{controllerName}}@index')
+         ->name('{{indexRouteName}}');
+
+    Route::get('/create','{{controllerName}}@create')
+         ->name('{{createRouteName}}');
+
+    Route::get('/show/{{{modelName}}}','{{controllerName}}@show')
+         ->name('{{showRouteName}}')
+         ->where('id', '[0-9]+');
+
+    Route::get('/{{{modelName}}}/edit','{{controllerName}}@edit')
+         ->name('{{editRouteName}}')
+         ->where('id', '[0-9]+');
+
+    Route::post('/', '{{controllerName}}@store')
+         ->name('{{storeRouteName}}');
+               
+    Route::put('{{modelName}}/{{{modelName}}}', '{{controllerName}}@update')
+         ->name('{{updateRouteName}}')
+         ->where('id', '[0-9]+');
+
+    Route::delete('/{{modelName}}/{{{modelName}}}','{{controllerName}}@destroy')
+         ->name('{{destroyRouteName}}')
+         ->where('id', '[0-9]+');

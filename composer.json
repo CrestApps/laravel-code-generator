@@ -1,0 +1,37 @@
+{
+    "name": "crestapps/laravel-code-generator",
+    "license": "MIT",
+    "description": "An awesome code generator for laravel framework.",
+    "version": "v1.0.0",
+    "keywords": [
+        "laravel","crud","crud generator",
+        "laravel crud generator","laravel crud builder",
+        "crud builder","views creator","routes creator",
+        "controller creator","code generator","generators",
+        "code generator", "laravel crud","laravel code generator"
+    ],
+    "authors": [
+        {
+            "name": "Majd Alhayek (Mike)",
+            "email": "mike@crestapps.com",
+            "homepage": "https://www.crestapps.com"
+        }
+    ],
+    "require": {
+        "laravel/framework": "~5.1",
+        "laravelcollective/html": "~5.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "CrestApps\\CodeGenerator\\": "src/"
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "composer dump-autoload"
+        ],
+        "post-update-cmd": [
+            "composer dump-autoload"
+        ]
+    }
+}

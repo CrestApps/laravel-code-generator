@@ -1,0 +1,135 @@
+<?php
+
+namespace DummyNamespace;
+
+use DummyRootNamespaceHttp\Requests;
+use DummyRootNamespaceHttp\Controllers\Controller;
+
+use DummyRootNamespace{{modelFullName}};
+use Illuminate\Http\Request;
+use Session;
+
+class DummyClass extends Controller
+{
+    
+    /**
+     * Display a listing of the {{modelNamePlural}}.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function index()
+    {
+        ${{modelNamePlural}} = {{modelNameClass}}::paginate({{modelsPerPage}});
+
+        return view('{{indexViewName}}', compact('{{modelNamePlural}}'));
+    }
+
+    /**
+     * Show the form for creating a new {{modelName}}.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function create()
+    {
+        return view('{{createViewName}}');
+    }
+
+    /**
+     * Store a new {{modelName}} in the storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function store(Request $request)
+    {
+        $this->affirm($request);
+        {{fileSnippet}}
+        {{modelNameClass}}::create($request->all());
+
+        Session::flash('success_message', '{{modelNameClass}} was added!');
+
+        return redirect()->route('{{indexRouteName}}');
+    }
+
+    /**
+     * Display the specified {{modelName}}.
+     *
+     * @param  int $id
+     *
+     * @return \Illuminate\View\View
+     */
+    public function show($id)
+    {
+        ${{modelName}} = {{modelNameClass}}::findOrFail($id);
+
+        return view('{{showViewName}}', compact('{{modelName}}'));
+    }
+
+    /**
+     * Show the form for editing the specified {{modelName}}.
+     *
+     * @param  int $id
+     *
+     * @return \Illuminate\View\View
+     */
+    public function edit($id)
+    {
+        ${{modelName}} = {{modelNameClass}}::findOrFail($id);
+
+        return view('{{editViewName}}', compact('{{modelName}}'));
+    }
+
+    /**
+     * Update the specified {{modelName}} in the storage.
+     *
+     * @param  int $id
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function update($id, Request $request)
+    {
+        $this->affirm($request);
+        {{fileSnippet}}
+        ${{modelName}} = {{modelNameClass}}::findOrFail($id)->update($request->all());
+
+        Session::flash('success_message', '{{modelNameClass}} was updated!');
+
+        return redirect()->route('{{indexRouteName}}');
+    }
+
+    /**
+     * Remove the specified {{modelName}} from the storage.
+     *
+     * @param  int $id
+     *
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function destroy($id)
+    {
+        {{modelNameClass}}::destroy($id);
+
+        Session::flash('success_message', '{{modelNameClass}} was deleted!');
+
+        return redirect()->route('{{indexRouteName}}');
+    }
+
+
+    /**
+     * Validate the given request with the defined rules.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     *
+     * @return $this
+     */
+    public function affirm(Request $request)
+    {
+        $this->validate($request, [
+    {{validationRules}}            
+        ]);
+
+        return $this;
+    }
+
+}
