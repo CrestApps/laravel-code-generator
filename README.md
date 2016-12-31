@@ -1,6 +1,6 @@
 # An awesome code generator for laravel framework
 
-For full documentation please visit This is <a href="https://crestapps.com/laravel-code-generator/docs/1.0" target="_new" title="Laravel 5.1+ Awesome Code Generator documentation">CrestApps.com</a>
+For full documentation please visit This is <a href="https://crestapps.com/laravel-code-generator/docs/1.0" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
 
 
 ## Introduction
@@ -54,10 +54,10 @@ Second, look for the `aliases` array in the `config/app.php` file. Add the follo
 Finally, publish the config and the default template to start generating awesome code.
 
 ```
-php artisan vendor:publish --provider="CrestApps\\CodeGenerator\\CodeGeneratorServiceProvider"
+php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServiceProvider"
 ```
 
-> A layout is required for the default views! The code generator allows you to create a layout using the command line. Of cource you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/ "CSS bootstrap framework") in your layout for the default templates to work properly. Additionally, you can chose to you design your own templetes and not use [CSS bootstrap framework](http://getbootstrap.com/ "CSS bootstrap framework" target="_blank") altogether.
+> A layout is required for the default views! The code generator allows you to create a layout using the command line. Of cource you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/ "CSS bootstrap framework") in your layout for the default templates to work properly. Additionally, you can chose to you design your own templetes and not use [CSS bootstrap framework](http://getbootstrap.com/ "CSS bootstrap framework") altogether.
 
 
 
@@ -80,10 +80,10 @@ php artisan vendor:publish --provider="CrestApps\\CodeGenerator\\CodeGeneratorSe
 * php artisan create:form-request [class-name]
 * php artisan create:language [language-file-name]
 
-> Full documentation available at [CrestApps.com](https://crestapps.com/laravel-code-generator/docs/1.0 "Laravel 5.1+ Awesome Code Generator documentation" target="_blank"). 
+> Full documentation available at [CrestApps.com](https://crestapps.com/laravel-code-generator/docs/1.0 "Laravel Code Generator Documentation"). 
 
 
 ## License
 
-The Laravel-CodeGenerator is open-sourced software licensed under the <a href="https://opensource.org/licenses/MIT" target="_new" title="MIT license">MIT license</a>
+The Laravel-CodeGenerator is open-sourced software licensed under the <a href="https://opensource.org/licenses/MIT" target="_blank" title="MIT license">MIT license</a>
 
