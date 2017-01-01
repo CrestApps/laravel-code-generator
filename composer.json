@@ -2,13 +2,15 @@
     "name": "crestapps/laravel-code-generator",
     "license": "MIT",
     "description": "An awesome code generator for laravel framework.",
-    "version": "v1.0.0",
+    "version": "v1.0.1",
     "keywords": [
         "laravel","crud","crud generator",
         "laravel crud generator","laravel crud builder",
         "crud builder","views creator","routes creator",
         "controller creator","code generator","generators",
-        "code generator", "laravel crud","laravel code generator"
+        "code generator", "laravel crud","laravel code generator",
+        "laravel-code-generator","code-generator","CrestApps",
+        "Alhayek", "Mike Alhayek","Majd Alhayek"
     ],
     "authors": [
         {

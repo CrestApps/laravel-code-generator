@@ -22,11 +22,11 @@ class CodeGeneratorServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../config/codegenerator.php' => config_path('codegenerator.php'),
-        ]);
+        ], 'config');
 
         $this->publishes([
             __DIR__ . '/templates' => base_path('resources\\codegenerator-templates\\default'),
-        ]);
+        ], 'templates');
 
         $this->createDirectory(base_path('resources\\codegenerator-files'));
     }
