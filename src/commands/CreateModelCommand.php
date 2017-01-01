@@ -5,6 +5,7 @@ namespace CrestApps\CodeGenerator\Commands;
 use Illuminate\Console\GeneratorCommand;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Field;
 
 class CreateModelCommand extends GeneratorCommand
 {
@@ -43,19 +44,6 @@ class CreateModelCommand extends GeneratorCommand
     protected $type = 'Model';
 
     /**
-     * Gets the default namespace for the class.
-     *
-     * @param  string  $rootNamespace
-     * @return string
-     */
-    /*
-    protected function getDefaultNamespace($rootNamespace)
-    {
-        return $rootNamespace;
-    }
-    */
-
-    /**
      * Builds the model class with the given name.
      *
      * @param  string  $name
@@ -69,7 +57,7 @@ class CreateModelCommand extends GeneratorCommand
         $input = $this->getCommandInput();
         $fields = $this->getFields($input->fields, 'model', $input->fieldsFile);
 
-        $primaryKey = $this->getNewPrimaryKey($this->getPrimaryKeyName($input->primaryKey, $fields));
+        $primaryKey = $this->getNewPrimaryKey($this->getPrimaryKeyName($fields, $input->primaryKey));
 
         return $this->replaceNamespace($stub, $name)
                     ->replaceTable($stub, $input->table)
@@ -86,7 +74,7 @@ class CreateModelCommand extends GeneratorCommand
      *
      * @return string
      */
-    protected function getPrimaryKeyName($primaryKey, array $fields)
+    protected function getPrimaryKeyName(array $fields, $primaryKey)
     {
         $primaryField = $this->getPrimaryField($fields);
 
@@ -141,15 +129,31 @@ class CreateModelCommand extends GeneratorCommand
     {
         $fillables = [];
 
+        $primaryField = $this->getPrimaryField($fields);
+
         foreach($fields as $field)
         {
-            if($field->isOnFormView)
+            //exclude the primary key and anythins
+            if($this->shouldFill($field, $primaryField))
             {
                 $fillables[] = sprintf("'%s'", $field->name);
             }
         }
 
         return sprintf('[%s]', implode(',', $fillables));
+    }
+
+    /**
+     * Checks if the field should be fillable or not
+     *
+     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Support\Field $primaryField
+     *
+     * @return bool
+     */
+    protected function shouldFill(Field $field, Field $primaryField)
+    {
+        return $primaryField != $field && $field->isOnFormView;
     }
 
     /**

@@ -8,8 +8,14 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you change the stub templates to use when generating code.
-    | You can easily duplicate the "base_path('resources/codegenerator-templates/default')" folder, and call it "my-default"
-    | now, you can change the stubs to have your own templates generated.
+    | You can duplicate the "base_path('resources/codegenerator-templates/default')"
+    | and call it what ever template your like "ex. skyblue".
+    | Now, you can change the stubs to have your own templates generated.
+    |
+    |        
+    | IMPORTANT: It is not recomended to modify the default template, rather create a new template.
+    | If you modify the default template and then executed "php artisan vendor:publish" command,
+    | it will override the default template causing you to lose your modification.
     |
     */
 
@@ -39,6 +45,13 @@ return [
     | The default path of where the controllers will be generated from
     |--------------------------------------------------------------------------
     */
+    'form_requests_path' => app_path('Http/Requests'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | The default path of where the controllers will be generated from
+    |--------------------------------------------------------------------------
+    */
     'controllers_path' => 'Http/Controllers',
 
     /*
@@ -50,10 +63,11 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The default path of where the controllers will be generated from
+    | The default path of where the migrations will be generated from
     |--------------------------------------------------------------------------
     */
-    'form_requests_path' => app_path('Http/Requests'),
+
+    'languages_path' => base_path('resources/lang'),
 
     /*
     |--------------------------------------------------------------------------

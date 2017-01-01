@@ -66,11 +66,12 @@ class CreateMigrationCommand extends Command
         $fields = $this->getFields($input->fields, 'migration', $input->fieldsFile);
 
         $properites = $this->getTableProperties($fields, $input);
-        
+
         $this->replaceSchemaUp($stub, $this->getSchemaUpCommand($input, $properites))
              ->replaceSchemaDown($stub, $this->getSchemaDownCommand($input))
+             ->replaceClassName($stub, $input->className)
              ->makeDirectory($this->getMigrationsPath())
-             ->makeFile($this->getMigrationsPath() . $input->className, $stub, $input->force);
+             ->makeFile($this->getMigrationsPath() . $this->makeFileName($input->tableName), $stub, $input->force);
     }
    
     /**
@@ -87,7 +88,7 @@ class CreateMigrationCommand extends Command
              ->addFieldProperties($properties, $fields)
              ->addIndexes($properties, $input->indexes)
              ->addForeignConstraints($properties, $input->keys); 
-        
+
         return $properties;
     }
 
@@ -336,9 +337,11 @@ class CreateMigrationCommand extends Command
      */
     protected function addFieldProperties(& $properties, array $fields)
     {
+        $primaryField = $this->getPrimaryField($fields);
+
         foreach($fields as $field)
         {
-            if($field instanceof Field)
+            if($field instanceof Field && $field != $primaryField)
             {
                 $this->addFieldType($properties, $field)
                      ->addFieldComment($properties, $field)
@@ -455,9 +458,7 @@ class CreateMigrationCommand extends Command
     protected function getSchemaDownCommand($input)
     {
 
-        $stub = <<<EOD
-Schema::{{connectionName}}drop('{{tableName}}');
-EOD;
+        $stub = $this->getStubContent('schema-down');
 
         $this->replaceConnectionName($stub, $input->connection)
              ->replaceTableName($stub, $input->tableName);
@@ -475,17 +476,30 @@ EOD;
     protected function getSchemaUpCommand($input, $blueprintBody)
     {
 
-        $stub = <<<EOD
-Schema::{{connectionName}}create('{{tableName}}', function(Blueprint \$table)
-        {
-{{blueprintBody}}
-        });
-EOD;
+        $stub = $this->getStubContent('schema-up');
+
         $this->replaceConnectionName($stub, $input->connection)
              ->replaceTableName($stub, $input->tableName)
              ->replaceBlueprintBodyName($stub, $blueprintBody);
 
         return $stub;
+    }
+
+
+
+    /**
+     * Replace the className of the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $className
+     *
+     * @return $this
+     */
+    protected function replaceClassName(&$stub, $className)
+    {
+        $stub = str_replace('DummyClass', $className, $stub);
+
+        return $this;
     }
 
     /**
@@ -666,8 +680,8 @@ EOD;
     {
         if(!is_null($field))
         {
-            $primaryMethod = trim($this->getPropertyBase($this->getPrimaryMethodName($field->dataType)));
-            $property .= sprintf("%s('%s')", $primaryMethod, $field->name);
+            $eloquentMethodName = $this->getPrimaryMethodName($field->dataType);
+            $property .= sprintf("%s('%s')", $this->getPropertyBase($eloquentMethodName), $field->name);
             $this->addFieldPropertyClousure($property);
         }
     
@@ -711,7 +725,8 @@ EOD;
     protected function getCommandInput()
     {
         $tableName = trim($this->argument('table-name'));
-        $className = trim($this->option('migration-class-name')) ?: sprintf('%s_create_%s_table.php', date('Y_m_d_His'), strtolower($tableName));
+
+        $className = trim($this->option('migration-class-name')) ?: sprintf('Create%sTable', ucfirst($tableName));
         $connection =  trim($this->option('connection-name'));
         $engine =  trim($this->option('engine-name'));
         $fields = trim($this->option('fields'));
@@ -719,10 +734,25 @@ EOD;
         $indexes = $this->getIndexColelction(trim($this->option('indexes')));
         $force = $this->option('force');
         $keys = $this->getKeysCollections(trim($this->option('foreign-keys')));
-        $className = Helpers::postFixWith($className, '.php');
+        
 
         return (object) compact('tableName','className','connection','engine','fields','fieldsFile','force','indexes','keys');
     }
+
+
+    /**
+     * Makes a file name for the migration
+     *
+     * @param  string  $path
+     * @return $this
+     */
+    protected function makeFileName($tableName)
+    {
+        $filename = sprintf('%s_create_%s_table.php', date('Y_m_d_His'), strtolower($tableName));
+
+        return Helpers::postFixWith($filename, '.php');
+    }
+
 
      /**
      * Build the directory for the class if necessary.

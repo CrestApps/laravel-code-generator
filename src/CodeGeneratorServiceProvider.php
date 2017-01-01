@@ -27,6 +27,8 @@ class CodeGeneratorServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/templates' => base_path('resources\\codegenerator-templates\\default'),
         ]);
+
+        $this->createDirectory(base_path('resources\\codegenerator-files'));
     }
 
     /**
@@ -52,5 +54,21 @@ class CodeGeneratorServiceProvider extends ServiceProvider
             'CrestApps\CodeGenerator\Commands\CreateResourceCommand',
             'CrestApps\CodeGenerator\Commands\CreateViewLayoutCommand'
         );
+    }
+
+    /**
+     * create a directory if one does not already exists
+     *
+     * @param string $path
+     * @param string $mode
+     *
+     * @return void
+     */
+    protected function createDirectory($path, $mode = '0777')
+    {
+        if(!file_exists($path))
+        {
+            mkdir($path, $mode);
+        }
     }
 }

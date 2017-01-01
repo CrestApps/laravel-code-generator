@@ -3,12 +3,13 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use Illuminate\Console\Command;
-
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
 
 class CreateResourceCommand extends Command
 {
-
+    use CommonCommand;
+    
     /**
      * The name and signature of the console command.
      *
@@ -58,13 +59,23 @@ class CreateResourceCommand extends Command
     {
         $input = $this->getCommandInput();
 
-        $this->createModel($input)
-             ->createController($input)
-             ->createRoutes($input)
-             ->createViews($input)
-             ->createLanguage($input)
-             ->createMigration($input)
-             ->info('All Done!');
+        $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
+
+        if(empty($fields) || !isset($fields[0]))
+        {
+            $this->error('You must provide at least one field to generate the views!');
+        } else 
+        {
+
+            $this->createModel($input)
+                 ->createController($input)
+                 ->createRoutes($input)
+                 ->createViews($input)
+                 ->createLanguage($input)
+                 ->createMigration($input)
+                 ->info('All Done!');
+        }
+
     }
 
     /**
@@ -104,7 +115,7 @@ class CreateResourceCommand extends Command
     {
         $this->callSilent('create:language', 
             [
-                'language-file-name' => $input->langFile,
+                'language-file-name' => $input->languageFileName,
                 '--fields' => $input->fields,
                 '--fields-file' => $input->fieldsFile
             ]);
@@ -172,7 +183,7 @@ class CreateResourceCommand extends Command
                 '--fields' => $input->fields,
                 '--fields-file' => $input->fieldsFile,
                 '--routes-prefix' => $input->prefix,
-                '--lang-file-name' => $input->langFile,
+                '--lang-file-name' => $input->languageFileName,
                 '--form-request' => $input->formRequest,
                 '--force' => $input->force
             ]);
@@ -226,7 +237,7 @@ class CreateResourceCommand extends Command
         $perPage = intval($this->option('models-per-page'));
         $fields = trim($this->option('fields'));
         $fieldsFile = trim($this->option('fields-file'));
-        $langFile = trim($this->option('lang-file-name')) ?: $modelNamePlural;
+        $languageFileName = trim($this->option('lang-file-name')) ?: $modelNamePlural;
         $formRequest = $this->option('form-request');
         $controllerDirectory = trim($this->option('controller-directory'));
         $withoutMigration = $this->option('without-migration');
@@ -250,7 +261,7 @@ class CreateResourceCommand extends Command
         $layoutName = trim($this->option('layout-name')) ?: 'layouts.app';
 
         return (object) compact('modelName','controllerName','viewsDirectory','prefix','perPage','fileSnippet','fields','force',
-                                'langFile','fieldsFile','formRequest','modelDirectory','table','fillable','primaryKey',
+                                'languageFileName','fieldsFile','formRequest','modelDirectory','table','fillable','primaryKey',
                                 'relationships','useSoftDelete','useTimeStamps','controllerDirectory','withoutMigration',
                                 'migrationClass','connectionName','indexes','foreignKeys','engineName','layoutName');
     }
