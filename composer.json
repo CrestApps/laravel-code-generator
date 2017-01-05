@@ -2,7 +2,7 @@
     "name": "crestapps/laravel-code-generator",
     "license": "MIT",
     "description": "An awesome code generator for laravel framework.",
-    "version": "v1.0.1",
+    "version": "v1.0.2",
     "keywords": [
         "laravel","crud","crud generator",
         "laravel crud generator","laravel crud builder",

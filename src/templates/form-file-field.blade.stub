@@ -1,0 +1,1 @@
+        {!! Form::file('{{fieldName}}', ['class' => 'form-control']) !!}
