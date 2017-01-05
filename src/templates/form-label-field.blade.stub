@@ -1,1 +1,1 @@
-    {!! Form::label('{{fieldName}}',{{fieldTitle}},['class' => 'col-md-4 control-label']) !!}
+    {!! Form::label('{{fieldName}}',{{fieldTitle}},['class' => 'col-md-2 control-label']) !!}

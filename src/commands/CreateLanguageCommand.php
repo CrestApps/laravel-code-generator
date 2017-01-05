@@ -7,6 +7,8 @@ use Lang;
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\Label;
+
 
 class CreateLanguageCommand extends Command
 {
@@ -20,7 +22,8 @@ class CreateLanguageCommand extends Command
     protected $signature = 'create:language
                             {language-file-name : The name of the file to save the messages in.}
                             {--fields= : The fields for the form.}
-                            {--fields-file= : File name to import fields from.}';
+                            {--fields-file= : File name to import fields from.}
+                            {--template-name= : The template name to use when generating the code.}';
 
 
     /**
@@ -52,17 +55,17 @@ class CreateLanguageCommand extends Command
         $fields = $this->getFields($input->fields, $input->fileName, $input->fieldsFile);
 
         $languages = $this->getLanguageItems($fields);
-        
+
         foreach ($languages as $language => $labels) 
         {
             $fileFullName = $this->getLocalePath($language) . $input->fileName . '.php';
 
             $messagesToRegister = [];
 
-            $phrases = $this->getLangPhrases($labels, $language, $messagesToRegister);
+            $phrases = $this->getLangPhrases($labels, $messagesToRegister);
 
             $this->createPath($this->getLocalePath($language))
-                 ->addMessagesToFile($fileFullName, $phrases, $language)
+                 ->addMessagesToFile($fileFullName, $phrases, $language, $input->template)
                  ->registerMessages($messagesToRegister, $language);
         }
     }
@@ -104,10 +107,11 @@ class CreateLanguageCommand extends Command
      * @param string $fileFullName
      * @param string $messages
      * @param string $language
+     * @param string $template
      *
      * @return $this
      */
-    protected function addMessagesToFile($fileFullName, $messages, $language)
+    protected function addMessagesToFile($fileFullName, $messages, $language, $template)
     {
         if(!empty($messages))
         {
@@ -117,7 +121,7 @@ class CreateLanguageCommand extends Command
             } 
             else
             {
-                $this->createMessageToFile($fileFullName, $messages, $language);
+                $this->createMessageToFile($fileFullName, $messages, $language, $template);
             }
         } else {
             $this->info('There was no messages to add the language files');
@@ -173,13 +177,14 @@ class CreateLanguageCommand extends Command
      * @param string $fileFullName
      * @param string $messages
      * @param string $language
+     * @param string $template
      *
      * @return $this
      */
-    protected function createMessageToFile($fileFullName, $messages, $language)
+    protected function createMessageToFile($fileFullName, $messages, $language, $template)
     {
 
-        $stub = $this->getStubContent('language');
+        $stub = $this->getStubContent('language', $template);
 
         $this->replaceFieldName($stub, $messages);
 
@@ -208,13 +213,26 @@ class CreateLanguageCommand extends Command
 
         foreach($fields as $field)
         {
-            foreach($field->getLabels() as $lang => $title)
+            foreach($field->getLabels() as $label)
             {
-                if(!$title->isPlain)
+                if(!$label->isPlain)
                 {
-                    $items[$lang][] = (object) array_merge( (array) $title, ['name' => $field->name]);
+                    $items[$label->lang][] = $label;
                 }
             }
+
+            foreach($field->getOptions() as $lang => $labels)
+            {
+                foreach($labels as $label)
+                {
+                    if(!$label->isPlain)
+                    {
+                        $items[$label->lang][] = $label;
+                    }
+                }
+
+            }
+
         }
 
         return $items;
@@ -258,10 +276,10 @@ class CreateLanguageCommand extends Command
     {
         $fileName = strtolower(trim($this->argument('language-file-name')));
         $fields =  trim($this->option('fields'));
-
         $fieldsFile =  trim($this->option('fields-file'));
+        $template = trim($this->option('template-name'));
 
-        return (object) compact('fileName','fields','fieldsFile');
+        return (object) compact('fileName','fields','fieldsFile','template');
     }
 
     /**
@@ -271,15 +289,15 @@ class CreateLanguageCommand extends Command
      *
      * @return string
      */
-    protected function getLangPhrases(array $labels, $language, array & $messagesToRegister)
+    protected function getLangPhrases(array $labels, array & $messagesToRegister)
     {
         $messages = [];
         foreach ($labels as $label) 
         {
-            if( !$this->isMessageExists($label->langKey, $language))
+            if( !$this->isMessageExists($label->localeGroup, $label->lang))
             {
-                $messages[] = sprintf("    '%s' => '%s'", $label->name, $label->value);
-                $messagesToRegister[$label->langKey] = $label->value;
+                $messages[] = sprintf("    '%s' => '%s'", $label->id, $label->text);
+                $messagesToRegister[$label->localeGroup] = $label->text;
             }
         }
 

@@ -27,6 +27,7 @@ class CreateModelCommand extends GeneratorCommand
                             {--model-directory=Models : The directory where the model should be created.}
                             {--with-soft-delete : Enables softdelete future should be enable in the model.}
                             {--without-timestamps : Prevent Eloquent from maintaining both created_at and the updated_at properties.}
+                            {--template-name= : The template name to use when generating the code.}
                             {--force : Override the model if one already exists.}';
 
     /**
@@ -67,6 +68,8 @@ class CreateModelCommand extends GeneratorCommand
                     ->replacePrimaryKey($stub, $primaryKey)
                     ->replaceRelationshipPlaceholder($stub, $this->createRelationMethods($input->relationships))
                     ->replaceClass($stub, $name);
+
+                    dd('ddd');
     }
 
     /**
@@ -88,7 +91,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function getStub()
     {
-        return $this->getStubByName('model');
+        return $this->getStubByName('model', $this->getTemplateName());
     }
 
     /**
@@ -129,31 +132,15 @@ class CreateModelCommand extends GeneratorCommand
     {
         $fillables = [];
 
-        $primaryField = $this->getPrimaryField($fields);
-
         foreach($fields as $field)
         {
-            //exclude the primary key and anythins
-            if($this->shouldFill($field, $primaryField))
+            if($field->isOnFormView)
             {
-                $fillables[] = sprintf("'%s'", $field->name);
+                $fillables[] = sprintf("'%s'", Helpers::removeNonEnglishChars($field->name));
             }
         }
 
         return sprintf('[%s]', implode(',', $fillables));
-    }
-
-    /**
-     * Checks if the field should be fillable or not
-     *
-     * @param CrestApps\CodeGenerator\Support\Field $field
-     * @param CrestApps\CodeGenerator\Support\Field $primaryField
-     *
-     * @return bool
-     */
-    protected function shouldFill(Field $field, Field $primaryField)
-    {
-        return $primaryField != $field && $field->isOnFormView;
     }
 
     /**
@@ -171,8 +158,9 @@ class CreateModelCommand extends GeneratorCommand
         $useTimeStamps = !$this->option('without-timestamps');
         $fields = trim($this->option('fields'));
         $fieldsFile = trim($this->option('fields-file'));
+        $template = $this->getTemplateName();
 
-        return (object) compact('table','fillable','primaryKey','relationships','useSoftDelete','useTimeStamps','fields','fieldsFile');
+        return (object) compact('table','fillable','primaryKey','relationships','useSoftDelete','useTimeStamps','fields','fieldsFile','template');
     }
 
     /**

@@ -1,1 +1,6 @@
-        {!! Form::{{fieldType}}('{{fieldName}}',{{fieldValue}},{{isItemSelected}}, ['class' => 'form-control']) !!}
+        <div class="{{fieldType}}">
+            <label for='{{itemId}}'>
+                {!! Form::{{fieldType}}('{{fieldName}}', '{{optionValue}}', null, ['id' => '{{itemId}}']) !!}
+                {{itemTitle}}
+            </label>
+        </div>

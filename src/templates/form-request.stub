@@ -24,7 +24,7 @@ class {{formRequestClass}} extends FormRequest
     public function rules()
     {
         return [
-{{validationRules}}
+    {{validationRules}}
         ];
     }
 }

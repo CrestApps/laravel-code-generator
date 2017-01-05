@@ -21,7 +21,8 @@ class CreateRoutesCommand extends Command
     protected $signature = 'create:routes
                             {controller-name : The name of the controller where the route should be routing to.}
                             {--model-name= : The model name.}
-                            {--routes-prefix= : The routes prefix.}';
+                            {--routes-prefix= : The routes prefix.}
+                            {--template-name= : The template name to use when generating the code.}';
 
     /**
      * The console command description.
@@ -63,12 +64,12 @@ class CreateRoutesCommand extends Command
             throw new Exception("The routes file does not exists. The expected location was " . $routesFile);
         }
 
-        $stub = File::get($this->getStubByName('routes'));
+        $stub = File::get($this->getStubByName('routes', $input->template));
 
         $this->replaceModelName($stub, $input->modelName)
              ->replaceControllerName($stub, $input->controllerName)
              ->replaceRouteNames($stub, $input->modelName, $input->prefix)
-             ->processRoutePrefix($stub, $input->prefix)
+             ->processRoutePrefix($stub, $input->prefix, $input->template)
              ->appendToRoutesFile($stub, $routesFile);
     }
 
@@ -80,14 +81,12 @@ class CreateRoutesCommand extends Command
     protected function getCommandInput()
     {
         $name = trim($this->argument('controller-name'));
-
         $controllerName = Helpers::postFixWith($name, 'Controller');
-
         $modelName = trim($this->option('model-name')) ?: str_singular($name);
-
         $prefix = trim($this->option('routes-prefix'));
+        $template = $this->getTemplateName();
 
-        return (object) compact('modelName','controllerName','prefix');
+        return (object) compact('modelName','controllerName','prefix','template');
     }
 
     /**
@@ -146,19 +145,19 @@ class CreateRoutesCommand extends Command
      *
      * @param string $stub
      * @param string $prefix
+     * @param string $template
      *
      * @return $this
      */
-    protected function processRoutePrefix(&$stub, $prefix)
+    protected function processRoutePrefix(&$stub, $prefix, $template)
     {
         $prefix = trim($prefix);
 
         if(!empty($prefix))
         {
-            $groupStub = File::get($this->getStubByName('routes-group'));
+            $groupStub = File::get($this->getStubByName('routes-group', $template));
 
             $groupStub = str_replace('{{prefix}}', $prefix, $groupStub);
-
             $stub = str_replace('{{routes}}', $stub, $groupStub);
         }
         

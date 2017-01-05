@@ -27,6 +27,7 @@ class CreateMigrationCommand extends Command
                             {--engine-name= : A specific engine name.}
                             {--fields= : The fields to create the validation rules from.}
                             {--fields-file= : File name to import fields from.}
+                            {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the form-request if one already exists.}';
 
     /**
@@ -62,7 +63,7 @@ class CreateMigrationCommand extends Command
     {
         $input = $this->getCommandInput();
 
-        $stub = $this->getStubContent('migration');
+        $stub = $this->getStubContent('migration', $input->template);
         $fields = $this->getFields($input->fields, 'migration', $input->fieldsFile);
 
         $properites = $this->getTableProperties($fields, $input);
@@ -379,11 +380,9 @@ class CreateMigrationCommand extends Command
     protected function addFieldType(& $property, Field $field)
     {
         $type = strtolower(Helpers::removeNonEnglishChars($field->dataType));
-
         if(isset($this->getTypeToMethodMap()[$type]) )
         {
-            $params = $this->getMethodParamerters($type, $field->methodParams);
-
+            $params = $this->getMethodParamerters($field);
             $property .= sprintf("%s('%s'%s)", $this->getPropertyBase($this->getTypeToMethodMap()[$type]), $field->name, $params);
         }
 
@@ -403,27 +402,63 @@ class CreateMigrationCommand extends Command
     /**
      * Constructs the second parameter to the type method
      *
-     * @param string $type
-     * @param string $methodParams
-     * @return $this
+     * @param CrestApps\CodeGenerator\Support\Field $field
+     *
+     * @return string
      */
-    protected function getMethodParamerters($type, $methodParams)
+    protected function getMethodParamerters(Field $field)
     {
         $params = '';
 
-        if(isset($field->methodParams[0]) )
+
+        if( count($field->methodParams) > 0)
         {
-            $params = implode(',', $field->methodParams);
+            $params = ', ' . implode(',', $field->methodParams);
+        }
 
-            if( $this->getTypeToMethodMap()[$type] == 'enum')
-            {
-                $params = sprintf('[%s]', implode(',', Helpers::wrapItems($field->methodParams)));
-            }
-
-            $params .= ',' . $params;
+        if( $field->dataType == 'enum')
+        {
+            $params = ', ' . $this->getEnumParams($field);
         }
 
         return $params;
+    }
+
+    /**
+     * Constructs the second parameter to the enum type method
+     *
+     * @param CrestApps\CodeGenerator\Support\Field $field
+     *
+     * @return string
+     */
+    protected function getEnumParams(Field $field)
+    {
+
+        if( $field->dataType != 'enum')
+        {  
+            throw new Exception('The field type is not enum! Cannot create an enum column with no options.');
+        }
+
+        $values = [];
+
+        foreach($field->getOptionsByLang() as $option)
+        {
+            if($field->isRequired() && $option->value == '')
+            {
+                continue;
+            }
+
+            $values[] = $option->value;
+        }
+
+        if( count($values) == 0)
+        {  
+            throw new Exception('Could not find any option values to construct the enum values from. ' .
+                                'It is possible that this field is required but only have option available has an empty string.');
+        }
+
+        return sprintf('[%s]', implode(',', Helpers::wrapItems($values)));
+        
     }
 
     /**
@@ -458,7 +493,7 @@ class CreateMigrationCommand extends Command
     protected function getSchemaDownCommand($input)
     {
 
-        $stub = $this->getStubContent('schema-down');
+        $stub = $this->getStubContent('schema-down', $input->template);
 
         $this->replaceConnectionName($stub, $input->connection)
              ->replaceTableName($stub, $input->tableName);
@@ -476,7 +511,7 @@ class CreateMigrationCommand extends Command
     protected function getSchemaUpCommand($input, $blueprintBody)
     {
 
-        $stub = $this->getStubContent('schema-up');
+        $stub = $this->getStubContent('schema-up', $input->template);
 
         $this->replaceConnectionName($stub, $input->connection)
              ->replaceTableName($stub, $input->tableName)
@@ -734,9 +769,8 @@ class CreateMigrationCommand extends Command
         $indexes = $this->getIndexColelction(trim($this->option('indexes')));
         $force = $this->option('force');
         $keys = $this->getKeysCollections(trim($this->option('foreign-keys')));
-        
-
-        return (object) compact('tableName','className','connection','engine','fields','fieldsFile','force','indexes','keys');
+        $template = $this->getTemplateName();
+        return (object) compact('tableName','className','connection','engine','fields','fieldsFile','force','indexes','keys','template');
     }
 
 

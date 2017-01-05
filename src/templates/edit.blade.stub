@@ -37,12 +37,12 @@
                 'method' => 'PUT',
                 'route' => ['{{updateRouteName}}', ${{modelName}}->{{primaryKey}}],
                 'class' => 'form-horizontal',
-                'files' => true
+                {{uploadFiles}}
             ]) !!}
 
             @include ('{{formViewName}}', [
                                         'submitButtonLabel' => 'Update', 
-                                        '{{modelName}' => ${{modelName}}
+                                        '{{modelName}}' => ${{modelName}}
                                       ])
 
             {!! Form::close() !!}

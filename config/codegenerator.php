@@ -4,11 +4,11 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Code generator path to a custom template.
+    | The default template to use
     |--------------------------------------------------------------------------
     |
     | Here you change the stub templates to use when generating code.
-    | You can duplicate the "base_path('resources/codegenerator-templates/default')"
+    | You can duplicate the "default" template folder
     | and call it what ever template your like "ex. skyblue".
     | Now, you can change the stubs to have your own templates generated.
     |
@@ -19,7 +19,28 @@ return [
     |
     */
 
-    'template' => base_path('resources/codegenerator-templates/default'),
+    'template' => 'default',
+
+    /*
+    |--------------------------------------------------------------------------
+    | The default path of where the templates are located
+    |--------------------------------------------------------------------------
+    |
+    | In this path, you can add more templates.
+    |
+    */
+
+    'templates_path' => base_path('resources/codegenerator-templates'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | The default path of where the uploaded files lives!
+    |--------------------------------------------------------------------------
+    |
+    |
+    */
+    
+    'files_upload_path' => public_path('uploads'),
 
     /*
     |--------------------------------------------------------------------------

@@ -19,6 +19,7 @@ class CreateCreateViewCommand extends ViewsCommand
                             {--views-directory= : The name of the directory to create the views under.}
                             {--routes-prefix= : The routes prefix.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
+                            {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the view if one already exists.}';
 
     /**
@@ -51,10 +52,13 @@ class CreateCreateViewCommand extends ViewsCommand
         $stub = $this->getStubContent($this->stubName);
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'create');
 
+        $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
+
         $this->handleNewFilePolicy($destenationFile, $input->force)
              ->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
              ->createMissingViews($input)
              ->replaceCommonTemplates($stub, $input)
+             ->replaceFileUpload($stub, $fields)
              ->createViewFile($stub, $destenationFile)
              ->info('Create view was created successfully.');
 

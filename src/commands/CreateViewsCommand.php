@@ -3,15 +3,11 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Support\ViewsCommand;
-
 use CrestApps\CodeGenerator\Support\Helpers;
-
-use Schema;
-use DB;
 
 class CreateViewsCommand extends ViewsCommand
 {
-    
+
     /**
      * The name and signature of the console command.
      *
@@ -25,8 +21,8 @@ class CreateViewsCommand extends ViewsCommand
                             {--routes-prefix= : The routes prefix.}
                             {--only-views=create,edit,index,show,form : The only views to be created.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
+                            {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the view if one already exists.}';
-
 
     /**
      * The console command description.
@@ -53,14 +49,12 @@ class CreateViewsCommand extends ViewsCommand
      */
     protected function handleCreateView()
     {
-
         $input = $this->getCommandInput();
         $views = $this->getOnlyViews();
 
         foreach($views as $view)
         {
-            $command = sprintf('create:%s-view', $view);
-            $this->callSilent($command, $input->getArrguments());
+            $this->callSilent($this->getViewCommand($view), $input->getArrguments());
         }
 
         $this->info('Views were created successfully.');

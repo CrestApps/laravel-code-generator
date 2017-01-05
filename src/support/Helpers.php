@@ -79,11 +79,16 @@ class Helpers {
     /**
      * Replaces any non-english letters with an empty string
      *
+     * @param string $str
+     * @param bool $keep 
+     *
      * @return string
      */
-    public static function removeNonEnglishChars($str)
+    public static function removeNonEnglishChars($str, $keep = '')
     {
-        return preg_replace("/[^A-Za-z0-9_]/", '', $str);
+        $pattern = sprintf('A-Za-z0-9_%s', $keep);
+
+        return preg_replace("/[^" . $pattern . "]/", '', $str);
     }
 
     /**
@@ -243,8 +248,16 @@ class Helpers {
     {
         return array_map(function($item) use ($wrapper){
 
+            $item = str_replace($wrapper, '\\' . $wrapper, trim($item, $wrapper));
+            
             return sprintf('%s%s%s', $wrapper, $item, $wrapper);
 
         }, $items);
+    }
+
+
+    public static function trimQuots($str)
+    {
+        return trim($str, " \t\n\r\0\x0B \"'");
     }
 }

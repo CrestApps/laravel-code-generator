@@ -26,7 +26,7 @@ class CreateResourceCommand extends Command
                             {--routes-prefix=model-name-as-plural : Prefix of the route group.}
                             {--models-per-page=25 : The amount of models per page for index pages.}
                             {--lang-file-name= : The languages file name to put the labels in.}
-                            {--form-request : This will extract the validation into a request form class.}
+                            {--with-form-request : This will extract the validation into a request form class.}
                             {--table= : The name of the table.}
                             {--fillable= : The exact string to put in the fillable property of the model.}
                             {--primary-key=id : The name of the primary key.}
@@ -40,6 +40,7 @@ class CreateResourceCommand extends Command
                             {--foreign-keys= : A list of the foreign-keys to be add.}
                             {--engine-name= : A specific engine name.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
+                            {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the controller if one already exists.}';
 
 
@@ -98,7 +99,8 @@ class CreateResourceCommand extends Command
                     '--engine-name' => $input->engineName,
                     '--fields' => $input->fields,
                     '--fields-file' => $input->fieldsFile,
-                    '--force' => $input->force
+                    '--force' => $input->force,
+                    '--template-name' => $input->template
                 ]);
         }
 
@@ -117,7 +119,8 @@ class CreateResourceCommand extends Command
             [
                 'language-file-name' => $input->languageFileName,
                 '--fields' => $input->fields,
-                '--fields-file' => $input->fieldsFile
+                '--fields-file' => $input->fieldsFile,
+                '--template-name' => $input->template
             ]);
 
         return $this;
@@ -139,8 +142,8 @@ class CreateResourceCommand extends Command
                 '--views-directory' => $input->viewsDirectory,
                 '--routes-prefix' => $input->prefix,
                 '--layout-name' => $input->layoutName,
-                '--force' => $input->force
-
+                '--force' => $input->force,
+                '--template-name' => $input->template
             ]);
 
         return $this;
@@ -159,6 +162,7 @@ class CreateResourceCommand extends Command
                 'controller-name' => $input->controllerName,
                 '--model-name' => $input->modelName,
                 '--routes-prefix' => $input->prefix,
+                '--template-name' => $input->template
             ]);
 
         return $this;
@@ -184,8 +188,9 @@ class CreateResourceCommand extends Command
                 '--fields-file' => $input->fieldsFile,
                 '--routes-prefix' => $input->prefix,
                 '--lang-file-name' => $input->languageFileName,
-                '--form-request' => $input->formRequest,
-                '--force' => $input->force
+                '--with-form-request' => $input->formRequest,
+                '--force' => $input->force,
+                '--template-name' => $input->template
             ]);
 
         return $this;
@@ -211,7 +216,8 @@ class CreateResourceCommand extends Command
                 '--model-directory' => $input->modelDirectory,
                 '--with-soft-delete' => $input->useSoftDelete,
                 '--without-timestamps' => $input->useTimeStamps,
-                '--force' => $input->force
+                '--force' => $input->force,
+                '--template-name' => $input->template
             ]);
 
         return $this;
@@ -225,45 +231,38 @@ class CreateResourceCommand extends Command
     protected function getCommandInput()
     {
         $modelName = trim($this->argument('model-name'));
-
         $modelNamePlural = strtolower(str_plural($modelName));
-
         $controllerName = trim($this->option('controller-name') ?: ucfirst(Helpers::postFixWith(str_plural($modelName), 'Controller')));
-
         $viewsDirectory = trim($this->option('views-directory'));
         $prefix = trim($this->option('routes-prefix'));
-
         $prefix = $prefix == 'model-name-as-plural' ? $modelNamePlural : $prefix;
         $perPage = intval($this->option('models-per-page'));
         $fields = trim($this->option('fields'));
         $fieldsFile = trim($this->option('fields-file'));
         $languageFileName = trim($this->option('lang-file-name')) ?: $modelNamePlural;
-        $formRequest = $this->option('form-request');
+        $formRequest = $this->option('with-form-request');
         $controllerDirectory = trim($this->option('controller-directory'));
         $withoutMigration = $this->option('without-migration');
         $force = $this->option('force');
-
         $modelDirectory = trim($this->option('model-directory'));
-
         $table = trim($this->option('table')) ?: $modelNamePlural;
         $fillable = trim($this->option('fillable'));
         $primaryKey = trim($this->option('primary-key'));
         $relationships = trim($this->option('relationships'));
         $useSoftDelete = $this->option('with-soft-delete');
         $useTimeStamps = !$this->option('without-timestamps');
-
         $migrationClass = trim($this->option('migration-class-name'));
         $connectionName = trim($this->option('connection-name'));
         $indexes = trim($this->option('indexes'));
         $foreignKeys = trim($this->option('foreign-keys'));
         $engineName = trim($this->option('engine-name'));
-
+        $template = $this->getTemplateName();
         $layoutName = trim($this->option('layout-name')) ?: 'layouts.app';
 
         return (object) compact('modelName','controllerName','viewsDirectory','prefix','perPage','fileSnippet','fields','force',
                                 'languageFileName','fieldsFile','formRequest','modelDirectory','table','fillable','primaryKey',
                                 'relationships','useSoftDelete','useTimeStamps','controllerDirectory','withoutMigration',
-                                'migrationClass','connectionName','indexes','foreignKeys','engineName','layoutName');
+                                'migrationClass','connectionName','indexes','foreignKeys','engineName','layoutName','template');
     }
 
 }

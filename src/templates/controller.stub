@@ -2,12 +2,11 @@
 
 namespace DummyNamespace;
 
-use DummyRootNamespaceHttp\Requests;
-use DummyRootNamespaceHttp\Controllers\Controller;
-
-use DummyRootNamespace{{modelFullName}};
-use Illuminate\Http\Request;
 use Session;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Input;
+use DummyRootNamespaceHttp\Controllers\Controller;
+use DummyRootNamespace{{modelFullName}};
 
 class DummyClass extends Controller
 {
@@ -15,7 +14,7 @@ class DummyClass extends Controller
     /**
      * Display a listing of the {{modelNamePlural}}.
      *
-     * @return \Illuminate\View\View
+     * @return Illuminate\View\View
      */
     public function index()
     {
@@ -27,7 +26,7 @@ class DummyClass extends Controller
     /**
      * Show the form for creating a new {{modelName}}.
      *
-     * @return \Illuminate\View\View
+     * @return Illuminate\View\View
      */
     public function create()
     {
@@ -37,15 +36,15 @@ class DummyClass extends Controller
     /**
      * Store a new {{modelName}} in the storage.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Illuminate\Http\Request $request
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function store(Request $request)
     {
-        $this->affirm($request);
+        $data = {{modelData}};
         {{fileSnippet}}
-        {{modelNameClass}}::create($request->all());
+        {{modelNameClass}}::create($data);
 
         Session::flash('success_message', '{{modelNameClass}} was added!');
 
@@ -57,7 +56,7 @@ class DummyClass extends Controller
      *
      * @param  int $id
      *
-     * @return \Illuminate\View\View
+     * @return Illuminate\View\View
      */
     public function show($id)
     {
@@ -71,7 +70,7 @@ class DummyClass extends Controller
      *
      * @param  int $id
      *
-     * @return \Illuminate\View\View
+     * @return Illuminate\View\View
      */
     public function edit($id)
     {
@@ -84,15 +83,16 @@ class DummyClass extends Controller
      * Update the specified {{modelName}} in the storage.
      *
      * @param  int $id
-     * @param \Illuminate\Http\Request $request
+     * @param Illuminate\Http\Request $request
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function update($id, Request $request)
     {
-        $this->affirm($request);
+        ${{modelName}} = {{modelNameClass}}::findOrFail($id);
+        $data = {{modelData}};
         {{fileSnippet}}
-        ${{modelName}} = {{modelNameClass}}::findOrFail($id)->update($request->all());
+        ${{modelName}}->update($data);
 
         Session::flash('success_message', '{{modelNameClass}} was updated!');
 
@@ -104,7 +104,7 @@ class DummyClass extends Controller
      *
      * @param  int $id
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function destroy($id)
     {
@@ -115,21 +115,20 @@ class DummyClass extends Controller
         return redirect()->route('{{indexRouteName}}');
     }
 
-
     /**
      * Validate the given request with the defined rules.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Illuminate\Http\Request  $request
      *
-     * @return $this
+     * @return boolean
      */
-    public function affirm(Request $request)
+    protected function affirm(Request $request)
     {
-        $this->validate($request, [
+        return $this->validate($request, [
     {{validationRules}}            
         ]);
 
-        return $this;
     }
-
+{{modelDataMethod}}
+{{uploadMethod}}
 }

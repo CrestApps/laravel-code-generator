@@ -20,6 +20,7 @@ class CreateFormViewCommand extends ViewsCommand
                             {--views-directory= : The name of the directory to create the views under.}
                             {--routes-prefix= : The routes prefix.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
+                            {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the view if one already exists.}';
 
     /**

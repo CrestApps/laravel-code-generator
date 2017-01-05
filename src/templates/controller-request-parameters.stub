@@ -1,0 +1,15 @@
+    
+    /**
+     * Gets the data after converting a giving array to a string seperated by a giving glue.
+     *
+     * @param array  $data
+     * @param string $glue
+     *
+     * @return array
+     */
+    protected function getModelData(array $fields, $glue = ',')
+    {
+        return array_map(function($field){
+            return is_array($field) ? implode(',', $field) : $field;
+        }, $fields);
+    }

@@ -27,7 +27,7 @@ class FieldTransformer {
      *
      * @var string
      */
-	protected $langFileName;
+	protected $localeGroup;
 
     /**
      * Mapps the user input to a valid property name in the field object
@@ -51,7 +51,8 @@ class FieldTransformer {
         'comment' => 'comment',
         'is-nullable' => 'isNullable',
         'is-unsigned' => 'isUnsigned',
-        'is-auto-increment' => 'isAutoIncrement'
+        'is-auto-increment' => 'isAutoIncrement',
+        'is-inline-options' => 'isInlineOptions'
     ];
 
     /**
@@ -71,6 +72,24 @@ class FieldTransformer {
     ];
 
     /**
+     * Array of the valid html-types
+     * 
+     * @return array
+    */
+    protected $validHtmlTypes = [
+        'text',
+        'password',
+        'email',
+        'file',
+        'checkbox',
+        'radio',
+        'number',
+        'date',
+        'select',
+        'textarea'
+    ];
+
+    /**
      * The apps default language
      *
      * @var string
@@ -82,15 +101,16 @@ class FieldTransformer {
      *
      * @return void
      */
-	protected function __construct($fields, $langFileName)
+	protected function __construct($fields, $localeGroup)
 	{
-        if( empty($langFileName))
+
+        if( empty($localeGroup))
         {
-            throw new Exception("\$langFileName must have a valid value");
+            throw new Exception("\$localeGroup must have a valid value");
         }
 
         $this->rawFields = is_array($fields) ? $fields : $this->parseRawString($fields);
-        $this->langFileName = $langFileName;
+        $this->localeGroup = $localeGroup;
         $this->defaultLang = App::getLocale();
 	}
 
@@ -98,13 +118,13 @@ class FieldTransformer {
      * It transfred a gining string to a collection of field
      * 
      * @param string $fieldsString
-     * @param string $langFileName
+     * @param string $localeGroup
      *
      * @return array Support\Field
     */
-    public static function Text($fieldsString, $langFileName)
+    public static function Text($fieldsString, $localeGroup)
     {
-        $transformer = new self($fieldsString, $langFileName);
+        $transformer = new self($fieldsString, $localeGroup);
 
         return $transformer->transfer()->getFields();
     }
@@ -113,18 +133,18 @@ class FieldTransformer {
      * It transfres a gining string to a collection of field
      * 
      * @param string|json $json
-     * @param string $langFileName
+     * @param string $localeGroup
      *
      * @return array Support\Field
     */
-    public static function Json($json, $langFileName)
+    public static function Json($json, $localeGroup)
     {
         if( empty($json) || ($fields = json_decode($json, true)) === null )
         {
             throw new Exception("The provided string is not a valid json.");
         }
 
-        $transformer = new self($fields, $langFileName);
+        $transformer = new self($fields, $localeGroup);
 
         return $transformer->transfer()->getFields();
     }
@@ -140,6 +160,8 @@ class FieldTransformer {
         $assignedPrimary = false;
         foreach($this->rawFields as $rawField)
         {
+            $field = $this->transferField($rawField, $assignedPrimary);
+
             $finalFields[] = $this->transferField($rawField, $assignedPrimary);
         }
 
@@ -152,44 +174,138 @@ class FieldTransformer {
      * It transfres a giving array to a field object by matching predefined keys
      * 
      * @param string|json $json
-     * @param string $langFileName
+     * @param string $localeGroup
      *
      * @return array Support\Field
     */
     protected function transferField(array $field, & $assignedPrimary)
     {
-        
         if(!array_key_exists('name', $field) || empty(Helpers::removeNonEnglishChars($field['name']) ) )
         {
             throw new Exception("The field 'name' was not provided!");
         }
 
-        $newField = new Field();
+        if(array_key_exists('html-type', $field) && !in_array($field['html-type'], $this->validHtmlTypes))
+        {
+            unset($field['html-type']);
+        }
 
-        $newField->name = Helpers::removeNonEnglishChars($field['name']);
+        $newField = new Field(Helpers::removeNonEnglishChars($field['name']));
 
         $this->setPredefindProperties($newField, $field)
              ->setOptionsProperty($newField, $field)
              ->setValidationProperty($newField, $field)
              ->setLabelsProperty($newField, $field)
-             ->optimizePrimaryKey($newField);
+             ->setDataTypeParams($newField, $field)
+             ->setMultipleAnswers($newField)
+             ->optimizePrimaryKey($newField, $field);
+
+        if($newField->dataType == 'enum' && empty($newField->getOptions()) )
+        {
+            throw new Exception('To construct an enum data-type field, options must be set');
+        }
 
         return $newField;
     }
 
     /**
-     * If the property name is "id" or if the field is primary or autoincrement.
-     * Ensure, the datatype is set to be valid otherwise make it "int"
+     * Sets the DataTypeParam for a giving field
+     * 
+     * @param Field $newField
+     * @param array $field
+     *
+     * @return $this
+    */
+    protected function setDataTypeParams(Field & $newField, array $field)
+    {
+        if(array_key_exists('data-type-params', $field) && is_array($field['data-type-params']))
+        {
+            $newField->methodParams = $field['data-type-params'];
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sets the isMultipleAnswers for a giving field
      * 
      * @param Field $newField
      *
      * @return $this
     */
-    protected function optimizePrimaryKey(Field & $newField)
+    protected function setMultipleAnswers(Field & $newField)
+    {
+        if($newField->htmlType == 'checkbox')
+        {
+            $newField->isMultipleAnswers = true;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Gets the data-type-parameters
+     * 
+     * @param mix(array|string) $params
+     *
+     * @return array
+    */
+    protected function getDataTypeParams($params)
+    {
+        return is_array($params) ? $params : Helpers::removeEmptyItems(explode('|', $params), function($param){
+
+            return Helpers::trimQuots($param);
+        });
+    }
+
+    /**
+     * It checks the 'data-type' provided mapped to a giving types
+     * 
+     * @param array $field
+     * @param array $types
+     *
+     * @return bool
+    */
+    protected function isTypeOf(array $field, array $types = ['enum'])
+    {
+        $map = $this->dataTypeMap();
+
+        return isset($field['data-type']) && isset($map[$field['data-type']]) ? in_array($map[$field['data-type']], $types) : false;
+    }
+
+    /**
+     * If the property name is "id" or if the field is primary or autoincrement.
+     * Ensure, the datatype is set to be valid otherwise make it "int".
+     * It also make sure the primary column does not appears on the views unless it specified
+     * 
+     * @param Field $newField
+     *
+     * @return $this
+    */
+    protected function optimizePrimaryKey(Field & $newField, array $field)
     {
         if( $this->isPrimaryField($newField))
         {
             $newField->dataType = 'int';
+
+            if(!array_key_exists('is-on-views', $field))
+            {
+
+                if(!array_key_exists('is-on-form', $field))
+                {
+                    $newField->isOnFormView = false;
+                }
+
+                if(!array_key_exists('is-on-index', $field))
+                {
+                    $newField->isOnIndexView = false;
+                }
+
+                if(!array_key_exists('is-on-show', $field))
+                {
+                    $newField->isOnShowView = false;
+                }
+            }
         }
 
         return $this;
@@ -204,7 +320,8 @@ class FieldTransformer {
     */
     protected function isPrimaryField(Field & $newField)
     {
-        return ($newField->name == 'id' || $newField->isAutoIncrement || $newField->isPrimary) && !in_array($newField->dataType, $this->validPrimaryDataTypes);
+        return ($newField->name == 'id' || $newField->isAutoIncrement || $newField->isPrimary) 
+            && !in_array($newField->dataType, $this->validPrimaryDataTypes);
     }
 
     /**
@@ -220,8 +337,8 @@ class FieldTransformer {
         $labels = $this->getLabels($field);
 
         foreach($labels as $label)
-        {
-            $newField->addLabel($label->value, $this->langFileName, $label->isPlain, $label->lang);
+        {   
+            $newField->addLabel($label->text, $this->localeGroup, $label->isPlain, $label->lang);
         }
 
         return $this;
@@ -255,12 +372,66 @@ class FieldTransformer {
     */
     protected function setOptionsProperty(Field & $newField, array $field)
     {
-        if(array_key_exists('options', $field))
+        $options = $this->getOptions($field);
+
+        if( !is_null($options))
         {
-            $newField->options = is_array($field['options']) ? $field['options'] : $this->parseOptions($field['options']);
+            foreach($options as $option)
+            {
+                $newField->addOption($option->text, $this->localeGroup, $option->isPlain, $option->lang, $option->value);
+            }
         }
 
         return $this;
+    }
+
+    /**
+     * Gets the options from a giving field
+     * 
+     * @param array $field
+     *
+     * @return array|null
+    */
+    protected function getOptions(array $field)
+    {
+        if(!array_key_exists('options', $field))
+        {
+            return null;
+        }
+
+        return is_array($field['options']) ? $this->transferOptionsToLabels($field['options']) : $this->parseOptions($field['options']);
+    }
+
+    /**
+     * Transfers options array to array on Labels
+     * 
+     * @param array $options
+     *
+     * @return array
+    */
+    protected function transferOptionsToLabels(array $options)
+    {
+        $finalOptions = [];
+        
+        foreach($options as $value => $option)
+        {
+            if(!is_array($option))
+            {
+                // At this point the options are plain text without locale
+                $finalOptions[] = $this->getLabelObject($option, true, $this->defaultLang, $value);
+                continue;
+            }
+
+            foreach($option as $optionValue => $text)
+            {
+                // At this point the options are in array which mean they need translation.
+                $lang = is_numeric($optionValue) || empty($optionValue) ? $this->defaultLang : $optionValue;
+                $finalOptions[] = $this->getLabelObject($text, false, $lang, $value);
+            }
+
+        }
+
+        return $finalOptions;
     }
 
     /**
@@ -276,7 +447,6 @@ class FieldTransformer {
     {
         foreach($this->predefinedKeyMapping as $key => $property)
         {
-
             if(array_key_exists($key, $field) )
             {
                 if(is_array($property))
@@ -319,7 +489,6 @@ class FieldTransformer {
         foreach($items as $key => $label)
         {
             $lang = empty($key) || is_numeric($key) ? $this->defaultLang : $key;
-
             $labels[] = $this->getLabelObject($label, false, $lang);
         }
 
@@ -335,13 +504,14 @@ class FieldTransformer {
      *
      * @return object
     */
-    protected function getLabelObject($value, $isPlain, $lang)
+    protected function getLabelObject($text, $isPlain, $lang, $value = null)
     {
-        return (object) [ 
-                            'value' => $value,
-                            'isPlain' => $isPlain,
-                            'lang' => $lang
-                        ];
+        return (object) [
+                'text' => $text,
+                'isPlain' => $isPlain,
+                'lang' => $lang,
+                'value' => $value
+            ];
     }
 
     /**
@@ -396,7 +566,6 @@ class FieldTransformer {
 
         foreach($field as $key => $label)
         {
-            
             if(!in_array($key, ['labels','label']))
             {
                 continue;
@@ -431,7 +600,6 @@ class FieldTransformer {
 	protected function parseOptions($optionsString)
 	{
 		$options = Helpers::removeEmptyItems(explode('|', $optionsString));
-
 		$finalOptions = [];
 
 		foreach($options as $option)
@@ -440,10 +608,10 @@ class FieldTransformer {
 
             if($index !== false)
             {
-                $finalOptions[substr($option, 0, $index)] = substr($option, $index + 1);
+                $finalOptions[] = $this->getLabelObject(substr($option, $index + 1), true, $this->defaultLang, substr($option, 0, $index));
             } else 
             {
-                $finalOptions[$option] = $option;
+                $finalOptions[] = $this->getLabelObject($option, true, $this->defaultLang, null);
             }
 		}
 
@@ -464,41 +632,61 @@ class FieldTransformer {
             return [];
         }
         
-        //name=some_name;is-on-show;is-on-form;is-on-index=false;label=This is a crapy title#name=title;
     	$fields = explode('#', $fieldsString);
     	$finalFields = [];
 
     	foreach($fields as $field)
     	{
-    		$configs = [];
-    		$properties = Helpers::removeEmptyItems(explode(';', $field));
+    		$configs = $this->getPropertyConfig(Helpers::removeEmptyItems(explode(';', $field)));
 
-    		foreach($properties as $property)
-    		{
-    			$config = Helpers::removeEmptyItems(explode('=', $property));
-                $totalParts = count($config);
-            
-                if($totalParts == 2)
-                {
-        			$configs[$config[0]] = $this->isProperyBool($config[0]) ? Helpers::stringToBool($config[1]): $config[1];
-                } 
-                elseif($totalParts == 1 && $this->isProperyBool($config[0]))
-                {
-                    $configs[$config[0]] = true;
-                }
-    		}
-
-    		$finalFields[] = $configs;
+            if(!empty($configs))
+            {
+                $finalFields[] = $configs;
+            }
     	}
 
     	return $finalFields;
 	}
 
-    protected function isProperyBool($str, $startsWith = 'is')
+    /**
+     * Parses the properties array
+     * 
+     * @param string $properties
+     *
+     * @return array
+    */
+    protected function getPropertyConfig(array $properties)
     {
-        return Helpers::startsWith($str, $startsWith);
+        $configs = [];
+        foreach($properties as $property)
+        {
+            $config = Helpers::removeEmptyItems(explode('=', $property));
+            $totalParts = count($config);
+        
+            if($totalParts == 2)
+            {
+                $configs[$config[0]] = $this->isProperyBool($config[0]) ? Helpers::stringToBool($config[1]): $config[1];
+            } 
+            elseif($totalParts == 1 && $this->isProperyBool($config[0]))
+            {
+                $configs[$config[0]] = true;
+            }
+        }
+
+        return $configs;
     }
 
+    /**
+     * Checks if a string starts with the word "is"
+     * 
+     * @param string $str
+     *
+     * @return bool
+    */
+    protected function isProperyBool($str)
+    {
+        return Helpers::startsWith($str, 'is');
+    }
 
     /**
      * Gets a label from a giving name
@@ -510,6 +698,16 @@ class FieldTransformer {
     public function convertNameToLabel($name)
     {
         return ucwords(str_replace('_', ' ', $name));
+    }
+
+    /**
+     * Gets the eloquent type to methof collection
+     *
+     * @return array
+    */
+    public function dataTypeMap()
+    {
+        return config('codegenerator.eloquent_type_to_method');
     }
 
 }

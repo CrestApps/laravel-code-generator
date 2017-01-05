@@ -33,7 +33,7 @@
             {!! Form::open([
                 'route' => '{{storeRouteName}}',
                 'class' => 'form-horizontal',
-                'files' => true
+                {{uploadFiles}}
                 ])
             !!}
 

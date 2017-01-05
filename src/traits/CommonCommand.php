@@ -1,15 +1,15 @@
 <?php
 
 namespace CrestApps\CodeGenerator\Traits;
-use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\Field;
 
 use App;
 use File;
+use Exception;
+use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Field;
 
 trait CommonCommand 
 {
-
     /**
      * The default route actions
      *
@@ -46,7 +46,6 @@ trait CommonCommand
      */
     protected function getRoutesFileName()
     {
-
         if (App::VERSION() >= '5.3')
         {
             return base_path('routes/web.php');
@@ -88,7 +87,6 @@ trait CommonCommand
      */
     protected function getDotNotationName($viewDirectory, $routesPrefix, $name = 'index')
     {
-
         if(!empty($viewDirectory))
         {
             $name = Helpers::getWithDotPostFix(Helpers::convertToDotNotation($viewDirectory)) . $name;
@@ -105,11 +103,14 @@ trait CommonCommand
     /**
      * Gets the stub file.
      *
+     *@param string $name
+     * @param string $template
+     *
      * @return string
      */
-    protected function getStubByName($stubName)
+    protected function getStubByName($name, $template = null)
     {
-        return sprintf('%s%s.stub', $this->getPathToTemplates(), $stubName);
+        return sprintf('%s%s.stub', $this->getPathToTemplates($template), $name);
     }
 
     /**
@@ -163,12 +164,13 @@ trait CommonCommand
      * Gets the content of a stub
      *
      * @param string $name
+     * @param string $template
      *
      * @return string
      */
-    protected function getStubContent($name)
+    protected function getStubContent($name, $template = null)
     {
-        return File::get($this->getStubByName($name));
+        return File::get($this->getStubByName($name, $template));
     }
 
     /**
@@ -182,11 +184,8 @@ trait CommonCommand
     protected function replaceModelName(&$stub, $modelName)
     {
         $stub = str_replace('{{modelName}}', strtolower($modelName), $stub);   
-
         $stub = str_replace('{{modelNameClass}}', ucwords($modelName), $stub);  
-
         $stub = str_replace('{{modelNamePlural}}', str_plural(strtolower($modelName)), $stub); 
-
         $stub = str_replace('{{modelNamePluralCap}}', ucwords(str_plural(strtolower($modelName))), $stub);        
 
         return $this;
@@ -239,6 +238,44 @@ trait CommonCommand
         }
 
         return $primaryField;
+    }
+
+     /**
+     * Build the directory for the class if necessary.
+     *
+     * @param  string  $path
+     * @return $this
+     */
+    protected function createDirectory($path)
+    {
+        if (!File::isDirectory($path)) 
+        {
+            File::makeDirectory($path, 0777, true, true);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Gets laravel ready field validation format from a giving string
+     *
+     * @param string $validations
+     *
+     * @return string
+     */
+    protected function getValidationRules(array $fields)
+    {
+        $validations = '';
+
+        foreach($fields as $field)
+        {
+            if(!empty($field->validationRules))
+            {
+                $validations .= sprintf("        '%s' => '%s',\n    ", $field->name, implode('|', $field->validationRules));
+            }
+        }
+
+        return $validations;
     }
 
     /**
@@ -304,16 +341,46 @@ trait CommonCommand
     /**
      * Gets the path to templates
      *
+     * @param string $template
+     *
      * @return string
      */
-    protected function getPathToTemplates()
+    protected function getPathToTemplates($template = null)
     {
+        $template = Helpers::getPathWithSlash($template ?: config('codegenerator.template'));
+        $path = Helpers::getPathWithSlash(config('codegenerator.templates_path')) . $template;
 
-        if(!File::isDirectory(config('codegenerator.template')))
+        if(!File::exists($path))
         {
-            throw new Excption('Invalid templates path was found.');
+            throw new Exception('Invalid template name or the templates is invalid. Make sure the following path exists: "' . $path . '"');
         }
 
-        return Helpers::getPathWithSlash(config('codegenerator.template'));
+        return $path;
+    }
+
+    /**
+     * Gets the template name from the options line.
+     *
+     * @return string
+     */
+    protected function getTemplateName()
+    {
+        return trim($this->option('template-name'));
+    }
+
+    /**
+     * Checks if a giving fields array conatins at least one file field
+     *
+     * @param array
+     *
+     * @return bool
+     */
+    protected function isContainfile(array $fields)
+    {
+        $filtered = array_filter($fields, function($field){
+            return $field->isFile();
+        });
+        
+        return count($filtered) > 0;
     }
 }

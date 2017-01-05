@@ -65,6 +65,10 @@ class GenerateFormViews
             {
                 $htmlFields .= $this->getTextareaHtmlField($field);
             } 
+            elseif(in_array($field->htmlType, ['password']))
+            {
+                $htmlFields .= $this->getPasswordHtmlField($field);
+            } 
             else 
             {
                 $htmlFields .= $this->getStandardHtmlField($field);
@@ -96,7 +100,7 @@ class GenerateFormViews
 
                 $this->replaceFieldName($row, $field->name)
                      ->replaceModelName($row, $this->modelName)
-                     ->replaceFieldTitle($row, $field->getLabel(), true);
+                     ->replaceFieldTitle($row, $this->getTitle($field->getLabel(), true));
 
                 $rows .= $row . PHP_EOL;
             }
@@ -124,7 +128,7 @@ class GenerateFormViews
             if($field->isOnIndexView)
             {
                 $row = $stub;
-                $this->replaceFieldTitle($row, $field->getLabel(), true);
+                $this->replaceFieldTitle($row, $this->getTitle($field->getLabel(), true));
                 $rows .= $row . PHP_EOL;
             }
         }
@@ -154,7 +158,7 @@ class GenerateFormViews
 
                 $this->replaceFieldName($row, $field->name)
                      ->replaceModelName($row, $this->modelName)
-                     ->replaceFieldTitle($row, $field->getLabel(), true);
+                     ->replaceFieldTitle($row, $this->getTitle($field->getLabel(), true));
 
                 $rows .= $row . PHP_EOL;
             }
@@ -186,6 +190,8 @@ class GenerateFormViews
     /**
      * Gets creates an textarea html field for a giving field.
      *
+     * @param CrestApps\CodeGeneraotor\Support\Field $field
+     *
      * @return string
     */
     protected function getTextareaHtmlField(Field $field)
@@ -203,19 +209,30 @@ class GenerateFormViews
     /**
      * Gets creates an checkbox/radio button html field for a giving field.
      *
+     * @param CrestApps\CodeGeneraotor\Support\Field $field
+     *
      * @return string
     */
     protected function getPickItemsHtmlField(Field $field)
     {
-        $stub = $this->getStubContent('form-pickitems-field.blade');
+        if($field->isInlineOptions)
+        {
+            $stub = $this->getStubContent('form-pickitems-inline-field.blade');
+        } else {
+            $stub = $this->getStubContent('form-pickitems-field.blade');
+        }
+        
         $fields = '';
-        foreach ($field->options as $value => $options) 
+        $fieldName = ($field->isMultipleAnswers) ? $this->getFieldNameAsArray($field->name) : $field->name;
+
+        foreach ($field->getOptionsByLang() as $option) 
         {
             $fieldStub = $stub;
             $this->replaceFieldType($fieldStub, $field->htmlType)
-                 ->replaceFieldName($fieldStub, $field->name)
-                 ->replaceFieldValue($fieldStub, $value, $field->name)
-                 ->replaceIsItemSelected($fieldStub, $value, $field->htmlValue);
+                 ->replaceFieldName($fieldStub, $fieldName)
+                 ->replaceOptionValue($fieldStub, $option->value)
+                 ->replaceItemId($fieldStub, $option->id)
+                 ->replaceItemLabel($fieldStub, $this->getTitle($option, true));
  
             $fields .= $fieldStub . PHP_EOL;
         }
@@ -226,7 +243,21 @@ class GenerateFormViews
     }
 
     /**
+     * Gets field name ending with square brakets
+     *
+     * @param string $name
+     *
+     * @return string
+    */
+    protected function getFieldNameAsArray($name)
+    {
+        return sprintf('%s[]', $name);
+    }
+
+    /**
      * Gets creates an select menu html field for a giving field.
+     *
+     * @param CrestApps\CodeGeneraotor\Support\Field $field 
      *
      * @return string
     */
@@ -235,7 +266,7 @@ class GenerateFormViews
         $stub = $this->getStubContent('form-selectmenu-field.blade');
 
         $this->replaceFieldName($stub, $field->name)
-             ->replaceFieldItems($stub, $field->options)
+             ->replaceFieldItems($stub, $field->getOptionsByLang())
              ->replaceFieldMultiple($stub, false)
              ->replaceFieldValue($stub, $field->htmlValue, $field->name)
              ->wrapField($stub, $field);
@@ -244,7 +275,28 @@ class GenerateFormViews
     }
 
     /**
+     * Gets creates an password html5 field for a giving field.
+     *
+     * @param CrestApps\CodeGeneraotor\Support\Field $field
+     *
+     * @return string
+    */
+    public function getPasswordHtmlField(Field $field)
+    {
+        $stub = $this->getStubContent('form-password-field.blade');
+
+        $this->replaceFieldName($stub, $field->name)
+             ->replaceFieldType($stub, $field->htmlType)
+             ->replaceFieldValue($stub, $field->htmlValue, $field->name)
+             ->wrapField($stub, $field);
+        
+        return $stub;
+    }
+
+    /**
      * Gets creates an standard html5 field for a giving field.
+     *
+     * @param CrestApps\CodeGeneraotor\Support\Field $field
      *
      * @return string
     */
@@ -263,7 +315,9 @@ class GenerateFormViews
     /**
      * Wraps a field with a wrapper template
      *
-     * @param string $stub
+     * @param string $fieldStub
+     * @param CrestApps\CodeGeneraotor\Support\Field $field
+     * @param bool $standardLabel 
      *
      * @return $this
      */
@@ -272,7 +326,7 @@ class GenerateFormViews
         $stub = $this->getStubContent('form-input-wrapper.blade');
 
         $this->replaceFieldName($stub, $field->name)
-             ->replaceFieldLabel($stub, $this->getNewLabel($standardLabel ? $field : null))
+             ->replaceFieldLabel($stub, $this->getLabelFromField($standardLabel ? $field : null))
              ->replaceFieldValidationHelper($stub, $this->getNewHelper($field))
              ->replaceFieldInput($stub, $fieldStub);
 
@@ -282,23 +336,36 @@ class GenerateFormViews
     }
 
     /**
-     * Creates html label
+     * Creates html label from a giving field
      *
-     * @param string $stub
+     * @param CrestApps\CodeGenerator\Support\Field $field
      *
      * @return string
      */
-    protected function getNewLabel(Field $field = null)
+    protected function getLabelFromField(Field $field = null)
     {
         if(empty($field))
         {
             return $this->getStubContent('form-nolabel-field.blade');
         }
 
+        return $this->getLabelElement($field->name, $field->getLabel());
+    }
+
+    /**
+     * Creates html label.
+     *
+     * @param string $name
+     * @param CrestApps\CodeGenerator\Support\Label $label
+     *
+     * @return string
+     */
+    protected function getLabelElement($name, Label $label)
+    {
         $labelStub = $this->getStubContent('form-label-field.blade');
 
-        $this->replaceFieldName($labelStub, $field->name)
-             ->replaceFieldTitle($labelStub, $field->getLabel());
+        $this->replaceFieldName($labelStub, $name)
+             ->replaceFieldTitle($labelStub, $this->getTitle($label));
 
         return $labelStub;
     }
@@ -306,7 +373,7 @@ class GenerateFormViews
     /**
      * Creates helper block
      *
-     * @param string $stub
+     * @param CrestApps\CodeGeneraotor\Support\Field $field
      *
      * @return string
      */
@@ -339,6 +406,7 @@ class GenerateFormViews
      *
      * @param string $stub
      * @param string $fieldValue
+     * @param string $name
      *
      * @return $this
      */
@@ -357,16 +425,46 @@ class GenerateFormViews
     }
 
     /**
-     * Replace the fieldValue fo the given stub.
+     * Replace the optionValue fo the given stub.
+     *
+     * @param string $stub
+     * @param string $optionValue
+     *
+     * @return $this
+     */
+    protected function replaceOptionValue(&$stub, $optionValue)
+    {
+        $stub = str_replace('{{optionValue}}', $optionValue, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replace the itemId fo the given stub.
      *
      * @param string $stub
      * @param string $fieldValue
      *
      * @return $this
      */
-    protected function replaceIsItemSelected(&$stub, $name, $value)
+    protected function replaceItemId(&$stub, $itemId)
     {
-        $stub = str_replace('{{isItemSelected}}', ($name == $value) ? 'true' : 'false', $stub);
+        $stub = str_replace('{{itemId}}', $itemId, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replace the itemTitle fo the given stub.
+     *
+     * @param string $stub
+     * @param string $itemTitle
+     *
+     * @return $this
+     */
+    protected function replaceItemLabel(&$stub, $itemTitle)
+    {
+        $stub = str_replace('{{itemTitle}}', $itemTitle, $stub);
 
         return $this;
     }
@@ -390,30 +488,37 @@ class GenerateFormViews
      * Replace the fieldTitle fo the given stub.
      *
      * @param string $stub
+     * @param CrestApps\CodeGenerator\Support\Label $label
      * @param string $fieldTitle
      *
      * @return $this
      */
-    protected function replaceFieldTitle(&$stub, $fieldTitle, $raw = false)
-    {
-        $title = "''";
-
-        if(!is_null($fieldTitle))
-        {
-            $title = sprintf(!$raw ? "'%s'" : "%s", $fieldTitle->value);
-
-            if(!$fieldTitle->isPlain)
-            {
-                $template = !$raw ? "trans('%s')" : "{{ trans('%s') }}" ;
-
-                $title = sprintf($template, $fieldTitle->langKey);
-            }
-            
-        }
-        
+    protected function replaceFieldTitle(&$stub, $title)
+    {       
         $stub = str_replace('{{fieldTitle}}', $title, $stub);
 
         return $this;
+    }
+
+    /**
+     * Gets title to display from a label
+     *
+     * @param CrestApps\CodeGenerator\Support\Label $label
+     * @param bool $raw
+     *
+     * @return $this
+     */
+    protected function getTitle(Label $label, $raw = false)
+    {
+
+        if(!$label->isPlain)
+        {
+            $template = !$raw ? "trans('%s')" : "{{ trans('%s') }}" ;
+
+            return sprintf($template, $label->localeGroup);
+        }
+            
+        return sprintf(!$raw ? "'%s'" : "%s", $label->text);
     }
 
     /**
@@ -462,7 +567,7 @@ class GenerateFormViews
     }
 
     /**
-     * Replaces the field Tems
+     * Replaces the field phrases
      *
      * @param string $stub
      *
@@ -470,13 +575,13 @@ class GenerateFormViews
      */
     protected function replaceFieldItems(&$stub, array $items)
     {
-
-        $readyItems = array_map(function($item, $key) {
-            return sprintf("'%s' => '%s'", $key, $item);
-        }, $items, array_keys($items));
+        $readyItems = array_map(function($label) {
+            return sprintf("'%s' => '%s'", $label->value, $label->text);
+        }, $items);
 
         $replacement = sprintf('[%s]', implode(', ', $readyItems) );
-
+        
+        //$replacement = "['STILL NEED MORE WORK!!!!']";
         $stub = str_replace('{{fieldItems}}', $replacement, $stub);
 
         return $this;

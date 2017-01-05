@@ -61,6 +61,13 @@ class ViewInput {
     public $layout;
 
     /**
+     * The provided template name
+     *
+     * @var string
+     */
+    public $template;
+
+    /**
      * Create a new transformer instance.
      *
      * @return void
@@ -75,10 +82,11 @@ class ViewInput {
         $this->force = $options['force'];
         $this->languageFileName = strtolower(str_plural($this->modelName));
         $this->layout = trim($options['layout-name']);
+        $this->template = trim($options['template-name']);
 	}
 
     /**
-     * Gets a command's call ready array
+     * Gets array of the paramets
      *
      * @return array
      */
@@ -91,7 +99,8 @@ class ViewInput {
             '--views-directory' => $this->viewsDirectory,
             '--routes-prefix' => $this->prefix,
             '--force' => $this->force,
-            '--layout-name' => $this->layout
+            '--layout-name' => $this->layout,
+            '--template-name' => $this->template
         ];
     }
 

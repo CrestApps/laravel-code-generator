@@ -10,7 +10,6 @@ use CrestApps\CodeGenerator\Traits\CommonCommand;
 
 class CreateFormRequestCommand extends Command
 {
-
     use CommonCommand;
 
     /**
@@ -22,6 +21,7 @@ class CreateFormRequestCommand extends Command
                             {class-name : The name of the form-request class.}
                             {--fields= : The fields to create the validation rules from.}
                             {--fields-file= : File name to import fields from.}
+                            {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the form-request if one already exists.}';
 
 
@@ -51,51 +51,16 @@ class CreateFormRequestCommand extends Command
     {
         $input = $this->getCommandInput();
 
-        $stub = $this->getStubContent('form-request');
-        $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
-
+        $stub = $this->getStubContent('form-request', $input->template);
+        $fields = $this->getFields($input->fields, 'dummy', $input->fieldsFile);
         $fileFullName = $this->getRequestsPath() . $input->fileName . '.php';
         $validations = $this->getValidationRules($fields);
+
         $this->replaceFormRequestClass($stub, $input->fileName)
-             ->makeDirectory($this->getRequestsPath())
              ->replaceValidationRules($stub, $validations)
              ->makeFile($fileFullName, $stub, $input->force);
-
     }
     
-    protected function getValidationRules(array $fields)
-    {
-        $items = [];
-
-        foreach($fields as $field)
-        {
-            $items[] = sprintf("            '%s' => '%s'", $field->name, implode('|', $field->validationRules));
-        }
-
-        return implode(",\n", $items);
-    }
-
-    protected function getRequestsPath()
-    {
-        return Helpers::getPathWithSlash(config('codegenerator.form_requests_path'));
-    }
-
-     /**
-     * Build the directory for the class if necessary.
-     *
-     * @param  string  $path
-     * @return $this
-     */
-    protected function makeDirectory($path)
-    {
-        if (!File::isDirectory($path)) 
-        {
-            File::makeDirectory($path, 0755, true, true);
-        }
-
-        return $this;
-    }
-
      /**
      * Creates a file
      *
@@ -105,6 +70,8 @@ class CreateFormRequestCommand extends Command
      */
     protected function makeFile($fileFullName, $stub, $force = false)
     {
+        $this->createDirectory(dirname($fileFullName));
+        
         if(File::exists($fileFullName) && !$force)
         {
             throw new Exception('There is a form-request class with the same name! To override existing file try passing "--force" command');
@@ -129,12 +96,12 @@ class CreateFormRequestCommand extends Command
     protected function getCommandInput()
     {
         $fileName = trim($this->argument('class-name'));
-
         $fields =  trim($this->option('fields'));
-
+        $fieldsFile = trim($this->option('fields-file'));
         $force = $this->option('force');
+        $template = $this->option('template-name');
 
-        return (object) compact('fileName','fields','force');
+        return (object) compact('fileName','fields','fieldsFile','force','template');
     }
 
     /**

@@ -8,7 +8,6 @@ use CrestApps\CodeGenerator\Support\Helpers;
 
 class CreateControllerCommand extends GeneratorCommand
 {
-
     use CommonCommand;
 
     /**
@@ -27,7 +26,8 @@ class CreateControllerCommand extends GeneratorCommand
                             {--routes-prefix= : Prefix of the route group.}
                             {--models-per-page=25 : The amount of models per page for index pages.}
                             {--lang-file-name= : The languages file name to put the labels in.}
-                            {--form-request : This will extract the validation into a request form class.}
+                            {--with-form-request : This will extract the validation into a request form class.}
+                            {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the controller if one already exists.}';
 
     /**
@@ -51,7 +51,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function getStub()
     {
-        return $this->getStubByName('controller');
+        return $this->getStubByName('controller', $this->getTemplateName() );
     }
 
     /**
@@ -63,16 +63,14 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function buildClass($name)
     {
-
         $stub = $this->files->get($this->getStub());
-
         $input = $this->getCommandInput();
 
         $formRequestName = 'Request';
 
         if($input->formRequest)
         {
-            $stub = $this->getStubContent('controller-with-form-request');
+            $stub = $this->getStubContent('controller-with-form-request', $input->template);
             $formRequestName = $input->formRequestName;
             $this->makeFormRequest($input);
         }
@@ -84,14 +82,89 @@ class CreateControllerCommand extends GeneratorCommand
                     ->replaceModelName($stub, $input->modelName)
                     ->replaceModelFullName($stub, $this->getModelFullName($input->modelDirectory, $input->modelName))
                     ->replaceRouteNames($stub, $input->modelName, $input->prefix)
-                    ->replaceValidationRules($stub, $this->getValdiationRules($fields))
+                    ->replaceValidationRules($stub, $this->getValidationRules($fields))
                     ->replaceFormRequestName($stub, $formRequestName)
-                    ->replaceFormRequestFullName($stub, $this->getRequestsPath() . $formRequestName)
+                    ->replaceFormRequestFullName($stub, $this->getRequestsNamespace() . $formRequestName)
                     ->replacePaginationNumber($stub, $input->perPage)
+                    ->processModelData($stub, $this->isContainMultipleAnswers($fields))
                     ->replaceFileSnippet($stub, $this->getFileReadySnippet($fields))
+                    ->replaceFileMethod($stub, $this->getUploadFileMethod($fields))
                     ->replaceClass($stub, $name);
     }
 
+    /**
+     * Gets the method code that upload files
+     *
+     * @return string
+     */
+    protected function getUploadFileMethod(array $fields)
+    {
+        if($this->isContainfile($fields))
+        {
+            return $this->getStubContent('controller-upload-method', $this->getTemplateName());
+        }
+
+        return '';
+    }
+
+    /**
+     * Gets the Requests namespace
+     *
+     * @return string
+     */
+    protected function getRequestsNamespace()
+    {
+        return ltrim(Helpers::convertSlashToBackslash(str_replace(app_path(), '', $this->getRequestsPath())), '\\');
+    }
+
+    /**
+     * Gets the methods
+     *
+     * @return string
+     */
+    protected function getModelDataConversionMethod()
+    {
+        return $this->getStubContent('controller-request-parameters', $this->getTemplateName());
+    }
+
+    /**
+     * Checks if a giving fields array conatins at least one multiple answers
+     *
+     * @param string $stub
+     * @param bool $withMultipleAnswers
+     *
+     * @return $this
+     */
+    protected function processModelData(& $stub, $withMultipleAnswers)
+    {
+        if($withMultipleAnswers)
+        {
+            $this->replaceModelData($stub, '$this->getModelData($request->all())')
+                 ->replaceModelDataMethod($stub, $this->getModelDataConversionMethod());
+        } else 
+        {
+            $this->replaceModelData($stub, '$request->all()')
+                 ->replaceModelDataMethod($stub, '');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Checks if a giving fields array conatins at least one multiple answers
+     *
+     * @param array
+     *
+     * @return bool
+     */
+    protected function isContainMultipleAnswers(array $fields)
+    {
+        $filtered = array_filter($fields, function($field){
+            return $field->isMultipleAnswers;
+        });
+
+        return count($filtered) > 0;
+    }
 
     /**
      * Calls the create:form-request command
@@ -104,10 +177,11 @@ class CreateControllerCommand extends GeneratorCommand
     {
         $this->callSilent('create:form-request', 
         [
-            'form-request-name' => $input->formRequestName,
+            'class-name' => $input->formRequestName,
             '--fields' => $input->fields,
             '--force' => $input->force,
-            '--fields-file' => $input->fieldsFile
+            '--fields-file' => $input->fieldsFile,
+            '--template-name' => $input->template
         ]);
 
         return $this;
@@ -150,16 +224,45 @@ class CreateControllerCommand extends GeneratorCommand
         $fields = trim($this->option('fields'));
         $fieldsFile = trim($this->option('fields-file'));
         $langFile = trim($this->option('lang-file-name')) ?: strtolower(str_plural($modelName));
-        $formRequest = $this->option('form-request');
+        $formRequest = $this->option('with-form-request');
 
         $force = $this->option('force');
-        
         $modelDirectory = trim($this->option('model-directory'));
-
         $formRequestName = ucfirst($modelName) . 'FormRequest';
+        $template = $this->getTemplateName();
 
         return (object) compact('viewDirectory','viewName','modelName','prefix','perPage','fileSnippet','modelDirectory',
-                                'langFile','fields','formRequest','formRequestName','force','fieldsFile');
+                                'langFile','fields','formRequest','formRequestName','force','fieldsFile','template');
+    }
+
+    /**
+     * Replace the modelDataMethod for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $method
+     *
+     * @return $this
+     */
+    protected function replaceModelDataMethod(&$stub, $method)
+    {
+        $stub = str_replace('{{modelDataMethod}}', $method, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replace the modelData for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $method
+     *
+     * @return $this
+     */
+    protected function replaceModelData(&$stub, $method)
+    {
+        $stub = str_replace('{{modelData}}', $method, $stub);
+
+        return $this;
     }
 
     /**
@@ -253,6 +356,22 @@ class CreateControllerCommand extends GeneratorCommand
     }
 
     /**
+     * Replace the uploadMethod for the given stub
+     *
+     * @param $stub
+     * @param $uploadMethod
+     *
+     * @return $this
+     */
+    protected function replaceFileMethod(&$stub, $uploadMethod)
+    {
+        $stub = str_replace('{{uploadMethod}}', $uploadMethod, $stub);
+
+        return $this;
+    }
+
+
+    /**
      * Replace the fieldName for the given stub
      *
      * @param $stub
@@ -275,9 +394,7 @@ class CreateControllerCommand extends GeneratorCommand
     public function getNameInput()
     {
         $nameFromArrgument = Helpers::upperCaseEveyWord(trim($this->argument('controller-name')));
-        
         $path = $this->getControllersPath();
-
         $direcoty = trim($this->option('controller-directory'));
 
         if(!empty($directory))
@@ -287,54 +404,28 @@ class CreateControllerCommand extends GeneratorCommand
 
         return Helpers::convertSlashToBackslash($path . Helpers::postFixWith($nameFromArrgument, 'Controller'));
     }
-
+    
     /**
-     * Gets laravel ready field validation format from a giving string
+     * Gets the code that call the file upload method.
      *
-     * @param string $validations
+     * @param array $fields
      *
      * @return string
      */
-    protected function getValdiationRules(array $fields)
+    protected function getFileReadySnippet(array $fields)
     {
-        $validations = '';
+        $code = '';
 
         foreach($fields as $field)
         {
-            if(!empty($field->validationRules))
+            if($field->isFile())
             {
-                $validations .= sprintf("        '%s' => '%s',\n    ", $field->name, implode('|', $field->validationRules));
+                $code = ($code) ?: '$this';
+                $code .= sprintf("->uploadFile('%s', \$data)", $field->name);
             }
         }
 
-        return $validations;
+        return $code != '' ? $code . ';' : $code;
     }
 
-
-    protected function getFileReadySnippet(array $fields)
-    {
-        $fileSnippet = '';
-
-        foreach ($fields as $field) 
-        {
-            //To Do
-        }
-
-        return $fileSnippet;
-    }
-
-    protected function getSnippet()
-    {
-        return <<<EOD
-if (\$request->hasFile('{{fieldName}}')) {
-    \$uploadPath = public_path('/uploads/');
-
-    \$extension = \$request->file('{{fieldName}}')->getClientOriginalExtension();
-    \$fileName = rand(11111, 99999) . '.' . \$extension;
-
-    \$request->file('{{fieldName}}')->move(\$uploadPath, \$fileName);
-    \$requestData['{{fieldName}}'] = \$fileName;
-}
-EOD;
-    }
 }

@@ -10,7 +10,6 @@ use Exception;
 
 abstract class ViewsCommand extends GeneratorCommand
 {
-
     use CommonCommand;
 
     /**
@@ -32,7 +31,7 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     public function getStub()
     {
-        return $this->getStubByName($this->stubName);
+        return $this->getStubByName($this->stubName, $this->getTemplateName());
     }
 
     /**
@@ -96,7 +95,7 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     protected function createViewFile($stub, $viewFullname)
     {
-        $this->makeDirectory($viewFullname);
+        $this->makeDirectory( $viewFullname );
 
         $this->files->put( $viewFullname, $stub);
 
@@ -199,6 +198,23 @@ abstract class ViewsCommand extends GeneratorCommand
     }
 
     /**
+     * It Replaces fieldUpload in the giving stub.
+     *
+     * @param string $stub
+     * @param array $fields
+     *
+     * @return $this
+     */
+    protected function replaceFileUpload(&$stub, array $fields)
+    {
+        $code = $this->isContainfile($fields) ? "'files' => true," : '';
+
+        $stub = str_replace('{{uploadFiles}}', $code, $stub);
+
+        return $this;
+    }
+
+    /**
      * It Replaces the primary key in a giving stub
      *
      * @param string $stub
@@ -227,11 +243,23 @@ abstract class ViewsCommand extends GeneratorCommand
         {
             if( !$this->isViewExists($input->viewsDirectory,$input->prefix, $view))
             {
-                $this->callSilent(sprintf('create:%s-view', $view), $input->getArrguments());
+                $this->callSilent($this->getViewCommand($view), $input->getArrguments());
             }
         }
 
         return $this;
+    }
+
+    /**
+     * It make a valid command for creating a giving view
+     *
+     * @param string $view
+     *
+     * @return string
+     */
+    protected function getViewCommand($view)
+    {
+        return sprintf('create:%s-view', $view);
     }
 
     /**
@@ -260,9 +288,9 @@ abstract class ViewsCommand extends GeneratorCommand
         $this->callSilent('create:language', [
                                     'language-file-name' => $langFile,
                                     '--fields' => $fields,
-                                    '--fields-file' => $fieldsFile
+                                    '--fields-file' => $fieldsFile,
+                                    '--template-name' => $this->getTemplateName()
                                    ]);
-        
         return $this;
     }
 

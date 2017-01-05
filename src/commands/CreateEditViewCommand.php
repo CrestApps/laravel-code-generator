@@ -19,6 +19,7 @@ class CreateEditViewCommand extends ViewsCommand
                             {--views-directory= : The name of the directory to create the views under.}
                             {--routes-prefix= : The routes prefix.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
+                            {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the view if one already exists.}';
 
     /**
@@ -58,6 +59,7 @@ class CreateEditViewCommand extends ViewsCommand
              ->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
              ->createMissingViews($input)
              ->replaceCommonTemplates($stub, $input)
+             ->replaceFileUpload($stub, $fields)
              ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
              ->createViewFile($stub, $destenationFile)
              ->info('Create view was created successfully.');

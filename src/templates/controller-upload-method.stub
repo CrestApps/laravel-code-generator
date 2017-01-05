@@ -1,0 +1,23 @@
+    
+    /**
+     * Uploads a givin file to the server.
+     *
+     * @param string $fieldName
+     * @param array $data
+     *
+     * @return $this
+     */
+    protected function uploadFile($fieldName, array & $data)
+    {
+        $file = Input::file($fieldName);
+
+        $destination = config('codegenerator.files_upload_path');
+        if( $file->isValid() )
+        {
+            $newName = sprintf('%s.%s', str_random(30), $file->getClientOriginalExtension());
+            $file->move($destination, $newName);
+            $data[$fieldName] = $file->getRealPath() . '/' . $newName;
+        }
+        
+        return $this;
+    }

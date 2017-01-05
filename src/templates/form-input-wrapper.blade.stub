@@ -1,7 +1,7 @@
 
 <div class="form-group {{ $errors->has('{{fieldName}}') ? 'has-error' : ''}}">
 {{fieldLabel}}
-    <div class="col-md-6">
+    <div class="col-md-10">
 {{fieldInput}}
 {{fieldValidationHelper}}
     </div>

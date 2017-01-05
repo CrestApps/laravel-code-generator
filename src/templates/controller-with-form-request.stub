@@ -2,22 +2,21 @@
 
 namespace DummyNamespace;
 
-use DummyRootNamespaceHttp\Requests;
+use Session;
+use Illuminate\Http\Request;
 use DummyRootNamespaceHttp\Controllers\Controller;
+use Illuminate\Support\Facades\Input;
 
 use DummyRootNamespace{{modelFullName}};
 use DummyRootNamespace{{formRequestFullName}};
 
-use Illuminate\Http\Request;
-use Session;
-
 class DummyClass extends Controller
 {
-    
+
     /**
      * Display a listing of the {{modelNamePlural}}.
      *
-     * @return \Illuminate\View\View
+     * @return Illuminate\View\View
      */
     public function index()
     {
@@ -29,7 +28,7 @@ class DummyClass extends Controller
     /**
      * Show the form for creating a new {{modelName}}.
      *
-     * @return \Illuminate\View\View
+     * @return Illuminate\View\View
      */
     public function create()
     {
@@ -39,14 +38,15 @@ class DummyClass extends Controller
     /**
      * Store a new {{modelName}} in the storage.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param DummyRootNamespace{{formRequestFullName}} $request
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function store({{formRequestName}} $request)
     {
+        $data = {{modelData}};
         {{fileSnippet}}
-        {{modelNameClass}}::create($request->all());
+        {{modelNameClass}}::create($data);
 
         Session::flash('flash_message', '{{modelNameClass}} was added!');
 
@@ -56,9 +56,9 @@ class DummyClass extends Controller
     /**
      * Display the specified {{modelName}}.
      *
-     * @param  int $id
+     * @param int $id
      *
-     * @return \Illuminate\View\View
+     * @return Illuminate\View\View
      */
     public function show($id)
     {
@@ -70,9 +70,9 @@ class DummyClass extends Controller
     /**
      * Show the form for editing the specified {{modelName}}.
      *
-     * @param  int $id
+     * @param int $id
      *
-     * @return \Illuminate\View\View
+     * @return Illuminate\View\View
      */
     public function edit($id)
     {
@@ -85,15 +85,16 @@ class DummyClass extends Controller
      * Update the specified {{modelName}} in the storage.
      *
      * @param  int $id
-     * @param \Illuminate\Http\Request $request
+     * @param DummyRootNamespace{{formRequestFullName}} $request
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function update($id, {{formRequestName}} $request)
     {
-        {{fileSnippet}}
         ${{modelName}} = {{modelNameClass}}::findOrFail($id);
-        ${{modelName}}->update($request->all());
+        $data = {{modelData}};
+        {{fileSnippet}}
+        ${{modelName}}->update($data);
 
         Session::flash('flash_message', '{{modelNameClass}} was updated!');
 
@@ -105,7 +106,7 @@ class DummyClass extends Controller
      *
      * @param  int $id
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function destroy($id)
     {
@@ -115,6 +116,6 @@ class DummyClass extends Controller
 
         return redirect()->route('{{indexRouteName}}');
     }
-
-
+{{modelDataMethod}}
+{{uploadMethod}}
 }

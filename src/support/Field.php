@@ -2,6 +2,8 @@
 
 namespace CrestApps\CodeGenerator\Support;
 
+use CrestApps\CodeGenerator\Support\Label;
+
 class Field {
 	
     /**
@@ -30,7 +32,7 @@ class Field {
      *
      * @var array
      */
-	public $options = [];
+	protected $options = [];
 
     /**
      * The html-value of the field
@@ -73,6 +75,13 @@ class Field {
      * @var bool
      */
     public $dataType = 'varchar';
+
+    /**
+     * The data-type-params
+     *
+     * @var array
+     */
+    public $methodParams = [];
 
     /**
      * The field's data vaue
@@ -131,11 +140,30 @@ class Field {
     public $isAutoIncrement = false;
 
     /**
-     * The data-type-params
+     * Make this field auto-increment
      *
-     * @var array
+     * @var bool
      */
-    public $methodParams = [];
+    public $isInlineOptions = false;
+
+    /**
+     * Checks if the field will result in array when a request is made
+     *
+     * @var bool
+     */
+    public $isMultipleAnswers = false;
+
+    /**
+     * Creates a new field instance.
+     *
+     * @param string $name
+     *
+     * @return void
+     */
+    public function __construct($name)
+    {
+        $this->name = $name;
+    }
 
     /**
      * Gets the field labels
@@ -165,35 +193,130 @@ class Field {
     }
 
     /**
-     * Add a label to the labels collection
+     * Adds a label to the labels collection
      *
      * @param string $value
-     * @param string $langFile
+     * @param string $localeGroup
      * @param bool $isPlain
      * @param string $lang
      *
      * @return object
      */
-    public function addLabel($value, $langFile, $isPlain = true, $lang = 'en')
+    public function addLabel($text, $localeGroup, $isPlain = true, $lang = 'en')
     {
-        $this->labels[$lang] = (object) [
-                                            'value' => $value,
-                                            'isPlain' => $isPlain,
-                                            'langKey' => $this->getLocaleKey($langFile),
-                                            'lang' => $lang
-                                        ];
+        $this->labels[$lang] = new Label($text, $this->getLocaleKey($localeGroup), $isPlain, $lang, $this->name);
+    }
+
+    /**
+     * Adds a label to the options collection
+     *
+     * @param string $value
+     * @param string $localeGroup
+     * @param bool $isPlain
+     * @param string $lang
+     *
+     * @return object
+     */
+    public function addOption($text, $localeGroup, $isPlain = true, $lang = 'en', $value)
+    {
+        $this->options[$lang][] = new Label($text, $this->getLocaleKey($localeGroup, $value), $isPlain, $lang, $this->getFieldId($value), $value);
+    }
+
+    /**
+     * Gets a options by a giving language
+     *
+     * @param string $lang
+     *
+     * @return object
+     */
+    public function getOptionsByLang($lang = 'en')
+    {
+        $finalOptions = [];
+
+        foreach($this->getOptions() as $options)
+        {
+            foreach($options as $option)
+            {
+                if($option->lang == $lang || $option->isPlain)
+                {
+                    $finalOptions[] = $option;
+                }
+            }
+        }
+
+        return empty($finalOptions) ? null : $finalOptions;
+    }
+
+    /**
+     * Gets the options for this field
+     *
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
+
+    /**
+     * Checks if this field is required or not.
+     *
+     * @return bool
+     */
+    public function isRequired()
+    {
+        return in_array('required', $this->validationRules);
     }
 
     /**
      * Creates locale key for a giving languagefile
      *
      * @param string $stub
+     * @param string $postFix
      *
      * @return string
      */
-    protected function getLocaleKey($langFile)
+    protected function getLocaleKey($localeGroup, $postFix = null)
     {
-        return sprintf('%s.%s', $langFile, $this->name);
+        return sprintf('%s.%s', $localeGroup, $this->getFieldId($postFix));
+    }
+
+    /**
+     * Gets the field Id.
+     *
+     * @param string $optionValue
+     *
+     * @return string
+     */
+    protected function getFieldId($optionValue = null)
+    {
+        if(!is_null($optionValue))
+        {
+            return sprintf('%s_%s', $this->name, $this->cleanValue($optionValue));
+        }
+
+        return $this->name;
+    }
+
+    /**
+     * It makes a string "id-ready" string
+     *
+     * @param string $optionValue
+     *
+     * @return string
+     */
+    protected function cleanValue($optionValue)
+    {
+        return Helpers::removeNonEnglishChars(strtolower(str_replace(' ', '_', $optionValue)));
+    }
+
+    /**
+     * It checks whether the field is a file or not.
+     *
+     * @return boolean
+     */
+    public function isFile()
+    {
+        return ($this->htmlType == 'file');
     }
 
 }

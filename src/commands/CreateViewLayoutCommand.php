@@ -24,6 +24,7 @@ class CreateViewLayoutCommand extends Command
                             {--layout-filename=app : The layout file name to be created.}
                             {--layout-directory=layouts : The directory of the layouts.}
                             {--layout-with-authentication : This option will add links to laravel authentication.}
+                            {--template-name= : The template name to use when generating the code.}
                             {--force : Override existsing layout.}';
 
     /**
@@ -51,13 +52,11 @@ class CreateViewLayoutCommand extends Command
     public function handle()
     {
         $input = $this->getCommandInput();
-
-        $stub = $this->getStubContent('layout');
-
+        $stub = $this->getStubContent('layout', $this->getTemplateName());
         $path = $this->getDestenationPath($input->layoutDirectory);
 
         $this->replaceApplicationName($stub, $input->appName)
-             ->createPath($path)
+             ->makeDirectory($path)
              ->makeFile($path . $input->layoutFileName, $stub, $input->force)
              ->info('The layout have been created!');
 
@@ -92,19 +91,13 @@ class CreateViewLayoutCommand extends Command
      * if the file exists and $force is set to true the method will return true.
      *
      * @param string $filename
-     * @param string $content
      * @param bool $force
      *
      * @return bool
      */
     protected function fileExists($filename, $force)
     {
-        if($force)
-        {
-            return false;
-        }
-
-        return File::exists($filename);
+        return $force ? false : File::exists($filename);
     }
 
     /**
@@ -122,23 +115,6 @@ class CreateViewLayoutCommand extends Command
         }
 
         return $this->getViewsPath() . $path;
-    }
-
-    /**
-     * Creates a giving path if it does not already exists
-     *
-     * @param string $path
-     *
-     * @return $this
-     */
-    protected function createPath($path)
-    {
-        if (!File::isDirectory($path)) 
-        {
-            File::makeDirectory($path, 0755, true);
-        }
-
-        return $this;
     }
 
     /**
