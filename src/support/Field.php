@@ -74,7 +74,7 @@ class Field {
      *
      * @var bool
      */
-    public $dataType = 'varchar';
+    public $dataType = 'string';
 
     /**
      * The data-type-params
@@ -152,6 +152,27 @@ class Field {
      * @var bool
      */
     public $isMultipleAnswers = false;
+
+    /**
+     * Field placeholder
+     *
+     * @var string
+     */
+    public $placeHolder = '';
+
+    /**
+     * Field placeholder
+     *
+     * @var string
+     */
+    public $optionsDelimiter  = '; ';
+
+    /**
+     * The range of a selector
+     *
+     * @var array
+     */
+    public $range = [];
 
     /**
      * Creates a new field instance.

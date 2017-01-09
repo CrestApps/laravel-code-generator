@@ -25,4 +25,6 @@ class DummyClass extends Model
     protected $fillable = {{fillable}};
 
     {{relationships}}
+{{mutators}}
+{{accessors}}
 }

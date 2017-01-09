@@ -1,23 +1,29 @@
-# An awesome code generator for laravel framework
+# An awesome code generator for laravel framework - with client-side validation
 
-For full documentation please visit <a href="https://crestapps.com/laravel-code-generator/docs/1.0" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
+For full documentation and screenshots please visit <a href="https://crestapps.com/laravel-code-generator/docs/1.0" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
 
 
 ## Introduction
 
-A clean code generator for Laravel framework that will save you time! This awesome tool will help you generate resources like views, controllers, routes, migration or request form!
+A very clean code generator for Laravel framework that will save you time! This awesome tool will help you generate resources like views, controllers, routes, migration or request form!
 
 ## Features
 
-* Customizable templates to enable you to change the standard look and feel of your application.
-* Create standard CRUD controllers with standard or form-request validation.
+* Create full resource with a single command.
+* Create standard CRUD controllers with simple or form-request validation.
 * Create model.
 * Create named routes.
 * Create standard CRUD views.
-* Create Form-Request
-* Create layouts for your views.
-* Create languages/Locale files.
-* Json support to define your fields.
+* Very flexible and rich with configurable options.
+* (Beta) Client-side validation.
+* File uploading handling.
+* Auto multiple-response storing in the database.
+* Create form-request.
+* Customizable view’s templates to enable you to change the standard look and feel of your application.
+* Create view's layouts.
+* Change the template at run time.
+* Create code to upload file.
+* Lots of documentation.
 
 
 

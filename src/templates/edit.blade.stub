@@ -13,11 +13,11 @@
             <div class="btn-group btn-group-xs pull-right" role="group">
 
                 <a href="{{ route('{{indexRouteName}}') }}" class="btn btn-primary" title="Show all {{modelNamePlural}}">
-                    <span class="glyphicon glyphicon-th-list" aria-hidden="true"/>
+                    <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                 </a>
 
                 <a href="{{ route('{{createRouteName}}') }}" class="btn btn-primary" title="Add {{modelNameClass}}">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"/>
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </a>
 
             </div>
@@ -42,7 +42,7 @@
 
             @include ('{{formViewName}}', [
                                         'submitButtonLabel' => 'Update', 
-                                        '{{modelName}}' => ${{modelName}}
+                                        '{{modelName}}' => ${{modelName}},
                                       ])
 
             {!! Form::close() !!}

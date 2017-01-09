@@ -44,7 +44,7 @@ class DummyClass extends Controller
      */
     public function store({{formRequestName}} $request)
     {
-        $data = {{modelData}};
+        $data = $request->all();
         {{fileSnippet}}
         {{modelNameClass}}::create($data);
 
@@ -92,7 +92,7 @@ class DummyClass extends Controller
     public function update($id, {{formRequestName}} $request)
     {
         ${{modelName}} = {{modelNameClass}}::findOrFail($id);
-        $data = {{modelData}};
+        $data = $request->all();
         {{fileSnippet}}
         ${{modelName}}->update($data);
 
@@ -116,6 +116,5 @@ class DummyClass extends Controller
 
         return redirect()->route('{{indexRouteName}}');
     }
-{{modelDataMethod}}
 {{uploadMethod}}
 }

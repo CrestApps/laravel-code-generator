@@ -11,9 +11,9 @@
     {
         $file = Input::file($fieldName);
 
-        $destination = config('codegenerator.files_upload_path');
-        if( $file->isValid() )
+        if( $file && $file->isValid() )
         {
+            $destination = config('codegenerator.files_upload_path');
             $newName = sprintf('%s.%s', str_random(30), $file->getClientOriginalExtension());
             $file->move($destination, $newName);
             $data[$fieldName] = $file->getRealPath() . '/' . $newName;

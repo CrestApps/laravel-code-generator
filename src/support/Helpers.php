@@ -92,6 +92,18 @@ class Helpers {
     }
 
     /**
+     * Checks if a giving array is associative
+     *
+     * @param array $items
+     *
+     * @return boolean
+     */
+    public static function isAssociative(array $items)
+    {
+        return array() === $items ? false : array_keys($items) !== range(0, count($items) - 1);
+    }
+
+    /**
      * Converts slash to back slash of a giving string
      *
      * @return string
@@ -179,7 +191,7 @@ class Helpers {
     {
         if(substr($name, strlen($postFix) * -1 ) !== $postFix)
         {
-            $name .= $postFix;
+            return $name . $postFix;
         }
 
         return $name;
@@ -197,7 +209,7 @@ class Helpers {
     {
         if(substr($name, 0, strlen($preFix) ) !== $preFix)
         {
-            $name = $preFix . $name;
+            return $preFix . $name;
         }
 
         return $name;

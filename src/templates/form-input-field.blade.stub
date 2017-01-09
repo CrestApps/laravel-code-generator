@@ -1,1 +1,1 @@
-        {!! Form::{{fieldType}}('{{fieldName}}',{{fieldValue}}, ['class' => 'form-control']) !!}
+        {!! Form::{{fieldType}}('{{fieldName}}',{{fieldValue}}, ['class' => 'form-control',{{minLength}}{{maxLength}}{{minValue}}{{maxValue}}{{requiredField}}{{placeHolder}}]) !!}

@@ -9,7 +9,7 @@ use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use Exception;
 
-class CreateViewLayoutCommand extends Command
+class CreateLayoutCommand extends Command
 {
 
     use CommonCommand;
@@ -19,7 +19,7 @@ class CreateViewLayoutCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'create:views-layout
+    protected $signature = 'create:layout
                             {application-name : The name of your application.}
                             {--layout-filename=app : The layout file name to be created.}
                             {--layout-directory=layouts : The directory of the layouts.}
@@ -51,15 +51,16 @@ class CreateViewLayoutCommand extends Command
      */
     public function handle()
     {
-        $input = $this->getCommandInput();
-
-        $stub = $this->getStubContent($input->withoutValidation ? 'layout' : 'layout-with-validation', $this->getTemplateName());
-        $path = $this->getDestenationPath($input->layoutDirectory);
-
-        $this->replaceApplicationName($stub, $input->appName)
-             ->createDirectory($path)
-             ->makeFile($path . $input->layoutFileName, $stub, $input->force)
-             ->info('The layout have been created!');
+        $this->call('create:views-layout',
+                [
+                    'application-name' => $this->argument('application-name'),
+                    '--layout-filename' => $this->option('layout-filename'),
+                    '--layout-directory' => $this->option('layout-directory'),
+                    '--without-validation' => $this->option('without-validation'),
+                    '--template-name' => $this->option('template-name'),
+                    '--force' => $this->option('force')
+                ]
+            );
 
     }
 

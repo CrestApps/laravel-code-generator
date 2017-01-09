@@ -1,1 +1,1 @@
-        {!! Form::{{fieldType}}('{{fieldName}}') !!}
+        {!! Form::selectMonth('{{fieldName}}', null, ['class' => 'form-control',]) !!}

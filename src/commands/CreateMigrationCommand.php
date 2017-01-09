@@ -28,7 +28,8 @@ class CreateMigrationCommand extends Command
                             {--fields= : The fields to create the validation rules from.}
                             {--fields-file= : File name to import fields from.}
                             {--template-name= : The template name to use when generating the code.}
-                            {--force : This option will override the form-request if one already exists.}';
+                            {--without-timestamps : Prevent Eloquent from maintaining both created_at and the updated_at properties.}
+                            {--force : This option will override the migration if one already exists.}';
 
     /**
      * The console command description.
@@ -66,6 +67,11 @@ class CreateMigrationCommand extends Command
         $stub = $this->getStubContent('migration', $input->template);
         $fields = $this->getFields($input->fields, 'migration', $input->fieldsFile);
 
+        if(count($fields) == 0)
+        {
+            throw new Exception('You must provide at least one field to generate the migration');
+        }
+
         $properites = $this->getTableProperties($fields, $input);
 
         $this->replaceSchemaUp($stub, $this->getSchemaUpCommand($input, $properites))
@@ -86,6 +92,7 @@ class CreateMigrationCommand extends Command
 
         $this->addEngineName($properties, $input->engine)
              ->addPrimaryField($properties, $this->getPrimaryField($fields))
+             ->addTimestamps($properties, $input->withoutTimestamps)
              ->addFieldProperties($properties, $fields)
              ->addIndexes($properties, $input->indexes)
              ->addForeignConstraints($properties, $input->keys); 
@@ -342,7 +349,7 @@ class CreateMigrationCommand extends Command
 
         foreach($fields as $field)
         {
-            if($field instanceof Field && $field != $primaryField)
+            if($field instanceof Field && $field != $primaryField && !is_null($primaryField))
             {
                 $this->addFieldType($properties, $field)
                      ->addFieldComment($properties, $field)
@@ -711,12 +718,30 @@ class CreateMigrationCommand extends Command
      * @param Field $field
      * @return $this
      */
-    protected function addPrimaryField(& $property, Field $field)
+    protected function addPrimaryField(& $property, Field $field = null)
     {
         if(!is_null($field))
         {
             $eloquentMethodName = $this->getPrimaryMethodName($field->dataType);
             $property .= sprintf("%s('%s')", $this->getPropertyBase($eloquentMethodName), $field->name);
+            $this->addFieldPropertyClousure($property);
+        }
+    
+        return $this;
+    }
+
+    /**
+     * Adds 'updated_at' and 'created_at' columns to a giving $propery
+     *
+     * @param string $property
+     * @param Field $field
+     * @return $this
+     */
+    protected function addTimestamps(& $property, $without)
+    {
+        if(!$without)
+        {
+            $property .= sprintf("%s()", $this->getPropertyBase('timestamps'));
             $this->addFieldPropertyClousure($property);
         }
     
@@ -770,7 +795,10 @@ class CreateMigrationCommand extends Command
         $force = $this->option('force');
         $keys = $this->getKeysCollections(trim($this->option('foreign-keys')));
         $template = $this->getTemplateName();
-        return (object) compact('tableName','className','connection','engine','fields','fieldsFile','force','indexes','keys','template');
+        $withoutTimestamps = $this->option('without-timestamps');
+
+        return (object) compact('tableName','className','connection','engine',
+                                'fields','fieldsFile','force','indexes','keys','template','withoutTimestamps');
     }
 
 

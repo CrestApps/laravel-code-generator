@@ -13,7 +13,7 @@
             <div class="btn-group btn-group-xs pull-right" role="group">
 
                 <a href="{{ route('{{indexRouteName}}') }}" class="btn btn-primary" title="Show all {{modelNamePlural}}">
-                    <span class="glyphicon glyphicon-th-list" aria-hidden="true"/>
+                    <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                 </a>
 
             </div>

@@ -6,6 +6,7 @@ use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Field;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ViewInput;
+use CrestApps\CodeGenerator\Support\ValidationParser;
 
 class GenerateFormViews
 {
@@ -51,27 +52,40 @@ class GenerateFormViews
             {
                 continue;
             }
-            
-            if(in_array($field->htmlType, ['select']) )
-            {
-                $htmlFields .= $this->getSelectHtmlField($field);
-            } 
-            elseif(in_array($field->htmlType, ['radio','checkbox']))
-            {
-                $htmlFields .= $this->getPickItemsHtmlField($field);
 
-            } 
-            elseif(in_array($field->htmlType, ['textarea']))
+            $parser = new ValidationParser($field->validationRules);
+            
+            if(in_array($field->htmlType, ['select','multipleSelect']) )
             {
-                $htmlFields .= $this->getTextareaHtmlField($field);
+                $htmlFields .= $this->getSelectHtmlField($field, $parser);
             } 
-            elseif(in_array($field->htmlType, ['password']))
+            elseif(in_array($field->htmlType, ['radio','checkbox']) )
             {
-                $htmlFields .= $this->getPasswordHtmlField($field);
+                $htmlFields .= $this->getPickItemsHtmlField($field, $parser);
             } 
+            elseif($field->htmlType == 'textarea')
+            {
+                $htmlFields .= $this->getTextareaHtmlField($field, $parser);
+            } 
+            elseif($field->htmlType == 'password')
+            {
+                $htmlFields .= $this->getPasswordHtmlField($field, $parser);
+            } 
+            elseif($field->htmlType == 'file')
+            {
+                $htmlFields .= $this->getFileHtmlField($field);
+            }
+            elseif($field->htmlType == 'selectRange')
+            {
+                $htmlFields .= $this->getSelectRangeHtmlField($field);
+            }
+            elseif($field->htmlType == 'selectMonth')
+            {
+                $htmlFields .= $this->getSelectMontheHtmlField($field);
+            }
             else 
             {
-                $htmlFields .= $this->getStandardHtmlField($field);
+                $htmlFields .= $this->getStandardHtmlField($field, $parser);
             }
         }
 
@@ -97,9 +111,9 @@ class GenerateFormViews
             if($field->isOnShowView)
             {
                 $row = $stub;
-
                 $this->replaceFieldName($row, $field->name)
                      ->replaceModelName($row, $this->modelName)
+                     ->replaceRowFieldValue($row, $this->getFieldValue($field))
                      ->replaceFieldTitle($row, $this->getTitle($field->getLabel(), true));
 
                 $rows .= $row . PHP_EOL;
@@ -152,12 +166,14 @@ class GenerateFormViews
 
         foreach($fields as $field)
         {
+
             if($field->isOnIndexView)
             {
                 $row = $stub;
 
                 $this->replaceFieldName($row, $field->name)
                      ->replaceModelName($row, $this->modelName)
+                     ->replaceRowFieldValue($row, $this->getFieldValue($field))
                      ->replaceFieldTitle($row, $this->getTitle($field->getLabel(), true));
 
                 $rows .= $row . PHP_EOL;
@@ -165,6 +181,26 @@ class GenerateFormViews
         }
 
         return $rows;
+    }
+
+    protected function replaceRowFieldValue(& $stub, $value)
+    {
+        $stub = str_replace('{{fieldValue}}', $value, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Gets a value accessor for the field.
+     *
+     * @param CrestApps\CodeGenerator\Support\Field $field
+     *
+     * @return string
+    */
+    protected function getFieldValue(Field $field)
+    {
+        $fieldAccessor = sprintf('$%s->%s', strtolower($this->modelName), $field->name);
+        return $field->isMultipleAnswers ? sprintf("implode('%s', %s)", $field->optionsDelimiter, $fieldAccessor) : $fieldAccessor;
     }
 
     /**
@@ -194,12 +230,19 @@ class GenerateFormViews
      *
      * @return string
     */
-    protected function getTextareaHtmlField(Field $field)
+    protected function getTextareaHtmlField(Field $field, ValidationParser $parser)
     {
+
         $stub = $this->getStubContent('form-textarea-field.blade');
 
         $this->replaceFieldName($stub, $field->name)
              ->replaceFieldValue($stub, $field->htmlValue, $field->name)
+             ->replaceFieldMinValue($stub, $this->getFieldMinValueWithName($parser->getMinValue()))
+             ->replaceFieldMaxValue($stub, $this->getFieldMaxValueWithName($parser->getMaxValue()))
+             ->replaceFieldMinLengthName($stub, $parser->getMinLength())
+             ->replaceFieldMaxLengthName($stub, $parser->getMaxLength())
+             ->replaceFieldRequired($stub, $parser->isRequired())
+             ->replaceFieldPlaceHolder($stub, $field->placeHolder)
              ->wrapField($stub, $field);
 
         return $stub;
@@ -213,17 +256,13 @@ class GenerateFormViews
      *
      * @return string
     */
-    protected function getPickItemsHtmlField(Field $field)
+    protected function getPickItemsHtmlField(Field $field, ValidationParser $parser)
     {
-        if($field->isInlineOptions)
-        {
-            $stub = $this->getStubContent('form-pickitems-inline-field.blade');
-        } else {
-            $stub = $this->getStubContent('form-pickitems-field.blade');
-        }
-        
+ 
+        $stub = $this->getStubContent(sprintf('form-pickitems%s-field.blade', $field->isInlineOptions ? '-inline' : ''));
         $fields = '';
         $fieldName = ($field->isMultipleAnswers) ? $this->getFieldNameAsArray($field->name) : $field->name;
+        $isCheckbox = ($field->htmlType == 'checkbox');
 
         foreach ($field->getOptionsByLang() as $option) 
         {
@@ -232,12 +271,14 @@ class GenerateFormViews
                  ->replaceFieldName($fieldStub, $fieldName)
                  ->replaceOptionValue($fieldStub, $option->value)
                  ->replaceItemId($fieldStub, $option->id)
+                 ->replaceFieldRequired($fieldStub, $isCheckbox ? false : $parser->isRequired())
                  ->replaceItemLabel($fieldStub, $this->getTitle($option, true));
- 
+
             $fields .= $fieldStub . PHP_EOL;
         }
 
-        $this->wrapField($fields, $field, false);
+
+        $this->wrapField($fields, $field, true, $isCheckbox ? 'required' : '');
 
         return $fields;
     }
@@ -261,14 +302,17 @@ class GenerateFormViews
      *
      * @return string
     */
-    protected function getSelectHtmlField(Field $field)
+    protected function getSelectHtmlField(Field $field, ValidationParser $parser)
     {
         $stub = $this->getStubContent('form-selectmenu-field.blade');
 
-        $this->replaceFieldName($stub, $field->name)
+        $fieldName = ($field->isMultipleAnswers) ? $this->getFieldNameAsArray($field->name) : $field->name;
+        $this->replaceFieldName($stub, $fieldName)
              ->replaceFieldItems($stub, $field->getOptionsByLang())
-             ->replaceFieldMultiple($stub, false)
+             ->replaceFieldMultiple($stub, $field->isMultipleAnswers)
              ->replaceFieldValue($stub, $field->htmlValue, $field->name)
+             ->replaceFieldRequired($stub, $parser->isRequired())
+             ->replaceFieldPlaceHolder($stub, $field->placeHolder)
              ->wrapField($stub, $field);
 
         return $stub;
@@ -281,13 +325,73 @@ class GenerateFormViews
      *
      * @return string
     */
-    public function getPasswordHtmlField(Field $field)
+    public function getFileHtmlField(Field $field)
+    {
+        $stub = $this->getStubContent('form-file-field.blade');
+
+        $this->replaceFieldName($stub, $field->name)
+              ->wrapField($stub, $field);
+        
+        return $stub;
+    }
+
+    /**
+     * Gets a rangeselector element for a giving field.
+     *
+     * @param CrestApps\CodeGeneraotor\Support\Field $field
+     *
+     * @return string
+    */
+    public function getSelectRangeHtmlField(Field $field)
+    {
+        $stub = $this->getStubContent('form-selectrange-field.blade');
+
+        $this->replaceFieldName($stub, $field->name)
+             ->replaceFieldMinValue($stub, isset($field->range[0]) ? $field->range[0] : 1)
+             ->replaceFieldMaxValue($stub, isset($field->range[1]) ? $field->range[1] : 10)
+             ->wrapField($stub, $field);
+        
+        return $stub;
+    }
+
+    /**
+     * Gets a selectmonth element for a giving field.
+     *
+     * @param CrestApps\CodeGeneraotor\Support\Field $field
+     *
+     * @return string
+    */
+    public function getSelectMontheHtmlField(Field $field)
+    {
+        $stub = $this->getStubContent('form-month-field.blade');
+
+        $this->replaceFieldName($stub, $field->name)
+             ->wrapField($stub, $field);
+        
+        return $stub;
+    }
+
+
+    /**
+     * Gets creates an password html5 field for a giving field.
+     *
+     * @param CrestApps\CodeGeneraotor\Support\Field $field
+     *
+     * @return string
+    */
+    public function getPasswordHtmlField(Field $field, ValidationParser $parser)
     {
         $stub = $this->getStubContent('form-password-field.blade');
 
         $this->replaceFieldName($stub, $field->name)
              ->replaceFieldType($stub, $field->htmlType)
              ->replaceFieldValue($stub, $field->htmlValue, $field->name)
+             ->replaceFieldMinValue($stub, $this->getFieldMinValueWithName($parser->getMinValue()))
+             ->replaceFieldMaxValue($stub, $this->getFieldMaxValueWithName($parser->getMaxValue()))
+             ->replaceFieldMinLengthName($stub, $parser->getMinLength())
+             ->replaceFieldMaxLengthName($stub, $parser->getMaxLength())
+             ->replaceFieldRequired($stub, $parser->isRequired())
+             ->replaceFieldPlaceHolder($stub, $field->placeHolder)
              ->wrapField($stub, $field);
         
         return $stub;
@@ -300,13 +404,19 @@ class GenerateFormViews
      *
      * @return string
     */
-    public function getStandardHtmlField(Field $field)
+    public function getStandardHtmlField(Field $field, ValidationParser $parser)
     {
         $stub = $this->getStubContent('form-input-field.blade');
 
         $this->replaceFieldName($stub, $field->name)
              ->replaceFieldType($stub, $field->htmlType)
              ->replaceFieldValue($stub, $field->htmlValue, $field->name)
+             ->replaceFieldMinValue($stub, $this->getFieldMinValueWithName($parser->getMinValue()))
+             ->replaceFieldMaxValue($stub, $this->getFieldMaxValueWithName($parser->getMaxValue()))
+             ->replaceFieldMinLengthName($stub, $parser->getMinLength())
+             ->replaceFieldMaxLengthName($stub, $parser->getMaxLength())
+             ->replaceFieldRequired($stub, $parser->isRequired())
+             ->replaceFieldPlaceHolder($stub, $field->placeHolder)
              ->wrapField($stub, $field);
 
         return $stub;
@@ -321,14 +431,15 @@ class GenerateFormViews
      *
      * @return $this
      */
-    protected function wrapField(&$fieldStub, Field $field, $standardLabel = true)
+    protected function wrapField(&$fieldStub, Field $field, $standardLabel = true, $required = '')
     {
         $stub = $this->getStubContent('form-input-wrapper.blade');
 
         $this->replaceFieldName($stub, $field->name)
              ->replaceFieldLabel($stub, $this->getLabelFromField($standardLabel ? $field : null))
              ->replaceFieldValidationHelper($stub, $this->getNewHelper($field))
-             ->replaceFieldInput($stub, $fieldStub);
+             ->replaceFieldInput($stub, $fieldStub)
+             ->replaceRequiredClass($stub, $required);
 
         $fieldStub = $stub;
 
@@ -401,6 +512,131 @@ class GenerateFormViews
         return $this;
     }
 
+
+    /**
+     * Replace the minValue fo the given stub.
+     *
+     * @param string $stub
+     * @param string $minValue
+     *
+     * @return $this
+     */
+    protected function replaceFieldMinValue(&$stub, $minValue)
+    {
+        $stub = str_replace('{{minValue}}', $minValue, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replace the maxValue fo the given stub.
+     *
+     * @param string $stub
+     * @param string $maxValue
+     *
+     * @return $this
+     */
+    protected function replaceFieldMaxValue(&$stub, $maxValue)
+    {
+        $stub = str_replace('{{maxValue}}', $maxValue, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replace the minValue fo the given stub.
+     *
+     * @param string $minValue
+     *
+     * @return string
+     */
+    protected function getFieldMinValueWithName($minValue)
+    {
+        return empty($minValue) ? '' : sprintf(" 'min' => '%s',", $minValue);
+    }
+
+    /**
+     * Replace the maxValue fo the given stub.
+     *
+     * @param string $maxValue
+     *
+     * @return string
+     */
+    protected function getFieldMaxValueWithName($maxValue)
+    {
+        return empty($maxValue) ? '' : sprintf(" 'max' => '%s',", $maxValue);
+    }
+
+
+    /**
+     * Replace the minLength fo the given stub.
+     *
+     * @param string $stub
+     * @param string $minLength
+     *
+     * @return $this
+     */
+    protected function replaceFieldMinLengthName(&$stub, $minLength)
+    {
+        $value = empty($minLength) ? '' : sprintf(" 'minlength' => '%s',", $minLength);
+
+        $stub = str_replace('{{minLength}}', $value, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replace the maxLength fo the given stub.
+     *
+     * @param string $stub
+     * @param string $maxLength
+     *
+     * @return $this
+     */
+    protected function replaceFieldMaxLengthName(&$stub, $maxLength)
+    {
+
+        $value = empty($maxLength) ? '' : sprintf(" 'maxlength' => '%s',", $maxLength);
+
+        $stub = str_replace('{{maxLength}}', $value, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replace the requiredField fo the given stub.
+     *
+     * @param string $stub
+     * @param string $required
+     *
+     * @return $this
+     */
+    protected function replaceFieldRequired(&$stub, $required)
+    {
+        $value = $required ? sprintf(" 'required' => %s,", ($required ? 'true' : 'false')) : '';
+        
+        $stub = str_replace('{{requiredField}}', $value, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replace the placeholder fo the given stub.
+     *
+     * @param string $stub
+     * @param string $placeholder
+     *
+     * @return $this
+     */
+    protected function replaceFieldPlaceHolder(&$stub, $placeholder)
+    {
+        $value = empty($placeholder) ? '' : sprintf(" 'placeholder' => '%s',", $placeholder);
+
+        $stub = str_replace('{{placeHolder}}', $value, $stub);
+
+        return $this;
+    }
+
     /**
      * Replace the fieldValue fo the given stub.
      *
@@ -435,6 +671,24 @@ class GenerateFormViews
     protected function replaceOptionValue(&$stub, $optionValue)
     {
         $stub = str_replace('{{optionValue}}', $optionValue, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replace the requiredClass fo the given stub.
+     *
+     * @param string $stub
+     * @param string $class
+     *
+     * @return $this
+     */
+    protected function replaceRequiredClass(&$stub, $class)
+    {
+        //{{requiredClass}}
+        $value = empty($class) ? '' : sprintf(" 'class' => '%s' ", $class);
+
+        $stub = str_replace('{{requiredClass}}', $value, $stub);
 
         return $this;
     }
@@ -597,7 +851,7 @@ class GenerateFormViews
      */
     protected function replaceFieldMultiple(&$stub, $isMulti)
     {
-        $replacement = $isMulti ? ", 'multiple'=>'multiple'" : '';
+        $replacement = $isMulti ? "'multiple' => 'multiple'," : '';
 
         $stub = str_replace('{{fieldMultiple}}', $replacement, $stub);
 

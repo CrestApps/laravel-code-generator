@@ -67,9 +67,9 @@ class CreateModelCommand extends GeneratorCommand
                     ->replaceFillable($stub, $this->getFillables($input->fillable, $fields))
                     ->replacePrimaryKey($stub, $primaryKey)
                     ->replaceRelationshipPlaceholder($stub, $this->createRelationMethods($input->relationships))
+                    ->replaceAccessors($stub, $this->getAccessors($fields))
+                    ->replaceMutators($stub, $this->getMutators($fields))
                     ->replaceClass($stub, $name);
-
-                    dd('ddd');
     }
 
     /**
@@ -240,6 +240,84 @@ class CreateModelCommand extends GeneratorCommand
     }
 
     /**
+     * Gets accessors for each field that accepts multiple answers.
+     *
+     * @param  array  $fields
+     *
+     * @return string
+     */
+    protected function getAccessors(array $fields = null)
+    {
+        $accessors = [];
+
+        foreach($fields as $field)
+        {
+            if($field->isMultipleAnswers)
+            {
+                $accessors[] = $this->getAccessor($field);
+            }
+        }
+
+        return implode(PHP_EOL, $accessors);
+    }
+
+    /**
+     * Gets mutators for each field that accepts multiple answers.
+     *
+     * @param  array  $fields
+     *
+     * @return string
+     */
+    protected function getMutators(array $fields = null)
+    {
+        $mutators = [];
+
+        foreach($fields as $field)
+        {
+            if($field->isMultipleAnswers)
+            {
+                $mutators[] = $this->getMutator($field);
+            }
+        }
+
+        return implode(PHP_EOL, $mutators);
+    }
+
+    /**
+     * Gets accessor for a giving field.
+     *
+     * @param  CrestApps\CodeGenerator\Support\Field  $field
+     *
+     * @return string
+     */
+    protected function getAccessor(Field $field)
+    {
+        $stub = $this->getStubContent('model-accessor');
+
+        $this->replaceFieldName($stub, $field->name)
+             ->replaceDelimiter($stub, $field->optionsDelimiter);
+
+        return $stub;
+    }
+
+    /**
+     * Gets mutator for a giving field.
+     *
+     * @param  CrestApps\CodeGenerator\Support\Field  $field
+     *
+     * @return string
+     */
+    protected function getMutator(Field $field)
+    {
+        $stub = $this->getStubContent('model-mutator');
+
+        $this->replaceFieldName($stub, $field->name)
+             ->replaceDelimiter($stub, $field->optionsDelimiter);
+
+        return $stub;
+    }
+
+    /**
      * Replaces the table for the given stub.
      *
      * @param  string  $stub
@@ -250,6 +328,71 @@ class CreateModelCommand extends GeneratorCommand
     protected function replaceTable(&$stub, $table)
     {
         $stub = str_replace('{{table}}', $table, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the accessors for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $accessors
+     *
+     * @return $this
+     */
+    protected function replaceAccessors(&$stub, $accessors)
+    {
+        $stub = str_replace('{{accessors}}', $accessors, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the delimiter for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $delimiter
+     *
+     * @return $this
+     */
+    protected function replaceDelimiter(&$stub, $delimiter)
+    {
+        $stub = str_replace('{{delimiter}}', $delimiter, $stub);
+
+        return $this;
+    }
+    
+
+    /**
+     * Replaces the mutators for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $mutators
+     *
+     * @return $this
+     */
+    protected function replaceMutators(&$stub, $mutators)
+    {
+        $stub = str_replace('{{mutators}}', $mutators, $stub);
+
+        return $this;
+    }
+
+
+
+    /**
+     * Replaces the field name for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    protected function replaceFieldName(&$stub, $name)
+    {
+        $stub = str_replace('{{fieldName}}', $name, $stub);
+
+        $stub = str_replace('{{fieldNameCap}}', ucfirst($name), $stub);
 
         return $this;
     }

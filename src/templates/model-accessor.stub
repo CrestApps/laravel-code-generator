@@ -1,0 +1,10 @@
+    /**
+     * Get {{fieldName}} in array format
+     *
+     * @param  string  $value
+     * @return array
+     */
+    public function get{{fieldNameCap}}Attribute($value)
+    {
+        return json_decode($value) ?: [];
+    }

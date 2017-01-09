@@ -1,0 +1,10 @@
+    /**
+     * Set the {{fieldName}}.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function set{{fieldNameCap}}Attribute($value)
+    {
+        $this->attributes['{{fieldName}}'] = json_encode($value);
+    }

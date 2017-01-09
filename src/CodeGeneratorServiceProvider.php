@@ -25,7 +25,7 @@ class CodeGeneratorServiceProvider extends ServiceProvider
         ], 'config');
 
         $this->publishes([
-            __DIR__ . '/templates' => base_path('resources\\codegenerator-templates\\default'),
+            __DIR__ . '/templates/' => base_path('resources\\codegenerator-templates\\default'),
         ], 'templates');
 
         $this->createDirectory(base_path('resources\\codegenerator-files'));
@@ -52,7 +52,8 @@ class CodeGeneratorServiceProvider extends ServiceProvider
             'CrestApps\CodeGenerator\Commands\CreateRoutesCommand',
             'CrestApps\CodeGenerator\Commands\CreateMigrationCommand',
             'CrestApps\CodeGenerator\Commands\CreateResourceCommand',
-            'CrestApps\CodeGenerator\Commands\CreateViewLayoutCommand'
+            'CrestApps\CodeGenerator\Commands\CreateViewLayoutCommand',
+            'CrestApps\CodeGenerator\Commands\CreateLayoutCommand'
         );
     }
 

@@ -100,7 +100,8 @@ class CreateResourceCommand extends Command
                     '--fields' => $input->fields,
                     '--fields-file' => $input->fieldsFile,
                     '--force' => $input->force,
-                    '--template-name' => $input->template
+                    '--template-name' => $input->template,
+                    '--without-timestamps' => $input->withoutTimeStamps,
                 ]);
         }
 
@@ -215,7 +216,7 @@ class CreateResourceCommand extends Command
                 '--fields-file' => $input->fieldsFile,
                 '--model-directory' => $input->modelDirectory,
                 '--with-soft-delete' => $input->useSoftDelete,
-                '--without-timestamps' => $input->useTimeStamps,
+                '--without-timestamps' => $input->withoutTimeStamps,
                 '--force' => $input->force,
                 '--template-name' => $input->template
             ]);
@@ -250,7 +251,7 @@ class CreateResourceCommand extends Command
         $primaryKey = trim($this->option('primary-key'));
         $relationships = trim($this->option('relationships'));
         $useSoftDelete = $this->option('with-soft-delete');
-        $useTimeStamps = !$this->option('without-timestamps');
+        $withoutTimeStamps = $this->option('without-timestamps');
         $migrationClass = trim($this->option('migration-class-name'));
         $connectionName = trim($this->option('connection-name'));
         $indexes = trim($this->option('indexes'));
@@ -259,9 +260,9 @@ class CreateResourceCommand extends Command
         $template = $this->getTemplateName();
         $layoutName = trim($this->option('layout-name')) ?: 'layouts.app';
 
-        return (object) compact('modelName','controllerName','viewsDirectory','prefix','perPage','fileSnippet','fields','force',
+        return (object) compact('modelName','controllerName','viewsDirectory','prefix','perPage','fields','force',
                                 'languageFileName','fieldsFile','formRequest','modelDirectory','table','fillable','primaryKey',
-                                'relationships','useSoftDelete','useTimeStamps','controllerDirectory','withoutMigration',
+                                'relationships','useSoftDelete','withoutTimeStamps','controllerDirectory','withoutMigration',
                                 'migrationClass','connectionName','indexes','foreignKeys','engineName','layoutName','template');
     }
 

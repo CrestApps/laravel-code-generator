@@ -86,7 +86,7 @@ class CreateControllerCommand extends GeneratorCommand
                     ->replaceFormRequestName($stub, $formRequestName)
                     ->replaceFormRequestFullName($stub, $this->getRequestsNamespace() . $formRequestName)
                     ->replacePaginationNumber($stub, $input->perPage)
-                    ->processModelData($stub, $this->isContainMultipleAnswers($fields))
+                    //->processModelData($stub, $this->isContainMultipleAnswers($fields))
                     ->replaceFileSnippet($stub, $this->getFileReadySnippet($fields))
                     ->replaceFileMethod($stub, $this->getUploadFileMethod($fields))
                     ->replaceClass($stub, $name);
@@ -122,11 +122,12 @@ class CreateControllerCommand extends GeneratorCommand
      *
      * @return string
      */
+    /*
     protected function getModelDataConversionMethod()
     {
         return $this->getStubContent('controller-request-parameters', $this->getTemplateName());
     }
-
+    8/
     /**
      * Checks if a giving fields array conatins at least one multiple answers
      *
@@ -135,6 +136,7 @@ class CreateControllerCommand extends GeneratorCommand
      *
      * @return $this
      */
+    /*
     protected function processModelData(& $stub, $withMultipleAnswers)
     {
         if($withMultipleAnswers)
@@ -149,7 +151,7 @@ class CreateControllerCommand extends GeneratorCommand
 
         return $this;
     }
-
+    */
     /**
      * Checks if a giving fields array conatins at least one multiple answers
      *
@@ -243,12 +245,14 @@ class CreateControllerCommand extends GeneratorCommand
      *
      * @return $this
      */
+    /*
     protected function replaceModelDataMethod(&$stub, $method)
     {
         $stub = str_replace('{{modelDataMethod}}', $method, $stub);
 
         return $this;
     }
+    */
 
     /**
      * Replace the modelData for the given stub.
@@ -258,12 +262,14 @@ class CreateControllerCommand extends GeneratorCommand
      *
      * @return $this
      */
+    /*
     protected function replaceModelData(&$stub, $method)
     {
         $stub = str_replace('{{modelData}}', $method, $stub);
 
         return $this;
     }
+    */
 
     /**
      * Replace the modelFullName for the given stub.

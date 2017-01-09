@@ -1,1 +1,1 @@
-        {!! Form::selectRange('{{fieldName}}', {{fieldMin}}, {{fieldMax}}) !!}
+        {!! Form::selectRange('{{fieldName}}', {{minValue}}, {{maxValue}}, null, ['class' => 'form-control',]) !!}

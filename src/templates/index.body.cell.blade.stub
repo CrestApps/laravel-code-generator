@@ -1,1 +1,1 @@
-                                        <td>{{ ${{modelName}}->{{fieldName}} }}</td>
+                            <td>{{ {{fieldValue}} }}</td>

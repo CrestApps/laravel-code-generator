@@ -43,7 +43,6 @@ class FieldTransformer {
         'is-on-index' => 'isOnIndexView',
         'is-on-form' => 'isOnFormView',
         'is-on-show' => 'isOnShowView',
-        'data-type' => 'dataType',
         'data-value' => 'dataValue',
         'is-primary' => 'isPrimary',
         'is-index' => 'isIndex',
@@ -52,7 +51,10 @@ class FieldTransformer {
         'is-nullable' => 'isNullable',
         'is-unsigned' => 'isUnsigned',
         'is-auto-increment' => 'isAutoIncrement',
-        'is-inline-options' => 'isInlineOptions'
+        'is-inline-options' => 'isInlineOptions',
+        'placeholder' => 'placeHolder',
+        'place-holder' => 'placeHolder',
+        'delimiter' => 'optionsDelimiter'
     ];
 
     /**
@@ -86,7 +88,9 @@ class FieldTransformer {
         'number',
         'date',
         'select',
-        'textarea'
+        'multipleSelect',
+        'textarea',
+        'selectMonth'
     ];
 
     /**
@@ -180,12 +184,12 @@ class FieldTransformer {
     */
     protected function transferField(array $field, & $assignedPrimary)
     {
-        if(!array_key_exists('name', $field) || empty(Helpers::removeNonEnglishChars($field['name']) ) )
+        if(!$this->isKeyExists($field, 'name') || empty(Helpers::removeNonEnglishChars($field['name']) ) )
         {
             throw new Exception("The field 'name' was not provided!");
         }
 
-        if(array_key_exists('html-type', $field) && !in_array($field['html-type'], $this->validHtmlTypes))
+        if(!$this->isValidHtmlType($field))
         {
             unset($field['html-type']);
         }
@@ -193,12 +197,20 @@ class FieldTransformer {
         $newField = new Field(Helpers::removeNonEnglishChars($field['name']));
 
         $this->setPredefindProperties($newField, $field)
+             ->setDataType($newField, $field)
              ->setOptionsProperty($newField, $field)
              ->setValidationProperty($newField, $field)
              ->setLabelsProperty($newField, $field)
              ->setDataTypeParams($newField, $field)
-             ->setMultipleAnswers($newField)
-             ->optimizePrimaryKey($newField, $field);
+             ->setMultipleAnswers($newField, $field)
+             ->setRange($newField, $field)
+             ->optimizeField($newField, $field);
+
+        if($this->isValidSelectRangeType($field))
+        {
+            $newField->htmlType = 'selectRange';
+        }
+
 
         if($newField->dataType == 'enum' && empty($newField->getOptions()) )
         {
@@ -208,17 +220,113 @@ class FieldTransformer {
         return $newField;
     }
 
+   /**
+     * Checks if a field contains a valid html-type name
+     * 
+     * @param array $field
+     *
+     * @return bool
+    */
+    protected function isValidHtmlType(array $field)
+    {
+        return $this->isKeyExists($field, 'html-type') && 
+        ( 
+             in_array($field['html-type'], $this->validHtmlTypes)
+          || $this->isValidSelectRangeType($field)
+        );
+    }
+
+   /**
+     * Checks if a field contains a valid "selectRange" html-type element.
+     * 
+     * @param array $field
+     *
+     * @return bool
+    */
+    protected function isValidSelectRangeType(array $field)
+    {
+        return $this->isKeyExists($field, 'html-type') && Helpers::startsWith($field['html-type'], 'selectRange|');
+    }
+
+   /**
+     * Checks if a key exists in a giving array
+     * 
+     * @param array $field
+     * @param string $name
+     *
+     * @return bool
+    */
+    protected function isKeyExists(array $field, $name)
+    {
+        return array_key_exists($name, $field);
+    }
+
+    /**
+     * Optimizes a giving field.
+     * 
+     * @param CrestApps\CodeGenerator\Support\Field $newField
+     * @param array $field
+     *
+     * @return $this
+    */
+    protected function optimizeField(Field & $newField, array $field)
+    {
+        $parser = new ValidationParser($newField->validationRules);
+
+        return $this->optimizeStringField($newField, $parser)
+                    ->optimizeRequiredField($newField, $parser)
+                    ->optimizePrimaryKey($newField, $field);
+    }
+
+    /**
+     * Sets the dataType for a giving field
+     * 
+     * @param CrestApps\CodeGenerator\Support\Field $newField
+     * @param array $field
+     *
+     * @return $this
+    */
+    protected function setDataType(Field & $newField, array $field)
+    {
+        $map = $this->dataTypeMap();
+
+        if($this->isKeyExists($field, 'data-type') && $this->isKeyExists($map, 'data-type') )
+        {
+            $newField->dataType = $map[$field['data-type']];
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sets the range for a giving field
+     * 
+     * @param CrestApps\CodeGenerator\Support\Field $newField
+     * @param array $field
+     *
+     * @return $this
+    */
+    protected function setRange(Field & $newField, array $field)
+    {
+        if($this->isValidSelectRangeType($field))
+        {
+            $newField->range = explode(':', substr($field['html-type'], 12));
+        }
+
+        return $this;
+    }
+
     /**
      * Sets the DataTypeParam for a giving field
      * 
-     * @param Field $newField
+     * @param CrestApps\CodeGenerator\Support\Field $newField
      * @param array $field
      *
      * @return $this
     */
     protected function setDataTypeParams(Field & $newField, array $field)
     {
-        if(array_key_exists('data-type-params', $field) && is_array($field['data-type-params']))
+        if($this->isKeyExists($field, 'data-type-params') && is_array($field['data-type-params']))
         {
             $newField->methodParams = $field['data-type-params'];
         }
@@ -229,13 +337,14 @@ class FieldTransformer {
     /**
      * Sets the isMultipleAnswers for a giving field
      * 
-     * @param Field $newField
+     * @param CrestApps\CodeGenerator\Support\Field $newField
      *
      * @return $this
     */
-    protected function setMultipleAnswers(Field & $newField)
+    protected function setMultipleAnswers(Field & $newField, array $field)
     {
-        if($newField->htmlType == 'checkbox')
+
+        if(in_array($newField->htmlType, ['checkbox','multipleSelect']))
         {
             $newField->isMultipleAnswers = true;
         }
@@ -278,7 +387,7 @@ class FieldTransformer {
      * Ensure, the datatype is set to be valid otherwise make it "int".
      * It also make sure the primary column does not appears on the views unless it specified
      * 
-     * @param Field $newField
+     * @param CrestApps\CodeGenerator\Support\Field $newField
      *
      * @return $this
     */
@@ -288,20 +397,20 @@ class FieldTransformer {
         {
             $newField->dataType = 'int';
 
-            if(!array_key_exists('is-on-views', $field))
+            if(!$this->isKeyExists($field, 'is-on-views'))
             {
 
-                if(!array_key_exists('is-on-form', $field))
+                if(!$this->isKeyExists($field, 'is-on-form'))
                 {
                     $newField->isOnFormView = false;
                 }
 
-                if(!array_key_exists('is-on-index', $field))
+                if(!$this->isKeyExists($field, 'is-on-index'))
                 {
                     $newField->isOnIndexView = false;
                 }
 
-                if(!array_key_exists('is-on-show', $field))
+                if(!$this->isKeyExists($field, 'is-on-show'))
                 {
                     $newField->isOnShowView = false;
                 }
@@ -312,9 +421,52 @@ class FieldTransformer {
     }
 
     /**
+     * If the "data-type-params" is not set, and the dataType is string,
+     * yet the validation rules has a max value, create data-type-parameter
+     * 
+     * @param CrestApps\CodeGenerator\Support\Field $newField
+     * @param CrestApps\CodeGenerator\Support\ValidationParser $parser
+     *
+     * @return $this
+    */
+    protected function optimizeStringField(Field & $newField, ValidationParser $parser)
+    {
+
+        if( empty($newField->methodParams) && in_array($newField->dataType, ['string','char']) )
+        {
+            if( !empty($parser->getMaxLength()) )
+            {
+                $newField->methodParams[] = $parser->getMaxLength();
+            }
+            
+        }
+
+        return $this;
+    }
+
+    /**
+     * If the field is not required, well make it nullable
+     * 
+     * @param CrestApps\CodeGenerator\Support\Field $newField
+     * @param CrestApps\CodeGenerator\Support\ValidationParser $parser
+     *
+     * @return $this
+    */
+    protected function optimizeRequiredField(Field & $newField, ValidationParser $parser)
+    {
+
+        if( !$parser->isRequired() || $parser->isNullable() || $parser->isConditionalRequired() )
+        {
+            $newField->isNullable = true;
+        }
+
+        return $this;
+    }
+
+    /**
      * It checks if a giving field is a primary or not.
      * 
-     * @param Field $newField
+     * @param CrestApps\CodeGenerator\Support\Field $newField
      *
      * @return bool
     */
@@ -327,7 +479,7 @@ class FieldTransformer {
     /**
      * It set the labels property for a giving field
      * 
-     * @param Field $newField
+     * @param CrestApps\CodeGenerator\Support\Field $newField
      * @param array $field
      *
      * @return $this
@@ -347,14 +499,14 @@ class FieldTransformer {
     /**
      * It set the validationRules property for a giving field
      * 
-     * @param Field $newField
+     * @param CrestApps\CodeGenerator\Support\Field $newField
      * @param array $field
      *
      * @return $this
     */
     protected function setValidationProperty(Field & $newField, array $field)
     {
-        if(array_key_exists('validation', $field))
+        if($this->isKeyExists($field, 'validation'))
         {
             $newField->validationRules = is_array($field['validation']) ? $field['validation'] : Helpers::removeEmptyItems(explode('|', $field['validation']));
         }
@@ -365,7 +517,7 @@ class FieldTransformer {
     /**
      * It set the options property for a giving field
      * 
-     * @param Field $newField
+     * @param CrestApps\CodeGenerator\Support\Field $newField
      * @param array $field
      *
      * @return $this
@@ -394,7 +546,7 @@ class FieldTransformer {
     */
     protected function getOptions(array $field)
     {
-        if(!array_key_exists('options', $field))
+        if(!$this->isKeyExists($field, 'options'))
         {
             return null;
         }
@@ -412,9 +564,13 @@ class FieldTransformer {
     protected function transferOptionsToLabels(array $options)
     {
         $finalOptions = [];
+
+        $associative = Helpers::isAssociative($options);
         
         foreach($options as $value => $option)
         {
+            $value = $associative ? $value : $option;
+
             if(!is_array($option))
             {
                 // At this point the options are plain text without locale
@@ -438,7 +594,7 @@ class FieldTransformer {
      * It set the predefined property for a giving field.
      * it uses the predefinedKeyMapping array
      * 
-     * @param Field $newField
+     * @param CrestApps\CodeGenerator\Support\Field $newField
      * @param array $field
      *
      * @return $this
@@ -447,7 +603,7 @@ class FieldTransformer {
     {
         foreach($this->predefinedKeyMapping as $key => $property)
         {
-            if(array_key_exists($key, $field) )
+            if($this->isKeyExists($field, $key) )
             {
                 if(is_array($property))
                 {

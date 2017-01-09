@@ -1,2 +1,2 @@
             <dt>{{fieldTitle}}</dt>
-            <dd>{{ ${{modelName}}->{{fieldName}} }}</dd>
+            <dd>{{ {{fieldValue}} }}</dd>

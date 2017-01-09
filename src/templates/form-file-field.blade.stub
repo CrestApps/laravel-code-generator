@@ -1,1 +1,3 @@
-        {!! Form::file('{{fieldName}}', ['class' => 'form-control']) !!}
+        <label class="btn btn-default">
+        	Browse <input type="file" name="{{fieldName}}" id="{{fieldName}}" class="hidden">
+        </label>

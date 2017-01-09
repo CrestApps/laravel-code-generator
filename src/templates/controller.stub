@@ -42,7 +42,8 @@ class DummyClass extends Controller
      */
     public function store(Request $request)
     {
-        $data = {{modelData}};
+        $this->affirm($request);
+        $data = $request->all();
         {{fileSnippet}}
         {{modelNameClass}}::create($data);
 
@@ -89,8 +90,9 @@ class DummyClass extends Controller
      */
     public function update($id, Request $request)
     {
+        $this->affirm($request);
         ${{modelName}} = {{modelNameClass}}::findOrFail($id);
-        $data = {{modelData}};
+        $data = $request->all();
         {{fileSnippet}}
         ${{modelName}}->update($data);
 
@@ -129,6 +131,5 @@ class DummyClass extends Controller
         ]);
 
     }
-{{modelDataMethod}}
 {{uploadMethod}}
 }

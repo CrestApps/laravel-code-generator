@@ -1,1 +1,1 @@
-        {!! Form::select('{{fieldName}}',{{fieldItems}},{{fieldValue}}, ['class' => 'form-control'{{fieldMultiple}}]) !!}
+        {!! Form::select('{{fieldName}}',{{fieldItems}},{{fieldValue}}, ['class' => 'form-control',{{fieldMultiple}}{{requiredField}}{{placeHolder}}]) !!}
