@@ -40,18 +40,60 @@ trait CommonCommand
     }
 
     /**
+     * Evaluates the current version of the framework to see if it >= a giving version.
+     *
+     * @param $version
+     *
+     * @return bool
+     */
+    protected function isNewerThan($version = '5.3')
+    {
+        return (App::VERSION() >= $version);
+    }
+
+    /**
      * Gets the correct routes fullname based on current framework version.
      *
      * @return string
      */
     protected function getRoutesFileName()
     {
-        if (App::VERSION() >= '5.3')
+        if ($this->isNewerThan())
         {
             return base_path('routes/web.php');
         }
 
         return app_path('Http/routes.php');
+    }
+
+    /**
+     * Gets all command's arguments depending on the current framework version.
+     *
+     * @return string
+     */
+    public function arguments()
+    {
+        if ($this->isNewerThan())
+        {
+            return parent::arguments();
+        }
+
+        return parent::argument();
+    }
+
+    /**
+     * Gets all command's options depending on the current framework version.
+     *
+     * @return string
+     */
+    public function options()
+    {
+        if ($this->isNewerThan())
+        {
+            return parent::options();
+        }
+
+        return parent::option();
     }
 
     /**

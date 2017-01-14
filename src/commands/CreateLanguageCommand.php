@@ -3,12 +3,11 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use File;
-use Lang;
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Label;
-
+use CrestApps\CodeGenerator\Support\CrestAppsTranslator;
 
 class CreateLanguageCommand extends Command
 {
@@ -82,7 +81,7 @@ class CreateLanguageCommand extends Command
     {
         if( count($messages) > 0)
         {
-            Lang::addLines($messages, $language);
+            $this->getTranslator()->addLines($messages, $language);
         }
 
         return $this;
@@ -98,7 +97,23 @@ class CreateLanguageCommand extends Command
      */
     protected function isMessageExists($key, $language)
     {   
-        return Lang::has($key, $language, false);
+        return $this->getTranslator()->has($key, $language, false);
+    }
+
+    /**
+     * Depends on the framework version, it a singleton instance of a translator.
+     *
+     * @return CrestApps\CodeGenerator\Support\CrestAppsTranslator | Illuminate\Translation\Translator
+     */
+    protected function getTranslator()
+    {
+
+        if(!$this->isNewerThan('5.3'))
+        {
+            return CrestAppsTranslator::getTranslator();
+        }
+
+        return app('translator');
     }
 
     /**
