@@ -96,7 +96,6 @@ class Field {
      * @var bool
      */
     public $isIndex = false;
-
     /**
      * Unique indexs this field
      *
@@ -338,6 +337,90 @@ class Field {
     public function isFile()
     {
         return ($this->htmlType == 'file');
+    }
+
+    /**
+     * Returns current object into an array.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'name' => $this->name,
+            'labels' => $this->labelsToJson($this->getLabels()),
+            'html-type' => $this->htmlType,
+            'options' => $this->optionsToJson($this->getOptions()),
+            'html-value' => $this->htmlValue,
+            'validation' => implode('|', $this->validationRules),
+            'is-on-index' => $this->isOnIndexView,
+            'is-on-show' => $this->isOnShowView,
+            'is-on-form' => $this->isOnFormView,
+            'data-type' => $this->dataType,
+            'data-type-params' => $this->methodParams,
+            'data-value' => $this->dataValue,
+            'is-index' => $this->isIndex,
+            'is-unique' => $this->isUnique,
+            'is-primary' => $this->isPrimary,
+            'comment' => $this->comment,
+            'is-nullable' => $this->isNullable,
+            'is-unsiged' => $this->isUnsigned,
+            'is-auto-increment' => $this->isAutoIncrement,
+            'is-inline-options' => $this->isInlineOptions,
+            'is-multiple-answers' => $this->isMultipleAnswers,
+            'placeholder' => $this->placeHolder,
+            'delimiter' => $this->optionsDelimiter,
+            'range' => $this->range,
+        ];
+    }
+
+    /**
+     * Returns current object into proper json format.
+     *
+     * @return string
+     */
+    public function toJson()
+    {
+        return json_encode($this->toArray());
+    }
+
+    protected function labelsToJson(array $labels)
+    {
+        $final = [];
+
+        foreach($labels as $label)
+        {
+            $final[$label->lang] = $label->text;
+        }
+
+        return (object) $final;
+    }
+
+    protected function optionsToJson(array $options)
+    {
+        $final = [];
+
+        foreach($options as $lang => $labels)
+        {
+            $finalWithTranslations = [];
+            foreach($labels as $label)
+            {                
+                if($label->isPlain)
+                {
+                    $final[$label->value] = $label->text;
+                } else {
+                    $finalWithTranslations[$label->value][$label->lang] = $label->text;
+                }
+            }
+
+            foreach($finalWithTranslations as $value => $finalWithTranslation)
+            {
+                $final[$value] = (object) $finalWithTranslation;
+            }
+            
+        }
+
+        return (object) $final;
     }
 
 }

@@ -5,6 +5,7 @@ namespace CrestApps\CodeGenerator\Support;
 use Exception;
 use App;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\FieldOptimizer;
 
 class FieldTransformer {
 
@@ -57,21 +58,7 @@ class FieldTransformer {
         'delimiter' => 'optionsDelimiter'
     ];
 
-    /**
-     * Array of the valid primary key data-types
-     * 
-     * @return array
-    */
-    protected $validPrimaryDataTypes = 
-    [
-        'int',
-        'integer',
-        'bigint',
-        'biginteger',
-        'mediumint',
-        'mediuminteger',
-        'uuid'
-    ];
+
 
     /**
      * Array of the valid html-types
@@ -203,21 +190,19 @@ class FieldTransformer {
              ->setLabelsProperty($newField, $field)
              ->setDataTypeParams($newField, $field)
              ->setMultipleAnswers($newField, $field)
-             ->setRange($newField, $field)
-             ->optimizeField($newField, $field);
+             ->setRange($newField, $field);
 
         if($this->isValidSelectRangeType($field))
         {
             $newField->htmlType = 'selectRange';
         }
 
-
         if($newField->dataType == 'enum' && empty($newField->getOptions()) )
         {
             throw new Exception('To construct an enum data-type field, options must be set');
         }
 
-        return $newField;
+        return (new FieldOptimizer($newField, $field))->optimize()->getField();
     }
 
    /**
@@ -259,23 +244,6 @@ class FieldTransformer {
     protected function isKeyExists(array $field, $name)
     {
         return array_key_exists($name, $field);
-    }
-
-    /**
-     * Optimizes a giving field.
-     * 
-     * @param CrestApps\CodeGenerator\Support\Field $newField
-     * @param array $field
-     *
-     * @return $this
-    */
-    protected function optimizeField(Field & $newField, array $field)
-    {
-        $parser = new ValidationParser($newField->validationRules);
-
-        return $this->optimizeStringField($newField, $parser)
-                    ->optimizeRequiredField($newField, $parser)
-                    ->optimizePrimaryKey($newField, $field);
     }
 
     /**
@@ -380,87 +348,6 @@ class FieldTransformer {
         $map = $this->dataTypeMap();
 
         return isset($field['data-type']) && isset($map[$field['data-type']]) ? in_array($map[$field['data-type']], $types) : false;
-    }
-
-    /**
-     * If the property name is "id" or if the field is primary or autoincrement.
-     * Ensure, the datatype is set to be valid otherwise make it "int".
-     * It also make sure the primary column does not appears on the views unless it specified
-     * 
-     * @param CrestApps\CodeGenerator\Support\Field $newField
-     *
-     * @return $this
-    */
-    protected function optimizePrimaryKey(Field & $newField, array $field)
-    {
-        if( $this->isPrimaryField($newField))
-        {
-            $newField->dataType = 'int';
-
-            if(!$this->isKeyExists($field, 'is-on-views'))
-            {
-
-                if(!$this->isKeyExists($field, 'is-on-form'))
-                {
-                    $newField->isOnFormView = false;
-                }
-
-                if(!$this->isKeyExists($field, 'is-on-index'))
-                {
-                    $newField->isOnIndexView = false;
-                }
-
-                if(!$this->isKeyExists($field, 'is-on-show'))
-                {
-                    $newField->isOnShowView = false;
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * If the "data-type-params" is not set, and the dataType is string,
-     * yet the validation rules has a max value, create data-type-parameter
-     * 
-     * @param CrestApps\CodeGenerator\Support\Field $newField
-     * @param CrestApps\CodeGenerator\Support\ValidationParser $parser
-     *
-     * @return $this
-    */
-    protected function optimizeStringField(Field & $newField, ValidationParser $parser)
-    {
-
-        if( empty($newField->methodParams) && in_array($newField->dataType, ['string','char']) )
-        {
-            if( !empty($parser->getMaxLength()) )
-            {
-                $newField->methodParams[] = $parser->getMaxLength();
-            }
-            
-        }
-
-        return $this;
-    }
-
-    /**
-     * If the field is not required, well make it nullable
-     * 
-     * @param CrestApps\CodeGenerator\Support\Field $newField
-     * @param CrestApps\CodeGenerator\Support\ValidationParser $parser
-     *
-     * @return $this
-    */
-    protected function optimizeRequiredField(Field & $newField, ValidationParser $parser)
-    {
-
-        if( !$parser->isRequired() || $parser->isNullable() || $parser->isConditionalRequired() )
-        {
-            $newField->isNullable = true;
-        }
-
-        return $this;
     }
 
     /**

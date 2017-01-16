@@ -53,7 +53,8 @@ class CodeGeneratorServiceProvider extends ServiceProvider
             'CrestApps\CodeGenerator\Commands\CreateMigrationCommand',
             'CrestApps\CodeGenerator\Commands\CreateResourceCommand',
             'CrestApps\CodeGenerator\Commands\CreateViewLayoutCommand',
-            'CrestApps\CodeGenerator\Commands\CreateLayoutCommand'
+            'CrestApps\CodeGenerator\Commands\CreateLayoutCommand',
+            'CrestApps\CodeGenerator\Commands\CreateFieldsFileCommand'
         );
     }
 

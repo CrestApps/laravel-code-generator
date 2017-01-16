@@ -92,11 +92,11 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The data-value to eloquent method mapping.
+    | The data-value to Eloquent method mapping.
     |--------------------------------------------------------------------------
     |
-    | In here you can add more keys to the array and eloquent method name as the value.
-    | A list of eloquent methods can be found on this link https://laravel.com/docs/5.3/migrations#creating-columns
+    | In here you can add more keys to the array and Eloquent method name as the value.
+    | A list of Eloquent methods can be found on this link https://laravel.com/docs/5.3/migrations#creating-columns
     | The only time you really have to add more items here is if you don't like using the existing data-value that are used
     | with the code generator.
     */
@@ -148,5 +148,56 @@ return [
         'unsignedsmallint' => 'unsignedSmallInteger',
         'unsignedtinyinteger' => 'unsignedTinyInteger',
         'uuid' => 'uuid'
+    ],
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Eloquent method to html-type mapping
+    |--------------------------------------------------------------------------
+    |
+    | This is the mapping used to convert database-column into html field
+    */
+    'eloquent_type_to_html_type' =>
+    [
+        'char' => 'text',
+        'date' => 'text',
+        'dateTime' => 'text',
+        'dateTimeTz' => 'text',
+        'bigIncrements' => 'number',
+        'bigIncrements' => 'number',
+        'binary' => 'textarea',
+        'boolean' => 'radio',
+        'decimal' => 'number',
+        'double' => 'number',
+        'enum' => 'select',
+        'float' => 'number',
+        'integer' => 'number',
+        'integer' => 'number',
+        'ipAddress' => 'text',
+        'json' => 'checkbox',
+        'jsonb' => 'checkbox',
+        'longText' => 'textarea',
+        'macAddress' => 'text',
+        'mediumInteger' => 'number',
+        'mediumText' => 'textarea',
+        'string' => 'text',
+        'text' => 'textarea',
+        'time' => 'text',
+        'timeTz' => 'text',
+        'tinyInteger' => 'number',
+        'tinyInteger' => 'number',
+        'timestamp' => 'text',
+        'timestampTz' => 'text',
+        'unsignedBigInteger' => 'number',
+        'unsignedBigInteger' => 'number',
+        'unsignedInteger' => 'number',
+        'unsignedInteger' => 'number',
+        'unsignedMediumInteger' => 'number',
+        'unsignedMediumInteger' => 'number',
+        'unsignedSmallInteger' => 'number',
+        'unsignedSmallInteger' => 'number',
+        'unsignedTinyInteger' => 'number',
+        'uuid' => 'text',
     ]
 ];

@@ -381,6 +381,16 @@ trait CommonCommand
     }
 
     /**
+     * Gets the field's file path.
+     *
+     * @return string
+     */
+    protected function getFieldsFilePath()
+    {
+        return Helpers::getPathWithSlash(config('codegenerator.fields_file_path'));
+    }
+
+    /**
      * Gets the path to templates
      *
      * @param string $template
@@ -423,6 +433,6 @@ trait CommonCommand
             return $field->isFile();
         });
         
-        return count($filtered) > 0;
+        return (count($filtered) > 0);
     }
 }

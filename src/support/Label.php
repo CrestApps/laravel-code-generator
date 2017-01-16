@@ -62,4 +62,17 @@ class Label {
         $this->id = $id;
         $this->value = $value;
     }
+
+
+    /**
+     * Returns current object into proper json format.
+     *
+     * @return string
+     */
+    public function toJson()
+    {
+        return json_encode([
+            $this->lang => $this->text
+        ]);
+    }
 }

@@ -41,6 +41,7 @@ class CreateResourceCommand extends Command
                             {--engine-name= : A specific engine name.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
                             {--template-name= : The template name to use when generating the code.}
+                            {--table-exists : This option will attempt to fetch the field from existing database table.}
                             {--force : This option will override the controller if one already exists.}';
 
 
@@ -59,6 +60,16 @@ class CreateResourceCommand extends Command
     public function handle()
     {
         $input = $this->getCommandInput();
+
+        if($input->tableExists)
+        {
+            $input->fields = null;
+            $input->fieldsFile = $input->table . '.json';
+            $input->withoutMigration = true;
+
+            $this->createFieldsFile($input);
+
+        }
 
         $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
 
@@ -104,6 +115,23 @@ class CreateResourceCommand extends Command
                     '--without-timestamps' => $input->withoutTimeStamps,
                 ]);
         }
+
+        return $this;
+    }
+
+    /**
+     * Execute the command that generate fields' file.
+     * 
+     * @param object $input
+     * @return $this
+     */
+    protected function createFieldsFile($input)
+    {
+        $this->callSilent('create:fields-file', 
+            [
+                'table-name' => $input->table,
+                '--force' => $input->force
+            ]);
 
         return $this;
     }
@@ -259,11 +287,12 @@ class CreateResourceCommand extends Command
         $engineName = trim($this->option('engine-name'));
         $template = $this->getTemplateName();
         $layoutName = trim($this->option('layout-name')) ?: 'layouts.app';
+        $tableExists = $this->option('table-exists');
 
         return (object) compact('modelName','controllerName','viewsDirectory','prefix','perPage','fields','force',
                                 'languageFileName','fieldsFile','formRequest','modelDirectory','table','fillable','primaryKey',
                                 'relationships','useSoftDelete','withoutTimeStamps','controllerDirectory','withoutMigration',
-                                'migrationClass','connectionName','indexes','foreignKeys','engineName','layoutName','template');
+                                'migrationClass','connectionName','indexes','foreignKeys','engineName','layoutName','template','tableExists');
     }
 
 }
