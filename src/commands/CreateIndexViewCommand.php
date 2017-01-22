@@ -54,7 +54,7 @@ class CreateIndexViewCommand extends ViewsCommand
 
         $fields = $this->getFields($input->fields,$input->languageFileName, $input->fieldsFile);
         
-        $htmlCreator = new GenerateFormViews($fields, $input->modelName);
+        $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName ,$this->getTemplateName());
 
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'index');
 

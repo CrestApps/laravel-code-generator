@@ -6,6 +6,8 @@ use Illuminate\Console\GeneratorCommand;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use Illuminate\Filesystem\Filesystem;
 use CrestApps\CodeGenerator\Support\ViewInput;
+use CrestApps\CodeGenerator\HtmlGenerators\LaravelCollectiveHtml;
+use CrestApps\CodeGenerator\HtmlGenerators\StandardHtml;
 use Exception;
 
 abstract class ViewsCommand extends GeneratorCommand
@@ -207,11 +209,28 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     protected function replaceFileUpload(&$stub, array $fields)
     {
-        $code = $this->isContainfile($fields) ? "'files' => true," : '';
+        $code = $this->isContainfile($fields) ? $this->getFileUploadAttribute($this->getTemplateName()) : '';
 
         $stub = str_replace('{{uploadFiles}}', $code, $stub);
 
         return $this;
+    }
+
+    /**
+     * It gets the file attribute based on the giving template type.
+     *
+     * @param string $template
+     *
+     * @return string
+     */
+    protected function getFileUploadAttribute($template)
+    {
+        if($this->isCollectiveTemplate($template))
+        {
+            return "'files' => true,";
+        }
+
+        return ' enctype="multipart/form-data"';
     }
 
     /**
@@ -328,5 +347,34 @@ abstract class ViewsCommand extends GeneratorCommand
         return !is_null($primaryKey) ? $primaryKey->name : null;
     }
 
+    /**
+     * Gets a new instance of the proper html generator.
+     *
+     * @param array $fields
+     * @param string $modelName
+     * @param string $template
+     *
+     * @return CrestApps\CodeGenerator\HtmlGenerators\HtmlGeneratorBase
+     */
+    protected function getHtmlGenerator(array $fields, $modelName, $template)
+    {
+        if($this->isCollectiveTemplate($template))
+        {
+            return new LaravelCollectiveHtml($fields, $modelName, $template);
+        }
 
+        return new StandardHtml($fields, $modelName, $template);
+    }
+
+    /**
+     * Checks the giving template if it is a Laravel-Collective template or not.
+     *
+     * @param string $template
+     *
+     * @return bool
+     */
+    protected function isCollectiveTemplate($template)
+    {
+        return in_array($template, $this->getCollectiveTemplates());
+    }
 }

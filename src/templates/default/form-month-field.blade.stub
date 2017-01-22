@@ -1,0 +1,8 @@
+        <select class="form-control" id="{{fieldName}}" name="{{fieldName}}">
+            {{placeHolder}}
+        	@foreach (range(1, 12) as $value)
+			    <option value="{{ $value }}"{{selectedValue}}>
+			    	{{ date('F', mktime(0, 0, 0, $value, 1)) }}
+			    </option>
+			@endforeach
+        </select>

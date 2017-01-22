@@ -391,6 +391,16 @@ trait CommonCommand
     }
 
     /**
+     * Gets the template names that uses Laravel-Collective
+     *
+     * @return array
+     */
+    protected function getCollectiveTemplates()
+    {
+        return config('codegenerator.laravel_collective_templates', ['default-collective']);
+    }
+
+    /**
      * Gets the path to templates
      *
      * @param string $template
@@ -417,7 +427,17 @@ trait CommonCommand
      */
     protected function getTemplateName()
     {
-        return trim($this->option('template-name'));
+        return trim($this->option('template-name')) ?: $this->getDefaultTemplateName();
+    }
+
+    /**
+     * Gets the default template name.
+     *
+     * @return string
+     */
+    protected function getDefaultTemplateName()
+    {
+        return config('codegenerator.template', 'default');
     }
 
     /**

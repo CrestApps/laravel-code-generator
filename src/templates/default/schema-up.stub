@@ -1,0 +1,4 @@
+Schema::{{connectionName}}create('{{tableName}}', function(Blueprint $table)
+        {
+{{blueprintBody}}
+        });

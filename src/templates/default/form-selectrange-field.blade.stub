@@ -1,0 +1,9 @@
+        <select class="form-control" id="{{fieldName}}" name="{{fieldName}}">
+        	    {{placeHolder}}
+        	@foreach (range({{minValue}}, {{maxValue}}) as $value)
+			    <option value="{{ $value }}"{{selectedValue}}>
+			    	{{ $value }}
+			    </option>
+			@endforeach
+        </select>
+        

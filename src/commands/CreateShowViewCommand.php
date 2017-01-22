@@ -51,7 +51,8 @@ class CreateShowViewCommand extends ViewsCommand
         $input = $this->getCommandInput();
         $stub = $this->getStubContent($this->stubName);
         $fields = $this->getFields($input->fields,$input->languageFileName, $input->fieldsFile);
-        $htmlCreator = new GenerateFormViews($fields, $input->modelName);
+    
+        $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName ,$this->getTemplateName());
 
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'show');
         

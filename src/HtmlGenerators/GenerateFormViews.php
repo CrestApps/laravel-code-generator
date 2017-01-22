@@ -1,6 +1,6 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Support;
+namespace CrestApps\CodeGenerator\HtmlGenerators;
 
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Field;

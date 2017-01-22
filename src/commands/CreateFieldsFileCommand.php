@@ -3,8 +3,7 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use Illuminate\Console\Command;
-use CrestApps\CodeGenerator\Support\GenerateFormViews;
-use CrestApps\CodeGenerator\Support\MysqlParser;
+use CrestApps\CodeGenerator\DatabaseParsers\MysqlParser;
 use CrestApps\CodeGenerator\Support\Field;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\traits\CommonCommand;

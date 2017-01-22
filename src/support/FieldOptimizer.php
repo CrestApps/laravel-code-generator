@@ -49,7 +49,7 @@ class FieldOptimizer {
     {
         $this->field = $field;
         $this->parser = new ValidationParser($field->validationRules);
-        $this->meta = $meta
+        $this->meta = $meta;
     }
 
     /**

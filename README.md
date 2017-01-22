@@ -11,7 +11,7 @@ A clean code generator for Laravel framework that will save you time! This aweso
 
 * Create full resource using a single command with/without <strong>migration</strong> or from <strong>existing database</strong>.
 * Create standard CRUD controllers with simple or form-request validation.
-* Create model.
+* Create model with relations.
 * Create named routes.
 * Create standard CRUD views.
 * Very flexible and rich with configurable options.

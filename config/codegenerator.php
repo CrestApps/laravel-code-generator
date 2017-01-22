@@ -32,6 +32,23 @@ return [
 
     'templates_path' => base_path('resources/codegenerator-templates'),
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Array of templetes that should be generated with Laravel-Collective
+    |--------------------------------------------------------------------------
+    |
+    | If you want to generate code by using laravel-collective, you must first
+    | install the backage and then list of package name that should be 
+    | generated using Laravel-Collective extensions.
+    */
+
+    'laravel_collective_templates' => [
+        'default-collective'
+    ],
+
+
+
     /*
     |--------------------------------------------------------------------------
     | The default path of where the uploaded files lives!
