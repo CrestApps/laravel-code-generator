@@ -7,7 +7,7 @@
         "laravel","crud","crud generator",
         "laravel crud generator","laravel crud builder",
         "crud builder","views creator","routes creator",
-        "controller creator","code generator","generators",
+        "controller creator","code generator","generators","generator",
         "code generator", "laravel crud","laravel code generator",
         "laravel-code-generator","code-generator","CrestApps",
         "Alhayek", "Mike Alhayek","Majd Alhayek"
@@ -20,8 +20,7 @@
         }
     ],
     "require": {
-        "laravel/framework": "~5.1",
-        "laravelcollective/html": "~5.1"
+        "laravel/framework": "~5.1"
     },
     "autoload": {
         "psr-4": {
