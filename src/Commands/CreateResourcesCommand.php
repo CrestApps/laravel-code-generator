@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 
-class CreateResourceCommand extends Command
+class CreateResourcesCommand extends Command
 {
     use CommonCommand;
     
@@ -15,7 +15,7 @@ class CreateResourceCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'create:resource
+    protected $signature = 'create:resources
                             {model-name : The model name that this resource will represent.}
                             {--controller-name= : The name of the controler.}
                             {--controller-directory= : The directory where the controller should be created under. }

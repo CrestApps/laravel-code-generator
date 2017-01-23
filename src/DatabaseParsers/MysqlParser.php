@@ -66,10 +66,36 @@ class MysqlParser extends ParserBase
 	{
 		if( ($options = $this->getOptions($type)) !== null )
 		{
-			foreach($options as $option)
+			if(empty($this->languages))
 			{
-				$field->addOption($this->getLabelName($option), $this->tableName, true, $this->locale, $option);
+				return $this->addOptionsFor($field, $options, true, $this->locale);
 			}
+
+			foreach($this->languages as $language)
+			{
+				$this->addOptionsFor($field, $options, false, $language);
+			}
+			
+		}
+
+		return $this;
+	}
+
+    /**
+     * Adds options for a giving field.
+     *
+     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param array $options
+     * @param bool $isPlain
+     * @param string $locale
+     *
+     * @return $this
+    */
+	protected function addOptionsFor(Field & $field, array $options, $isPlain, $locale)
+	{
+		foreach($options as $option)
+		{
+			$field->addOption($this->getLabelName($option), $this->tableName, $isPlain, $locale, $option);
 		}
 
 		return $this;

@@ -68,8 +68,7 @@
                                             'type'    => 'submit',
                                             'class'   => 'btn btn-danger btn-xs',
                                             'title'   => 'Delete {{modelNameClass}}',
-                                            'onclick' => 'return confirm("Confirm delete?")',
-                                            'id' => 'sometest',
+                                            'onclick' => 'return confirm("Confirm delete?")'
                                         ])
                                     !!}
                                 {!! Form::close() !!}
@@ -86,7 +85,7 @@
         <div class="panel-footer">
             {!! ${{modelNamePlural}}->render() !!}
         </div>
-        
+
         @endif
 
     </div>

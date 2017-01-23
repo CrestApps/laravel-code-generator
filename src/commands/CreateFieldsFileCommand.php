@@ -24,6 +24,7 @@ class CreateFieldsFileCommand extends Command
                             {table-name : The dtabase table name to fetch the field from.}
                             {--database-name= : The database name the table is stored in.}
                             {--fields-filename= : The destination file name to create.}
+                            {--translation-for= : A comma seperated string of languages to create fields for.}
                             {--force : This option will override the view if one already exists.}';
 
     /**
@@ -99,7 +100,7 @@ class CreateFieldsFileCommand extends Command
 
         if($driver == 'mysql')
         {
-            return (new MysqlParser($this->getTableName(), $this->getDatabaseName()))->getFields();
+            return (new MysqlParser($this->getTableName(), $this->getDatabaseName(), $this->getLangugaes()))->getFields();
         } 
         else 
         {
@@ -148,5 +149,15 @@ class CreateFieldsFileCommand extends Command
     protected function getTableName()
     {
         return trim($this->argument('table-name'));
+    }
+
+    /**
+     * Gets the languages to create lang keys for.
+     *
+     * @return array
+     */
+    protected function getLangugaes()
+    {
+        return Helpers::convertStringToArray($this->option('translation-for'));
     }
 }

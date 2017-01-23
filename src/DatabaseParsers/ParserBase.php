@@ -3,7 +3,6 @@ namespace CrestApps\CodeGenerator\DatabaseParsers;
 
 use CrestApps\CodeGenerator\Support\Field;
 use CrestApps\CodeGenerator\Support\FieldOptimizer;
-
 use Exception;
 use App;
 use DB;
@@ -39,18 +38,27 @@ abstract class ParserBase
 	protected $fields;
 
     /**
+     * The langugaes to create labels form.
+     *
+     * @var array
+     */
+    protected $langugaes;
+
+    /**
      * Creates a new field instance.
      *
      * @param string $tableName
      * @param string $databaseName
+     * @param array $langugaes
      *
      * @return void
      */
-	public function __construct($tableName, $databaseName)
+	public function __construct($tableName, $databaseName, array $languages = [])
 	{
 		$this->tableName = $tableName;
 		$this->databaseName = $databaseName;
-		$this->locale = App::getLocale();
+        $this->languages = $languages;
+        $this->locale = App::getLocale();
 	}
 
     /**
@@ -74,20 +82,6 @@ abstract class ParserBase
 
 		return $this->fields;
 	}
-
-    /**
-     * Gets column meta info from the information schema.
-     *
-     * @return array
-    */
-	abstract protected function getColumn();
-
-    /**
-     * Gets the field after transfering it from a giving query object.
-     *
-     * @return CrestApps\CodeGenerator\Support\Field;
-    */
-	abstract protected function getTransfredField($column);
 
     /**
      * Gets array of field after transfering each column meta into field.
@@ -231,11 +225,33 @@ abstract class ParserBase
     */
 	protected function setLabel(Field & $field, $name)
 	{
-        
-		$field->addLabel( $this->getLabelName($name), $this->tableName, true, $this->locale);
+        if(empty($this->languages))
+        {
+            $field->addLabel($this->getLabelName($name), $this->tableName, true, $this->locale);
 
-		return $this;
+            return $this;
+        }
+		
+		return $this->addLabelForLanguages($field, $name);
 	}
+
+    /**
+     * Add labels for a giving field.
+     *
+     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param string $name
+     *
+     * @return $this
+    */
+    protected function addLabelForLanguages(Field $field, $name)
+    {
+        foreach($this->languages as $language)
+        {
+            $field->addLabel($this->getLabelName($name), $this->tableName, false, $language);
+        }
+
+        return $this;
+    }
 
     /**
      * Set the keys for a giving field.
@@ -320,4 +336,18 @@ abstract class ParserBase
 
 		return $this;
 	}
+
+    /**
+     * Gets column meta info from the information schema.
+     *
+     * @return array
+    */
+    abstract protected function getColumn();
+
+    /**
+     * Gets the field after transfering it from a giving query object.
+     *
+     * @return CrestApps\CodeGenerator\Support\Field;
+    */
+    abstract protected function getTransfredField($column);
 }

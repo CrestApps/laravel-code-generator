@@ -321,49 +321,6 @@ class FieldTransformer {
     }
 
     /**
-     * Gets the data-type-parameters
-     * 
-     * @param mix(array|string) $params
-     *
-     * @return array
-    */
-    protected function getDataTypeParams($params)
-    {
-        return is_array($params) ? $params : Helpers::removeEmptyItems(explode('|', $params), function($param){
-
-            return Helpers::trimQuots($param);
-        });
-    }
-
-    /**
-     * It checks the 'data-type' provided mapped to a giving types
-     * 
-     * @param array $field
-     * @param array $types
-     *
-     * @return bool
-    */
-    protected function isTypeOf(array $field, array $types = ['enum'])
-    {
-        $map = $this->dataTypeMap();
-
-        return isset($field['data-type']) && isset($map[$field['data-type']]) ? in_array($map[$field['data-type']], $types) : false;
-    }
-
-    /**
-     * It checks if a giving field is a primary or not.
-     * 
-     * @param CrestApps\CodeGenerator\Support\Field $newField
-     *
-     * @return bool
-    */
-    protected function isPrimaryField(Field & $newField)
-    {
-        return ($newField->name == 'id' || $newField->isAutoIncrement || $newField->isPrimary) 
-            && !in_array($newField->dataType, $this->validPrimaryDataTypes);
-    }
-
-    /**
      * It set the labels property for a giving field
      * 
      * @param CrestApps\CodeGenerator\Support\Field $newField

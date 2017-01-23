@@ -267,9 +267,27 @@ class Helpers {
         }, $items);
     }
 
-
+    /**
+     * Trims a giving string from whitespaces and single/double quotes and square brake.
+     *
+     * @return string
+     */
     public static function trimQuots($str)
     {
-        return trim($str, " \t\n\r\0\x0B \"'");
+        return trim($str, " \t\n\r\0\x0B \"'[]");
+    }
+
+    /**
+     * It splits a giving string by a giving seperator after trimming each part 
+     * from whitespaces and single/double quotes. Any empty string is eliminated.
+     *
+     * @return array
+     */
+    public static function convertStringToArray($str, $seperator = ',')
+    {
+        return self::removeEmptyItems(explode($seperator, $str), function($param){
+
+            return self::trimQuots($param);
+        });
     }
 }

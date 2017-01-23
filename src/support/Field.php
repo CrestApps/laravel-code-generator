@@ -348,9 +348,9 @@ class Field {
     {
         return [
             'name' => $this->name,
-            'labels' => $this->labelsToJson($this->getLabels()),
+            'labels' => $this->labelsToRaw($this->getLabels()),
             'html-type' => $this->htmlType,
-            'options' => $this->optionsToJson($this->getOptions()),
+            'options' => $this->optionsToRaw($this->getOptions()),
             'html-value' => $this->htmlValue,
             'validation' => implode('|', $this->validationRules),
             'is-on-index' => $this->isOnIndexView,
@@ -384,19 +384,34 @@ class Field {
         return json_encode($this->toArray());
     }
 
-    protected function labelsToJson(array $labels)
+    /**
+     * Gets current labels in a raw format.
+     *
+     * @return mix (string|object)
+     */
+    protected function labelsToRaw(array $labels)
     {
         $final = [];
 
         foreach($labels as $label)
         {
+            if($label->isPlain)
+            {
+                return $label->text;
+            }
+
             $final[$label->lang] = $label->text;
         }
 
         return (object) $final;
     }
 
-    protected function optionsToJson(array $options)
+    /**
+     * Gets current Options into a raw format.
+     *
+     * @return object
+     */
+    protected function optionsToRaw(array $options)
     {
         $final = [];
 

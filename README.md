@@ -1,6 +1,6 @@
 # An awesome code generator for laravel framework - with client-side validation
 
-For full documentation and screenshots please visit <a href="https://crestapps.com/laravel-code-generator/docs/1.0" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
+For full documentation and screenshots please visit <a href="https://crestapps.com/laravel-code-generator/docs/1.1" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
 
 
 ## Introduction
@@ -9,7 +9,7 @@ A clean code generator for Laravel framework that will save you time! This aweso
 
 ## Features
 
-* Create full resource using a single command with/without <strong>migration</strong> or from <strong>existing database</strong>.
+* Create full resources using a single command with/without <strong>migration</strong> or from <strong>existing database</strong>.
 * Create standard CRUD controllers with simple or form-request validation.
 * Create model with relations.
 * Create named routes.
@@ -20,17 +20,14 @@ A clean code generator for Laravel framework that will save you time! This aweso
 * Auto multiple-response storing in the database.
 * Create form-request.
 * Customizable view’s templates to enable you to change the standard look and feel of your application.
-* Create view's layouts.
-* Change the template at run time.
+* Create view's layouts with and without client-side validation.
+* Change the template at run time to generate different views.
 * Create code to upload file.
+* Ability to generate views with and without Laravel-Collective.
 * Lots of documentation.
 
 
-
 ## Installation
-
-> If you don't have LaravelCollective Forms & HTML package installed, it will be installed for you. However you'll still have to update your config/app.php to bootstrap the package to the framework.
-
 
 
  To download this package into your laravel project, use the command-line to execute the following command 
@@ -38,39 +35,27 @@ A clean code generator for Laravel framework that will save you time! This aweso
 composer require crestapps/laravel-code-generator --dev
 ```
  
- To bootstrap the packages into your project, open the `config/app.php` file in your project and follow the 
+ To bootstrap the packages into your project, open the `config/app.php` file in your project. Then, look for the providers array.
 
+Add the following line to bootstrap laravel-code-generator to the framework.
 
-First, look for the `providers` array. Add the following line to bootstrap laravel-code-generator to the framework.
 ```
 CrestApps\CodeGenerator\CodeGeneratorServiceProvider::class,
 ```
 
-Add the following line to bootstrap "LaravelCollective Forms & HTML package" to the framework.
-```
-Collective\Html\HtmlServiceProvider::class,
-```
-
-Second, look for the `aliases` array. Then, add the following two lines to create an aliase for "LaravelCollective Forms & HTML package".
-```
-'Form' => Collective\Html\FormFacade::class,
-'Html' => Collective\Html\HtmlFacade::class,
-```
-
-
 Finally, execute the following command from the command-line to publish the package's config and the default template to start generating awesome code.
 ```
-php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServiceProvider"
+php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServiceProvider" --tag=default
 ```
 
-> A layout is required for the default views! The code generator allows you to create a layout using the command-line. Of cource you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/ "CSS bootstrap framework") in your layout for the default templates to work properly. Additionally, you can chose to you design your own templetes using a different framework.
+> A layout is required for the default views! The code generator allows you to create a layout using the command-line. Of cource you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/ "CSS bootstrap framework") in your layout for the default templates to work properly. Additionally, you can chose to you design your own templetes using a different or no css framework. 
 
 
 ## Available Commands
 
-> The command in wetween the square brackets [] must be replaced with a variable of your choice.
+> The command in between the square brackets [] must be replaced with a variable of your choice.
 
-* php artisan create:resource [model-name]
+* php artisan create:resources [model-name]
 * php artisan create:layout [application-name]
 * php artisan create:controller [controller-name]
 * php artisan create:model [model-name]
@@ -86,7 +71,7 @@ php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServ
 * php artisan create:language [language-file-name]
 * php artisan create:fields-file [table-name]
 
-> Full documentation available at [CrestApps.com](https://crestapps.com/laravel-code-generator/docs/1.0 "Laravel Code Generator Documentation"). 
+> Full documentation available at [CrestApps.com](https://crestapps.com/laravel-code-generator/docs/1.1 "Laravel Code Generator Documentation"). 
 
 
 ## License
