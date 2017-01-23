@@ -800,10 +800,9 @@ abstract class HtmlGeneratorBase
      */
     protected function getTitle(Label $label, $raw = false)
     {
-
         if(!$label->isPlain)
         {
-            return $this->getTitleTranslation($label, $raw);
+            return $this->getTranslatedTitle($label, $raw);
         }
             
         return $this->getPlainTitle($label, $raw);

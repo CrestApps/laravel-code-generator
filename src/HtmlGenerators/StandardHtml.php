@@ -231,4 +231,22 @@ class StandardHtml extends HtmlGeneratorBase
 
         return sprintf("in_array(%s, old('%s', isset(\$%s) ? \$%s->%s : []))", $valueString, $name, $modelName, $modelName, $name);
     }
+
+    /**
+     * Creates html label.
+     *
+     * @param string $name
+     * @param CrestApps\CodeGenerator\Support\Label $label
+     *
+     * @return string
+     */
+    protected function getLabelElement($name, Label $label)
+    {
+        $labelStub = $this->getStubContent('form-label-field.blade', $this->template);
+
+        $this->replaceFieldName($labelStub, $name)
+             ->replaceFieldTitle($labelStub, $this->getTitle($label, true));
+
+        return $labelStub;
+    }
 }

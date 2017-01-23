@@ -32,7 +32,6 @@ return [
 
     'templates_path' => base_path('resources/codegenerator-templates'),
 
-
     /*
     |--------------------------------------------------------------------------
     | Array of templetes that should be generated with Laravel-Collective
@@ -46,8 +45,6 @@ return [
     'laravel_collective_templates' => [
         'default-collective'
     ],
-
-
 
     /*
     |--------------------------------------------------------------------------

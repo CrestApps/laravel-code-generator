@@ -1,8 +1,9 @@
 <?php
-namespace CrestApps\CodeGenerator\DatabaseParser;
+namespace CrestApps\CodeGenerator\DatabaseParsers;
 
 use CrestApps\CodeGenerator\Support\Field;
 use CrestApps\CodeGenerator\Support\FieldOptimizer;
+
 use Exception;
 use App;
 use DB;
@@ -230,6 +231,7 @@ abstract class ParserBase
     */
 	protected function setLabel(Field & $field, $name)
 	{
+        
 		$field->addLabel( $this->getLabelName($name), $this->tableName, true, $this->locale);
 
 		return $this;
@@ -300,25 +302,6 @@ abstract class ParserBase
     {
         return config('codegenerator.eloquent_type_to_method');
     }
-
-    /**
-     * Set the unsiged flag for a giving field.
-     *
-     * @param CrestApps\CodeGenerator\Support\Field $field
-     * @param string $type
-     *
-     * @return $this
-    */
-	protected function setUnsigned(Field & $field, $type)
-	{
-		if(strpos($type, 'unsigned') !== false)
-		{
-			$field->isUnsigned = true;
-			$field->validationRules[] = sprintf('min:%s', 0);
-		}
-
-		return $this;
-	}
 
     /**
      * Set the column comment for a giving field.

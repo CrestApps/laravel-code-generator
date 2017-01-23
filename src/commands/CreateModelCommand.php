@@ -18,7 +18,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected $signature = 'create:model
                             {model-name : The name of the model.}
-                            {--table= : The name of the table.}
+                            {--table-name= : The name of the table.}
                             {--fillable= : The exact string to put in the fillable property of the model.}
                             {--relationships= : The relationships for the model.}
                             {--primary-key=id : The name of the primary key.}
@@ -150,7 +150,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function getCommandInput()
     {        
-        $table = trim($this->option('table')) ?: strtolower(str_plural(trim($this->argument('model-name'))));
+        $table = trim($this->option('table-name')) ?: strtolower(str_plural(trim($this->argument('model-name'))));
         $fillable = trim($this->option('fillable'));
         $primaryKey = trim($this->option('primary-key'));
         $relationships = !empty(trim($this->option('relationships'))) ? explode(',', trim($this->option('relationships'))) : [];

@@ -30,15 +30,16 @@
 
         </div>
         
-        <div class="panel-body">
+        
         @if(count(${{modelNamePlural}}) == 0)
-            <div class="alert alert-warning text-center">
-                <p>There are no records!</p>
+            <div class="panel-body text-center">
+                <h4>There are no records!</h4>
             </div>
         @else
+        <div class="panel-body panel-body-with-table">
             <div class="table-responsive">
 
-                <table class="table table-striped">
+                <table class="table table-striped ">
                     <thead>
                         <tr>
 {{headerCells}}
@@ -71,12 +72,14 @@
                     </tbody>
                 </table>
 
-                <div class="pagination-wrapper">
-                    {!! ${{modelNamePlural}}->render() !!}
-                </div>
-
             </div>
-        @endif
         </div>
+
+        <div class="panel-footer">
+            {!! ${{modelNamePlural}}->render() !!}
+        </div>
+        
+        @endif
+    
     </div>
 @endsection

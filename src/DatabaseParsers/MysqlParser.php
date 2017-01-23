@@ -1,7 +1,7 @@
 <?php
-namespace CrestApps\CodeGenerator\DatabaseParser;
+namespace CrestApps\CodeGenerator\DatabaseParsers;
 
-use CrestApps\CodeGenerator\DatabaseParser\ParserBase;
+use CrestApps\CodeGenerator\DatabaseParsers\ParserBase;
 use CrestApps\CodeGenerator\Support\Field;
 use DB;
 

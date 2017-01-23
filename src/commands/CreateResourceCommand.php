@@ -27,7 +27,7 @@ class CreateResourceCommand extends Command
                             {--models-per-page=25 : The amount of models per page for index pages.}
                             {--lang-file-name= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
-                            {--table= : The name of the table.}
+                            {--table-name= : The name of the table.}
                             {--fillable= : The exact string to put in the fillable property of the model.}
                             {--primary-key=id : The name of the primary key.}
                             {--with-soft-delete : Enables softdelete future should be enable in the model.}
@@ -236,7 +236,7 @@ class CreateResourceCommand extends Command
         $this->call('create:model', 
             [
                 'model-name' => $input->modelName,
-                '--table' => $input->table,
+                '--table-name' => $input->table,
                 '--fillable' => $input->fillable,
                 '--relationships' => $input->relationships,
                 '--primary-key' => $input->primaryKey,
@@ -274,7 +274,7 @@ class CreateResourceCommand extends Command
         $withoutMigration = $this->option('without-migration');
         $force = $this->option('force');
         $modelDirectory = trim($this->option('model-directory'));
-        $table = trim($this->option('table')) ?: $modelNamePlural;
+        $table = trim($this->option('table-name')) ?: $modelNamePlural;
         $fillable = trim($this->option('fillable'));
         $primaryKey = trim($this->option('primary-key'));
         $relationships = trim($this->option('relationships'));

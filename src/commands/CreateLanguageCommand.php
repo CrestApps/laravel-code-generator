@@ -55,6 +55,7 @@ class CreateLanguageCommand extends Command
 
         $languages = $this->getLanguageItems($fields);
 
+
         foreach ($languages as $language => $labels) 
         {
             $fileFullName = $this->getLocalePath($language) . $input->fileName . '.php';
