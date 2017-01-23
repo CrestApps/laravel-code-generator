@@ -25,11 +25,11 @@ class CodeGeneratorServiceProvider extends ServiceProvider
         ], 'default');
 
         $this->publishes([
-            __DIR__ . '/templates/' => base_path('resources\\codegenerator-templates'),
+            __DIR__ . '/templates/default' => base_path('resources\\codegenerator-templates\\default'),
         ], 'default');
 
         $this->publishes([
-            __DIR__ . '/templates/' => base_path('resources\\codegenerator-templates'),
+            __DIR__ . '/templates/default-collective' => base_path('resources\\codegenerator-templates\\default-collective'),
         ], 'collective-template');
 
         $this->createDirectory(base_path('resources\\codegenerator-files'));
