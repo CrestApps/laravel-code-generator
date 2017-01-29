@@ -1,8 +1,9 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Support;
+namespace CrestApps\CodeGenerator\Models;
 
-class Label {
+class Label 
+{
 	
     /**
      * The label's text

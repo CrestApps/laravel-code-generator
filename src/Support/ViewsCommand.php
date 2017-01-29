@@ -5,7 +5,7 @@ namespace CrestApps\CodeGenerator\Support;
 use Illuminate\Console\GeneratorCommand;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use Illuminate\Filesystem\Filesystem;
-use CrestApps\CodeGenerator\Support\ViewInput;
+use CrestApps\CodeGenerator\Models\ViewInput;
 use CrestApps\CodeGenerator\HtmlGenerators\LaravelCollectiveHtml;
 use CrestApps\CodeGenerator\HtmlGenerators\StandardHtml;
 use Exception;
@@ -156,32 +156,41 @@ abstract class ViewsCommand extends GeneratorCommand
      * @param bool $force
      * @param array $fields
      *
-     * @throws Exeption
-     *
-     * @return $this
+     * @return bool
      */
-    protected function handleNewFilePolicy($file, $force, array $fields = null)
+    protected function canCreateView($file, $force, array $fields = null)
     {
         if($this->files->exists($file) && !$force)
         {
-            throw new Exception('The view already exists. To override it, try passing the "--force" option to the command');
+            $this->error($this->getViewNameFromFile($file) . ' view already exists.');
+            return false;
         }
 
-        if( !is_null($fields) )
+        if( !is_null($fields) && !isset($fields[0]) )
         {
-            if(!isset($fields[0]))
-            {
-                throw new Exception('You must provide at least one field to generate the views!');
-            }
-
-            if(is_null($this->getPrimaryKeyName($fields)))
-            {
-                throw new Exception('None of the fields is set primary! You must assign on of the fields to be a primary field.');
-            }
-
+            $this->error('You must provide at least one field to generate the views!');
+            return false;
         }
 
-        return $this;
+        if(!is_null($fields) && is_null($this->getPrimaryKeyName($fields)) )
+        {
+            $this->error('None of the fields is set primary! You must assign on of the fields to be a primary field.');
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Get the view's name of a giving file.
+     *
+     * @param string $file
+     *
+     * @return string
+     */
+    protected function getViewNameFromFile($file)
+    {
+        return ucfirst(strstr(basename($file), '.', true));
     }
 
     /**

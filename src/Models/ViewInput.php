@@ -1,9 +1,9 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Support;
+namespace CrestApps\CodeGenerator\Models;
 
-class ViewInput {
-	
+class ViewInput
+{
     /**
      * The provided modelName
      *
@@ -61,14 +61,7 @@ class ViewInput {
     public $layout;
 
     /**
-     * The provided template name
-     *
-     * @var string
-     */
-    public $template;
-
-    /**
-     * Create a new transformer instance.
+     * Create a new input instance.
      *
      * @return void
      */

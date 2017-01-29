@@ -6,7 +6,7 @@ use File;
 use Exception;
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\Field;
+use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 
 class CreateMigrationCommand extends Command
@@ -395,7 +395,7 @@ class CreateMigrationCommand extends Command
      * Adds a 'field type' to the property
      *
      * @param string $property
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return $this
      */
@@ -425,7 +425,7 @@ class CreateMigrationCommand extends Command
     /**
      * Constructs the second parameter to the type method
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return string
      */
@@ -444,7 +444,7 @@ class CreateMigrationCommand extends Command
     /**
      * Constructs the second parameter to the enum type method
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return string
      */
@@ -596,7 +596,7 @@ class CreateMigrationCommand extends Command
      * Adds the field's "default" value to the giving property.
      *
      * @param string $property
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return $this
      */
@@ -614,7 +614,7 @@ class CreateMigrationCommand extends Command
      * Adds the field's "unsigned" value to the giving property.
      *
      * @param string $property
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return $this
      */
@@ -632,7 +632,7 @@ class CreateMigrationCommand extends Command
      * Adds the field's "unique" value to the giving property.
      *
      * @param string $property
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return $this
      */
@@ -650,7 +650,7 @@ class CreateMigrationCommand extends Command
      * Adds the field's "index" value to the giving property.
      *
      * @param string $property
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return $this
      */
@@ -668,7 +668,7 @@ class CreateMigrationCommand extends Command
      * Adds the field's "nullable" value to the giving property.
      *
      * @param string $property
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return $this
      */
@@ -686,7 +686,7 @@ class CreateMigrationCommand extends Command
      * Adds the field's "comment" value to the giving property.
      *
      * @param string $property
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return $this
      */
@@ -723,7 +723,7 @@ class CreateMigrationCommand extends Command
      * Adds the table's "primary column" to the giving property.
      *
      * @param string $property
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return $this
      */
@@ -823,7 +823,7 @@ class CreateMigrationCommand extends Command
     {
         $filename = sprintf('%s_create_%s_table.php', date('Y_m_d_His'), strtolower($name));
 
-        return Helpers::postFixWith($name, '.php');
+        return Helpers::postFixWith($filename, '.php');
     }
 
 
@@ -887,7 +887,8 @@ class CreateMigrationCommand extends Command
     {
         if(File::exists($fileFullname) && !$force)
         {
-            throw new Exception('There is a migration exists with the same name! To override existing file try passing "--force" command');
+            $this->error('The provided migration\'s name already exists!');
+            return $this;
         }
 
         if( ! File::put($fileFullname, $stub))
@@ -895,7 +896,7 @@ class CreateMigrationCommand extends Command
             throw new Exception('The migration failed to create');
         }
 
-        $this->info('New migrations have been created');
+        $this->info('Migrations have been created');
 
         return $this;
     }

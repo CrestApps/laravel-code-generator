@@ -6,6 +6,7 @@ use Exception;
 use App;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\FieldOptimizer;
+use CrestApps\CodeGenerator\Models\Field;
 
 class FieldTransformer {
 
@@ -126,7 +127,7 @@ class FieldTransformer {
      * @param string|json $json
      * @param string $localeGroup
      *
-     * @return array Support\Field
+     * @return array
     */
     public static function Json($json, $localeGroup)
     {
@@ -167,7 +168,7 @@ class FieldTransformer {
      * @param string|json $json
      * @param string $localeGroup
      *
-     * @return array Support\Field
+     * @return array
     */
     protected function transferField(array $field, & $assignedPrimary)
     {
@@ -249,7 +250,7 @@ class FieldTransformer {
     /**
      * Sets the dataType for a giving field
      * 
-     * @param CrestApps\CodeGenerator\Support\Field $newField
+     * @param CrestApps\CodeGenerator\Models\Field $newField
      * @param array $field
      *
      * @return $this
@@ -269,7 +270,7 @@ class FieldTransformer {
     /**
      * Sets the range for a giving field
      * 
-     * @param CrestApps\CodeGenerator\Support\Field $newField
+     * @param CrestApps\CodeGenerator\Models\Field $newField
      * @param array $field
      *
      * @return $this
@@ -287,7 +288,7 @@ class FieldTransformer {
     /**
      * Sets the DataTypeParam for a giving field
      * 
-     * @param CrestApps\CodeGenerator\Support\Field $newField
+     * @param CrestApps\CodeGenerator\Models\Field $newField
      * @param array $field
      *
      * @return $this
@@ -305,7 +306,7 @@ class FieldTransformer {
     /**
      * Sets the isMultipleAnswers for a giving field
      * 
-     * @param CrestApps\CodeGenerator\Support\Field $newField
+     * @param CrestApps\CodeGenerator\Models\Field $newField
      *
      * @return $this
     */
@@ -323,7 +324,7 @@ class FieldTransformer {
     /**
      * It set the labels property for a giving field
      * 
-     * @param CrestApps\CodeGenerator\Support\Field $newField
+     * @param CrestApps\CodeGenerator\Models\Field $newField
      * @param array $field
      *
      * @return $this
@@ -343,7 +344,7 @@ class FieldTransformer {
     /**
      * It set the validationRules property for a giving field
      * 
-     * @param CrestApps\CodeGenerator\Support\Field $newField
+     * @param CrestApps\CodeGenerator\Models\Field $newField
      * @param array $field
      *
      * @return $this
@@ -361,7 +362,7 @@ class FieldTransformer {
     /**
      * It set the options property for a giving field
      * 
-     * @param CrestApps\CodeGenerator\Support\Field $newField
+     * @param CrestApps\CodeGenerator\Models\Field $newField
      * @param array $field
      *
      * @return $this
@@ -438,7 +439,7 @@ class FieldTransformer {
      * It set the predefined property for a giving field.
      * it uses the predefinedKeyMapping array
      * 
-     * @param CrestApps\CodeGenerator\Support\Field $newField
+     * @param CrestApps\CodeGenerator\Models\Field $newField
      * @param array $field
      *
      * @return $this

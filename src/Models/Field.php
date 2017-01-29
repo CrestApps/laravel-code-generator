@@ -1,10 +1,12 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Support;
+namespace CrestApps\CodeGenerator\Models;
 
-use CrestApps\CodeGenerator\Support\Label;
+use CrestApps\CodeGenerator\Models\Label;
+use CrestApps\CodeGenerator\Support\Helpers;
 
-class Field {
+class Field 
+{
 	
     /**
      * The name of the field

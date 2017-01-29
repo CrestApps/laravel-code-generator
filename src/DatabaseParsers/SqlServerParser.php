@@ -1,12 +1,12 @@
 <?php
 namespace CrestApps\CodeGenerator\DatabaseParser;
 
-use CrestApps\CodeGenerator\Support\DatabaseParser\ParserBase;
-use CrestApps\CodeGenerator\Support\Field;
-use CrestApps\CodeGenerator\Support\FieldOptimizer;
-use Exception;
-use App;
 use DB;
+use App;
+use Exception;
+use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Models\FieldOptimizer;
+use CrestApps\CodeGenerator\Support\DatabaseParser\ParserBase;
 
 class SqlServerParser extends ParserBase
 {
@@ -140,7 +140,7 @@ class SqlServerParser extends ParserBase
     /**
      * Set the unsiged flag for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
      *
      * @return $this
@@ -159,7 +159,7 @@ class SqlServerParser extends ParserBase
     /**
      * Set the html type for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
      *
      * @return $this
@@ -179,7 +179,7 @@ class SqlServerParser extends ParserBase
     /**
      * Set the data type for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
      *
      * @return $this
@@ -199,7 +199,7 @@ class SqlServerParser extends ParserBase
     /**
      * Set the nullable for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $nullable
      *
      * @return $this
@@ -214,7 +214,7 @@ class SqlServerParser extends ParserBase
     /**
      * Set the max length for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $length
      *
      * @return $this
@@ -233,7 +233,7 @@ class SqlServerParser extends ParserBase
     /**
      * Set the default value for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $default
      *
      * @return $this
@@ -251,7 +251,7 @@ class SqlServerParser extends ParserBase
     /**
      * Set the labels for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $name
      *
      * @return $this
@@ -266,7 +266,7 @@ class SqlServerParser extends ParserBase
     /**
      * Set the keys for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $key
      * @param string $extra
      *

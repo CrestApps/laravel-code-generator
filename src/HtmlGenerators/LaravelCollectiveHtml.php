@@ -3,7 +3,7 @@
 namespace CrestApps\CodeGenerator\HtmlGenerators;
 
 use CrestApps\CodeGenerator\HtmlGenerators\HtmlGeneratorBase;
-use CrestApps\CodeGenerator\Support\Label;
+use CrestApps\CodeGenerator\Models\Label;
 
 class LaravelCollectiveHtml extends HtmlGeneratorBase
 {
@@ -120,7 +120,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     /**
      * Gets a plain title from a giving label.
      *
-     * @param CrestApps\CodeGenerator\Support\Label $label
+     * @param CrestApps\CodeGenerator\Models\Label $label
      * @param bool $raw
      *
      * @return string

@@ -19,7 +19,7 @@ class CreateViewsCommand extends ViewsCommand
                             {--fields-file= : File name to import fields from.}
                             {--views-directory= : The name of the directory to create the views under.}
                             {--routes-prefix= : The routes prefix.}
-                            {--only-views=create,edit,index,show,form : The only views to be created.}
+                            {--only-views=form,create,edit,show,index : The only views to be created.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
                             {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the view if one already exists.}';
@@ -50,14 +50,44 @@ class CreateViewsCommand extends ViewsCommand
     protected function handleCreateView()
     {
         $input = $this->getCommandInput();
-        $views = $this->getOnlyViews();
+        $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
 
-        foreach($views as $view)
+        if($this->isMetRequirements($fields))
         {
-            $this->callSilent($this->getViewCommand($view), $input->getArrguments());
+            $this->info('Crafting views...');
+
+            foreach($this->getOnlyViews() as $view)
+            {
+                $this->call($this->getViewCommand($view), $input->getArrguments());
+            }
+        }
+    }
+
+    /**
+     * It checks if a view file exists and the --force option is not present
+     *
+     * @param string $file
+     * @param bool $force
+     * @param array $fields
+     *
+     * @return bool
+     */
+    protected function isMetRequirements(array $fields = null)
+    {
+
+        if( is_null($fields) || !isset($fields[0]) )
+        {
+            $this->error('You must provide at least one field to generate the views!');
+            return false;
         }
 
-        $this->info('Views were created successfully.');
+        if(is_null($this->getPrimaryKeyName($fields)) )
+        {
+            $this->error('None of the fields is set primary! You must assign on of the fields to be a primary field.');
+            return false;
+        }
+
+        return true;
     }
 
     /**

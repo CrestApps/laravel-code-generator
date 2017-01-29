@@ -139,7 +139,7 @@ class CreateControllerCommand extends GeneratorCommand
     /**
      * Calls the create:form-request command
      *
-     * @param  CrestApps\CodeGenerator\Support\ViewInput $input
+     * @param  CrestApps\CodeGenerator\Models\ViewInput $input
      *
      * @return $this
      */

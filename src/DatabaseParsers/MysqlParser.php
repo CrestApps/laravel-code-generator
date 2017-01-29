@@ -1,9 +1,9 @@
 <?php
 namespace CrestApps\CodeGenerator\DatabaseParsers;
 
-use CrestApps\CodeGenerator\DatabaseParsers\ParserBase;
-use CrestApps\CodeGenerator\Support\Field;
 use DB;
+use CrestApps\CodeGenerator\DatabaseParsers\ParserBase;
+use CrestApps\CodeGenerator\Models\Field;
 
 class MysqlParser extends ParserBase
 {
@@ -36,7 +36,7 @@ class MysqlParser extends ParserBase
      *
      * @param object $column
      *
-     * @return CrestApps\CodeGenerator\Support\Field;
+     * @return CrestApps\CodeGenerator\Model\Field;
     */
 	protected function getTransfredField($column)
 	{
@@ -59,7 +59,7 @@ class MysqlParser extends ParserBase
     /**
      * Set the options for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
      *
      * @return $this
@@ -86,7 +86,7 @@ class MysqlParser extends ParserBase
     /**
      * Adds options for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param array $options
      * @param bool $isPlain
      * @param string $locale

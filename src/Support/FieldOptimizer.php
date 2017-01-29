@@ -1,7 +1,7 @@
 <?php
 
 namespace CrestApps\CodeGenerator\Support;
-use CrestApps\CodeGenerator\Support\Field;
+use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Support\ValidationParser;
 
 class FieldOptimizer {
@@ -9,11 +9,10 @@ class FieldOptimizer {
     /**
      * The field to optimize
      *
-     * @var CrestApps\CodeGenerator\Support\Field
+     * @var CrestApps\CodeGenerator\Models\Field
      */
 	protected $field;
     
-
     /**
      * The validation parser instance.
      *
@@ -55,7 +54,7 @@ class FieldOptimizer {
     /**
      * Gets the optimized field.
      *
-     * @return CrestApps\CodeGenerator\Support\Field
+     * @return CrestApps\CodeGenerator\Models\Field
      */
     public function getField()
     {
@@ -115,7 +114,7 @@ class FieldOptimizer {
      * Ensure, the datatype is set to be valid otherwise make it "int".
      * It also make sure the primary column does not appears on the views unless it specified
      * 
-     * @param CrestApps\CodeGenerator\Support\Field $this->field
+     * @param CrestApps\CodeGenerator\Models\Field $this->field
      *
      * @return $this
     */

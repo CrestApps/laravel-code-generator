@@ -55,13 +55,15 @@ class CreateIndexViewCommand extends ViewsCommand
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'index');
         $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName ,$this->getTemplateName());
 
-        $this->handleNewFilePolicy($destenationFile, $input->force, $fields)
-             ->replaceCommonTemplates($stub, $input)
-             ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
-             ->replaceHeaderCells($stub, $htmlCreator->getIndexHeaderCells())
-             ->replaceBodyCells($stub, $htmlCreator->getIndexBodyCells())
-             ->createViewFile($stub, $destenationFile)
-             ->info('Index view was created successfully.');
+        if($this->canCreateView($destenationFile, $input->force, $fields))
+        {
+            $this->replaceCommonTemplates($stub, $input)
+                 ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
+                 ->replaceHeaderCells($stub, $htmlCreator->getIndexHeaderCells())
+                 ->replaceBodyCells($stub, $htmlCreator->getIndexBodyCells())
+                 ->createViewFile($stub, $destenationFile)
+                 ->info('Index view was crafted successfully.');
+        }
     }
 
     /**

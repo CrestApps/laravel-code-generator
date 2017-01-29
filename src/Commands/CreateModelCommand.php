@@ -5,7 +5,7 @@ namespace CrestApps\CodeGenerator\Commands;
 use Illuminate\Console\GeneratorCommand;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\Field;
+use CrestApps\CodeGenerator\Models\Field;
 
 class CreateModelCommand extends GeneratorCommand
 {
@@ -284,7 +284,7 @@ class CreateModelCommand extends GeneratorCommand
     /**
      * Gets accessor for a giving field.
      *
-     * @param  CrestApps\CodeGenerator\Support\Field  $field
+     * @param  CrestApps\CodeGenerator\Models\Field  $field
      *
      * @return string
      */
@@ -301,7 +301,7 @@ class CreateModelCommand extends GeneratorCommand
     /**
      * Gets mutator for a giving field.
      *
-     * @param  CrestApps\CodeGenerator\Support\Field  $field
+     * @param  CrestApps\CodeGenerator\Models\Field  $field
      *
      * @return string
      */

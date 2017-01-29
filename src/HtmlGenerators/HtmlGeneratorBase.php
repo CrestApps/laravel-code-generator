@@ -3,10 +3,10 @@
 namespace CrestApps\CodeGenerator\HtmlGenerators;
 
 use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Support\Field;
-use CrestApps\CodeGenerator\Support\Label;
+use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\ViewInput;
+use CrestApps\CodeGenerator\Models\ViewInput;
 use CrestApps\CodeGenerator\Support\ValidationParser;
 
 abstract class HtmlGeneratorBase
@@ -240,7 +240,7 @@ abstract class HtmlGeneratorBase
     /**
      * Gets a value accessor for the field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return string
     */
@@ -516,7 +516,7 @@ abstract class HtmlGeneratorBase
     /**
      * Creates html label from a giving field
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return string
      */
@@ -534,7 +534,7 @@ abstract class HtmlGeneratorBase
      * Creates html label.
      *
      * @param string $name
-     * @param CrestApps\CodeGenerator\Support\Label $label
+     * @param CrestApps\CodeGenerator\Models\Label $label
      *
      * @return string
      */
@@ -763,7 +763,7 @@ abstract class HtmlGeneratorBase
      * Replace the fieldTitle fo the given stub.
      *
      * @param string $stub
-     * @param CrestApps\CodeGenerator\Support\Label $label
+     * @param CrestApps\CodeGenerator\Models\Label $label
      * @param string $fieldTitle
      *
      * @return $this
@@ -778,7 +778,7 @@ abstract class HtmlGeneratorBase
     /**
      * Gets title in trans() method.
      *
-     * @param CrestApps\CodeGenerator\Support\Label $label
+     * @param CrestApps\CodeGenerator\Models\Label $label
      * @param bool $raw
      *
      * @return string
@@ -793,7 +793,7 @@ abstract class HtmlGeneratorBase
     /**
      * Gets title to display from a giving label.
      *
-     * @param CrestApps\CodeGenerator\Support\Label $label
+     * @param CrestApps\CodeGenerator\Models\Label $label
      * @param bool $raw
      *
      * @return $this
@@ -995,7 +995,7 @@ abstract class HtmlGeneratorBase
        /**
      * Gets a plain title from a giving label.
      *
-     * @param CrestApps\CodeGenerator\Support\Label $label
+     * @param CrestApps\CodeGenerator\Models\Label $label
      * @param bool $raw
      *
      * @return string

@@ -3,7 +3,7 @@
 namespace CrestApps\CodeGenerator\HtmlGenerators;
 
 use CrestApps\CodeGenerator\HtmlGenerators\HtmlGeneratorBase;
-use CrestApps\CodeGenerator\Support\Label;
+use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Helpers;
 class StandardHtml extends HtmlGeneratorBase
 {
@@ -120,7 +120,7 @@ class StandardHtml extends HtmlGeneratorBase
     /**
      * Gets a plain title from a giving label.
      *
-     * @param CrestApps\CodeGenerator\Support\Label $label
+     * @param CrestApps\CodeGenerator\Models\Label $label
      * @param bool $raw
      *
      * @return string
@@ -236,7 +236,7 @@ class StandardHtml extends HtmlGeneratorBase
      * Creates html label.
      *
      * @param string $name
-     * @param CrestApps\CodeGenerator\Support\Label $label
+     * @param CrestApps\CodeGenerator\Models\Label $label
      *
      * @return string
      */

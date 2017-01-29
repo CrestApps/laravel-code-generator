@@ -1,11 +1,11 @@
 <?php
 namespace CrestApps\CodeGenerator\DatabaseParsers;
 
-use CrestApps\CodeGenerator\Support\Field;
-use CrestApps\CodeGenerator\Support\FieldOptimizer;
-use Exception;
-use App;
 use DB;
+use App;
+use Exception;
+use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Support\FieldOptimizer;
 
 abstract class ParserBase
 {
@@ -107,7 +107,7 @@ abstract class ParserBase
     /**
      * Set the unsiged flag for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
      *
      * @return $this
@@ -126,7 +126,7 @@ abstract class ParserBase
     /**
      * Set the html type for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
      *
      * @return $this
@@ -146,7 +146,7 @@ abstract class ParserBase
     /**
      * Set the data type for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
      *
      * @return $this
@@ -166,7 +166,7 @@ abstract class ParserBase
     /**
      * Sets the nullable property for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $nullable
      *
      * @return $this
@@ -181,7 +181,7 @@ abstract class ParserBase
     /**
      * Sets the max length property for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $length
      *
      * @return $this
@@ -200,7 +200,7 @@ abstract class ParserBase
     /**
      * Sets the data value property for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $default
      *
      * @return $this
@@ -218,7 +218,7 @@ abstract class ParserBase
     /**
      * Sets the labels for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $name
      *
      * @return $this
@@ -238,7 +238,7 @@ abstract class ParserBase
     /**
      * Adds labels for all languages for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $name
      *
      * @return $this
@@ -256,7 +256,7 @@ abstract class ParserBase
     /**
      * Sets the keys for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $key
      * @param string $extra
      *
@@ -322,7 +322,7 @@ abstract class ParserBase
     /**
      * Sets the comment's property for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $comment
      *
      * @return $this
@@ -347,7 +347,7 @@ abstract class ParserBase
     /**
      * Gets the field after transfering it from a giving query object.
      *
-     * @return CrestApps\CodeGenerator\Support\Field;
+     * @return CrestApps\CodeGenerator\Models\Field;
     */
     abstract protected function getTransfredField($column);
 }

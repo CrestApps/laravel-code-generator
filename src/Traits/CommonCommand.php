@@ -6,7 +6,7 @@ use App;
 use File;
 use Exception;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\Field;
+use CrestApps\CodeGenerator\Models\Field;
 
 trait CommonCommand 
 {
@@ -22,7 +22,7 @@ trait CommonCommand
      *
      * @var array
      */
-    protected $views = ['index','create','show','edit','form'];
+    protected $views = ['form','index','create','show','edit'];
 
     /**
      * Gets the field from the input
@@ -254,7 +254,7 @@ trait CommonCommand
      *
      * @param array $fields
      * @param string $defaultFieldName
-     * @return CrestApps\CodeGenerator\Support\Field 
+     * @return CrestApps\CodeGenerator\Models\Field 
      */
     protected function getPrimaryField(array $fields, $defaultFieldName = 'id')
     {

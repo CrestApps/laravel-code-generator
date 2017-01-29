@@ -52,13 +52,15 @@ class CreateCreateViewCommand extends ViewsCommand
         $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'create');
 
-        $this->handleNewFilePolicy($destenationFile, $input->force)
-             ->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
-             ->createMissingViews($input)
-             ->replaceCommonTemplates($stub, $input)
-             ->replaceFileUpload($stub, $fields)
-             ->createViewFile($stub, $destenationFile)
-             ->info('A "create view" was created successfully.');
+        if($this->canCreateView($destenationFile, $input->force))
+        {
+            $this->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
+                 ->createMissingViews($input)
+                 ->replaceCommonTemplates($stub, $input)
+                 ->replaceFileUpload($stub, $fields)
+                 ->createViewFile($stub, $destenationFile)
+                 ->info('Create view was crafted successfully.');
+        }
 
     }
 

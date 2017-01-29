@@ -55,12 +55,14 @@ class CreateFormViewCommand extends ViewsCommand
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'form');
         $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName ,$this->getTemplateName());
         
-        $this->handleNewFilePolicy($destenationFile, $input->force)
-             ->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
-             ->replaceCommonTemplates($stub, $input)
-             ->replaceFields($stub, $htmlCreator->getHtmlFields())
-             ->createViewFile($stub, $destenationFile)
-             ->info('Form view was created successfully.');
+        if($this->canCreateView($destenationFile, $input->force))
+        {
+            $this->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
+                 ->replaceCommonTemplates($stub, $input)
+                 ->replaceFields($stub, $htmlCreator->getHtmlFields())
+                 ->createViewFile($stub, $destenationFile)
+                 ->info('Form view was crafted successfully.');
+        }
     }
 
     /**

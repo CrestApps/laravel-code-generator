@@ -3,9 +3,9 @@
 namespace CrestApps\CodeGenerator\HtmlGenerators;
 
 use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Support\Field;
+use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\ViewInput;
+use CrestApps\CodeGenerator\Models\ViewInput;
 use CrestApps\CodeGenerator\Support\ValidationParser;
 
 class GenerateFormViews
@@ -193,7 +193,7 @@ class GenerateFormViews
     /**
      * Gets a value accessor for the field.
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return string
     */
@@ -449,7 +449,7 @@ class GenerateFormViews
     /**
      * Creates html label from a giving field
      *
-     * @param CrestApps\CodeGenerator\Support\Field $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return string
      */
@@ -467,7 +467,7 @@ class GenerateFormViews
      * Creates html label.
      *
      * @param string $name
-     * @param CrestApps\CodeGenerator\Support\Label $label
+     * @param CrestApps\CodeGenerator\Models\Label $label
      *
      * @return string
      */
@@ -742,7 +742,7 @@ class GenerateFormViews
      * Replace the fieldTitle fo the given stub.
      *
      * @param string $stub
-     * @param CrestApps\CodeGenerator\Support\Label $label
+     * @param CrestApps\CodeGenerator\Models\Label $label
      * @param string $fieldTitle
      *
      * @return $this
@@ -757,7 +757,7 @@ class GenerateFormViews
     /**
      * Gets title to display from a label
      *
-     * @param CrestApps\CodeGenerator\Support\Label $label
+     * @param CrestApps\CodeGenerator\Models\Label $label
      * @param bool $raw
      *
      * @return $this

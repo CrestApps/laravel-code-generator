@@ -3,7 +3,7 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use Illuminate\Console\Command;
-use CrestApps\CodeGenerator\Support\Field;
+use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\traits\CommonCommand;
 use DB;

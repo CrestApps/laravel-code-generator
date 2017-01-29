@@ -6,7 +6,7 @@ use File;
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Support\Label;
+use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\CrestAppsTranslator;
 
 class CreateLanguageCommand extends Command

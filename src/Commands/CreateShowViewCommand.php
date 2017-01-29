@@ -54,12 +54,14 @@ class CreateShowViewCommand extends ViewsCommand
         $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName ,$this->getTemplateName());
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'show');
         
-        $this->handleNewFilePolicy($destenationFile, $input->force, $fields)
-             ->replaceCommonTemplates($stub, $input)
-             ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
-             ->replaceTableRows($stub, $htmlCreator->getShowRowsHtmlField())
-             ->createViewFile($stub, $destenationFile)
-             ->info('Show view was created successfully.');
+        if($this->canCreateView($destenationFile, $input->force, $fields))
+        {
+            $this->replaceCommonTemplates($stub, $input)
+                 ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
+                 ->replaceTableRows($stub, $htmlCreator->getShowRowsHtmlField())
+                 ->createViewFile($stub, $destenationFile)
+                 ->info('Show view was crafted successfully.');
+        }
 
     }
 

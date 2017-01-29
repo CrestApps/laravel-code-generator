@@ -1,7 +1,6 @@
 # An awesome code generator for laravel framework - with client-side validation
 
-For full documentation and screenshots please visit <a href="https://crestapps.com/laravel-code-generator/docs/1.1" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
-
+For full documentation and live demo please visit <a href="https://crestapps.com/laravel-code-generator/docs/1.1" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
 
 ## Introduction
 
@@ -26,9 +25,7 @@ A clean code generator for Laravel framework that will save you time! This aweso
 * Ability to generate views with and without Laravel-Collective.
 * Lots of documentation.
 
-
 ## Installation
-
 
  To download this package into your laravel project, use the command-line to execute the following command 
 ```
@@ -71,7 +68,9 @@ php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServ
 * php artisan create:language [language-file-name]
 * php artisan create:fields-file [table-name]
 
-> Full documentation available at [CrestApps.com](https://crestapps.com/laravel-code-generator/docs/1.1 "Laravel Code Generator Documentation"). 
+> Full documentation available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/docs/1.1 "Laravel Code Generator Documentation"). 
+
+> Live demo is available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/demos/1.1 "Laravel Code Generator Live Demo"). 
 
 
 ## License
