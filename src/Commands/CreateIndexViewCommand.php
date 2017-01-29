@@ -51,12 +51,9 @@ class CreateIndexViewCommand extends ViewsCommand
 
         $input = $this->getCommandInput();
         $stub = $this->getStubContent($this->stubName);
-
         $fields = $this->getFields($input->fields,$input->languageFileName, $input->fieldsFile);
-        
-        $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName ,$this->getTemplateName());
-
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'index');
+        $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName ,$this->getTemplateName());
 
         $this->handleNewFilePolicy($destenationFile, $input->force, $fields)
              ->replaceCommonTemplates($stub, $input)
@@ -68,31 +65,31 @@ class CreateIndexViewCommand extends ViewsCommand
     }
 
     /**
-     * It Replaces the headerCells in a giving stub
+     * Replaces the column headers in a giving stub.
      *
      * @param string $stub
-     * @param string $cells
+     * @param string $header
      *
      * @return $this
      */
-    protected function replaceHeaderCells(&$stub, $cells)
+    protected function replaceHeaderCells(&$stub, $header)
     {
-        $stub = str_replace('{{headerCells}}', $cells, $stub);
+        $stub = str_replace('{{headerCells}}', $header, $stub);
 
         return $this;
     }
 
     /**
-     * It Replaces the bodyCells in a giving stub
+     * Replaces the column cells in a giving stub.
      *
      * @param string $stub
-     * @param string $cells
+     * @param string $body
      *
      * @return $this
      */
-    protected function replaceBodyCells(&$stub, $cells)
+    protected function replaceBodyCells(&$stub, $body)
     {
-        $stub = str_replace('{{bodyCells}}', $cells, $stub);
+        $stub = str_replace('{{bodyCells}}', $body, $stub);
 
         return $this;
     }

@@ -11,7 +11,6 @@ use Exception;
 
 class CreateViewLayoutCommand extends Command
 {
-
     use CommonCommand;
 
     /**
@@ -35,7 +34,7 @@ class CreateViewLayoutCommand extends Command
     protected $description = 'Create layout for the views.';
 
     /**
-     * Create a new command instance.
+     * Creates a new command instance.
      *
      * @return void
      */
@@ -45,14 +44,13 @@ class CreateViewLayoutCommand extends Command
     }
 
     /**
-     * Execute the console command.
+     * Executes the console command.
      *
      * @return void
      */
     public function handle()
     {
         $input = $this->getCommandInput();
-
         $stub = $this->getStubContent($input->withoutValidation ? 'layout' : 'layout-with-validation', $this->getTemplateName());
         $path = $this->getDestenationPath($input->layoutDirectory);
 
@@ -79,7 +77,7 @@ class CreateViewLayoutCommand extends Command
             throw new Exception('The destenation file already exists. To override the existing file, pass "--force" option.');
         }
 
-        if(!File::put($filename, $content))
+        if( ! File::put($filename, $content))
         {
             throw new Exception('Unexpected error occurred while trying to create the file. please try your request again.');
         }
@@ -88,8 +86,8 @@ class CreateViewLayoutCommand extends Command
     }
 
     /**
-     * Checks if a file exists or not.
-     * if the file exists and $force is set to true the method will return true.
+     * Checks if the giving file exists or not.
+     * If the file exists and $force is set to true the method will return true.
      *
      * @param string $filename
      * @param bool $force
@@ -102,7 +100,7 @@ class CreateViewLayoutCommand extends Command
     }
 
     /**
-     * Gets the destenation path
+     * Gets the destenation path.
      *
      * @param string $path
      *
@@ -135,7 +133,7 @@ class CreateViewLayoutCommand extends Command
     }
 
     /**
-     * Replace the applicationName fo the given stub.
+     * Replaces the application'd name fo the given stub.
      *
      * @param string $stub
      * @param string $appName

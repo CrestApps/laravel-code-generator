@@ -43,7 +43,7 @@ class CreateViewsCommand extends ViewsCommand
     }
 
     /**
-     * Execute the console command.
+     * Executes the console command.
      *
      * @return void
      */
@@ -61,7 +61,7 @@ class CreateViewsCommand extends ViewsCommand
     }
 
     /**
-     * Gets the valid view names after checking the user's only-views option
+     * Gets the valid view names after checking the user's only-views option.
      *
      * @param string $path
      *

@@ -47,13 +47,10 @@ class CreateEditViewCommand extends ViewsCommand
      */
     protected function handleCreateView()
     {
-
         $input = $this->getCommandInput();
-
         $stub = $this->getStubContent($this->stubName);
-        $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'edit');
-
         $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
+        $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'edit');
 
         $this->handleNewFilePolicy($destenationFile, $input->force, $fields)
              ->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
@@ -62,7 +59,7 @@ class CreateEditViewCommand extends ViewsCommand
              ->replaceFileUpload($stub, $fields)
              ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
              ->createViewFile($stub, $destenationFile)
-             ->info('Create view was created successfully.');
+             ->info('An "edit-view" view was created successfully.');
     }
 
 

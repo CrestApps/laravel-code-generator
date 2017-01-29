@@ -52,9 +52,8 @@ class CreateFormViewCommand extends ViewsCommand
         $input = $this->getCommandInput();
         $stub = $this->getStubContent($this->stubName);
         $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
-        $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName ,$this->getTemplateName());
-
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'form');
+        $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName ,$this->getTemplateName());
         
         $this->handleNewFilePolicy($destenationFile, $input->force)
              ->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
@@ -62,11 +61,10 @@ class CreateFormViewCommand extends ViewsCommand
              ->replaceFields($stub, $htmlCreator->getHtmlFields())
              ->createViewFile($stub, $destenationFile)
              ->info('Form view was created successfully.');
-
     }
 
     /**
-     * It Replaces the formFieldsHtml in a giving stub
+     * Replaces the form field's html code in a giving stub.
      *
      * @param string $stub
      * @param string $fields

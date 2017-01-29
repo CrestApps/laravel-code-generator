@@ -39,14 +39,14 @@ class CreateMigrationCommand extends Command
     protected $description = 'Create form-request file for the model.';
 
     /**
-     * The index types eloquent is capable of creating
+     * The index types eloquent is capable of creating.
      *
      * @var string
      */
     protected $validIndexTypes = ['index','unique','primary'];
 
     /**
-     * Create a new command instance.
+     * Creates a new command instance.
      *
      * @return void
      */
@@ -56,14 +56,13 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Execute the console command.
+     * Executes the console command.
      *
      * @return void
      */
     public function handle()
     {
         $input = $this->getCommandInput();
-
         $stub = $this->getStubContent('migration', $input->template);
         $fields = $this->getFields($input->fields, 'migration', $input->fieldsFile);
 
@@ -101,10 +100,11 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Adds foreign key constraint to a giving $properties.
+     * Adds foreign key constraint to a giving properties.
      *
      * @param string $properties
      * @param array $keys
+     *
      * @return $this
      */
     protected function addForeignConstraints(& $properties, array $keys)
@@ -128,6 +128,7 @@ class CreateMigrationCommand extends Command
      *
      * @param string $properties
      * @param (object) $key
+     *
      * @return $this
      */
     protected function addForeignConstraint(& $properties, $key)
@@ -142,6 +143,7 @@ class CreateMigrationCommand extends Command
      *
      * @param string $properties
      * @param (object) $key
+     *
      * @return $this
      */
     protected function addReferencesConstraint(& $properties, $key)
@@ -156,6 +158,7 @@ class CreateMigrationCommand extends Command
      *
      * @param string $properties
      * @param (object) $key
+     *
      * @return $this
      */
     protected function addOnConstraint(& $properties, $key)
@@ -170,6 +173,7 @@ class CreateMigrationCommand extends Command
      *
      * @param string $properties
      * @param (object) $key
+     *
      * @return $this
      */
     protected function addOnDeleteConstraint(& $properties, $key)
@@ -187,6 +191,7 @@ class CreateMigrationCommand extends Command
      *
      * @param string $properties
      * @param (object) $key
+     *
      * @return $this
      */
     protected function addOnUpdateConstraint(& $properties, $key)
@@ -200,9 +205,10 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Parses a giving key string
+     * Parses a giving key string.
      *
      * @param string $keysString
+     *
      * @return array
      */
     protected function getKeysCollections($keysString)
@@ -219,11 +225,13 @@ class CreateMigrationCommand extends Command
             {
                 //At this point we know there are foreign, references, on, onDelete, onUpdate
                 $keys[] = $this->getReferenceObject($keyParts[0],$keyParts[1],$keyParts[2],$keyParts[3],$keyParts[4]);
-            } elseif(isset($keyParts[3]))
+            } 
+            elseif(isset($keyParts[3]))
             {
                 //At this point we know there are foreign, references, onDelete
                 $keys[] = $this->getReferenceObject($keyParts[0],$keyParts[1],$keyParts[2],$keyParts[3]);
-            }elseif(isset($keyParts[2]))
+            } 
+            elseif(isset($keyParts[2]))
             {
                 //At this point we know there are foreign, references
                 $keys[] = $this->getReferenceObject($keyParts[0],$keyParts[1],$keyParts[2]);
@@ -237,13 +245,14 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Created foreign relation object
+     * Creates foreign relation object.
      *
      * @param string $foreign
      * @param string $refrerences
      * @param string $on
      * @param string $onDelete
      * @param string $onUpdate
+     *
      * @return object
      */
     protected function getReferenceObject($foreign, $refrerences, $on, $onDelete = null, $onUpdate = null)
@@ -280,6 +289,7 @@ class CreateMigrationCommand extends Command
      *
      * @param string $properties
      * @param array $indexes
+     *
      * @return array
      */
     protected function getIndexColelction($indexesString)
@@ -310,6 +320,7 @@ class CreateMigrationCommand extends Command
      *
      * @param string $type
      * @param array $columns
+     *
      * @return object
      */
     protected function getForeignObject($type, array $columns)
@@ -325,6 +336,7 @@ class CreateMigrationCommand extends Command
      *
      * @param string $properties
      * @param array $indexes
+     *
      * @return $this
      */
     protected function getCleanColumns($columnsString)
@@ -341,6 +353,7 @@ class CreateMigrationCommand extends Command
      *
      * @param string $properties
      * @param array $fields
+     *
      * @return $this
      */
     protected function addFieldProperties(& $properties, array $fields)
@@ -368,6 +381,7 @@ class CreateMigrationCommand extends Command
      * Adds a line closure to a property
      *
      * @param string $properties
+     *
      * @return $this
      */
     protected function addFieldPropertyClousure(& $property)
@@ -381,12 +395,14 @@ class CreateMigrationCommand extends Command
      * Adds a 'field type' to the property
      *
      * @param string $property
-     * @param Field $field
+     * @param CrestApps\CodeGenerator\Support\Field $field
+     *
      * @return $this
      */
     protected function addFieldType(& $property, Field $field)
     {
         $type = strtolower(Helpers::removeNonEnglishChars($field->dataType));
+
         if(isset($this->getTypeToMethodMap()[$type]) )
         {
             $params = $this->getMethodParamerters($field);
@@ -415,13 +431,7 @@ class CreateMigrationCommand extends Command
      */
     protected function getMethodParamerters(Field $field)
     {
-        $params = '';
-
-
-        if( count($field->methodParams) > 0)
-        {
-            $params = ', ' . implode(',', $field->methodParams);
-        }
+        $params = count($field->methodParams) == 0 ? '' : ', ' . implode(',', $field->methodParams);
 
         if( $field->dataType == 'enum')
         {
@@ -446,17 +456,9 @@ class CreateMigrationCommand extends Command
             throw new Exception('The field type is not enum! Cannot create an enum column with no options.');
         }
 
-        $values = [];
-
-        foreach($field->getOptionsByLang() as $option)
-        {
-            if($field->isRequired() && $option->value == '')
-            {
-                continue;
-            }
-
-            $values[] = $option->value;
-        }
+        $values = array_filter($field->getOptionsByLang(), function($option){
+            return ! ($field->isRequired() && $option->value == '');
+        });
 
         if( count($values) == 0)
         {  
@@ -465,13 +467,13 @@ class CreateMigrationCommand extends Command
         }
 
         return sprintf('[%s]', implode(',', Helpers::wrapItems($values)));
-        
     }
 
     /**
      * Creates the base property from a giving method.
      *
      * @param string $method
+     *
      * @return string
      */
     protected function getPropertyBase($method)
@@ -480,10 +482,11 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Creates a leading space to keep the lines alligned the same in the output file
+     * Creates a leading space to keep the lines alligned the same in the output file.
      *
      * @param int $multiplier
      * @param bool $prependNewline
+     *
      * @return string
      */
     protected function getPropertyBaseSpace($multiplier = 12, $prependNewline = false)
@@ -492,14 +495,14 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Constructs the schema down command
+     * Constructs the schema down command.
      *
      * @param (object) $input
+     *
      * @return string
      */
     protected function getSchemaDownCommand($input)
     {
-
         $stub = $this->getStubContent('schema-down', $input->template);
 
         $this->replaceConnectionName($stub, $input->connection)
@@ -510,14 +513,14 @@ class CreateMigrationCommand extends Command
 
 
     /**
-     * Constructs the schema up command
+     * Constructs the schema up command.
      *
      * @param (object) $input
+     *
      * @return string
      */
     protected function getSchemaUpCommand($input, $blueprintBody)
     {
-
         $stub = $this->getStubContent('schema-up', $input->template);
 
         $this->replaceConnectionName($stub, $input->connection)
@@ -526,8 +529,6 @@ class CreateMigrationCommand extends Command
 
         return $stub;
     }
-
-
 
     /**
      * Replace the className of the given stub.
@@ -563,28 +564,28 @@ class CreateMigrationCommand extends Command
      * Replace the tableName for the given stub.
      *
      * @param  string  $stub
-     * @param  string  $tableName
+     * @param  string  $name
      *
      * @return $this
      */
-    protected function replaceTableName(&$stub, $tableName)
+    protected function replaceTableName(&$stub, $name)
     {
-        $stub = str_replace('{{tableName}}', $tableName, $stub);
+        $stub = str_replace('{{tableName}}', $name, $stub);
 
         return $this;
     }
 
     /**
-     * Replace the connectionName for the given stub.
+     * Replaces the connection's name for the given stub.
      *
      * @param  string  $stub
-     * @param  string  $connectionName
+     * @param  string  $name
      *
      * @return $this
      */
-    protected function replaceConnectionName(&$stub, $connectionName)
+    protected function replaceConnectionName(&$stub, $name)
     {
-        $connectionLine = !empty($connectionName) ? sprintf("connection('%s')->", $connectionName) : '';
+        $connectionLine = !empty($name) ? sprintf("connection('%s')->", $name) : '';
 
         $stub = str_replace('{{connectionName}}', $connectionLine, $stub);
 
@@ -592,10 +593,11 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Adds the fields' "default" value to the giving property
+     * Adds the field's "default" value to the giving property.
      *
      * @param string $property
-     * @param Field $field
+     * @param CrestApps\CodeGenerator\Support\Field $field
+     *
      * @return $this
      */
     protected function addFieldDefaultValue(& $property, Field $field)
@@ -609,10 +611,11 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Adds the fields' "unsigned" value to the giving property
+     * Adds the field's "unsigned" value to the giving property.
      *
      * @param string $property
-     * @param Field $field
+     * @param CrestApps\CodeGenerator\Support\Field $field
+     *
      * @return $this
      */
     protected function addFieldUnsigned(& $property, Field $field)
@@ -626,10 +629,11 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Adds the fields' "unique" value to the giving property
+     * Adds the field's "unique" value to the giving property.
      *
      * @param string $property
-     * @param Field $field
+     * @param CrestApps\CodeGenerator\Support\Field $field
+     *
      * @return $this
      */
     protected function addFieldUnique(& $property, Field $field)
@@ -643,10 +647,11 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Adds the fields' "index" value to the giving property
+     * Adds the field's "index" value to the giving property.
      *
      * @param string $property
-     * @param Field $field
+     * @param CrestApps\CodeGenerator\Support\Field $field
+     *
      * @return $this
      */
     protected function addFieldIndex(& $property, Field $field)
@@ -660,10 +665,11 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Adds the fields' "nullable" value to the giving property
+     * Adds the field's "nullable" value to the giving property.
      *
      * @param string $property
-     * @param Field $field
+     * @param CrestApps\CodeGenerator\Support\Field $field
+     *
      * @return $this
      */
     protected function addFieldNullable(& $property, Field $field)
@@ -677,10 +683,11 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Adds the fields' "comment" value to the giving property
+     * Adds the field's "comment" value to the giving property.
      *
      * @param string $property
-     * @param Field $field
+     * @param CrestApps\CodeGenerator\Support\Field $field
+     *
      * @return $this
      */
     protected function addFieldComment(& $property, Field $field)
@@ -694,17 +701,18 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Adds the table's "engine" type to the giving property
+     * Adds the table's "engine" type to the giving property.
      *
      * @param string $property
-     * @param string $engineName
+     * @param string $name
+     *
      * @return $this
      */
-    protected function addEngineName(& $property, $engineName)
+    protected function addEngineName(& $property, $name)
     {
-        if(!empty($engineName))
+        if(!empty($name))
         {
-            $property .= sprintf("%s = '%s'", $this->getPropertyBase('engine'), $engineName);
+            $property .= sprintf("%s = '%s'", $this->getPropertyBase('engine'), $name);
             $this->addFieldPropertyClousure($property);
         }
     
@@ -712,10 +720,11 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Adds the table's "primary column" to the giving property
+     * Adds the table's "primary column" to the giving property.
      *
      * @param string $property
-     * @param Field $field
+     * @param CrestApps\CodeGenerator\Support\Field $field
+     *
      * @return $this
      */
     protected function addPrimaryField(& $property, Field $field = null)
@@ -731,10 +740,11 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Adds 'updated_at' and 'created_at' columns to a giving $propery
+     * Adds 'updated_at' and 'created_at' columns to a giving propery.
      *
      * @param string $property
-     * @param Field $field
+     * @param bool $without
+     *
      * @return $this
      */
     protected function addTimestamps(& $property, $without)
@@ -749,9 +759,10 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Gets the correct eloquent increment method from the giving type
+     * Gets the correct eloquent increment method from the giving type.
      *
      * @param string $type
+     *
      * @return string
      */
     protected function getPrimaryMethodName($type)
@@ -785,7 +796,6 @@ class CreateMigrationCommand extends Command
     protected function getCommandInput()
     {
         $tableName = trim($this->argument('table-name'));
-
         $className = trim($this->option('migration-class-name')) ?: sprintf('Create%sTable', ucfirst($tableName));
         $connection =  trim($this->option('connection-name'));
         $engine =  trim($this->option('engine-name'));
@@ -803,23 +813,25 @@ class CreateMigrationCommand extends Command
 
 
     /**
-     * Makes a file name for the migration
+     * Makes a file name for the migration.
      *
-     * @param  string  $path
-     * @return $this
+     * @param  string  $name
+     *
+     * @return string
      */
-    protected function makeFileName($tableName)
+    protected function makeFileName($name)
     {
-        $filename = sprintf('%s_create_%s_table.php', date('Y_m_d_His'), strtolower($tableName));
+        $filename = sprintf('%s_create_%s_table.php', date('Y_m_d_His'), strtolower($name));
 
-        return Helpers::postFixWith($filename, '.php');
+        return Helpers::postFixWith($name, '.php');
     }
 
 
      /**
-     * Build the directory for the class if necessary.
+     * Creats the directory for the class if one does not already exists.
      *
      * @param  string  $path
+     *
      * @return $this
      */
     protected function makeDirectory($path)
@@ -834,7 +846,7 @@ class CreateMigrationCommand extends Command
 
 
     /**
-     * Replace the schema_up for the given stub.
+     * Replaces the schema_up for the given stub.
      *
      * @param  string  $stub
      * @param  string  $schemaUp
@@ -849,7 +861,7 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Replace the schema_down for the given stub.
+     * Replaces the schema_down for the given stub.
      *
      * @param  string  $stub
      * @param  string  $schemaDown
@@ -864,30 +876,28 @@ class CreateMigrationCommand extends Command
     }
 
      /**
-     * Creates a file
+     * Creates a file.
      *
-     * @param  string  $fileFullName
+     * @param  string  $fileFullname
      * @param  string  $stub
+     *
      * @return $this
      */
-    protected function makeFile($fileFullName, $stub, $force = false)
+    protected function makeFile($fileFullname, $stub, $force = false)
     {
-        if(File::exists($fileFullName) && !$force)
+        if(File::exists($fileFullname) && !$force)
         {
             throw new Exception('There is a migration exists with the same name! To override existing file try passing "--force" command');
         }
 
-        if(File::put($fileFullName, $stub))
+        if( ! File::put($fileFullname, $stub))
         {
-            $this->info('New migrations have been created');
-        } 
-        else 
-        {
-            $this->error('The migration failed to create');
+            throw new Exception('The migration failed to create');
         }
+
+        $this->info('New migrations have been created');
 
         return $this;
     }
-
 
 }

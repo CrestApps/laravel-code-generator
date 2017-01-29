@@ -3,11 +3,10 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use File;
+use Exception;
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Support\Helpers;
-
 use CrestApps\CodeGenerator\Traits\CommonCommand;
-use Exception;
 
 class CreateLayoutCommand extends Command
 {
@@ -80,7 +79,7 @@ class CreateLayoutCommand extends Command
             throw new Exception('The destenation file already exists. To override the existing file, pass "--force" option.');
         }
 
-        if(!File::put($filename, $content))
+        if( ! File::put($filename, $content))
         {
             throw new Exception('Unexpected error occurred while trying to create the file. please try your request again.');
         }
@@ -136,16 +135,16 @@ class CreateLayoutCommand extends Command
     }
 
     /**
-     * Replace the applicationName fo the given stub.
+     * Replaces the application's name fo the given stub.
      *
      * @param string $stub
-     * @param string $appName
+     * @param string $name
      *
      * @return $this
      */
-    protected function replaceApplicationName(&$stub, $appName)
+    protected function replaceApplicationName(&$stub, $name)
     {
-        $stub = str_replace('{{applicationName}}', $appName, $stub);
+        $stub = str_replace('{{applicationName}}', $name, $stub);
 
         return $this;
     }

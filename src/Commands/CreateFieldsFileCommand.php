@@ -3,7 +3,6 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use Illuminate\Console\Command;
-use CrestApps\CodeGenerator\DatabaseParsers\MysqlParser;
 use CrestApps\CodeGenerator\Support\Field;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\traits\CommonCommand;
@@ -35,33 +34,45 @@ class CreateFieldsFileCommand extends Command
     protected $description = 'Create json fields file from existing database table.';
 
     /**
+     * The supported database drivers. lowercase only
+     *
+     * @var array
+     */
+    protected $drivers = ['mysql'];
+
+    /**
      * Execute the console command.
      *
      * @return void
      */
     public function handle()
     {
-        $fields = $this->getFields();
-        $final = [];
-        foreach($fields as $field)
-        {
-            $final[] = $field->toArray();
-        }
-
         if(File::exists($this->getDestinationFullname()) && !$this->isForce())
         {
             throw new Exception('The file ' . $this->getFilename() . ' already exists. To override it try passing the --force option to override it.' );
         }
 
-        if($this->createFile($this->getDestinationFullname(), json_encode($final, JSON_PRETTY_PRINT)))
+        if(!$this->createFile($this->getDestinationFullname(), $this->getFieldAsJson()))
         {
-            $this->info('A new Fields file have been created.');
-        } 
-        else 
-        {
-            $this->error('Something went wrong while trying to create the fields file.');
+            throw new Exception('Something went wrong while trying to create the fields file.');
         }
 
+        $this->info('A new Fields file have been created.');
+    }
+
+    /**
+     * Converts field's object into a user friendly json string.
+     *
+     *
+     * @return string
+     */
+    protected function getFieldAsJson()
+    {
+        $fields =  array_map(function($field){
+            return $field->toArray();
+        }, $this->getFields());
+
+        return json_encode($fields, JSON_PRETTY_PRINT);
     }
 
     /**
@@ -80,7 +91,7 @@ class CreateFieldsFileCommand extends Command
     }
 
     /**
-     * Gets the full name of the file to be created.
+     * Gets the full name of the destination file.
      *
      * @return string
      */
@@ -90,7 +101,7 @@ class CreateFieldsFileCommand extends Command
     }
 
     /**
-     * Gets the fields array.
+     * Gets the fields' collection after from using the connection's driver.
      *
      * @return array
      */
@@ -98,21 +109,20 @@ class CreateFieldsFileCommand extends Command
     {
         $driver = strtolower(DB::getDriverName());
 
-        if($driver == 'mysql')
-        {
-            return (new MysqlParser($this->getTableName(), $this->getDatabaseName(), $this->getLangugaes()))->getFields();
-        } 
-        else 
+        if(!in_array($driver, $this->drivers))
         {
             throw new Exception('The database driver user is not supported!');
         }
 
-        return [];
+        $class = sprintf('CrestApps\CodeGenerator\DatabaseParsers\%sParser', ucfirst($driver));
 
+        $parser = new $class($this->getTableName(), $this->getDatabaseName(), $this->getLangugaes());
+
+        return $parser->getFields();
     }
 
     /**
-     * Checks the options to see if the force command is provided
+     * Checks the options to see if the force command was provided.
      *
      * @return bool
      */
@@ -132,7 +142,7 @@ class CreateFieldsFileCommand extends Command
     }
 
     /**
-     * Gets the database name to use.
+     * Gets the database name.
      *
      * @return string
      */
@@ -142,7 +152,7 @@ class CreateFieldsFileCommand extends Command
     }
 
     /**
-     * Gets the table name to use.
+     * Gets the table name.
      *
      * @return string
      */

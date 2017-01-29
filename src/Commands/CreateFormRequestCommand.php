@@ -52,7 +52,7 @@ class CreateFormRequestCommand extends Command
         $input = $this->getCommandInput();
 
         $stub = $this->getStubContent('form-request', $input->template);
-        $fields = $this->getFields($input->fields, 'dummy', $input->fieldsFile);
+        $fields = $this->getFields($input->fields, 'crestapps', $input->fieldsFile);
         $fileFullName = $this->getRequestsPath() . $input->fileName . '.php';
         $validations = $this->getValidationRules($fields);
 
@@ -64,30 +64,29 @@ class CreateFormRequestCommand extends Command
      /**
      * Creates a file
      *
-     * @param  string  $fileFullName
+     * @param  string  $fileFullname
      * @param  string  $stub
      * @return $this
      */
-    protected function makeFile($fileFullName, $stub, $force = false)
+    protected function makeFile($fileFullname, $stub, $force = false)
     {
-        $this->createDirectory(dirname($fileFullName));
+        $this->createDirectory(dirname($fileFullname));
         
-        if(File::exists($fileFullName) && !$force)
+        if(File::exists($fileFullname) && !$force)
         {
             throw new Exception('There is a form-request class with the same name! To override existing file try passing "--force" command');
         }
 
-        if(File::put($fileFullName, $stub))
+        if(! File::put($fileFullname, $stub))
         {
-            $this->info('New form-request have been created');
+            throw new Exception('New form-request have been created');
         } 
-        else 
-        {
-            $this->error('The form-request failed to create');
-        }
+
+        $this->error('The form-request failed to create');
 
         return $this;
     }
+
     /**
      * Gets a clean user inputs.
      *
@@ -105,31 +104,31 @@ class CreateFormRequestCommand extends Command
     }
 
     /**
-     * Replace the formRequestClass for the given stub.
+     * Replaces the form-request class for the given stub.
      *
      * @param string $stub
-     * @param string $formRequestClass
+     * @param string $name
      *
      * @return $this
      */
-    protected function replaceFormRequestClass(&$stub, $formRequestClass)
+    protected function replaceFormRequestClass(&$stub, $name)
     {
-        $stub = str_replace('{{formRequestClass}}', $formRequestClass, $stub);
+        $stub = str_replace('{{formRequestClass}}', $name, $stub);
 
         return $this;
     }
 
     /**
-     * Replace the validationRules for the given stub.
+     * Replace the validation rules for the given stub.
      *
      * @param string $stub
-     * @param string $validationRules
+     * @param string $rules
      *
      * @return $this
      */
-    protected function replaceValidationRules(&$stub, $validationRules)
+    protected function replaceValidationRules(&$stub, $rules)
     {
-        $stub = str_replace('{{validationRules}}', $validationRules, $stub);
+        $stub = str_replace('{{validationRules}}', $rules, $stub);
 
         return $this;
     }

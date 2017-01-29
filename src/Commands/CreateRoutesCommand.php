@@ -22,6 +22,7 @@ class CreateRoutesCommand extends Command
                             {controller-name : The name of the controller where the route should be routing to.}
                             {--model-name= : The model name.}
                             {--routes-prefix= : The routes prefix.}
+                            {--controller-directory= : The directory where the controller is under.}
                             {--template-name= : The template name to use when generating the code.}';
 
     /**
@@ -32,7 +33,7 @@ class CreateRoutesCommand extends Command
     protected $description = 'Create routes for the crud';
 
     /**
-     * Create a new command instance.
+     * Creates a new command instance.
      *
      * @return void
      */
@@ -42,13 +43,12 @@ class CreateRoutesCommand extends Command
     }
 
     /**
-     * Execute the console command.
+     * Executes the console command.
      *
      * @return mixed
      */
     public function handle()
     {
-    
         $input = $this->getCommandInput();
 
         if($this->isRouteNameExists($this->getDotNotationName($input->modelName, $input->prefix, 'index')))
@@ -59,7 +59,7 @@ class CreateRoutesCommand extends Command
 
         $routesFile = $this->getRoutesFileName();
 
-        if (!File::exists($routesFile))
+        if ( ! File::exists($routesFile))
         {
             throw new Exception("The routes file does not exists. The expected location was " . $routesFile);
         }
@@ -67,9 +67,9 @@ class CreateRoutesCommand extends Command
         $stub = File::get($this->getStubByName('routes', $input->template));
 
         $this->replaceModelName($stub, $input->modelName)
-             ->replaceControllerName($stub, $input->controllerName)
+             ->replaceControllerName($stub, $this->getControllerName($input->controllerName, $input->controllerDirectory))
              ->replaceRouteNames($stub, $input->modelName, $input->prefix)
-             ->processRoutePrefix($stub, $input->prefix, $input->template)
+             ->processRoutesGroup($stub, $input->prefix, $input->controllerDirectory, $input->template)
              ->appendToRoutesFile($stub, $routesFile);
     }
 
@@ -85,12 +85,13 @@ class CreateRoutesCommand extends Command
         $modelName = trim($this->option('model-name')) ?: str_singular($name);
         $prefix = trim($this->option('routes-prefix'));
         $template = $this->getTemplateName();
+        $controllerDirectory = trim($this->option('controller-directory'));
 
-        return (object) compact('modelName','controllerName','prefix','template');
+        return (object) compact('modelName','controllerName','prefix','template','controllerDirectory');
     }
 
     /**
-     * Appends the new routes to a route file
+     * Appends the new routes to a route file.
      *
      * @param string $stub
      * @param string $routesFile
@@ -99,28 +100,40 @@ class CreateRoutesCommand extends Command
      */
     protected function appendToRoutesFile($stub, $routesFile)
     {
-        if (File::append($routesFile, $stub)) 
+        if ( ! File::append($routesFile, $stub)) 
         {
-            $this->info('The routes were added successfully.');
-        } else 
-        {
-            $this->info('Unable to add the route to ' . $routesFile);
+            throw new Exception('Unable to add the route to ' . $routesFile);
         }
 
+        $this->info('The routes were added successfully.');
+
         return $this;
+    }
+
+    /**
+     * Gets the correct controller name with the namespace.
+     *
+     * @param string $name
+     * @param string $namespace
+     *
+     * @return string
+     */
+    protected function getControllerName($name, $namespace)
+    {
+        return empty($namespace) ? $name : Helpers::convertSlashToBackslash(Helpers::postFixWith($namespace, '\\') . $name);
     }
 
     /**
      * Replaces the controller name for the given stub.
      *
      * @param string $stub
-     * @param string $controllerName
+     * @param string $name
      *
      * @return $this
      */
-    protected function replaceControllerName(&$stub, $controllerName)
+    protected function replaceControllerName(&$stub, $name)
     {
-        $stub = str_replace('{{controllerName}}', $controllerName, $stub);
+        $stub = str_replace('{{controllerName}}', $name, $stub);
 
         return $this;
     }
@@ -141,27 +154,100 @@ class CreateRoutesCommand extends Command
     }
 
     /**
-     * Groups the routes with a prefix value if a prefix is not an empty string
+     * Replaces the routes' namespace for the given stub.
+     *
+     * @param string $stub
+     * @param string $name
+     *
+     * @return $this
+     */
+    protected function replaceNamespace(&$stub, $name)
+    {
+        $stub = str_replace('{{namespace}}', $name, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the routes for the given stub.
+     *
+     * @param string $stub
+     * @param string $routes
+     *
+     * @return $this
+     */
+    protected function replaceRoutes(&$stub, $routes)
+    {
+        $stub = str_replace('{{routes}}', $routes, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the routes' prefix for the given stub.
      *
      * @param string $stub
      * @param string $prefix
+     *
+     * @return $this
+     */
+    protected function replacePrefix(&$stub, $prefix)
+    {
+        $stub = str_replace('{{prefix}}', $prefix, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Groups the routes with a prefix and namespace if prefix or namespace is provided.
+     *
+     * @param string $stub
+     * @param string $prefix
+     * @param string $namespace
      * @param string $template
      *
      * @return $this
      */
-    protected function processRoutePrefix(&$stub, $prefix, $template)
+    protected function processRoutesGroup(&$stub, $prefix, $namespace, $template)
     {
         $prefix = trim($prefix);
 
-        if(!empty($prefix))
+        if(!empty($prefix) || !empty($namespace))
         {
             $groupStub = File::get($this->getStubByName('routes-group', $template));
 
-            $groupStub = str_replace('{{prefix}}', $prefix, $groupStub);
-            $stub = str_replace('{{routes}}', $stub, $groupStub);
+            $this->replacePrefix($groupStub, $this->getGroupPrefix($prefix))
+                 //->replaceNamespace($groupStub, $this->getGroupNamespace($namespace))
+                 ->replaceRoutes($groupStub, $stub);
+
+            $stub = $groupStub;
         }
-        
+
         return $this;
+    }
+
+    /**
+     * Gets array ready prefix string.
+     *
+     * @param string $prefix
+     *
+     * @return  string
+     */
+    protected function getGroupPrefix($prefix)
+    {
+        return empty($prefix) ? '' : sprintf("'prefix' => '%s',", $prefix);
+    }
+
+    /**
+     * Gets array ready namespace string.
+     *
+     * @param string $namespace
+     *
+     * @return  string
+     */
+    protected function getGroupNamespace($namespace)
+    {
+        return empty($namespace) ? '' : sprintf("'namespace' => '%s',", $namespace);
     }
 
     /**

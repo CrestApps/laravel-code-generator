@@ -33,8 +33,9 @@
                 </ul>
             @endif
 
-            <form method="POST" action="{{ route('{{storeRouteName}}', ${{modelName}}->{{primaryKey}}) }}" accept-charset="UTF-8" class="form-horizontal"{{uploadFiles}}>
+            <form method="POST" action="{{ route('{{updateRouteName}}', ${{modelName}}->{{primaryKey}}) }}" accept-charset="UTF-8" class="form-horizontal"{{uploadFiles}}>
             {{ csrf_field() }}
+            <input name="_method" type="hidden" value="PUT">
             @include ('{{formViewName}}', [
                                         'submitButtonLabel' => 'Update', 
                                         '{{modelName}}' => ${{modelName}},

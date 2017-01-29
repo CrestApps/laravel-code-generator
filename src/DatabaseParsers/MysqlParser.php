@@ -34,6 +34,8 @@ class MysqlParser extends ParserBase
     /**
      * Gets the field after transfering it from a giving query object.
      *
+     * @param object $column
+     *
      * @return CrestApps\CodeGenerator\Support\Field;
     */
 	protected function getTransfredField($column)

@@ -31,7 +31,7 @@ class CreateShowViewCommand extends ViewsCommand
     protected $description = 'Edit views for the model.';
 
     /**
-     * Create a new command instance.
+     * Creates a new command instance.
      *
      * @return void
      */
@@ -42,7 +42,7 @@ class CreateShowViewCommand extends ViewsCommand
     }
 
     /**
-     * Execute the console command.
+     * Executes the console command.
      *
      * @return void
      */
@@ -51,9 +51,7 @@ class CreateShowViewCommand extends ViewsCommand
         $input = $this->getCommandInput();
         $stub = $this->getStubContent($this->stubName);
         $fields = $this->getFields($input->fields,$input->languageFileName, $input->fieldsFile);
-    
         $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName ,$this->getTemplateName());
-
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'show');
         
         $this->handleNewFilePolicy($destenationFile, $input->force, $fields)
@@ -66,16 +64,16 @@ class CreateShowViewCommand extends ViewsCommand
     }
 
     /**
-     * Replaces the table rows for the giving stub
+     * Replaces the table rows for the giving stub.
      *
      * @param string $stub
-     * @param string $tableHtmlRows
+     * @param string $rows
      *
      * @return $this
      */
-    protected function replaceTableRows(&$stub, $tableHtmlRows)
+    protected function replaceTableRows(&$stub, $rows)
     {
-        $stub = str_replace('{{tableRows}}', $tableHtmlRows, $stub);
+        $stub = str_replace('{{tableRows}}', $rows, $stub);
 
         return $this;
     }

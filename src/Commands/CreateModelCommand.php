@@ -73,7 +73,10 @@ class CreateModelCommand extends GeneratorCommand
     }
 
     /**
-     * Gets the correct primary key name
+     * Gets the correct primary key name.
+     *
+     * @param array $fields
+     * @param string $primaryKey
      *
      * @return string
      */
@@ -95,7 +98,10 @@ class CreateModelCommand extends GeneratorCommand
     }
 
     /**
-     * Gets the formatted fillable line
+     * Gets the formatted fillable line.
+     *
+     * @param $fillables
+     * @param array $fields
      *
      * @return string
      */
@@ -110,7 +116,7 @@ class CreateModelCommand extends GeneratorCommand
     }
 
     /**
-     * Gets the fillable string from a giving raw string
+     * Gets the fillable string from a giving raw string.
      *
      * @return string
      */
@@ -124,7 +130,7 @@ class CreateModelCommand extends GeneratorCommand
     }
 
     /**
-     * Gets the fillable string from a giving fields array
+     * Gets the fillable string from a giving fields array.
      *
      * @return string
      */
@@ -187,30 +193,22 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function getClassNameFromPath($path)
     {
-        $nameStartIndex = strrpos($path, '\\');
-
-        if($nameStartIndex !== false)
-        {
-            return substr($path, $nameStartIndex + 1);
-        }
-
-        return $path;
+        return strrpos($path, '\\') === false ?: substr($path, $nameStartIndex + 1);;
     }
 
     /**
-     * Creates the relations
+     * Creates the relations methods.
      *
-     * @param  string  $relationships
+     * @param  array $relationships
      *
      * @return array
      */
-    protected function createRelationMethods($relationships)
+    protected function createRelationMethods(array $relationships)
     {
         $methods = [];
 
         foreach ($relationships as $relationship) 
         {
-
             $relationshipParts = explode('#', $relationship);
 
             if (count($relationshipParts) != 3) 
@@ -361,7 +359,6 @@ class CreateModelCommand extends GeneratorCommand
 
         return $this;
     }
-    
 
     /**
      * Replaces the mutators for the given stub.
@@ -377,8 +374,6 @@ class CreateModelCommand extends GeneratorCommand
 
         return $this;
     }
-
-
 
     /**
      * Replaces the field name for the given stub.
@@ -410,12 +405,12 @@ class CreateModelCommand extends GeneratorCommand
         if($shouldUseSoftDelete)
         {
             $stub = str_replace('{{useSoftDelete}}', PHP_EOL . 'use Illuminate\Database\Eloquent\SoftDeletes;' . PHP_EOL, $stub);
-
             $stub = str_replace('{{useSoftDeleteTrait}}', PHP_EOL . '    use SoftDeletes;' . PHP_EOL, $stub);
-        } else {
+        } 
+        else 
+        {
 
             $stub = str_replace('{{useSoftDelete}}', null, $stub);
-
             $stub = str_replace('{{useSoftDeleteTrait}}', null, $stub);
         }
 
@@ -453,9 +448,11 @@ class CreateModelCommand extends GeneratorCommand
     }
 
     /**
-     * Replaced the replationships for the giving stub.
+     * Replaces the replationships for the giving stub.
      *
      * @param $stub
+     * @param array $relationMethods
+     *
      * @return $this
      */
     protected function replaceRelationshipPlaceholder(&$stub, array $relationMethods)
@@ -466,7 +463,7 @@ class CreateModelCommand extends GeneratorCommand
     }
 
     /**
-     * Creates the code for a relationship
+     * Creates the code for a relationship.
      *
      * @param string $stub
      * @param string $relationshipName  the name of the function, e.g. owners

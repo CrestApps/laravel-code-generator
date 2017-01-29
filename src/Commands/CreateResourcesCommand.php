@@ -42,6 +42,7 @@ class CreateResourcesCommand extends Command
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
                             {--template-name= : The template name to use when generating the code.}
                             {--table-exists : This option will attempt to fetch the field from existing database table.}
+                            {--translation-for= : A comma seperated string of languages to create fields for.}
                             {--force : This option will override the controller if one already exists.}';
 
 
@@ -53,7 +54,7 @@ class CreateResourcesCommand extends Command
     protected $description = 'Create a new resource.';
 
     /**
-     * Execute the console command.
+     * Executes the console command.
      *
      * @return void
      */
@@ -68,32 +69,31 @@ class CreateResourcesCommand extends Command
             $input->withoutMigration = true;
 
             $this->createFieldsFile($input);
-
         }
 
         $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
 
         if(empty($fields) || !isset($fields[0]))
         {
-            $this->error('You must provide at least one field to generate the views!');
-        } else 
-        {
-
-            $this->createModel($input)
-                 ->createController($input)
-                 ->createRoutes($input)
-                 ->createViews($input)
-                 ->createLanguage($input)
-                 ->createMigration($input)
-                 ->info('All Done!');
+            throw new Exception('You must provide at least one field to generate the views!');
         }
 
+        $this->info('Scaffolding...');
+
+        $this->createModel($input)
+             ->createController($input)
+             ->createRoutes($input)
+             ->createViews($input)
+             ->createLanguage($input)
+             ->createMigration($input)
+             ->info('All Done!');
     }
 
     /**
-     * Execute the command that generates a migration
+     * Executes the command that generates a migration.
      * 
      * @param object $input
+     *
      * @return $this
      */
     protected function createMigration($input)
@@ -120,9 +120,10 @@ class CreateResourcesCommand extends Command
     }
 
     /**
-     * Execute the command that generate fields' file.
+     * Executes the command that generate fields' file.
      * 
      * @param object $input
+     *
      * @return $this
      */
     protected function createFieldsFile($input)
@@ -130,16 +131,18 @@ class CreateResourcesCommand extends Command
         $this->callSilent('create:fields-file', 
             [
                 'table-name' => $input->table,
-                '--force' => $input->force
+                '--force' => $input->force,
+                '--translation-for' => $input->translationFor,
             ]);
 
         return $this;
     }
 
     /**
-     * Execute the command that generates a language
+     * Executes the command that generates a language files.
      * 
      * @param object $input
+     *
      * @return $this
      */
     protected function createLanguage($input)
@@ -156,9 +159,10 @@ class CreateResourcesCommand extends Command
     }
 
     /**
-     * Execute the command that generates all default views
+     * Executes the command that generates all the views.
      * 
      * @param object $input
+     *
      * @return $this
      */
     protected function createViews($input)
@@ -179,9 +183,10 @@ class CreateResourcesCommand extends Command
     }
 
     /**
-     * Execute the command that generates the routes
+     * Executes the command that generates the routes.
      * 
      * @param object $input
+     *
      * @return $this
      */
     protected function createRoutes($input)
@@ -191,21 +196,21 @@ class CreateResourcesCommand extends Command
                 'controller-name' => $input->controllerName,
                 '--model-name' => $input->modelName,
                 '--routes-prefix' => $input->prefix,
-                '--template-name' => $input->template
+                '--template-name' => $input->template,
+                '--controller-directory' => $input->controllerDirectory
             ]);
 
         return $this;
     }
 
     /**
-     * Execute the command that generates a controller
+     * Executes the command that generates the controller.
      * 
      * @param object $input
      * @return $this
      */
     protected function createController($input)
     {
-
         $this->call('create:controller', 
             [
                 'controller-name' => $input->controllerName,
@@ -226,9 +231,10 @@ class CreateResourcesCommand extends Command
     }
 
     /**
-     * Execute the command that generates a model
+     * Executes the command that generates a model.
      * 
      * @param object $input
+     *
      * @return $this
      */
     protected function createModel($input)
@@ -288,11 +294,13 @@ class CreateResourcesCommand extends Command
         $template = $this->getTemplateName();
         $layoutName = trim($this->option('layout-name')) ?: 'layouts.app';
         $tableExists = $this->option('table-exists');
+        $translationFor = trim($this->option('translation-for'));
 
         return (object) compact('modelName','controllerName','viewsDirectory','prefix','perPage','fields','force',
                                 'languageFileName','fieldsFile','formRequest','modelDirectory','table','fillable','primaryKey',
                                 'relationships','useSoftDelete','withoutTimeStamps','controllerDirectory','withoutMigration',
-                                'migrationClass','connectionName','indexes','foreignKeys','engineName','layoutName','template','tableExists');
+                                'migrationClass','connectionName','indexes','foreignKeys','engineName','layoutName','template',
+                                'tableExists','translationFor');
     }
 
 }

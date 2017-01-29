@@ -24,7 +24,6 @@ class CreateLanguageCommand extends Command
                             {--fields-file= : File name to import fields from.}
                             {--template-name= : The template name to use when generating the code.}';
 
-
     /**
      * The console command description.
      *
@@ -52,16 +51,12 @@ class CreateLanguageCommand extends Command
         
         $input = $this->getCommandInput();
         $fields = $this->getFields($input->fields, $input->fileName, $input->fieldsFile);
-
         $languages = $this->getLanguageItems($fields);
-
 
         foreach ($languages as $language => $labels) 
         {
             $fileFullName = $this->getLocalePath($language) . $input->fileName . '.php';
-
             $messagesToRegister = [];
-
             $phrases = $this->getLangPhrases($labels, $messagesToRegister);
 
             $this->createPath($this->getLocalePath($language))
@@ -71,7 +66,7 @@ class CreateLanguageCommand extends Command
     }
 
     /**
-     * It register messages to the loaded in-memory messages
+     * Registers messages to the in-memory collection.
      *
      * @param array $messages
      * @param string $language
@@ -89,7 +84,7 @@ class CreateLanguageCommand extends Command
     }
 
     /**
-     * It checks if a languge has a key.
+     * Checks if a languge has a key int he in-memory collection.
      *
      * @param string $key
      * @param string $language
@@ -102,13 +97,12 @@ class CreateLanguageCommand extends Command
     }
 
     /**
-     * Depends on the framework version, it a singleton instance of a translator.
+     * Gets a singleton instance of a translator based ont he current framework's version.
      *
      * @return CrestApps\CodeGenerator\Support\CrestAppsTranslator | Illuminate\Translation\Translator
      */
     protected function getTranslator()
     {
-
         if(!$this->isNewerThan('5.3'))
         {
             return CrestAppsTranslator::getTranslator();
@@ -120,104 +114,103 @@ class CreateLanguageCommand extends Command
     /**
      * Adds new messages to a language file. It either creates a new file or append to an existsing file.
      *
-     * @param string $fileFullName
+     * @param string $fileFullname
      * @param string $messages
      * @param string $language
      * @param string $template
      *
      * @return $this
      */
-    protected function addMessagesToFile($fileFullName, $messages, $language, $template)
+    protected function addMessagesToFile($fileFullname, $messages, $language, $template)
     {
-        if(!empty($messages))
+        if(empty($messages))
         {
-            if(File::exists($fileFullName))
+            $this->info('There was no messages to add the language files');
+        } 
+        else 
+        {
+
+            if(File::exists($fileFullname))
             {
-                $this->appendMessageToFile($fileFullName, "\n" . $messages);
+                $this->appendMessageToFile($fileFullname, "\n" . $messages);
             } 
             else
             {
-                $this->createMessageToFile($fileFullName, $messages, $language, $template);
+                $this->createMessageToFile($fileFullname, $messages, $language, $template);
             }
-        } else {
-            $this->info('There was no messages to add the language files');
         }
 
         return $this;
     }
 
     /**
-     * Appends message to an existing language file
+     * Appends message to an existing language's file.
      *
-     * @param string $fileFullName
+     * @param string $fileFullname
      * @param string $messages
      *
      * @return $this
      */
-    protected function appendMessageToFile($fileFullName, $messages)
+    protected function appendMessageToFile($fileFullname, $messages)
     {
-        $stub = File::get($fileFullName);
-
-        $index = strrpos($stub, ',');
+        $stub = File::get($fileFullname);
+        $index = $this->getCursorPosition($stub);
 
         if($index === false)
         {
-            $index = strrpos($stub, '[');
+            throw new Exception('Could not find a position in the [' . basename($fileFullname) . '] file to insert the messages.');
         }
 
-        if($index !== false)
+        if( ! File::put($fileFullname, substr_replace($stub, $messages, $index + 1, 0)))
         {
-            $stub = substr_replace($stub, $messages, $index + 1, 0);
+            throw new Exception('An error occurred! No messages were added!');
+        } 
 
-            $filename = basename($fileFullName);
-
-            if(File::put($fileFullName, $stub))
-            {
-                $this->info('New messages were added to the ['.$filename.'] file');
-            } 
-            else 
-            {
-                $this->error('No messages were added!');
-            }
-        } else 
-        {
-            $this->error('Could not find a position in the [' . $filename . '] file to insert the messages.');
-        }
-
+        $this->info('New messages were added to the [' . basename($fileFullname) . '] file');
+        
         return $this;
+    }
+
+    /**
+     * Gets the index on where to append messages to of a giving stub.
+     *
+     * @param string $stub
+     *
+     * @return mix (int | false)
+     */
+    protected function getCursorPosition($stub)
+    {
+        return strrpos($stub, ',') !== false ?: strrpos($stub, '[');
     }
 
     /**
      * Creates a new language file with with a giving messages.
      *
-     * @param string $fileFullName
+     * @param string $fileFullname
      * @param string $messages
      * @param string $language
      * @param string $template
      *
      * @return $this
      */
-    protected function createMessageToFile($fileFullName, $messages, $language, $template)
+    protected function createMessageToFile($fileFullname, $messages, $language, $template)
     {
-
         $stub = $this->getStubContent('language', $template);
 
         $this->replaceFieldName($stub, $messages);
 
-        if(File::put($fileFullName, $stub))
+        if( ! File::put($fileFullname, $stub))
         {
-            $this->info('The file  [' . $language . '/' . basename($fileFullName) . '] was created successfully.');
+            throw new Exception('An error occurred! The file  [' . $language . '/' . basename($fileFullname) . '] was not created.');
         } 
-        else 
-        {
-            $this->error('The file  [' . $language . '/' . basename($fileFullName) . '] was not created.');
-        }
+
+        $this->info('The file  [' . $language . '/' . basename($fileFullname) . '] was created successfully.');
 
         return $this;
     }
 
     /**
-     * Creates a colection of messages out of a giving fields collection
+     * Creates a colection of messages out of a giving fields collection.
      *
      * @param array $fields
      *
@@ -275,7 +268,7 @@ class CreateLanguageCommand extends Command
      */
     protected function createPath($path)
     {
-        if (!File::isDirectory($path)) 
+        if ( ! File::isDirectory($path)) 
         {
             File::makeDirectory($path, 0755, true);
         }
@@ -310,7 +303,7 @@ class CreateLanguageCommand extends Command
         $messages = [];
         foreach ($labels as $label) 
         {
-            if( !$this->isMessageExists($label->localeGroup, $label->lang))
+            if( ! $this->isMessageExists($label->localeGroup, $label->lang))
             {
                 $messages[] = sprintf("    '%s' => '%s'", $label->id, $label->text);
                 $messagesToRegister[$label->localeGroup] = $label->text;

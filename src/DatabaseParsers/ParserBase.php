@@ -164,7 +164,7 @@ abstract class ParserBase
 	}
 
     /**
-     * Set the nullable for a giving field.
+     * Sets the nullable property for a giving field.
      *
      * @param CrestApps\CodeGenerator\Support\Field $field
      * @param string $nullable
@@ -179,7 +179,7 @@ abstract class ParserBase
 	}
 
     /**
-     * Set the max length for a giving field.
+     * Sets the max length property for a giving field.
      *
      * @param CrestApps\CodeGenerator\Support\Field $field
      * @param string $length
@@ -198,7 +198,7 @@ abstract class ParserBase
 	}
 
     /**
-     * Set the default value for a giving field.
+     * Sets the data value property for a giving field.
      *
      * @param CrestApps\CodeGenerator\Support\Field $field
      * @param string $default
@@ -216,7 +216,7 @@ abstract class ParserBase
 	}
 
     /**
-     * Set the labels for a giving field.
+     * Sets the labels for a giving field.
      *
      * @param CrestApps\CodeGenerator\Support\Field $field
      * @param string $name
@@ -236,7 +236,7 @@ abstract class ParserBase
 	}
 
     /**
-     * Add labels for a giving field.
+     * Adds labels for all languages for a giving field.
      *
      * @param CrestApps\CodeGenerator\Support\Field $field
      * @param string $name
@@ -254,7 +254,7 @@ abstract class ParserBase
     }
 
     /**
-     * Set the keys for a giving field.
+     * Sets the keys for a giving field.
      *
      * @param CrestApps\CodeGenerator\Support\Field $field
      * @param string $key
@@ -300,7 +300,7 @@ abstract class ParserBase
 	}
 
     /**
-     * Gets the eloquent method to html
+     * Gets the eloquent's method to html
      *
      * @return array
     */
@@ -310,7 +310,7 @@ abstract class ParserBase
 	}
 
     /**
-     * Gets the eloquent type to method collection
+     * Gets the eloquent's type to method collection.
      *
      * @return array
     */
@@ -320,7 +320,7 @@ abstract class ParserBase
     }
 
     /**
-     * Set the column comment for a giving field.
+     * Sets the comment's property for a giving field.
      *
      * @param CrestApps\CodeGenerator\Support\Field $field
      * @param string $comment

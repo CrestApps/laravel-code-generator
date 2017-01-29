@@ -4,7 +4,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The default template to use
+    | The default template to use.
     |--------------------------------------------------------------------------
     |
     | Here you change the stub templates to use when generating code.
@@ -18,42 +18,38 @@ return [
     | it will override the default template causing you to lose your modification.
     |
     */
-
     'template' => 'default',
 
     /*
     |--------------------------------------------------------------------------
-    | The default path of where the templates are located
+    | The default path where the templates are located.
     |--------------------------------------------------------------------------
     |
     | In this path, you can add more templates.
     |
     */
-
     'templates_path' => base_path('resources/codegenerator-templates'),
 
     /*
     |--------------------------------------------------------------------------
-    | Array of templetes that should be generated with Laravel-Collective
+    | Array of templetes that should be generated with Laravel-Collective.
     |--------------------------------------------------------------------------
     |
     | If you want to generate code by using laravel-collective, you must first
-    | install the backage and then list of package name that should be 
-    | generated using Laravel-Collective extensions.
+    | install the package. Then add the tamplate name that should be using 
+    | Laravel-Collective extensions when generating code.
     */
-
     'laravel_collective_templates' => [
         'default-collective'
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | The default path of where the uploaded files lives!
+    | The default path of where the uploaded files lives.
     |--------------------------------------------------------------------------
     |
     |
     */
-    
     'files_upload_path' => public_path('uploads'),
 
     /*
@@ -64,44 +60,41 @@ return [
     | In this path, you can create json file to import the fields from.
     |
     */
-
     'fields_file_path' => base_path('resources/codegenerator-files'),
 
     /*
     |--------------------------------------------------------------------------
-    | The default path of where the migrations will be generated from
+    | The default path of where the migrations will be generated into.
     |--------------------------------------------------------------------------
     */
-
     'migrations_path' => base_path('database/migrations'),
 
     /*
     |--------------------------------------------------------------------------
-    | The default path of where the controllers will be generated from
+    | The default path of where the controllers will be generated into.
     |--------------------------------------------------------------------------
     */
     'form_requests_path' => app_path('Http/Requests'),
 
     /*
     |--------------------------------------------------------------------------
-    | The default path of where the controllers will be generated from
+    | The default path of where the controllers will be generated into.
     |--------------------------------------------------------------------------
     */
     'controllers_path' => 'Http/Controllers',
 
     /*
     |--------------------------------------------------------------------------
-    | The default path of where the models will be generated from
+    | The default path of where the models will be generated into.
     |--------------------------------------------------------------------------
     */
     'models_path' => 'Models',
 
     /*
     |--------------------------------------------------------------------------
-    | The default path of where the migrations will be generated from
+    | The default path of where the languages will be generated into.
     |--------------------------------------------------------------------------
     */
-
     'languages_path' => base_path('resources/lang'),
 
     /*
@@ -163,7 +156,6 @@ return [
         'unsignedtinyinteger' => 'unsignedTinyInteger',
         'uuid' => 'uuid'
     ],
-
 
     /*
     |--------------------------------------------------------------------------

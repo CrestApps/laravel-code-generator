@@ -18,9 +18,9 @@ class CreateControllerCommand extends GeneratorCommand
     protected $signature = 'create:controller
                             {controller-name : The name of the controler.}
                             {--model-name= : The model name that this controller will represent.}
-                            {--controller-directory= : The directory where the controller should be created under. }
-                            {--model-directory= : The path of the model.}
-                            {--views-directory= : The name of the view path.}
+                            {--controller-directory= : The directory where the controller should be created under.}
+                            {--model-directory= : The path where the model should be created under.}
+                            {--views-directory= : The path where the views should be created under.}
                             {--fields= : Fields to use for creating the validation rules.}
                             {--fields-file= : File name to import fields from.}
                             {--routes-prefix= : Prefix of the route group.}
@@ -86,14 +86,15 @@ class CreateControllerCommand extends GeneratorCommand
                     ->replaceFormRequestName($stub, $formRequestName)
                     ->replaceFormRequestFullName($stub, $this->getRequestsNamespace() . $formRequestName)
                     ->replacePaginationNumber($stub, $input->perPage)
-                    //->processModelData($stub, $this->isContainMultipleAnswers($fields))
                     ->replaceFileSnippet($stub, $this->getFileReadySnippet($fields))
                     ->replaceFileMethod($stub, $this->getUploadFileMethod($fields))
                     ->replaceClass($stub, $name);
     }
 
     /**
-     * Gets the method code that upload files
+     * Gets the method's stub that handels the file uploading.
+     *
+     * @param array $fields
      *
      * @return string
      */
@@ -114,46 +115,13 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function getRequestsNamespace()
     {
-        return ltrim(Helpers::convertSlashToBackslash(str_replace(app_path(), '', $this->getRequestsPath())), '\\');
+        $path = str_replace(app_path(), '', $this->getRequestsPath());
+
+        return ltrim(Helpers::convertSlashToBackslash($path), '\\');
     }
 
     /**
-     * Gets the methods
-     *
-     * @return string
-     */
-    /*
-    protected function getModelDataConversionMethod()
-    {
-        return $this->getStubContent('controller-request-parameters', $this->getTemplateName());
-    }
-    8/
-    /**
-     * Checks if a giving fields array conatins at least one multiple answers
-     *
-     * @param string $stub
-     * @param bool $withMultipleAnswers
-     *
-     * @return $this
-     */
-    /*
-    protected function processModelData(& $stub, $withMultipleAnswers)
-    {
-        if($withMultipleAnswers)
-        {
-            $this->replaceModelData($stub, '$this->getModelData($request->all())')
-                 ->replaceModelDataMethod($stub, $this->getModelDataConversionMethod());
-        } else 
-        {
-            $this->replaceModelData($stub, '$request->all()')
-                 ->replaceModelDataMethod($stub, '');
-        }
-
-        return $this;
-    }
-    */
-    /**
-     * Checks if a giving fields array conatins at least one multiple answers
+     * Checks if a giving fields array conatins at least one multiple answers' field.
      *
      * @param array
      *
@@ -199,27 +167,20 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function getModelFullName($path, $name)
     {
-        $final = $this->getModelsPath();
-
-        if(!empty($path))
-        {
-            $final .= Helpers::getPathWithSlash($path);
-        }
+        $final = !empty($path) ? $this->getModelsPath() . Helpers::getPathWithSlash($path) : $this->getModelsPath();
 
         return Helpers::convertSlashToBackslash($final . ucfirst($name));
     }
 
     /**
-     * Gets a clean user inputs.
+     * Gets a clean command-line arguments and options.
      *
      * @return object
      */
     protected function getCommandInput()
     {
         $controllerName = trim($this->argument('controller-name'));
-
         $modelName = strtolower(trim($this->option('model-name')) ?: str_singular(Helpers::removePostFixWith($controllerName, 'Controller')));
-
         $viewDirectory = trim($this->option('views-directory'));
         $prefix = trim($this->option('routes-prefix'));
         $perPage = intval($this->option('models-per-page'));
@@ -227,7 +188,6 @@ class CreateControllerCommand extends GeneratorCommand
         $fieldsFile = trim($this->option('fields-file'));
         $langFile = trim($this->option('lang-file-name')) ?: strtolower(str_plural($modelName));
         $formRequest = $this->option('with-form-request');
-
         $force = $this->option('force');
         $modelDirectory = trim($this->option('model-directory'));
         $formRequestName = ucfirst($modelName) . 'FormRequest';
@@ -238,181 +198,146 @@ class CreateControllerCommand extends GeneratorCommand
     }
 
     /**
-     * Replace the modelDataMethod for the given stub.
+     * Replaces the model's fullname for the given stub.
      *
      * @param  string  $stub
-     * @param  string  $method
+     * @param  string  $name
      *
      * @return $this
      */
-    /*
-    protected function replaceModelDataMethod(&$stub, $method)
+    protected function replaceModelFullName(&$stub, $name)
     {
-        $stub = str_replace('{{modelDataMethod}}', $method, $stub);
-
-        return $this;
-    }
-    */
-
-    /**
-     * Replace the modelData for the given stub.
-     *
-     * @param  string  $stub
-     * @param  string  $method
-     *
-     * @return $this
-     */
-    /*
-    protected function replaceModelData(&$stub, $method)
-    {
-        $stub = str_replace('{{modelData}}', $method, $stub);
-
-        return $this;
-    }
-    */
-
-    /**
-     * Replace the modelFullName for the given stub.
-     *
-     * @param  string  $stub
-     * @param  string  $modelFullName
-     *
-     * @return $this
-     */
-    protected function replaceModelFullName(&$stub, $modelFullName)
-    {
-        $stub = str_replace('{{modelFullName}}', $modelFullName, $stub);
+        $stub = str_replace('{{modelFullName}}', $name, $stub);
 
         return $this;
     }
 
     /**
-     * Replace the formRequestName for the given stub.
+     * Replaces the form-request's name for the given stub.
      *
      * @param  string  $stub
-     * @param  string  $formRequestName
+     * @param  string  $name
      *
      * @return $this
      */
-    protected function replaceFormRequestName(&$stub, $formRequestName)
+    protected function replaceFormRequestName(&$stub, $name)
     {
-        $stub = str_replace('{{formRequestName}}', $formRequestName, $stub);
+        $stub = str_replace('{{formRequestName}}', $name, $stub);
 
         return $this;
     }
     
     /**
-     * Replace the formRequestFullName for the given stub.
+     * Replace sthe form-request's fullname for the given stub.
      *
      * @param  string  $stub
-     * @param  string  $formRequestFullName
+     * @param  string  $name
      *
      * @return $this
      */
-    protected function replaceFormRequestFullName(&$stub, $formRequestFullName)
+    protected function replaceFormRequestFullName(&$stub, $name)
     {
-        $stub = str_replace('{{formRequestFullName}}', $formRequestFullName, $stub);
+        $stub = str_replace('{{formRequestFullName}}', $name, $stub);
 
         return $this;
     }
 
     /**
-     * Replace the validationRules for the given stub.
+     * Replaces the validation rules for the given stub.
      *
      * @param  string  $stub
-     * @param  string  $validationRules
+     * @param  string  $rules
      *
      * @return $this
      */
-    protected function replaceValidationRules(&$stub, $validationRules)
+    protected function replaceValidationRules(&$stub, $rules)
     {
-        $stub = str_replace('{{validationRules}}', $validationRules, $stub);
+        $stub = str_replace('{{validationRules}}', $rules, $stub);
 
         return $this;
     }
 
     /**
-     * Replace the pagination placeholder for the given stub
+     * Replaces the models per page total for the given stub.
      *
      * @param $stub
-     * @param $perPage
+     * @param $total
      *
      * @return $this
      */
-    protected function replacePaginationNumber(&$stub, $perPage)
+    protected function replacePaginationNumber(&$stub, $total)
     {
-        $stub = str_replace('{{modelsPerPage}}', $perPage, $stub);
+        $stub = str_replace('{{modelsPerPage}}', $total, $stub);
 
         return $this;
     }
 
     /**
-     * Replace the file snippet for the given stub
+     * Replaces the file snippet for the given stub.
      *
      * @param $stub
-     * @param $fileSnippet
+     * @param $snippet
      *
      * @return $this
      */
-    protected function replaceFileSnippet(&$stub, $fileSnippet)
+    protected function replaceFileSnippet(&$stub, $snippet)
     {
-        $stub = str_replace('{{fileSnippet}}', $fileSnippet, $stub);
+        $stub = str_replace('{{fileSnippet}}', $snippet, $stub);
 
         return $this;
     }
 
     /**
-     * Replace the uploadMethod for the given stub
+     * Replaces the upload-method's code for the given stub.
      *
      * @param $stub
-     * @param $uploadMethod
+     * @param $method
      *
      * @return $this
      */
-    protected function replaceFileMethod(&$stub, $uploadMethod)
+    protected function replaceFileMethod(&$stub, $method)
     {
-        $stub = str_replace('{{uploadMethod}}', $uploadMethod, $stub);
+        $stub = str_replace('{{uploadMethod}}', $method, $stub);
 
         return $this;
     }
 
-
     /**
-     * Replace the fieldName for the given stub
+     * Replaces the field's name for the given stub.
      *
      * @param $stub
-     * @param $fileSnippet
+     * @param $nane
      *
      * @return $this
      */
-    protected function replaceFieldName(&$stub, $fieldName)
+    protected function replaceFieldName(&$stub, $name)
     {
-        $stub = str_replace('{{fieldName}}', $fieldName, $stub);
+        $stub = str_replace('{{fieldName}}', $name, $stub);
 
         return $this;
     }
 
     /**
-     * Gets the desired class name from the input.
+     * Gets the desired class name from the command-line.
      *
      * @return string
      */
     public function getNameInput()
     {
-        $nameFromArrgument = Helpers::upperCaseEveyWord(trim($this->argument('controller-name')));
+        $name = Helpers::upperCaseEveyWord(trim($this->argument('controller-name')));
         $path = $this->getControllersPath();
-        $direcoty = trim($this->option('controller-directory'));
+        $directory = trim($this->option('controller-directory'));
 
         if(!empty($directory))
         {
             $path .= Helpers::getPathWithSlash($directory);
         }
 
-        return Helpers::convertSlashToBackslash($path . Helpers::postFixWith($nameFromArrgument, 'Controller'));
+        return Helpers::convertSlashToBackslash($path . Helpers::postFixWith($name, 'Controller'));
     }
     
     /**
-     * Gets the code that call the file upload method.
+     * Gets the code that call the file-upload's method.
      *
      * @param array $fields
      *
