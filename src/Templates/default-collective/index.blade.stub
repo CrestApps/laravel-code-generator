@@ -25,7 +25,7 @@
             <div class="btn-group btn-group-xs pull-right" role="group">
 
                 <a href="{{ route('{{createRouteName}}') }}" class="btn btn-primary" title="Add {{modelNameClass}}">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true" />
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </a>
 
             </div>

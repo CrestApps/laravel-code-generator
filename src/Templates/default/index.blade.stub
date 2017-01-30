@@ -24,7 +24,7 @@
 
             <div class="btn-group btn-group-xs pull-right" role="group">
                 <a href="{{ route('{{createRouteName}}') }}" class="btn btn-primary" title="Add {{modelNameClass}}">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true" />
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </a>
             </div>
 
@@ -61,7 +61,7 @@
                                 <form method="POST" action="{!! route('{{destroyRouteName}}', ${{modelName}}->{{primaryKey}}) !!}" accept-charset="UTF-8" style="display: inline;" novalidate="novalidate">
                                 <input name="_method" value="DELETE" type="hidden">
                                 {{ csrf_field() }}
-                                    <button type="submit" class="btn btn-danger btn-xs" title="Delete {{modelNameClass}}" onclick="return confirm(&quot;Confirm delete?&quot;)" id="sometest">
+                                    <button type="submit" class="btn btn-danger btn-xs" title="Delete {{modelNameClass}}" onclick="return confirm(&quot;Confirm delete?&quot;)">
                                         <span class="glyphicon glyphicon-trash" aria-hidden="true" title="Delete {{modelNameClass}}"></span>
                                     </button>
                                 </form>

@@ -27,7 +27,8 @@ A clean code generator for Laravel framework that will save you time! This aweso
 
 ## Installation
 
- To download this package into your laravel project, use the command-line to execute the following command 
+ To download this package into your laravel project, use the command-line to execute the following command
+  
 ```
 composer require crestapps/laravel-code-generator --dev
 ```
