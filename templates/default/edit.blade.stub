@@ -7,7 +7,7 @@
         <div class="panel-heading clearfix">
 
             <span class="pull-left">
-                {{modelNameClass}} {{ ${{modelName}}->{{primaryKey}} }}
+                {{ !empty({{modelHeader}}) ? {{modelHeader}} : '{{modelName}}'}}
             </span>
 
             <div class="btn-group btn-group-xs pull-right" role="group">
@@ -33,19 +33,14 @@
                 </ul>
             @endif
 
-            {!! Form::model(${{modelName}}, [
-                'method' => 'PUT',
-                'route' => ['{{updateRouteName}}', ${{modelName}}->{{primaryKey}}],
-                'class' => 'form-horizontal',
-                {{uploadFiles}}
-            ]) !!}
-
+            <form method="POST" action="{{ route('{{updateRouteName}}', ${{modelName}}->{{primaryKey}}) }}" accept-charset="UTF-8" class="form-horizontal"{{uploadFiles}}>
+            {{ csrf_field() }}
+            <input name="_method" type="hidden" value="PUT">
             @include ('{{formViewName}}', [
                                         'submitButtonLabel' => 'Update', 
                                         '{{modelName}}' => ${{modelName}},
                                       ])
-
-            {!! Form::close() !!}
+            </form>
 
         </div>
     </div>

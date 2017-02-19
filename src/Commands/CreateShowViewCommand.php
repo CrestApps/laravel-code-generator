@@ -59,6 +59,7 @@ class CreateShowViewCommand extends ViewsCommand
             $this->replaceCommonTemplates($stub, $input)
                  ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
                  ->replaceTableRows($stub, $htmlCreator->getShowRowsHtmlField())
+                 ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($fields, $input->modelName))
                  ->createViewFile($stub, $destenationFile)
                  ->info('Show view was crafted successfully.');
         }

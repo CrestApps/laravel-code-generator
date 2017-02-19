@@ -253,33 +253,39 @@ trait CommonCommand
      * Determine the primary field in a giving array
      *
      * @param array $fields
-     * @param string $defaultFieldName
+     *
      * @return CrestApps\CodeGenerator\Models\Field 
      */
-    protected function getPrimaryField(array $fields, $defaultFieldName = 'id')
+    protected function getPrimaryField(array $fields)
     {
-        $primaryField = null;
-
         foreach($fields as $field)
         {
-            if($field instanceof Field)
+            if( $this->isField($field) && ($field->isPrimary || $field->isAutoIncrement))
             {
-                //The first found field that has the primary flag set, is the primary key
-                if($field->isPrimary || $field->isAutoIncrement)
-                {
-                    return $field;
-                }
-
-                //If the user did not specifiy a primary key, but we found a field called "id"
-                //, we assume that the field "id" is the primary key
-                if(strtolower($field->name) == $defaultFieldName)
-                {
-                    $primaryField = $field;
-                }
+                return $field;
             }
         }
 
-        return $primaryField;
+        return null;
+    }
+
+    /**
+     * Determine the field to be used for header from the givin fields.
+     *
+     * @param array $fields
+     * @return CrestApps\CodeGenerator\Models\Field || null
+     */
+    protected function getHeaderField(array $fields)
+    {
+        foreach($fields as $field)
+        {
+            if( $this->isField($field) && $field->isHeader)
+            {
+                return $field;
+            }
+        }
+
+        return null;
     }
 
      /**
@@ -358,6 +364,16 @@ trait CommonCommand
     protected function getLanguagesPath()
     {
         return Helpers::getPathWithSlash(config('codegenerator.languages_path'));
+    }
+
+    /**
+     * Checks if the givin field is an instance of a field or not.
+     *
+     * @return string
+     */
+    protected function isField($field)
+    {
+        return $field instanceof Field;
     }
 
     /**

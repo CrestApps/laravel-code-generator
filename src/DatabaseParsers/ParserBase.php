@@ -5,7 +5,8 @@ use DB;
 use App;
 use Exception;
 use CrestApps\CodeGenerator\Models\Field;
-use CrestApps\CodeGenerator\Support\FieldOptimizer;
+use CrestApps\CodeGenerator\Models\FieldMapper;
+use CrestApps\CodeGenerator\Support\FieldsOptimizer;
 
 abstract class ParserBase
 {
@@ -92,16 +93,13 @@ abstract class ParserBase
     */
 	protected function transfer(array $columns)
 	{
-		$fields = [];
+		$fields = array_map(function($field){
+            return new FieldMapper($field, null);
+        }, $this->getTransfredField($column));
 
-		foreach($columns as $column)
-		{
-			$optimizer = new FieldOptimizer($this->getTransfredField($column));
+		$optimizer = new FieldsOptimizer($fields);
 
-			$fields[] = $optimizer->optimize()->getField();
-		}
-
-		return $fields;
+		return $optimizer->optimize()->getFields();
 	}
 
     /**

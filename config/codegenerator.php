@@ -99,6 +99,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Key phrases that are will be used to determine if a field name should be used for header.
+    |--------------------------------------------------------------------------
+    */
+    'common_header_names' => ['title','name','label','header'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Key phrases that are will be used to determine if a field should be a primary key.
+    |--------------------------------------------------------------------------
+    */
+    'common_id_names' => ['id'],
+
+    /*
+    |--------------------------------------------------------------------------
     | The data-value to Eloquent method mapping.
     |--------------------------------------------------------------------------
     |

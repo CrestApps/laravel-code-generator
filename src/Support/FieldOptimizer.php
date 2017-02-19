@@ -3,8 +3,10 @@
 namespace CrestApps\CodeGenerator\Support;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Support\ValidationParser;
+use CrestApps\CodeGenerator\Support\OptimizerBase;
 
-class FieldOptimizer {
+class FieldOptimizer extends OptimizerBase
+{
 	
     /**
      * The field to optimize
@@ -100,7 +102,6 @@ class FieldOptimizer {
     */
     protected function optimizeRequiredField()
     {
-
         if( !$this->parser->isRequired() || $this->parser->isNullable() || $this->parser->isConditionalRequired() )
         {
             $this->field->isNullable = true;
@@ -109,7 +110,7 @@ class FieldOptimizer {
         return $this;
     }
 
-        /**
+    /**
      * If the property name is "id" or if the field is primary or autoincrement.
      * Ensure, the datatype is set to be valid otherwise make it "int".
      * It also make sure the primary column does not appears on the views unless it specified
@@ -120,7 +121,7 @@ class FieldOptimizer {
     */
     protected function optimizePrimaryKey()
     {
-        if( $this->isPrimaryField())
+        if( $this->isPrimaryField($this->field))
         {
             if(!$this->isNumericField())
             {
@@ -157,16 +158,6 @@ class FieldOptimizer {
         }
 
         return $this;
-    }
-
-    /**
-     * It checks if a giving field is a primary or not.
-     * 
-     * @return bool
-    */
-    protected function isPrimaryField()
-    {
-        return ($this->field->name == 'id' || $this->field->isAutoIncrement || $this->field->isPrimary);
     }
 
     /**

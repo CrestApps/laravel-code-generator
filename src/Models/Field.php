@@ -155,6 +155,13 @@ class Field
     public $isMultipleAnswers = false;
 
     /**
+     * Makes the field bahaves as a header.
+     *
+     * @var bool
+     */
+    public $isHeader = false;
+
+    /**
      * Field placeholder
      *
      * @var string

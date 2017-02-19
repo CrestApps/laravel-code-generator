@@ -5,8 +5,9 @@ namespace CrestApps\CodeGenerator\Support;
 use Exception;
 use App;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\FieldOptimizer;
+use CrestApps\CodeGenerator\Support\FieldsOptimizer;
 use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Models\FieldMapper;
 
 class FieldTransformer {
 
@@ -56,7 +57,8 @@ class FieldTransformer {
         'is-inline-options' => 'isInlineOptions',
         'placeholder' => 'placeHolder',
         'place-holder' => 'placeHolder',
-        'delimiter' => 'optionsDelimiter'
+        'delimiter' => 'optionsDelimiter',
+        'is-header' => 'isHeader'
     ];
 
 
@@ -98,7 +100,7 @@ class FieldTransformer {
 
         if( empty($localeGroup))
         {
-            throw new Exception("\$localeGroup must have a valid value");
+            throw new Exception("$localeGroup must have a valid value");
         }
 
         $this->rawFields = is_array($fields) ? $fields : $this->parseRawString($fields);
@@ -149,15 +151,14 @@ class FieldTransformer {
     protected function transfer()
     {
         $finalFields = [];
-        $assignedPrimary = false;
+
         foreach($this->rawFields as $rawField)
         {
-            $field = $this->transferField($rawField, $assignedPrimary);
-
-            $finalFields[] = $this->transferField($rawField, $assignedPrimary);
+            $finalFields[] = $this->transferField($rawField);
         }
 
-        $this->fields = $finalFields;
+        $optimizer = new FieldsOptimizer($finalFields);
+        $this->fields = $optimizer->optimize()->getFields();
 
         return $this;
     }
@@ -165,12 +166,12 @@ class FieldTransformer {
     /**
      * It transfres a giving array to a field object by matching predefined keys
      * 
-     * @param string|json $json
+     * @param array $field
      * @param string $localeGroup
      *
      * @return array
     */
-    protected function transferField(array $field, & $assignedPrimary)
+    protected function transferField(array $field)
     {
         if(!$this->isKeyExists($field, 'name') || empty(Helpers::removeNonEnglishChars($field['name']) ) )
         {
@@ -203,7 +204,7 @@ class FieldTransformer {
             throw new Exception('To construct an enum data-type field, options must be set');
         }
 
-        return (new FieldOptimizer($newField, $field))->optimize()->getField();
+        return new FieldMapper($newField, $field);
     }
 
    /**

@@ -113,7 +113,7 @@ class GenerateFormViews
                 $row = $stub;
                 $this->replaceFieldName($row, $field->name)
                      ->replaceModelName($row, $this->modelName)
-                     ->replaceRowFieldValue($row, $this->getFieldValue($field))
+                     ->replaceRawFieldValue($row, $this->getFieldValue($field))
                      ->replaceFieldTitle($row, $this->getTitle($field->getLabel(), true));
 
                 $rows .= $row . PHP_EOL;
@@ -173,7 +173,7 @@ class GenerateFormViews
 
                 $this->replaceFieldName($row, $field->name)
                      ->replaceModelName($row, $this->modelName)
-                     ->replaceRowFieldValue($row, $this->getFieldValue($field))
+                     ->replaceRawFieldValue($row, $this->getFieldValue($field))
                      ->replaceFieldTitle($row, $this->getTitle($field->getLabel(), true));
 
                 $rows .= $row . PHP_EOL;
@@ -183,7 +183,15 @@ class GenerateFormViews
         return $rows;
     }
 
-    protected function replaceRowFieldValue(& $stub, $value)
+    /**
+     * Replace the field'd raw valw fo the given stub.
+     *
+     * @param string $stub
+     * @param string $value
+     *
+     * @return $this
+     */
+    protected function replaceRawFieldValue(& $stub, $value)
     {
         $stub = str_replace('{{fieldValue}}', $value, $stub);
 

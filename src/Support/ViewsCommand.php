@@ -357,6 +357,21 @@ abstract class ViewsCommand extends GeneratorCommand
     }
 
     /**
+     * Gets the primary key name from a giving fields collection
+     *
+     * @param array $fields
+     * @param string $default
+     *
+     * @return null | string
+     */
+    protected function getHeaderFieldAccessor(array $fields, $modelName)
+    {
+        $field = $this->getHeaderField($fields);
+
+        return !is_null($field) ? sprintf('$%s->%s', strtolower($modelName), $field->name) : $modelName;
+    }
+
+    /**
      * Gets a new instance of the proper html generator.
      *
      * @param array $fields
@@ -386,4 +401,20 @@ abstract class ViewsCommand extends GeneratorCommand
     {
         return in_array($template, $this->getCollectiveTemplates());
     }
+
+    /**
+     * Replace the modele's header fo the given stub.
+     *
+     * @param string $stub
+     * @param string $title
+     *
+     * @return $this
+     */
+    protected function replaceModelHeader(& $stub, $title)
+    {
+        $stub = str_replace('{{modelHeader}}', $title, $stub);
+
+        return $this;
+    }
+
 }

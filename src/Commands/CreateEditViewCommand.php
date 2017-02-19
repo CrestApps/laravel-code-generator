@@ -59,6 +59,7 @@ class CreateEditViewCommand extends ViewsCommand
                  ->replaceCommonTemplates($stub, $input)
                  ->replaceFileUpload($stub, $fields)
                  ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
+                 ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($fields, $input->modelName))
                  ->createViewFile($stub, $destenationFile)
                  ->info('Edit view view was crafted successfully.');
         }
