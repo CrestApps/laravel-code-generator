@@ -183,6 +183,13 @@ class Field
     public $range = [];
 
     /**
+     * Checks if the field should be mutated to date
+     *
+     * @var bool
+     */
+    public $isDate = false;
+
+    /**
      * Creates a new field instance.
      *
      * @param string $name

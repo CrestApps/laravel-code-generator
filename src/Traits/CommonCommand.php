@@ -82,6 +82,24 @@ trait CommonCommand
     }
 
     /**
+     * Reduceses multiple new line into one.
+     *
+     * @param string $stub
+     * 
+     * @return $this
+     */
+    protected function reduceNewLines(&$stub)
+    {
+
+        while(strpos($stub, "\r\n\r\n") !== false)
+        {
+            $stub = str_replace("\r\n\r\n", "\r\n", $stub);
+        }
+
+        return $this;
+    }
+
+    /**
      * Gets all command's options depending on the current framework version.
      *
      * @return string

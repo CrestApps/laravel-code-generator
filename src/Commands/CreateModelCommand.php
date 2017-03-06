@@ -58,6 +58,11 @@ class CreateModelCommand extends GeneratorCommand
         $input = $this->getCommandInput();
         $fields = $this->getFields($input->fields, 'model', $input->fieldsFile);
 
+        if($input->useSoftDelete)
+        {
+            $fields = $this->upsertDeletedAt($fields);
+        }
+
         $primaryKey = $this->getNewPrimaryKey($this->getPrimaryKeyName($fields, $input->primaryKey));
 
         return $this->replaceNamespace($stub, $name)
@@ -65,6 +70,7 @@ class CreateModelCommand extends GeneratorCommand
                     ->replaceSoftDelete($stub, $input->useSoftDelete)
                     ->replaceTimestamps($stub, $input->useTimeStamps)
                     ->replaceFillable($stub, $this->getFillables($input->fillable, $fields))
+                    ->replaceDateFields($stub, $this->getDateFields($fields))
                     ->replacePrimaryKey($stub, $primaryKey)
                     ->replaceRelationshipPlaceholder($stub, $this->createRelationMethods($input->relationships))
                     ->replaceAccessors($stub, $this->getAccessors($fields))
@@ -87,6 +93,39 @@ class CreateModelCommand extends GeneratorCommand
         return !is_null($primaryField) ? $primaryField->name : $primaryKey;
     }
 
+    /**
+     * If a giving fields collection does not contain a field called "deleted_at", one will be created.
+     *
+     * @param array $fields
+     *
+     * @return array
+     */
+    protected function upsertDeletedAt(array $fields)
+    {
+        foreach($fields as $field)
+        {
+            if($field->name == 'deleted_at')
+            {
+                return $fields;
+            }
+        }
+
+        $fields[] = $this->getNewDeletedAtField();
+        return $fields;
+    }
+
+    /**
+     * Gets a new field called "deleted_at"
+     *
+     * @return string
+     */
+    protected function getNewDeletedAtField()
+    {
+        $field = new Field('deleted_at');
+        $field->isDate = true; 
+
+        return $field;
+    }
     /**
      * Gets the stub file.
      *
@@ -147,6 +186,26 @@ class CreateModelCommand extends GeneratorCommand
         }
 
         return sprintf('[%s]', implode(',', $fillables));
+    }
+
+    /**
+     * Gets the date fields string from a giving fields array.
+     *
+     * @return string
+     */
+    protected function getDateFields(array $fields)
+    {
+        $dates = [];
+
+        foreach($fields as $field)
+        {
+            if($field->isDate)
+            {
+                $dates[] = sprintf("'%s'", Helpers::removeNonEnglishChars($field->name));
+            }
+        }
+
+        return sprintf('[%s]', implode(',', $dates));
     }
 
     /**
@@ -341,6 +400,21 @@ class CreateModelCommand extends GeneratorCommand
     protected function replaceAccessors(&$stub, $accessors)
     {
         $stub = str_replace('{{accessors}}', $accessors, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the dates for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $dates
+     *
+     * @return $this
+     */
+    protected function replaceDateFields(&$stub, $dates)
+    {
+        $stub = str_replace('{{dates}}', $dates, $stub);
 
         return $this;
     }

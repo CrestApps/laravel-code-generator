@@ -110,9 +110,11 @@ class DummyClass extends Controller
      */
     public function destroy($id)
     {
-        {{modelNameClass}}::destroy($id);
+        ${{modelName}} = {{modelNameClass}}::findOrFail($id);
 
-        Session::flash('flash_message', '{{modelNameClass}} was deleted!');
+        ${{modelName}}->delete();
+
+        Session::flash('success_message', '{{modelNameClass}} was deleted!');
 
         return redirect()->route('{{indexRouteName}}');
     }

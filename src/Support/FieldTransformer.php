@@ -58,7 +58,8 @@ class FieldTransformer {
         'placeholder' => 'placeHolder',
         'place-holder' => 'placeHolder',
         'delimiter' => 'optionsDelimiter',
-        'is-header' => 'isHeader'
+        'is-header' => 'isHeader',
+        'is-date' => 'isDate'
     ];
 
 
@@ -171,40 +172,42 @@ class FieldTransformer {
      *
      * @return array
     */
-    protected function transferField(array $field)
+    protected function transferField(array $properties)
     {
-        if(!$this->isKeyExists($field, 'name') || empty(Helpers::removeNonEnglishChars($field['name']) ) )
+        if(!$this->isKeyExists($properties, 'name') || empty(Helpers::removeNonEnglishChars($properties['name']) ) )
         {
             throw new Exception("The field 'name' was not provided!");
         }
 
-        if(!$this->isValidHtmlType($field))
+        if(!$this->isValidHtmlType($properties))
         {
-            unset($field['html-type']);
+            unset($properties['html-type']);
         }
 
-        $newField = new Field(Helpers::removeNonEnglishChars($field['name']));
+        $field = new Field(Helpers::removeNonEnglishChars($properties['name']));
 
-        $this->setPredefindProperties($newField, $field)
-             ->setDataType($newField, $field)
-             ->setOptionsProperty($newField, $field)
-             ->setValidationProperty($newField, $field)
-             ->setLabelsProperty($newField, $field)
-             ->setDataTypeParams($newField, $field)
-             ->setMultipleAnswers($newField, $field)
-             ->setRange($newField, $field);
+        $field->isDate = in_array($field->name, ['created_at','updated_at','deleted_at']);
 
-        if($this->isValidSelectRangeType($field))
+        $this->setPredefindProperties($field, $properties)
+             ->setDataType($field, $properties)
+             ->setOptionsProperty($field, $properties)
+             ->setValidationProperty($field, $properties)
+             ->setLabelsProperty($field, $properties)
+             ->setDataTypeParams($field, $properties)
+             ->setMultipleAnswers($field, $properties)
+             ->setRange($field, $properties);
+
+        if($this->isValidSelectRangeType($properties))
         {
-            $newField->htmlType = 'selectRange';
+            $field->htmlType = 'selectRange';
         }
 
-        if($newField->dataType == 'enum' && empty($newField->getOptions()) )
+        if($field->dataType == 'enum' && empty($field->getOptions()) )
         {
             throw new Exception('To construct an enum data-type field, options must be set');
         }
 
-        return new FieldMapper($newField, $field);
+        return new FieldMapper($field, $properties);
     }
 
    /**
@@ -238,31 +241,31 @@ class FieldTransformer {
    /**
      * Checks if a key exists in a giving array
      * 
-     * @param array $field
+     * @param array $properties
      * @param string $name
      *
      * @return bool
     */
-    protected function isKeyExists(array $field, $name)
+    protected function isKeyExists(array $properties, $name)
     {
-        return array_key_exists($name, $field);
+        return array_key_exists($name, $properties);
     }
 
     /**
      * Sets the dataType for a giving field
      * 
-     * @param CrestApps\CodeGenerator\Models\Field $newField
-     * @param array $field
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
      *
      * @return $this
     */
-    protected function setDataType(Field & $newField, array $field)
+    protected function setDataType(Field & $field, array $properties)
     {
         $map = $this->dataTypeMap();
 
-        if($this->isKeyExists($field, 'data-type') && $this->isKeyExists($map, 'data-type') )
+        if($this->isKeyExists($properties, 'data-type') && $this->isKeyExists($map, 'data-type') )
         {
-            $newField->dataType = $map[$field['data-type']];
+            $field->dataType = $map[$properties['data-type']];
         }
 
         return $this;
@@ -290,15 +293,15 @@ class FieldTransformer {
      * Sets the DataTypeParam for a giving field
      * 
      * @param CrestApps\CodeGenerator\Models\Field $newField
-     * @param array $field
+     * @param array $properties
      *
      * @return $this
     */
-    protected function setDataTypeParams(Field & $newField, array $field)
+    protected function setDataTypeParams(Field & $field, array $properties)
     {
-        if($this->isKeyExists($field, 'data-type-params') && is_array($field['data-type-params']))
+        if($this->isKeyExists($properties, 'data-type-params') && is_array($properties['data-type-params']))
         {
-            $newField->methodParams = $field['data-type-params'];
+            $field->methodParams = $properties['data-type-params'];
         }
 
         return $this;
@@ -311,12 +314,11 @@ class FieldTransformer {
      *
      * @return $this
     */
-    protected function setMultipleAnswers(Field & $newField, array $field)
+    protected function setMultipleAnswers(Field & $field)
     {
-
-        if(in_array($newField->htmlType, ['checkbox','multipleSelect']))
+        if(in_array($field->htmlType, ['checkbox','multipleSelect']))
         {
-            $newField->isMultipleAnswers = true;
+            $field->isMultipleAnswers = true;
         }
 
         return $this;
