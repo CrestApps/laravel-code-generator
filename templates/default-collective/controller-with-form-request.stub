@@ -48,7 +48,7 @@ class DummyClass extends Controller
         {{fileSnippet}}
         {{modelNameClass}}::create($data);
 
-        Session::flash('flash_message', '{{modelNameClass}} was added!');
+        Session::flash('success_message', '{{modelNameClass}} was added!');
 
         return redirect()->route('{{indexRouteName}}');
     }
@@ -96,7 +96,7 @@ class DummyClass extends Controller
         {{fileSnippet}}
         ${{modelName}}->update($data);
 
-        Session::flash('flash_message', '{{modelNameClass}} was updated!');
+        Session::flash('success_message', '{{modelNameClass}} was updated!');
 
         return redirect()->route('{{indexRouteName}}');
     }
