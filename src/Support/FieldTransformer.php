@@ -9,7 +9,8 @@ use CrestApps\CodeGenerator\Support\FieldsOptimizer;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\FieldMapper;
 
-class FieldTransformer {
+class FieldTransformer
+{
 
     /**
      * The raw field before transformation
@@ -23,21 +24,21 @@ class FieldTransformer {
      *
      * @var array
      */
-	protected $fields = [];
+    protected $fields = [];
 
     /**
      * The name of the file where labels will reside
      *
      * @var string
      */
-	protected $localeGroup;
+    protected $localeGroup;
 
     /**
      * Mapps the user input to a valid property name in the field object
      * 
      * @return array
     */
-    protected $predefinedKeyMapping = 
+    protected $predefinedKeyMapping =
     [
         'html-type' => 'htmlType',
         'html-value' => 'htmlValue',
@@ -96,18 +97,16 @@ class FieldTransformer {
      *
      * @return void
      */
-	protected function __construct($fields, $localeGroup)
-	{
-
-        if( empty($localeGroup))
-        {
+    protected function __construct($fields, $localeGroup)
+    {
+        if (empty($localeGroup)) {
             throw new Exception("$localeGroup must have a valid value");
         }
 
         $this->rawFields = is_array($fields) ? $fields : $this->parseRawString($fields);
         $this->localeGroup = $localeGroup;
         $this->defaultLang = App::getLocale();
-	}
+    }
 
     /**
      * It transfred a gining string to a collection of field
@@ -134,8 +133,7 @@ class FieldTransformer {
     */
     public static function Json($json, $localeGroup)
     {
-        if( empty($json) || ($fields = json_decode($json, true)) === null )
-        {
+        if (empty($json) || ($fields = json_decode($json, true)) === null) {
             throw new Exception("The provided string is not a valid json.");
         }
 
@@ -153,8 +151,9 @@ class FieldTransformer {
     {
         $finalFields = [];
 
-        foreach($this->rawFields as $rawField)
-        {
+        $this->validateFields($this->rawFields);
+
+        foreach ($this->rawFields as $rawField) {
             $finalFields[] = $this->transferField($rawField);
         }
 
@@ -174,13 +173,11 @@ class FieldTransformer {
     */
     protected function transferField(array $properties)
     {
-        if(!$this->isKeyExists($properties, 'name') || empty(Helpers::removeNonEnglishChars($properties['name']) ) )
-        {
+        if (!$this->isKeyExists($properties, 'name') || empty(Helpers::removeNonEnglishChars($properties['name']))) {
             throw new Exception("The field 'name' was not provided!");
         }
 
-        if(!$this->isValidHtmlType($properties))
-        {
+        if (!$this->isValidHtmlType($properties)) {
             unset($properties['html-type']);
         }
 
@@ -197,13 +194,11 @@ class FieldTransformer {
              ->setMultipleAnswers($field, $properties)
              ->setRange($field, $properties);
 
-        if($this->isValidSelectRangeType($properties))
-        {
+        if ($this->isValidSelectRangeType($properties)) {
             $field->htmlType = 'selectRange';
         }
 
-        if($field->dataType == 'enum' && empty($field->getOptions()) )
-        {
+        if ($field->dataType == 'enum' && empty($field->getOptions())) {
             throw new Exception('To construct an enum data-type field, options must be set');
         }
 
@@ -219,11 +214,22 @@ class FieldTransformer {
     */
     protected function isValidHtmlType(array $field)
     {
-        return $this->isKeyExists($field, 'html-type') && 
-        ( 
+        return $this->isKeyExists($field, 'html-type') &&
+        (
              in_array($field['html-type'], $this->validHtmlTypes)
           || $this->isValidSelectRangeType($field)
         );
+    }
+
+    protected function validateFields(array $fields)
+    {
+        $names = array_column($fields, 'name');
+        $un = array_unique($names);
+
+        if(array_unique($names) !== $names)
+        {
+            throw new Exception('Each field name must be unique. Please check the profided field names');
+        }
     }
 
    /**
@@ -263,8 +269,7 @@ class FieldTransformer {
     {
         $map = $this->dataTypeMap();
 
-        if($this->isKeyExists($properties, 'data-type') && $this->isKeyExists($map, 'data-type') )
-        {
+        if ($this->isKeyExists($properties, 'data-type') && $this->isKeyExists($map, $properties['data-type'])) {
             $field->dataType = $map[$properties['data-type']];
         }
 
@@ -281,8 +286,7 @@ class FieldTransformer {
     */
     protected function setRange(Field & $newField, array $field)
     {
-        if($this->isValidSelectRangeType($field))
-        {
+        if ($this->isValidSelectRangeType($field)) {
             $newField->range = explode(':', substr($field['html-type'], 12));
         }
 
@@ -299,8 +303,7 @@ class FieldTransformer {
     */
     protected function setDataTypeParams(Field & $field, array $properties)
     {
-        if($this->isKeyExists($properties, 'data-type-params') && is_array($properties['data-type-params']))
-        {
+        if ($this->isKeyExists($properties, 'data-type-params') && is_array($properties['data-type-params'])) {
             $field->methodParams = $properties['data-type-params'];
         }
 
@@ -316,8 +319,7 @@ class FieldTransformer {
     */
     protected function setMultipleAnswers(Field & $field)
     {
-        if(in_array($field->htmlType, ['checkbox','multipleSelect']))
-        {
+        if (in_array($field->htmlType, ['checkbox','multipleSelect'])) {
             $field->isMultipleAnswers = true;
         }
 
@@ -336,8 +338,7 @@ class FieldTransformer {
     {
         $labels = $this->getLabels($field);
 
-        foreach($labels as $label)
-        {   
+        foreach ($labels as $label) {
             $newField->addLabel($label->text, $this->localeGroup, $label->isPlain, $label->lang);
         }
 
@@ -354,8 +355,7 @@ class FieldTransformer {
     */
     protected function setValidationProperty(Field & $newField, array $field)
     {
-        if($this->isKeyExists($field, 'validation'))
-        {
+        if ($this->isKeyExists($field, 'validation')) {
             $newField->validationRules = is_array($field['validation']) ? $field['validation'] : Helpers::removeEmptyItems(explode('|', $field['validation']));
         }
 
@@ -374,10 +374,8 @@ class FieldTransformer {
     {
         $options = $this->getOptions($field);
 
-        if( !is_null($options))
-        {
-            foreach($options as $option)
-            {
+        if (!is_null($options)) {
+            foreach ($options as $option) {
                 $newField->addOption($option->text, $this->localeGroup, $option->isPlain, $option->lang, $option->value);
             }
         }
@@ -394,8 +392,7 @@ class FieldTransformer {
     */
     protected function getOptions(array $field)
     {
-        if(!$this->isKeyExists($field, 'options'))
-        {
+        if (!$this->isKeyExists($field, 'options')) {
             return null;
         }
 
@@ -415,24 +412,20 @@ class FieldTransformer {
 
         $associative = Helpers::isAssociative($options);
         
-        foreach($options as $value => $option)
-        {
+        foreach ($options as $value => $option) {
             $value = $associative ? $value : $option;
 
-            if(!is_array($option))
-            {
+            if (!is_array($option)) {
                 // At this point the options are plain text without locale
                 $finalOptions[] = $this->getLabelObject($option, true, $this->defaultLang, $value);
                 continue;
             }
 
-            foreach($option as $optionValue => $text)
-            {
+            foreach ($option as $optionValue => $text) {
                 // At this point the options are in array which mean they need translation.
                 $lang = is_numeric($optionValue) || empty($optionValue) ? $this->defaultLang : $optionValue;
                 $finalOptions[] = $this->getLabelObject($text, false, $lang, $value);
             }
-
         }
 
         return $finalOptions;
@@ -449,18 +442,13 @@ class FieldTransformer {
     */
     protected function setPredefindProperties(Field & $newField, array $field)
     {
-        foreach($this->predefinedKeyMapping as $key => $property)
-        {
-            if($this->isKeyExists($field, $key) )
-            {
-                if(is_array($property))
-                {
-                    foreach($property as $name)
-                    {
+        foreach ($this->predefinedKeyMapping as $key => $property) {
+            if ($this->isKeyExists($field, $key)) {
+                if (is_array($property)) {
+                    foreach ($property as $name) {
                         $newField->{$name} = $field[$key];
                     }
-                } else 
-                {
+                } else {
                     $newField->{$property} = $field[$key];
                 }
             }
@@ -474,10 +462,10 @@ class FieldTransformer {
      *
      * @return array
     */
-	protected function getFields()
-	{
-		return $this->fields;
-	}
+    protected function getFields()
+    {
+        return $this->fields;
+    }
 
     /**
      * It get the labels from a giving array
@@ -490,8 +478,7 @@ class FieldTransformer {
     {
         $labels = [];
 
-        foreach($items as $key => $label)
-        {
+        foreach ($items as $key => $label) {
             $lang = empty($key) || is_numeric($key) ? $this->defaultLang : $key;
             $labels[] = $this->getLabelObject($label, false, $lang);
         }
@@ -527,17 +514,13 @@ class FieldTransformer {
     */
     protected function getLabels(array $field)
     {
-
-        if( isset($field['labels']) && is_array($field['labels']))
-        {  
+        if (isset($field['labels']) && is_array($field['labels'])) {
             //At this point we know the is array of labels
             return $this->getLabelsFromArray($field['labels']);
         }
 
-        if( isset($field['label']))
-        {
-            if(is_array($field['label']))
-            {  
+        if (isset($field['label'])) {
+            if (is_array($field['label'])) {
                 //At this point we know this the label
                 return $this->getLabelsFromArray($field['label']);
             }
@@ -547,8 +530,7 @@ class FieldTransformer {
 
         $labels = $this->getLabelsFromRawProperties($field);
 
-        if(!isset($labels[0]) && isset($field['name']))
-        {
+        if (!isset($labels[0]) && isset($field['name'])) {
             //At this point we know there are no labels found, generate one use the name
             return [$this->getLabelObject($this->convertNameToLabel($field['name']), true, $this->defaultLang)];
         }
@@ -568,24 +550,19 @@ class FieldTransformer {
     {
         $labels = [];
 
-        foreach($field as $key => $label)
-        {
-            if(!in_array($key, ['labels','label']))
-            {
+        foreach ($field as $key => $label) {
+            if (!in_array($key, ['labels','label'])) {
                 continue;
             }
 
             $messages = Helpers::removeEmptyItems(explode('|', $label));
 
-            foreach($messages as $message)
-            {
+            foreach ($messages as $message) {
                 $index = strpos($message, ':');
 
-                if($index !== false)
-                {
+                if ($index !== false) {
                     $labels[] = $this->getLabelObject(substr($message, $index + 1), false, substr($message, 0, $index));
-                } else 
-                {
+                } else {
                     $labels[] = $this->getLabelObject($message, true, $this->defaultLang);
                 }
             }
@@ -601,26 +578,23 @@ class FieldTransformer {
      *
      * @return array
     */
-	protected function parseOptions($optionsString)
-	{
-		$options = Helpers::removeEmptyItems(explode('|', $optionsString));
-		$finalOptions = [];
+    protected function parseOptions($optionsString)
+    {
+        $options = Helpers::removeEmptyItems(explode('|', $optionsString));
+        $finalOptions = [];
 
-		foreach($options as $option)
-		{
+        foreach ($options as $option) {
             $index = strpos(':', $option);
 
-            if($index !== false)
-            {
+            if ($index !== false) {
                 $finalOptions[] = $this->getLabelObject(substr($option, $index + 1), true, $this->defaultLang, substr($option, 0, $index));
-            } else 
-            {
+            } else {
                 $finalOptions[] = $this->getLabelObject($option, true, $this->defaultLang, null);
             }
-		}
+        }
 
-		return $finalOptions;
-	}
+        return $finalOptions;
+    }
 
     /**
      * Parses giving string and turns it into a valid array
@@ -629,28 +603,25 @@ class FieldTransformer {
      *
      * @return array
     */
-	protected function parseRawString($fieldsString)
-	{
-        if(empty($fieldsString))
-        {
+    protected function parseRawString($fieldsString)
+    {
+        if (empty($fieldsString)) {
             return [];
         }
         
-    	$fields = explode('#', $fieldsString);
-    	$finalFields = [];
+        $fields = explode('#', $fieldsString);
+        $finalFields = [];
 
-    	foreach($fields as $field)
-    	{
-    		$configs = $this->getPropertyConfig(Helpers::removeEmptyItems(explode(';', $field)));
+        foreach ($fields as $field) {
+            $configs = $this->getPropertyConfig(Helpers::removeEmptyItems(explode(';', $field)));
 
-            if(!empty($configs))
-            {
+            if (!empty($configs)) {
                 $finalFields[] = $configs;
             }
-    	}
+        }
 
-    	return $finalFields;
-	}
+        return $finalFields;
+    }
 
     /**
      * Parses the properties array
@@ -662,17 +633,13 @@ class FieldTransformer {
     protected function getPropertyConfig(array $properties)
     {
         $configs = [];
-        foreach($properties as $property)
-        {
+        foreach ($properties as $property) {
             $config = Helpers::removeEmptyItems(explode('=', $property));
             $totalParts = count($config);
         
-            if($totalParts == 2)
-            {
+            if ($totalParts == 2) {
                 $configs[$config[0]] = $this->isProperyBool($config[0]) ? Helpers::stringToBool($config[1]): $config[1];
-            } 
-            elseif($totalParts == 1 && $this->isProperyBool($config[0]))
-            {
+            } elseif ($totalParts == 1 && $this->isProperyBool($config[0])) {
                 $configs[$config[0]] = true;
             }
         }
@@ -713,5 +680,4 @@ class FieldTransformer {
     {
         return config('codegenerator.eloquent_type_to_method');
     }
-
 }

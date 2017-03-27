@@ -1,6 +1,7 @@
 <?php
 
 namespace CrestApps\CodeGenerator\Support;
+
 use CrestApps\CodeGenerator\Models\Field;
 
 abstract class OptimizerBase
@@ -36,5 +37,4 @@ abstract class OptimizerBase
     {
         return config('codegenerator.common_id_names') ?: ['id'];
     }
-
 }

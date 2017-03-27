@@ -48,15 +48,13 @@ class CreateFormViewCommand extends ViewsCommand
      */
     protected function handleCreateView()
     {
-
         $input = $this->getCommandInput();
         $stub = $this->getStubContent($this->stubName);
         $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'form');
-        $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName ,$this->getTemplateName());
+        $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName, $this->getTemplateName());
         
-        if($this->canCreateView($destenationFile, $input->force))
-        {
+        if ($this->canCreateView($destenationFile, $input->force)) {
             $this->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
                  ->replaceCommonTemplates($stub, $input)
                  ->replaceFields($stub, $htmlCreator->getHtmlFields())
@@ -79,5 +77,4 @@ class CreateFormViewCommand extends ViewsCommand
 
         return $this;
     }
-
 }

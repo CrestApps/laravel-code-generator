@@ -48,15 +48,13 @@ class CreateIndexViewCommand extends ViewsCommand
      */
     protected function handleCreateView()
     {
-
         $input = $this->getCommandInput();
         $stub = $this->getStubContent($this->stubName);
-        $fields = $this->getFields($input->fields,$input->languageFileName, $input->fieldsFile);
+        $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'index');
-        $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName ,$this->getTemplateName());
+        $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName, $this->getTemplateName());
 
-        if($this->canCreateView($destenationFile, $input->force, $fields))
-        {
+        if ($this->canCreateView($destenationFile, $input->force, $fields)) {
             $this->replaceCommonTemplates($stub, $input)
                  ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
                  ->replaceHeaderCells($stub, $htmlCreator->getIndexHeaderCells())
@@ -95,5 +93,4 @@ class CreateIndexViewCommand extends ViewsCommand
 
         return $this;
     }
-
 }

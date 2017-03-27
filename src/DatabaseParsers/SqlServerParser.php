@@ -10,33 +10,33 @@ use CrestApps\CodeGenerator\Support\DatabaseParser\ParserBase;
 
 class SqlServerParser extends ParserBase
 {
-	/**
+    /**
      * The table name.
      *
      * @var array
      */
-	protected $tableName;
+    protected $tableName;
 
     /**
      * The databasename
      *
      * @var array
      */
-	protected $databaseName;
+    protected $databaseName;
 
     /**
      * The locale value
      *
      * @var array
      */
-	protected $locale;
+    protected $locale;
 
     /**
      * The final fields.
      *
      * @var array
      */
-	protected $fields;
+    protected $fields;
 
     /**
      * Creates a new field instance.
@@ -46,42 +46,40 @@ class SqlServerParser extends ParserBase
      *
      * @return void
      */
-	public function __construct($tableName, $databaseName)
-	{
-		$this->tableName = $tableName;
-		$this->databaseName = $databaseName;
-		$this->locale = App::getLocale();
-	}
+    public function __construct($tableName, $databaseName)
+    {
+        $this->tableName = $tableName;
+        $this->databaseName = $databaseName;
+        $this->locale = App::getLocale();
+    }
 
     /**
      * Gets the final fields.
      *
      * @return array
     */
-	public function getFields()
-	{
-		if(is_null($this->fields))
-		{
-			$columns = $this->getColumn();
+    public function getFields()
+    {
+        if (is_null($this->fields)) {
+            $columns = $this->getColumn();
 
-			if(empty($columns))
-			{
-				throw new Exception('The table ' . $this->tableName . ' was not found in the ' . $this->databaseName . ' database.');
-			}
+            if (empty($columns)) {
+                throw new Exception('The table ' . $this->tableName . ' was not found in the ' . $this->databaseName . ' database.');
+            }
 
-			$this->fields = $this->transfer($columns);
-		}
+            $this->fields = $this->transfer($columns);
+        }
 
-		return $this->fields;
-	}
+        return $this->fields;
+    }
 
     /**
      * Gets column meta info from the information schema.
      *
      * @return array
     */
-	protected function getColumn()
-	{
+    protected function getColumn()
+    {
         return DB::select('SELECT 
 							 c.COLUMN_NAME
 							,c.COLUMN_DEFAULT
@@ -98,9 +96,9 @@ class SqlServerParser extends ParserBase
 							            AND c.TABLE_SCHEMA = pk.TABLE_SCHEMA
 							            AND c.TABLE_NAME = pk.TABLE_NAME
 							            AND c.COLUMN_NAME = pk.COLUMN_NAME
-							WHERE c.TABLE_NAME = ? AND c.TABLE_CATALOG = ? ', 
-		                  [$this->tableName, $this->databaseName]);
-	}
+							WHERE c.TABLE_NAME = ? AND c.TABLE_CATALOG = ? ',
+                          [$this->tableName, $this->databaseName]);
+    }
 
     /**
      * Gets array of field after transfering each column meta into field.
@@ -109,33 +107,31 @@ class SqlServerParser extends ParserBase
      *
      * @return array
     */
-	protected function transfer(array $columns)
-	{
-		$fields = [];
+    protected function transfer(array $columns)
+    {
+        $fields = [];
 
-		foreach($columns as $column)
-		{
+        foreach ($columns as $column) {
+            $field = new Field($column->COLUMN_NAME);
 
-			$field = new Field($column->COLUMN_NAME);
+            $this->setIsNullable($field, $column->IS_NULLABLE)
+                 ->setMaxLength($field, $column->CHARACTER_MAXIMUM_LENGTH)
+                 ->setDefault($field, $column->COLUMN_DEFAULT)
+                 ->setDataType($field, $column->DATA_TYPE)
+                 ->setKey($field, $column->COLUMN_KEY, $column->EXTRA)
+                 ->setLabel($field, $column->COLUMN_NAME)
+                 //->setComment($field, $column->COLUMN_COMMENT)
+                 //->setOptions($field, $column->COLUMN_TYPE)
+                 //->setUnsigned($field, $column->COLUMN_TYPE)
+                 ->setHtmlType($field, $column->DATA_TYPE);
 
-			$this->setIsNullable($field, $column->IS_NULLABLE)
-				 ->setMaxLength($field, $column->CHARACTER_MAXIMUM_LENGTH)
-				 ->setDefault($field, $column->COLUMN_DEFAULT)
-				 ->setDataType($field, $column->DATA_TYPE)
-				 ->setKey($field,$column->COLUMN_KEY, $column->EXTRA)
-				 ->setLabel($field, $column->COLUMN_NAME)
-				 //->setComment($field, $column->COLUMN_COMMENT)
-				 //->setOptions($field, $column->COLUMN_TYPE)
-				 //->setUnsigned($field, $column->COLUMN_TYPE)
-				 ->setHtmlType($field, $column->DATA_TYPE);
+            $optimizer = new FieldOptimizer($field);
 
-			$optimizer = new FieldOptimizer($field);
+            $fields[] = $optimizer->optimize()->getField();
+        }
 
-			$fields[] = $optimizer->optimize()->getField();
-		}
-
-		return $fields;
-	}
+        return $fields;
+    }
 
     /**
      * Set the unsiged flag for a giving field.
@@ -145,16 +141,15 @@ class SqlServerParser extends ParserBase
      *
      * @return $this
     */
-	protected function setUnsigned(Field & $field, $type)
-	{
-		if(strpos($type, 'unsigned') !== false)
-		{
-			$field->isUnsigned = true;
-			$field->validationRules[] = sprintf('min:%s', 0);
-		}
+    protected function setUnsigned(Field & $field, $type)
+    {
+        if (strpos($type, 'unsigned') !== false) {
+            $field->isUnsigned = true;
+            $field->validationRules[] = sprintf('min:%s', 0);
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Set the html type for a giving field.
@@ -164,17 +159,16 @@ class SqlServerParser extends ParserBase
      *
      * @return $this
     */
-	protected function setHtmlType(Field & $field, $type)
-	{
-		$map = $this->getMap();
+    protected function setHtmlType(Field & $field, $type)
+    {
+        $map = $this->getMap();
 
-		if(array_key_exists($type, $map))
-		{
-			$field->htmlType = $map[$type];
-		}
+        if (array_key_exists($type, $map)) {
+            $field->htmlType = $map[$type];
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Set the data type for a giving field.
@@ -184,17 +178,16 @@ class SqlServerParser extends ParserBase
      *
      * @return $this
     */
-	protected function setDataType(Field & $field, $type)
-	{
+    protected function setDataType(Field & $field, $type)
+    {
         $map = $this->dataTypeMap();
 
-        if(array_key_exists($type, $map) )
-        {
+        if (array_key_exists($type, $map)) {
             $field->dataType = $map[$type];
         }
 
         return $this;
-	}
+    }
 
     /**
      * Set the nullable for a giving field.
@@ -204,12 +197,12 @@ class SqlServerParser extends ParserBase
      *
      * @return $this
     */
-	protected function setIsNullable(Field & $field, $nullable)
-	{
-		$field->isNullable = (strtoupper($nullable) == 'YES');
+    protected function setIsNullable(Field & $field, $nullable)
+    {
+        $field->isNullable = (strtoupper($nullable) == 'YES');
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Set the max length for a giving field.
@@ -219,16 +212,15 @@ class SqlServerParser extends ParserBase
      *
      * @return $this
     */
-	protected function setMaxLength(Field & $field, $length)
-	{
-		if(($value = intval($length)) > 0 )
-		{
-			$field->validationRules[] = sprintf('max:%s', $value);
-			$field->methodParams[] = $value;
-		}
+    protected function setMaxLength(Field & $field, $length)
+    {
+        if (($value = intval($length)) > 0) {
+            $field->validationRules[] = sprintf('max:%s', $value);
+            $field->methodParams[] = $value;
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Set the default value for a giving field.
@@ -238,15 +230,14 @@ class SqlServerParser extends ParserBase
      *
      * @return $this
     */
-	protected function setDefault(Field & $field, $default)
-	{
-		if( !empty($default) )
-		{
-			$field->dataValue = $default;
-		}
+    protected function setDefault(Field & $field, $default)
+    {
+        if (!empty($default)) {
+            $field->dataValue = $default;
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Set the labels for a giving field.
@@ -256,12 +247,12 @@ class SqlServerParser extends ParserBase
      *
      * @return $this
     */
-	protected function setLabel(Field & $field, $name)
-	{
-		$field->addLabel( $this->getLabelName($name), $this->tableName, true, $this->locale);
+    protected function setLabel(Field & $field, $name)
+    {
+        $field->addLabel($this->getLabelName($name), $this->tableName, true, $this->locale);
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Set the keys for a giving field.
@@ -272,52 +263,48 @@ class SqlServerParser extends ParserBase
      *
      * @return $this
     */
-	protected function setKey(Field & $field, $key, $extra)
-	{
-		$key = strtoupper($key);
+    protected function setKey(Field & $field, $key, $extra)
+    {
+        $key = strtoupper($key);
 
-		if($key == 'PRIMARY KEY')
-		{
-			$field->isPrimary = true;
-		}
+        if ($key == 'PRIMARY KEY') {
+            $field->isPrimary = true;
+        }
 
-		if($key == 'MUL')
-		{
-			$field->isIndex = true;
-		}
+        if ($key == 'MUL') {
+            $field->isIndex = true;
+        }
 
-		if($key == 'UNI')
-		{
-			$field->isUnique = true;
-		}
+        if ($key == 'UNI') {
+            $field->isUnique = true;
+        }
 
-		if(strtolower($extra) == 'auto_increment')
-		{
-			$field->isAutoIncrement = true;
-		}
+        if (strtolower($extra) == 'auto_increment') {
+            $field->isAutoIncrement = true;
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Gets a labe field's label from a giving name.
      *
      * @return string
     */
-	protected function getLabelName($name)
-	{
-		return trim(ucwords(str_replace(['-','_'], ' ', $name)));
-	}
+    protected function getLabelName($name)
+    {
+        return trim(ucwords(str_replace(['-','_'], ' ', $name)));
+    }
 
     /**
      * Gets the eloquent method to html
      *
      * @return array
     */
-	protected function getMap()
-	{
-		return config('codegenerator.eloquent_type_to_html_type');
-	}
+    protected function getMap()
+    {
+        return config('codegenerator.eloquent_type_to_html_type');
+    }
 
     /**
      * Gets the eloquent type to method collection

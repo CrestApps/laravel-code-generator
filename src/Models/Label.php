@@ -2,15 +2,15 @@
 
 namespace CrestApps\CodeGenerator\Models;
 
-class Label 
+class Label
 {
-	
+    
     /**
      * The label's text
      *
      * @var string
      */
-	public $text;
+    public $text;
     
     /**
      * The localeGroup for the label
@@ -24,7 +24,7 @@ class Label
      *
      * @var vool
      */
-	public $isPlain = true;
+    public $isPlain = true;
 
     /**
      * The language

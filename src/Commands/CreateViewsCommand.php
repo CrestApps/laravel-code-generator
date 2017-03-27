@@ -52,12 +52,10 @@ class CreateViewsCommand extends ViewsCommand
         $input = $this->getCommandInput();
         $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
 
-        if($this->isMetRequirements($fields))
-        {
+        if ($this->isMetRequirements($fields)) {
             $this->info('Crafting views...');
 
-            foreach($this->getOnlyViews() as $view)
-            {
+            foreach ($this->getOnlyViews() as $view) {
                 $this->call($this->getViewCommand($view), $input->getArrguments());
             }
         }
@@ -74,15 +72,12 @@ class CreateViewsCommand extends ViewsCommand
      */
     protected function isMetRequirements(array $fields = null)
     {
-
-        if( is_null($fields) || !isset($fields[0]) )
-        {
+        if (is_null($fields) || !isset($fields[0])) {
             $this->error('You must provide at least one field to generate the views!');
             return false;
         }
 
-        if(is_null($this->getPrimaryKeyName($fields)) )
-        {
+        if (is_null($this->getPrimaryKeyName($fields))) {
             $this->error('None of the fields is set primary! You must assign on of the fields to be a primary field.');
             return false;
         }
@@ -103,5 +98,4 @@ class CreateViewsCommand extends ViewsCommand
 
         return array_intersect($this->views, $viewsToCreate);
     }
-
 }

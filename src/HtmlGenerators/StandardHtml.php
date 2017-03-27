@@ -5,6 +5,7 @@ namespace CrestApps\CodeGenerator\HtmlGenerators;
 use CrestApps\CodeGenerator\HtmlGenerators\HtmlGeneratorBase;
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Helpers;
+
 class StandardHtml extends HtmlGeneratorBase
 {
 
@@ -17,7 +18,7 @@ class StandardHtml extends HtmlGeneratorBase
      */
     protected function getFieldMinValueWithName($minValue)
     {
-        return empty($minValue) ? '' : sprintf(' min="%s"', $minValue);
+        return is_null($minValue) ? '' : sprintf(' min="%s"', $minValue);
     }
 
     /**
@@ -29,7 +30,7 @@ class StandardHtml extends HtmlGeneratorBase
      */
     protected function getFieldMaxValueWithName($maxValue)
     {
-        return empty($maxValue) ? '' : sprintf(' max="%s"', $maxValue);
+        return is_null($maxValue) ? '' : sprintf(' max="%s"', $maxValue);
     }
 
     /**
@@ -114,7 +115,7 @@ class StandardHtml extends HtmlGeneratorBase
      */
     protected function getFieldItems(array $labels)
     {
-        return sprintf('[%s]', implode(',' . PHP_EOL, $this->getKeyValueStringsFromLabels($labels)) );
+        return sprintf('[%s]', implode(',' . PHP_EOL, $this->getKeyValueStringsFromLabels($labels)));
     }
 
     /**
@@ -224,8 +225,7 @@ class StandardHtml extends HtmlGeneratorBase
 
         $valueString = 'null';
 
-        if(!is_null($value) )
-        {
+        if (!is_null($value)) {
             $valueString = Helpers::startsWith($value, '$') ? sprintf("%s", $value) : sprintf("'%s'", $value);
         }
 
@@ -249,4 +249,17 @@ class StandardHtml extends HtmlGeneratorBase
 
         return $labelStub;
     }
+
+    /**
+     * Gets the html steps attribute.     
+     *
+     * @param int value
+     *
+     * @return string
+     */
+    protected function getStepsValue($value)
+    {
+        return $value > 0 ? sprintf(' step="%s"', $value) : '';
+    }
+
 }

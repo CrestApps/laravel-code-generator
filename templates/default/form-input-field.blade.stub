@@ -1,1 +1,1 @@
-        <input class="form-control" name="{{fieldName}}" type="{{fieldType}}" id="{{fieldName}}" value="{{fieldValue}}"{{minLength}}{{maxLength}}{{minValue}}{{maxValue}}{{requiredField}}{{placeHolder}}>
+        <input class="form-control" name="{{fieldName}}" type="{{fieldType}}" id="{{fieldName}}" value="{{fieldValue}}"{{minLength}}{{maxLength}}{{minValue}}{{maxValue}}{{requiredField}}{{placeHolder}}{{step}}>

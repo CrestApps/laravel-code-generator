@@ -51,7 +51,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function getStub()
     {
-        return $this->getStubByName('controller', $this->getTemplateName() );
+        return $this->getStubByName('controller', $this->getTemplateName());
     }
 
     /**
@@ -68,8 +68,7 @@ class CreateControllerCommand extends GeneratorCommand
 
         $formRequestName = 'Request';
 
-        if($input->formRequest)
-        {
+        if ($input->formRequest) {
             $stub = $this->getStubContent('controller-with-form-request', $input->template);
             $formRequestName = $input->formRequestName;
             $this->makeFormRequest($input);
@@ -100,8 +99,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function getUploadFileMethod(array $fields)
     {
-        if($this->isContainfile($fields))
-        {
+        if ($this->isContainfile($fields)) {
             return $this->getStubContent('controller-upload-method', $this->getTemplateName());
         }
 
@@ -129,7 +127,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function isContainMultipleAnswers(array $fields)
     {
-        $filtered = array_filter($fields, function($field){
+        $filtered = array_filter($fields, function ($field) {
             return $field->isMultipleAnswers;
         });
 
@@ -145,7 +143,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function makeFormRequest($input)
     {
-        $this->callSilent('create:form-request', 
+        $this->callSilent('create:form-request',
         [
             'class-name' => $input->formRequestName,
             '--fields' => $input->fields,
@@ -169,7 +167,7 @@ class CreateControllerCommand extends GeneratorCommand
     {
         $final = !empty($path) ? $this->getModelsPath() . Helpers::getPathWithSlash($path) : $this->getModelsPath();
 
-        return Helpers::convertSlashToBackslash($final . ucfirst($name));
+        return Helpers::convertSlashToBackslash($final . $name);
     }
 
     /**
@@ -180,7 +178,9 @@ class CreateControllerCommand extends GeneratorCommand
     protected function getCommandInput()
     {
         $controllerName = trim($this->argument('controller-name'));
-        $modelName = strtolower(trim($this->option('model-name')) ?: str_singular(Helpers::removePostFixWith($controllerName, 'Controller')));
+        $plainControllerName = str_singular(Helpers::removePostFixWith($controllerName, 'Controller'));
+
+        $modelName = trim($this->option('model-name')) ?: $plainControllerName;
         $viewDirectory = trim($this->option('views-directory'));
         $prefix = trim($this->option('routes-prefix'));
         $perPage = intval($this->option('models-per-page'));
@@ -190,11 +190,11 @@ class CreateControllerCommand extends GeneratorCommand
         $formRequest = $this->option('with-form-request');
         $force = $this->option('force');
         $modelDirectory = trim($this->option('model-directory'));
-        $formRequestName = ucfirst($modelName) . 'FormRequest';
+        $formRequestName = $plainControllerName . 'FormRequest';
         $template = $this->getTemplateName();
 
-        return (object) compact('viewDirectory','viewName','modelName','prefix','perPage','fileSnippet','modelDirectory',
-                                'langFile','fields','formRequest','formRequestName','force','fieldsFile','template');
+        return (object) compact('viewDirectory', 'viewName', 'modelName', 'prefix', 'perPage', 'fileSnippet', 'modelDirectory',
+                                'langFile', 'fields', 'formRequest', 'formRequestName', 'force', 'fieldsFile', 'template');
     }
 
     /**
@@ -328,8 +328,7 @@ class CreateControllerCommand extends GeneratorCommand
         $path = $this->getControllersPath();
         $directory = trim($this->option('controller-directory'));
 
-        if(!empty($directory))
-        {
+        if (!empty($directory)) {
             $path .= Helpers::getPathWithSlash($directory);
         }
 
@@ -347,10 +346,8 @@ class CreateControllerCommand extends GeneratorCommand
     {
         $code = '';
 
-        foreach($fields as $field)
-        {
-            if($field->isFile())
-            {
+        foreach ($fields as $field) {
+            if ($field->isFile()) {
                 $code = ($code) ?: '$this';
                 $code .= sprintf("->uploadFile('%s', \$data)", $field->name);
             }
@@ -358,5 +355,4 @@ class CreateControllerCommand extends GeneratorCommand
 
         return $code != '' ? $code . ';' : $code;
     }
-
 }

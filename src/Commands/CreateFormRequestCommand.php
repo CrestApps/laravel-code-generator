@@ -24,7 +24,6 @@ class CreateFormRequestCommand extends Command
                             {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the form-request if one already exists.}';
 
-
     /**
      * The console command description.
      *
@@ -72,15 +71,13 @@ class CreateFormRequestCommand extends Command
     {
         $this->createDirectory(dirname($fileFullname));
         
-        if(File::exists($fileFullname) && !$force)
-        {
+        if (File::exists($fileFullname) && !$force) {
             throw new Exception('There is a form-request class with the same name! To override existing file try passing "--force" command');
         }
 
-        if(! File::put($fileFullname, $stub))
-        {
+        if (! File::put($fileFullname, $stub)) {
             throw new Exception('New form-request have been created');
-        } 
+        }
 
         $this->error('The form-request failed to create');
 
@@ -100,7 +97,7 @@ class CreateFormRequestCommand extends Command
         $force = $this->option('force');
         $template = $this->option('template-name');
 
-        return (object) compact('fileName','fields','fieldsFile','force','template');
+        return (object) compact('fileName', 'fields', 'fieldsFile', 'force', 'template');
     }
 
     /**

@@ -50,12 +50,11 @@ class CreateShowViewCommand extends ViewsCommand
     {
         $input = $this->getCommandInput();
         $stub = $this->getStubContent($this->stubName);
-        $fields = $this->getFields($input->fields,$input->languageFileName, $input->fieldsFile);
-        $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName ,$this->getTemplateName());
+        $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
+        $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName, $this->getTemplateName());
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'show');
         
-        if($this->canCreateView($destenationFile, $input->force, $fields))
-        {
+        if ($this->canCreateView($destenationFile, $input->force, $fields)) {
             $this->replaceCommonTemplates($stub, $input)
                  ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
                  ->replaceTableRows($stub, $htmlCreator->getShowRowsHtmlField())
@@ -63,7 +62,6 @@ class CreateShowViewCommand extends ViewsCommand
                  ->createViewFile($stub, $destenationFile)
                  ->info('Show view was crafted successfully.');
         }
-
     }
 
     /**
@@ -80,5 +78,4 @@ class CreateShowViewCommand extends ViewsCommand
 
         return $this;
     }
-
 }

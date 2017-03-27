@@ -4,28 +4,29 @@ namespace CrestApps\CodeGenerator\Support;
 
 use CrestApps\CodeGenerator\Support\Helpers;
 
-class ValidationParser {
+class ValidationParser
+{
 
     /**
      * The rules to parse.
      *
      * @var array
      */
-	protected $rules = [];
+    protected $rules = [];
 
     /**
      * Min value
      *
      * @var Mix
      */
-	protected $min;
+    protected $min;
 
     /**
      * Max value
      *
      * @var Mix
      */
-	protected $max;
+    protected $max;
 
     /**
      * Required rule
@@ -100,7 +101,7 @@ class ValidationParser {
      */
     public function __construct(array $rules)
     {
-    	$this->rules = $rules;
+        $this->rules = $rules;
     }
 
     /**
@@ -154,8 +155,7 @@ class ValidationParser {
     {
         $range = $range == 'min' ? $range : 'max';
 
-        if(is_null($this->{$range}))
-        {
+        if (is_null($this->{$range})) {
             $this->{$range} = $this->getFirst($range);
         }
 
@@ -169,8 +169,7 @@ class ValidationParser {
      */
     public function getSizeValue()
     {
-        if( is_null($this->size))
-        {
+        if (is_null($this->size)) {
             $this->size = $this->getFirst('size');
         }
 
@@ -214,7 +213,7 @@ class ValidationParser {
      */
     public function isNumeric()
     {
-        return $this->getSetValue('number');
+        return $this->getSetValue('numeric');
     }
 
     /**
@@ -224,14 +223,11 @@ class ValidationParser {
      */
     protected function getSetValue($name, $callback = null)
     {
-        
-        if(property_exists($this, $name))
-        {
+        if (property_exists($this, $name)) {
             return $this->isRuleExists($name);
         }
 
-        if(is_null($this->{$name}))
-        {
+        if (is_null($this->{$name})) {
             $this->{$name} = $this->isRuleExists($name);
         }
 
@@ -245,7 +241,7 @@ class ValidationParser {
      */
     public function isString()
     {
-        return $this->getSetValue('string') || !$this->isValidNumber();
+        return $this->getSetValue('string') && ! $this->isValidNumber();
     }
 
     /**
@@ -265,14 +261,11 @@ class ValidationParser {
      */
     public function isConditionalRequired()
     {
-        
-        if(is_null($this->conditionalRequired))
-        {
+        if (is_null($this->conditionalRequired)) {
             $this->conditionalRequired = $this->startsWith('required_');
         }
 
         return $this->conditionalRequired;
-
     }
 
     /**
@@ -282,8 +275,7 @@ class ValidationParser {
      */
     public function isNullable()
     {
-        if(is_null($this->nullable))
-        {
+        if (is_null($this->nullable)) {
             $this->nullable = $this->isRuleExists('nullable');
         }
 
@@ -297,8 +289,7 @@ class ValidationParser {
      */
     public function isInteger()
     {
-        if(is_null($this->integer))
-        {
+        if (is_null($this->integer)) {
             $this->integer = $this->isRuleExists('integer');
         }
 
@@ -326,16 +317,12 @@ class ValidationParser {
      */
     protected function getFirst($key)
     {
+        foreach ($this->rules as $rule) {
 
-		foreach($this->rules as $rule)
-        {
-            if(substr($rule, 0, strlen($key)) == $key)
-            {
-                list($name,$length) = explode(':', $rule, 2);
-
-                if(($len = intval($length)) > 0 )
-                {
-                    return $len;
+            if (substr($rule, 0, strlen($key)) == $key) {
+                $params = explode(':', $rule, 2);
+                if(isset($params[1])){
+                    return intval($params[1]);
                 }
             }
         }
@@ -352,12 +339,9 @@ class ValidationParser {
      */
     protected function startsWith($key)
     {
-
-        foreach($this->rules as $rule)
-        {
-            if(Helpers::startsWith($rule, $key))
-            {
-                return true;            
+        foreach ($this->rules as $rule) {
+            if (Helpers::startsWith($rule, $key)) {
+                return true;
             }
         }
 

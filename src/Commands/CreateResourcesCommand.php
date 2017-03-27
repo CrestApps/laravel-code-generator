@@ -62,8 +62,7 @@ class CreateResourcesCommand extends Command
     {
         $input = $this->getCommandInput();
 
-        if($input->tableExists)
-        {
+        if ($input->tableExists) {
             $input->fields = null;
             $input->fieldsFile = $input->table . '.json';
             $input->withoutMigration = true;
@@ -73,8 +72,7 @@ class CreateResourcesCommand extends Command
 
         $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
 
-        if(empty($fields) || !isset($fields[0]))
-        {
+        if (empty($fields) || !isset($fields[0])) {
             throw new Exception('You must provide at least one field to generate the views!');
         }
 
@@ -98,9 +96,8 @@ class CreateResourcesCommand extends Command
      */
     protected function createMigration($input)
     {
-        if(!$input->withoutMigration)
-        {
-            $this->call('create:migration', 
+        if (!$input->withoutMigration) {
+            $this->call('create:migration',
                 [
                     'table-name' => $input->table,
                     '--migration-class-name' => $input->migrationClass,
@@ -113,6 +110,7 @@ class CreateResourcesCommand extends Command
                     '--force' => $input->force,
                     '--template-name' => $input->template,
                     '--without-timestamps' => $input->withoutTimeStamps,
+                    '--with-soft-delete' => $input->withSoftDelete,
                 ]);
         }
 
@@ -128,7 +126,7 @@ class CreateResourcesCommand extends Command
      */
     protected function createFieldsFile($input)
     {
-        $this->callSilent('create:fields-file', 
+        $this->callSilent('create:fields-file',
             [
                 'table-name' => $input->table,
                 '--force' => $input->force,
@@ -147,7 +145,7 @@ class CreateResourcesCommand extends Command
      */
     protected function createLanguage($input)
     {
-        $this->callSilent('create:language', 
+        $this->callSilent('create:language',
             [
                 'language-file-name' => $input->languageFileName,
                 '--fields' => $input->fields,
@@ -167,7 +165,7 @@ class CreateResourcesCommand extends Command
      */
     protected function createViews($input)
     {
-        $this->call('create:views', 
+        $this->call('create:views',
             [
                 'model-name' => $input->modelName,
                 '--fields' => $input->fields,
@@ -191,7 +189,7 @@ class CreateResourcesCommand extends Command
      */
     protected function createRoutes($input)
     {
-        $this->call('create:routes', 
+        $this->call('create:routes',
             [
                 'controller-name' => $input->controllerName,
                 '--model-name' => $input->modelName,
@@ -211,7 +209,7 @@ class CreateResourcesCommand extends Command
      */
     protected function createController($input)
     {
-        $this->call('create:controller', 
+        $this->call('create:controller',
             [
                 'controller-name' => $input->controllerName,
                 '--model-name' => $input->modelName,
@@ -239,7 +237,7 @@ class CreateResourcesCommand extends Command
      */
     protected function createModel($input)
     {
-        $this->call('create:model', 
+        $this->call('create:model',
             [
                 'model-name' => $input->modelName,
                 '--table-name' => $input->table,
@@ -249,7 +247,7 @@ class CreateResourcesCommand extends Command
                 '--fields' => $input->fields,
                 '--fields-file' => $input->fieldsFile,
                 '--model-directory' => $input->modelDirectory,
-                '--with-soft-delete' => $input->useSoftDelete,
+                '--with-soft-delete' => $input->withSoftDelete,
                 '--without-timestamps' => $input->withoutTimeStamps,
                 '--force' => $input->force,
                 '--template-name' => $input->template
@@ -284,7 +282,7 @@ class CreateResourcesCommand extends Command
         $fillable = trim($this->option('fillable'));
         $primaryKey = trim($this->option('primary-key'));
         $relationships = trim($this->option('relationships'));
-        $useSoftDelete = $this->option('with-soft-delete');
+        $withSoftDelete = $this->option('with-soft-delete');
         $withoutTimeStamps = $this->option('without-timestamps');
         $migrationClass = trim($this->option('migration-class-name'));
         $connectionName = trim($this->option('connection-name'));
@@ -296,11 +294,10 @@ class CreateResourcesCommand extends Command
         $tableExists = $this->option('table-exists');
         $translationFor = trim($this->option('translation-for'));
 
-        return (object) compact('modelName','controllerName','viewsDirectory','prefix','perPage','fields','force',
-                                'languageFileName','fieldsFile','formRequest','modelDirectory','table','fillable','primaryKey',
-                                'relationships','useSoftDelete','withoutTimeStamps','controllerDirectory','withoutMigration',
-                                'migrationClass','connectionName','indexes','foreignKeys','engineName','layoutName','template',
-                                'tableExists','translationFor');
+        return (object) compact('modelName', 'controllerName', 'viewsDirectory', 'prefix', 'perPage', 'fields', 'force',
+                                'languageFileName', 'fieldsFile', 'formRequest', 'modelDirectory', 'table', 'fillable', 'primaryKey',
+                                'relationships', 'withSoftDelete', 'withoutTimeStamps', 'controllerDirectory', 'withoutMigration',
+                                'migrationClass', 'connectionName', 'indexes', 'foreignKeys', 'engineName', 'layoutName', 'template',
+                                'tableExists', 'translationFor');
     }
-
 }

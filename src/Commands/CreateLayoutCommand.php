@@ -10,7 +10,6 @@ use CrestApps\CodeGenerator\Traits\CommonCommand;
 
 class CreateLayoutCommand extends Command
 {
-
     use CommonCommand;
 
     /**
@@ -60,7 +59,6 @@ class CreateLayoutCommand extends Command
                     '--force' => $this->option('force')
                 ]
             );
-
     }
 
     /**
@@ -73,14 +71,12 @@ class CreateLayoutCommand extends Command
      * @return $this
      */
     protected function makeFile($filename, $content, $force)
-    {   
-        if($this->fileExists($filename, $force))
-        {
+    {
+        if ($this->fileExists($filename, $force)) {
             throw new Exception('The destenation file already exists. To override the existing file, pass "--force" option.');
         }
 
-        if( ! File::put($filename, $content))
-        {
+        if (! File::put($filename, $content)) {
             throw new Exception('Unexpected error occurred while trying to create the file. please try your request again.');
         }
 
@@ -110,8 +106,7 @@ class CreateLayoutCommand extends Command
      */
     protected function getDestenationPath($path)
     {
-        if(!empty($path) )
-        {
+        if (!empty($path)) {
             $path = Helpers::getPathWithSlash($path);
         }
 
@@ -131,7 +126,7 @@ class CreateLayoutCommand extends Command
         $withoutValidation = $this->option('without-validation');
         $force =  $this->option('force');
 
-        return (object) compact('appName','layoutFileName','layoutDirectory','withoutValidation','force');
+        return (object) compact('appName', 'layoutFileName', 'layoutDirectory', 'withoutValidation', 'force');
     }
 
     /**

@@ -1,5 +1,5 @@
         <div class="{{fieldType}}">
-            <label for='{{itemId}}'>
+            <label for="{{itemId}}">
             	<input id="{{itemId}}" class="{{requiredClass}}" name="{{fieldName}}" type="{{fieldType}}" value="{{optionValue}}"{{requiredField}}{{checkedItem}}>
                 {{itemTitle}}
             </label>

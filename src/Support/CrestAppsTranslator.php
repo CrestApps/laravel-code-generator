@@ -7,7 +7,7 @@ use Illuminate\Support\Arr;
 
 class CrestAppsTranslator extends Translator
 {
-	 /**
+    /**
      * Add translation lines to the given locale.
      *
      * @param  array  $lines
@@ -23,17 +23,16 @@ class CrestAppsTranslator extends Translator
         }
     }
 
-	 /**
+     /**
      * Adds a new instance of crestapps_translator to the IoC container,
      *
      * @return CrestApps\CodeGenerator\Support\CrestAppsTranslator
      */
     public static function getTranslator()
     {
-    	$translator = app('translator');
+        $translator = app('translator');
 
-    	app()->singleton('crestapps_translator', function ($app) use($translator) {
-
+        app()->singleton('crestapps_translator', function ($app) use ($translator) {
             $trans = new CrestAppsTranslator($translator->getLoader(), $translator->getLocale());
 
             $trans->setFallback($translator->getFallback());
@@ -43,6 +42,4 @@ class CrestAppsTranslator extends Translator
 
         return app('crestapps_translator');
     }
-
-
 }

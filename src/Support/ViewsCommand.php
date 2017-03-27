@@ -47,8 +47,7 @@ abstract class ViewsCommand extends GeneratorCommand
     {
         $path = $this->getViewsPath();
 
-        if(!empty($viewsDirectory))
-        {
+        if (!empty($viewsDirectory)) {
             $path .= Helpers::getPathWithSlash($viewsDirectory);
         }
 
@@ -62,8 +61,7 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     public function handle()
     {
-        if( empty($this->stubName))
-        {
+        if (empty($this->stubName)) {
             throw new Exception('The stub name cannot be left empty.');
         }
 
@@ -97,9 +95,9 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     protected function createViewFile($stub, $viewFullname)
     {
-        $this->makeDirectory( $viewFullname );
+        $this->makeDirectory($viewFullname);
 
-        $this->files->put( $viewFullname, $stub);
+        $this->files->put($viewFullname, $stub);
 
         return $this;
     }
@@ -160,20 +158,17 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     protected function canCreateView($file, $force, array $fields = null)
     {
-        if($this->files->exists($file) && !$force)
-        {
+        if ($this->files->exists($file) && !$force) {
             $this->error($this->getViewNameFromFile($file) . ' view already exists.');
             return false;
         }
 
-        if( !is_null($fields) && !isset($fields[0]) )
-        {
+        if (!is_null($fields) && !isset($fields[0])) {
             $this->error('You must provide at least one field to generate the views!');
             return false;
         }
 
-        if(!is_null($fields) && is_null($this->getPrimaryKeyName($fields)) )
-        {
+        if (!is_null($fields) && is_null($this->getPrimaryKeyName($fields))) {
             $this->error('None of the fields is set primary! You must assign on of the fields to be a primary field.');
             return false;
         }
@@ -234,8 +229,7 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     protected function getFileUploadAttribute($template)
     {
-        if($this->isCollectiveTemplate($template))
-        {
+        if ($this->isCollectiveTemplate($template)) {
             return "'files' => true,";
         }
 
@@ -267,10 +261,8 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     protected function createMissingViews(ViewInput $input, array $views = ['form'])
     {
-        foreach($views as $view)
-        {
-            if( !$this->isViewExists($input->viewsDirectory,$input->prefix, $view))
-            {
+        foreach ($views as $view) {
+            if (!$this->isViewExists($input->viewsDirectory, $input->prefix, $view)) {
                 $this->callSilent($this->getViewCommand($view), $input->getArrguments());
             }
         }
@@ -334,8 +326,7 @@ abstract class ViewsCommand extends GeneratorCommand
     {
         $path = !empty($routesPrefix) ? Helpers::getPathWithSlash($routesPrefix) : '';
 
-        if(!empty($viewsDirectory))
-        {
+        if (!empty($viewsDirectory)) {
             $path .= Helpers::getPathWithSlash($viewsDirectory);
         }
 
@@ -368,7 +359,7 @@ abstract class ViewsCommand extends GeneratorCommand
     {
         $field = $this->getHeaderField($fields);
 
-        return !is_null($field) ? sprintf('$%s->%s', strtolower($modelName), $field->name) : $modelName;
+        return ! is_null($field) ? sprintf('$%s->%s', strtolower($modelName), $field->name) : '$title';
     }
 
     /**
@@ -382,8 +373,7 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     protected function getHtmlGenerator(array $fields, $modelName, $template)
     {
-        if($this->isCollectiveTemplate($template))
-        {
+        if ($this->isCollectiveTemplate($template)) {
             return new LaravelCollectiveHtml($fields, $modelName, $template);
         }
 
@@ -416,5 +406,4 @@ abstract class ViewsCommand extends GeneratorCommand
 
         return $this;
     }
-
 }

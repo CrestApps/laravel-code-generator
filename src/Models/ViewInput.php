@@ -9,14 +9,14 @@ class ViewInput
      *
      * @var string
      */
-	public $modelName;
+    public $modelName;
 
     /**
      * The provided fields
      *
      * @var string
      */
-	public $fields;
+    public $fields;
 
     /**
      * The provided field's file name
@@ -30,14 +30,14 @@ class ViewInput
      *
      * @var string
      */
-	public $viewsDirectory;
+    public $viewsDirectory;
 
     /**
      * The provided route's pre-fix
      *
      * @var string
      */
-	public $prefix;
+    public $prefix;
 
     /**
      * Overrides existing view.
@@ -65,8 +65,8 @@ class ViewInput
      *
      * @return void
      */
-	public function __construct(array $arguments, array $options = [])
-	{
+    public function __construct(array $arguments, array $options = [])
+    {
         $this->modelName = trim($arguments['model-name']);
         $this->fields = trim($options['fields']);
         $this->fieldsFile = trim($options['fields-file']);
@@ -76,7 +76,7 @@ class ViewInput
         $this->languageFileName = strtolower(str_plural($this->modelName));
         $this->layout = trim($options['layout-name']);
         $this->template = trim($options['template-name']);
-	}
+    }
 
     /**
      * Gets array of the paramets
@@ -87,7 +87,7 @@ class ViewInput
     {
         return [
             'model-name' => $this->modelName,
-            '--fields' => $this->fields, 
+            '--fields' => $this->fields,
             '--fields-file' => $this->fieldsFile,
             '--views-directory' => $this->viewsDirectory,
             '--routes-prefix' => $this->prefix,
@@ -96,5 +96,4 @@ class ViewInput
             '--template-name' => $this->template
         ];
     }
-
 }

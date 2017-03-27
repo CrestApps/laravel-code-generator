@@ -52,8 +52,7 @@ class CreateEditViewCommand extends ViewsCommand
         $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'edit');
 
-        if($this->canCreateView($destenationFile, $input->force, $fields))
-        {
+        if ($this->canCreateView($destenationFile, $input->force, $fields)) {
             $this->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
                  ->createMissingViews($input)
                  ->replaceCommonTemplates($stub, $input)
@@ -64,6 +63,4 @@ class CreateEditViewCommand extends ViewsCommand
                  ->info('Edit view view was crafted successfully.');
         }
     }
-
-
 }

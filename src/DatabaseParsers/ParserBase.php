@@ -10,33 +10,33 @@ use CrestApps\CodeGenerator\Support\FieldsOptimizer;
 
 abstract class ParserBase
 {
-	/**
+    /**
      * The table name.
      *
      * @var array
      */
-	protected $tableName;
+    protected $tableName;
 
     /**
      * The databasename
      *
      * @var array
      */
-	protected $databaseName;
+    protected $databaseName;
 
     /**
      * The locale value
      *
      * @var array
      */
-	protected $locale;
+    protected $locale;
 
     /**
      * The final fields.
      *
      * @var array
      */
-	protected $fields;
+    protected $fields;
 
     /**
      * The langugaes to create labels form.
@@ -54,35 +54,33 @@ abstract class ParserBase
      *
      * @return void
      */
-	public function __construct($tableName, $databaseName, array $languages = [])
-	{
-		$this->tableName = $tableName;
-		$this->databaseName = $databaseName;
+    public function __construct($tableName, $databaseName, array $languages = [])
+    {
+        $this->tableName = $tableName;
+        $this->databaseName = $databaseName;
         $this->languages = $languages;
         $this->locale = App::getLocale();
-	}
+    }
 
     /**
      * Gets the final fields.
      *
      * @return array
     */
-	public function getFields()
-	{
-		if(is_null($this->fields))
-		{
-			$columns = $this->getColumn();
+    public function getFields()
+    {
+        if (is_null($this->fields)) {
+            $columns = $this->getColumn();
 
-			if(empty($columns))
-			{
-				throw new Exception('The table ' . $this->tableName . ' was not found in the ' . $this->databaseName . ' database.');
-			}
+            if (empty($columns)) {
+                throw new Exception('The table ' . $this->tableName . ' was not found in the ' . $this->databaseName . ' database.');
+            }
 
-			$this->fields = $this->transfer($columns);
-		}
+            $this->fields = $this->transfer($columns);
+        }
 
-		return $this->fields;
-	}
+        return $this->fields;
+    }
 
     /**
      * Gets array of field after transfering each column meta into field.
@@ -91,16 +89,16 @@ abstract class ParserBase
      *
      * @return array
     */
-	protected function transfer(array $columns)
-	{
-		$fields = array_map(function($field){
+    protected function transfer(array $columns)
+    {
+        $fields = array_map(function ($field) {
             return new FieldMapper($field, null);
         }, $this->getTransfredField($column));
 
-		$optimizer = new FieldsOptimizer($fields);
+        $optimizer = new FieldsOptimizer($fields);
 
-		return $optimizer->optimize()->getFields();
-	}
+        return $optimizer->optimize()->getFields();
+    }
 
     /**
      * Set the unsiged flag for a giving field.
@@ -110,16 +108,15 @@ abstract class ParserBase
      *
      * @return $this
     */
-	protected function setUnsigned(Field & $field, $type)
-	{
-		if(strpos($type, 'unsigned') !== false)
-		{
-			$field->isUnsigned = true;
-			$field->validationRules[] = sprintf('min:%s', 0);
-		}
+    protected function setUnsigned(Field & $field, $type)
+    {
+        if (strpos($type, 'unsigned') !== false) {
+            $field->isUnsigned = true;
+            $field->validationRules[] = sprintf('min:%s', 0);
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Set the html type for a giving field.
@@ -129,17 +126,16 @@ abstract class ParserBase
      *
      * @return $this
     */
-	protected function setHtmlType(Field & $field, $type)
-	{
-		$map = $this->getMap();
+    protected function setHtmlType(Field & $field, $type)
+    {
+        $map = $this->getMap();
 
-		if(array_key_exists($type, $map))
-		{
-			$field->htmlType = $map[$type];
-		}
+        if (array_key_exists($type, $map)) {
+            $field->htmlType = $map[$type];
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Set the data type for a giving field.
@@ -149,17 +145,16 @@ abstract class ParserBase
      *
      * @return $this
     */
-	protected function setDataType(Field & $field, $type)
-	{
+    protected function setDataType(Field & $field, $type)
+    {
         $map = $this->dataTypeMap();
 
-        if(array_key_exists($type, $map) )
-        {
+        if (array_key_exists($type, $map)) {
             $field->dataType = $map[$type];
         }
 
         return $this;
-	}
+    }
 
     /**
      * Sets the nullable property for a giving field.
@@ -169,12 +164,12 @@ abstract class ParserBase
      *
      * @return $this
     */
-	protected function setIsNullable(Field & $field, $nullable)
-	{
-		$field->isNullable = (strtoupper($nullable) == 'YES');
+    protected function setIsNullable(Field & $field, $nullable)
+    {
+        $field->isNullable = (strtoupper($nullable) == 'YES');
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Sets the max length property for a giving field.
@@ -184,16 +179,15 @@ abstract class ParserBase
      *
      * @return $this
     */
-	protected function setMaxLength(Field & $field, $length)
-	{
-		if(($value = intval($length)) > 0 )
-		{
-			$field->validationRules[] = sprintf('max:%s', $value);
-			$field->methodParams[] = $value;
-		}
+    protected function setMaxLength(Field & $field, $length)
+    {
+        if (($value = intval($length)) > 0) {
+            $field->validationRules[] = sprintf('max:%s', $value);
+            $field->methodParams[] = $value;
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Sets the data value property for a giving field.
@@ -203,15 +197,14 @@ abstract class ParserBase
      *
      * @return $this
     */
-	protected function setDefault(Field & $field, $default)
-	{
-		if( !empty($default) )
-		{
-			$field->dataValue = $default;
-		}
+    protected function setDefault(Field & $field, $default)
+    {
+        if (!empty($default)) {
+            $field->dataValue = $default;
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Sets the labels for a giving field.
@@ -221,17 +214,16 @@ abstract class ParserBase
      *
      * @return $this
     */
-	protected function setLabel(Field & $field, $name)
-	{
-        if(empty($this->languages))
-        {
+    protected function setLabel(Field & $field, $name)
+    {
+        if (empty($this->languages)) {
             $field->addLabel($this->getLabelName($name), $this->tableName, true, $this->locale);
 
             return $this;
         }
-		
-		return $this->addLabelForLanguages($field, $name);
-	}
+        
+        return $this->addLabelForLanguages($field, $name);
+    }
 
     /**
      * Adds labels for all languages for a giving field.
@@ -243,8 +235,7 @@ abstract class ParserBase
     */
     protected function addLabelForLanguages(Field $field, $name)
     {
-        foreach($this->languages as $language)
-        {
+        foreach ($this->languages as $language) {
             $field->addLabel($this->getLabelName($name), $this->tableName, false, $language);
         }
 
@@ -260,52 +251,48 @@ abstract class ParserBase
      *
      * @return $this
     */
-	protected function setKey(Field & $field, $key, $extra)
-	{
-		$key = strtoupper($key);
+    protected function setKey(Field & $field, $key, $extra)
+    {
+        $key = strtoupper($key);
 
-		if($key == 'PRIMARY KEY')
-		{
-			$field->isPrimary = true;
-		}
+        if ($key == 'PRIMARY KEY') {
+            $field->isPrimary = true;
+        }
 
-		if($key == 'MUL')
-		{
-			$field->isIndex = true;
-		}
+        if ($key == 'MUL') {
+            $field->isIndex = true;
+        }
 
-		if($key == 'UNI')
-		{
-			$field->isUnique = true;
-		}
+        if ($key == 'UNI') {
+            $field->isUnique = true;
+        }
 
-		if(strtolower($extra) == 'auto_increment')
-		{
-			$field->isAutoIncrement = true;
-		}
+        if (strtolower($extra) == 'auto_increment') {
+            $field->isAutoIncrement = true;
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Gets a labe field's label from a giving name.
      *
      * @return string
     */
-	protected function getLabelName($name)
-	{
-		return trim(ucwords(str_replace(['-','_'], ' ', $name)));
-	}
+    protected function getLabelName($name)
+    {
+        return trim(ucwords(str_replace(['-','_'], ' ', $name)));
+    }
 
     /**
      * Gets the eloquent's method to html
      *
      * @return array
     */
-	protected function getMap()
-	{
-		return config('codegenerator.eloquent_type_to_html_type');
-	}
+    protected function getMap()
+    {
+        return config('codegenerator.eloquent_type_to_html_type');
+    }
 
     /**
      * Gets the eloquent's type to method collection.
@@ -325,15 +312,14 @@ abstract class ParserBase
      *
      * @return $this
     */
-	protected function setComment(Field & $field, $comment)
-	{
-		if(!empty($comment))
-		{
-			$field->comment = $comment;
-		}
+    protected function setComment(Field & $field, $comment)
+    {
+        if (!empty($comment)) {
+            $field->comment = $comment;
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Gets column meta info from the information schema.

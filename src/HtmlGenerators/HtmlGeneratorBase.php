@@ -55,45 +55,28 @@ abstract class HtmlGeneratorBase
     {
         $htmlFields = '';
 
-        foreach($this->fields as $field)
-        {
-            if(!$field->isOnFormView)
-            {
+        foreach ($this->fields as $field) {
+            if (!$field->isOnFormView) {
                 continue;
             }
 
             $parser = new ValidationParser($field->validationRules);
             
-            if(in_array($field->htmlType, ['select','multipleSelect']) )
-            {
+            if (in_array($field->htmlType, ['select','multipleSelect'])) {
                 $htmlFields .= $this->getSelectHtmlField($field, $parser);
-            } 
-            elseif(in_array($field->htmlType, ['radio','checkbox']) )
-            {
+            } elseif (in_array($field->htmlType, ['radio','checkbox'])) {
                 $htmlFields .= $this->getPickItemsHtmlField($field, $parser);
-            } 
-            elseif($field->htmlType == 'textarea')
-            {
+            } elseif ($field->htmlType == 'textarea') {
                 $htmlFields .= $this->getTextareaHtmlField($field, $parser);
-            } 
-            elseif($field->htmlType == 'password')
-            {
+            } elseif ($field->htmlType == 'password') {
                 $htmlFields .= $this->getPasswordHtmlField($field, $parser);
-            } 
-            elseif($field->htmlType == 'file')
-            {
+            } elseif ($field->htmlType == 'file') {
                 $htmlFields .= $this->getFileHtmlField($field);
-            }
-            elseif($field->htmlType == 'selectRange')
-            {
+            } elseif ($field->htmlType == 'selectRange') {
                 $htmlFields .= $this->getSelectRangeHtmlField($field);
-            }
-            elseif($field->htmlType == 'selectMonth')
-            {
+            } elseif ($field->htmlType == 'selectMonth') {
                 $htmlFields .= $this->getSelectMontheHtmlField($field);
-            }
-            else 
-            {
+            } else {
                 $htmlFields .= $this->getStandardHtmlField($field, $parser);
             }
         }
@@ -115,10 +98,8 @@ abstract class HtmlGeneratorBase
         $fields = $this->getFieldsToDisplay($fields);
         $rows = '';
 
-        foreach($fields as $field)
-        {
-            if($field->isOnShowView)
-            {
+        foreach ($fields as $field) {
+            if ($field->isOnShowView) {
                 $row = $stub;
                 $this->replaceFieldName($row, $field->name)
                      ->replaceModelName($row, $this->modelName)
@@ -146,10 +127,8 @@ abstract class HtmlGeneratorBase
         $fields = $this->getFieldsToDisplay($fields);
         $rows = '';
 
-        foreach($fields as $field)
-        {
-            if($field->isOnIndexView)
-            {
+        foreach ($fields as $field) {
+            if ($field->isOnIndexView) {
                 $row = $stub;
                 $this->replaceFieldTitle($row, $this->getTitle($field->getLabel(), true));
                 $rows .= $row . PHP_EOL;
@@ -173,11 +152,8 @@ abstract class HtmlGeneratorBase
         $fields = $this->getFieldsToDisplay($fields);
         $rows = '';
 
-        foreach($fields as $field)
-        {
-
-            if($field->isOnIndexView)
-            {
+        foreach ($fields as $field) {
+            if ($field->isOnIndexView) {
                 $row = $stub;
 
                 $this->replaceFieldName($row, $field->name)
@@ -261,9 +237,8 @@ abstract class HtmlGeneratorBase
     */
     protected function getFieldsToDisplay(array $fields = null)
     {
-        if(!empty($fields))
-        {       
-            return array_filter($this->fields, function($field) use($fields){
+        if (!empty($fields)) {
+            return array_filter($this->fields, function ($field) use ($fields) {
                 return in_array($field->name, $fields);
             });
         }
@@ -281,13 +256,15 @@ abstract class HtmlGeneratorBase
     */
     protected function getTextareaHtmlField(Field $field, ValidationParser $parser)
     {
-
         $stub = $this->getStubContent('form-textarea-field.blade', $this->template);
+
+        $minValue = $this->getMax($parser->getMinValue(), $field->getMinValue());
+        $maxValue = $this->getMin($parser->getMaxValue(), $field->getMaxValue());
 
         $this->replaceFieldName($stub, $field->name)
              ->replaceFieldValue($stub, $this->getFieldValue($field->htmlValue, $field->name))
-             ->replaceFieldMinValue($stub, $this->getFieldMinValueWithName($parser->getMinValue()))
-             ->replaceFieldMaxValue($stub, $this->getFieldMaxValueWithName($parser->getMaxValue()))
+             ->replaceFieldMinValue($stub, $this->getFieldMinValueWithName($minValue))
+             ->replaceFieldMaxValue($stub, $this->getFieldMaxValueWithName($maxValue))
              ->replaceFieldMinLengthName($stub, $parser->getMinLength())
              ->replaceFieldMaxLengthName($stub, $parser->getMaxLength())
              ->replaceFieldRequired($stub, $parser->isRequired())
@@ -297,6 +274,24 @@ abstract class HtmlGeneratorBase
         return $stub;
     }
     
+    protected function getHtmlMinValue($validationMinValue, $fieldMinValue)
+    {
+        if (! is_null($validationMinValue)) {
+            return $validationMinValue;
+        }
+
+        return $fieldMinValue;
+    }
+
+    protected function getHtmlMaxValue($validationMaxValue, $fieldMaxValue)
+    {
+        if (! is_null($validationMaxValue)) {
+            return $validationMaxValue;
+        }
+
+        return $fieldMaxValue;
+    }
+
     /**
      * Gets creates an checkbox/radio button html field for a giving field.
      *
@@ -312,8 +307,7 @@ abstract class HtmlGeneratorBase
         $fieldName = ($field->isMultipleAnswers) ? $this->getFieldNameAsArray($field->name) : $field->name;
         $isCheckbox = ($field->htmlType == 'checkbox');
 
-        foreach ($field->getOptionsByLang() as $option) 
-        {
+        foreach ($field->getOptionsByLang() as $option) {
             $fieldStub = $stub;
             $this->replaceFieldType($fieldStub, $field->htmlType)
                  ->replaceFieldName($fieldStub, $fieldName)
@@ -346,7 +340,7 @@ abstract class HtmlGeneratorBase
     /**
      * Gets creates an select menu html field for a giving field.
      *
-     * @param CrestApps\CodeGeneraotor\Support\Field $field 
+     * @param CrestApps\CodeGeneraotor\Support\Field $field
      * @param CrestApps\CodeGeneraotor\Support\ValidationParser $parser
      *
      * @return string
@@ -359,7 +353,7 @@ abstract class HtmlGeneratorBase
         $optionValue = $this->getFieldValue($field->htmlValue, $field->name);
 
         $this->replaceFieldName($stub, $fieldName)
-             ->replaceFieldItems($stub, $this->getFieldItems($field->getOptionsByLang()) )
+             ->replaceFieldItems($stub, $this->getFieldItems($field->getOptionsByLang()))
              ->replaceFieldMultiple($stub, $field->isMultipleAnswers)
              ->replaceFieldValue($stub, $optionValue)
              ->replaceSelectedValue($stub, $this->getSelectedValueForMenu($optionValue, $field->name, $field->isMultipleAnswers))
@@ -376,7 +370,7 @@ abstract class HtmlGeneratorBase
     }
 
     protected function getSelectedValueForMenu($value, $name, $isMultiple)
-    {  
+    {
         return $isMultiple ? $this->getMultipleSelectedValue($name) : $this->getSelectedValue($name);
     }
 
@@ -448,12 +442,14 @@ abstract class HtmlGeneratorBase
     public function getPasswordHtmlField(Field $field, ValidationParser $parser)
     {
         $stub = $this->getStubContent('form-password-field.blade', $this->template);
+        $minValue = $this->getMax($parser->getMinValue(), $field->getMinValue());
+        $maxValue = $this->getMin($parser->getMaxValue(), $field->getMaxValue());
 
         $this->replaceFieldName($stub, $field->name)
              ->replaceFieldType($stub, $field->htmlType)
              ->replaceFieldValue($stub, $this->getFieldValue($field->htmlValue, $field->name))
-             ->replaceFieldMinValue($stub, $this->getFieldMinValueWithName($parser->getMinValue()))
-             ->replaceFieldMaxValue($stub, $this->getFieldMaxValueWithName($parser->getMaxValue()))
+             ->replaceFieldMinValue($stub, $this->getFieldMinValueWithName($minValue))
+             ->replaceFieldMaxValue($stub, $this->getFieldMaxValueWithName($maxValue))
              ->replaceFieldMinLengthName($stub, $parser->getMinLength())
              ->replaceFieldMaxLengthName($stub, $parser->getMaxLength())
              ->replaceFieldRequired($stub, $parser->isRequired())
@@ -475,18 +471,52 @@ abstract class HtmlGeneratorBase
     {
         $stub = $this->getStubContent('form-input-field.blade', $this->template);
 
+        $minValue = $this->getMax($parser->getMinValue(), $field->getMinValue());
+        $maxValue = $this->getMin($parser->getMaxValue(), $field->getMaxValue());
+
         $this->replaceFieldName($stub, $field->name)
              ->replaceFieldType($stub, $field->htmlType)
              ->replaceFieldValue($stub, $this->getFieldValue($field->htmlValue, $field->name))
-             ->replaceFieldMinValue($stub, $this->getFieldMinValueWithName($parser->getMinValue()))
-             ->replaceFieldMaxValue($stub, $this->getFieldMaxValueWithName($parser->getMaxValue()))
+             ->replaceFieldMinValue($stub, $this->getFieldMinValueWithName($minValue))
+             ->replaceFieldMaxValue($stub, $this->getFieldMaxValueWithName($maxValue ))
              ->replaceFieldMinLengthName($stub, $parser->getMinLength())
              ->replaceFieldMaxLengthName($stub, $parser->getMaxLength())
              ->replaceFieldRequired($stub, $parser->isRequired())
              ->replaceFieldPlaceHolder($stub, $this->getFieldPlaceHolder($field->placeHolder))
+             ->replaceFieldStep($stub, $this->getStepsValue($field->getDecimalPointLength()))
              ->wrapField($stub, $field);
 
         return $stub;
+    }
+
+    protected function getMax()
+    {
+
+        $params = array_filter(func_get_args() ?: [], function($arg){
+            return ! is_null($arg) &&  $arg !== "";
+        });
+
+        if(count($params) > 0)
+        {
+            return max($params);
+        }
+
+        return null;
+    }
+
+
+    protected function getMin()
+    {
+        $params = array_filter(func_get_args() ?: [], function($arg){
+            return ! is_null($arg) && $arg !== "";
+        });
+
+        if(count($params) > 0)
+        {
+            return min($params);
+        }
+
+        return null;
     }
 
     /**
@@ -494,7 +524,7 @@ abstract class HtmlGeneratorBase
      *
      * @param string $fieldStub
      * @param CrestApps\CodeGeneraotor\Support\Field $field
-     * @param bool $standardLabel 
+     * @param bool $standardLabel
      *
      * @return $this
      */
@@ -522,8 +552,7 @@ abstract class HtmlGeneratorBase
      */
     protected function getLabelFromField(Field $field = null)
     {
-        if(empty($field))
-        {
+        if (empty($field)) {
             return $this->getStubContent('form-nolabel-field.blade', $this->template);
         }
 
@@ -648,7 +677,7 @@ abstract class HtmlGeneratorBase
      * @return $this
      */
     protected function replaceFieldRequired(&$stub, $required)
-    {        
+    {
         $stub = str_replace('{{requiredField}}', $this->getFieldRequired($required), $stub);
 
         return $this;
@@ -769,7 +798,7 @@ abstract class HtmlGeneratorBase
      * @return $this
      */
     protected function replaceFieldTitle(&$stub, $title)
-    {       
+    {
         $stub = str_replace('{{fieldTitle}}', $title, $stub);
 
         return $this;
@@ -800,8 +829,7 @@ abstract class HtmlGeneratorBase
      */
     protected function getTitle(Label $label, $raw = false)
     {
-        if(!$label->isPlain)
-        {
+        if (!$label->isPlain) {
             return $this->getTranslatedTitle($label, $raw);
         }
             
@@ -862,7 +890,7 @@ abstract class HtmlGeneratorBase
      * @return string
      */
     protected function replaceFieldItems(&$stub, $items)
-    {       
+    {
         $stub = str_replace('{{fieldItems}}', $items, $stub);
 
         return $this;
@@ -884,6 +912,21 @@ abstract class HtmlGeneratorBase
     }
 
     /**
+     * It replaces the step template
+     *
+     * @param string $stub
+     * @param bool $step
+     *
+     * @return $this
+     */
+    protected function replaceFieldStep(&$stub, $step)
+    {
+        $stub = str_replace('{{step}}', $step, $stub);
+
+        return $this;
+    }
+
+    /**
      * Gets the required class arrribute
      *
      * @param string $class
@@ -895,7 +938,6 @@ abstract class HtmlGeneratorBase
         return !empty($class) ? $class : '';
     }
 
-
     /**
      * Gets an array of key/value string from a giving labels collection.
      *
@@ -905,7 +947,7 @@ abstract class HtmlGeneratorBase
      */
     protected function getKeyValueStringsFromLabels(array $labels)
     {
-        return array_map(function($label) {
+        return array_map(function ($label) {
             return sprintf("'%s' => '%s'", $label->value, $label->text);
         }, $labels);
     }
@@ -1051,4 +1093,12 @@ abstract class HtmlGeneratorBase
      */
     abstract protected function getMultipleSelectedValue($name);
 
+    /**
+     * Gets the html steps attribute.
+     *
+     * @param int value
+     *
+     * @return string
+     */
+    abstract protected function getStepsValue($value);
 }

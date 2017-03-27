@@ -17,7 +17,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      */
     protected function getFieldMinValueWithName($minValue)
     {
-        return empty($minValue) ? '' : sprintf(" 'min' => '%s',", $minValue);
+        return is_null($minValue) ? '' : sprintf(" 'min' => '%s',", $minValue);
     }
 
     /**
@@ -29,7 +29,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      */
     protected function getFieldMaxValueWithName($maxValue)
     {
-        return empty($maxValue) ? '' : sprintf(" 'max' => '%s',", $maxValue);
+        return is_null($maxValue) ? '' : sprintf(" 'max' => '%s',", $maxValue);
     }
 
     /**
@@ -114,7 +114,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      */
     protected function getFieldItems(array $labels)
     {
-        return sprintf('[%s]', implode(', ', $this->getKeyValueStringsFromLabels($labels)) );
+        return sprintf('[%s]', implode(', ', $this->getKeyValueStringsFromLabels($labels)));
     }
 
     /**
@@ -141,8 +141,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      */
     protected function getFieldValue($value, $name)
     {
-        if(!is_null($value) )
-        {
+        if (!is_null($value)) {
             $modelName = strtolower($this->modelName);
             return sprintf(" isset(\$%s) ? \$%s->%s : '%s' ", $modelName, $modelName, $name, $value);
         }
@@ -198,6 +197,18 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     protected function getMultipleSelectedValue($name)
     {
         return '';
+    }
+
+    /**
+     * Gets the html steps attribute.     
+     *
+     * @param int value
+     *
+     * @return string
+     */
+    protected function getStepsValue($value)
+    {
+        return $value > 0 ? sprintf(" step => '%s', ", $value) : '';
     }
 
 }

@@ -1,19 +1,20 @@
 <?php
 
 namespace CrestApps\CodeGenerator\Support;
+
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Support\ValidationParser;
 use CrestApps\CodeGenerator\Support\OptimizerBase;
 
 class FieldOptimizer extends OptimizerBase
 {
-	
+    
     /**
      * The field to optimize
      *
      * @var CrestApps\CodeGenerator\Models\Field
      */
-	protected $field;
+    protected $field;
     
     /**
      * The validation parser instance.
@@ -34,7 +35,7 @@ class FieldOptimizer extends OptimizerBase
      * 
      * @return array
     */
-    protected $validPrimaryDataTypes = 
+    protected $validPrimaryDataTypes =
     [
         'int',
         'integer',
@@ -82,14 +83,8 @@ class FieldOptimizer extends OptimizerBase
     */
     protected function optimizeStringField()
     {
-
-        if( empty($this->field->methodParams) && in_array($this->field->dataType, ['string','char']) )
-        {
-            if( !empty($this->parser->getMaxLength()) )
-            {
-                $this->field->methodParams[] = $this->parser->getMaxLength();
-            }
-            
+        if (empty($this->field->methodParams) && in_array($this->field->dataType, ['string','char']) && ! empty($this->parser->getMaxLength())) {
+            $this->field->methodParams[] = $this->parser->getMaxLength();
         }
 
         return $this;
@@ -102,8 +97,7 @@ class FieldOptimizer extends OptimizerBase
     */
     protected function optimizeRequiredField()
     {
-        if( !$this->parser->isRequired() || $this->parser->isNullable() || $this->parser->isConditionalRequired() )
-        {
+        if (!$this->parser->isRequired() || $this->parser->isNullable() || $this->parser->isConditionalRequired()) {
             $this->field->isNullable = true;
         }
 
@@ -121,15 +115,12 @@ class FieldOptimizer extends OptimizerBase
     */
     protected function optimizePrimaryKey()
     {
-        if( $this->isPrimaryField($this->field))
-        {
-            if(!$this->isNumericField())
-            {
+        if ($this->isPrimaryField($this->field)) {
+            if (!$this->isNumericField()) {
                 $this->field->dataType = 'int';
             }
 
-            if($this->meta == null)
-            {
+            if ($this->meta == null) {
                 $this->field->isOnFormView = false;
                 $this->field->isOnIndexView = false;
                 $this->field->isOnShowView = false;
@@ -137,24 +128,19 @@ class FieldOptimizer extends OptimizerBase
                 return $this;
             }
 
-            if(!array_key_exists('is-on-views', $this->meta))
-            {
-                if(!array_key_exists('is-on-form', $this->meta))
-                {
+            if (!array_key_exists('is-on-views', $this->meta)) {
+                if (!array_key_exists('is-on-form', $this->meta)) {
                     $this->field->isOnFormView = false;
                 }
 
-                if(!array_key_exists('is-on-index', $this->meta))
-                {
+                if (!array_key_exists('is-on-index', $this->meta)) {
                     $this->field->isOnIndexView = false;
                 }
 
-                if(!array_key_exists('is-on-show', $this->meta))
-                {
+                if (!array_key_exists('is-on-show', $this->meta)) {
                     $this->field->isOnShowView = false;
                 }
             }
-            
         }
 
         return $this;
@@ -169,5 +155,4 @@ class FieldOptimizer extends OptimizerBase
     {
         return in_array($this->field->dataType, $this->validPrimaryDataTypes);
     }
-
 }

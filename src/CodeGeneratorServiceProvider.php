@@ -72,8 +72,7 @@ class CodeGeneratorServiceProvider extends ServiceProvider
      */
     protected function createDirectory($path, $mode = '0777')
     {
-        if(!file_exists($path))
-        {
+        if (!file_exists($path)) {
             mkdir($path, $mode);
         }
     }

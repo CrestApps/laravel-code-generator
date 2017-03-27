@@ -29,6 +29,7 @@ class CreateMigrationCommand extends Command
                             {--fields-file= : File name to import fields from.}
                             {--template-name= : The template name to use when generating the code.}
                             {--without-timestamps : Prevent Eloquent from maintaining both created_at and the updated_at properties.}
+                            {--with-soft-delete : Enables softdelete future should be enable in the model.}
                             {--force : This option will override the migration if one already exists.}';
 
     /**
@@ -66,8 +67,7 @@ class CreateMigrationCommand extends Command
         $stub = $this->getStubContent('migration', $input->template);
         $fields = $this->getFields($input->fields, 'migration', $input->fieldsFile);
 
-        if(count($fields) == 0)
-        {
+        if (count($fields) == 0) {
             throw new Exception('You must provide at least one field to generate the migration');
         }
 
@@ -92,9 +92,10 @@ class CreateMigrationCommand extends Command
         $this->addEngineName($properties, $input->engine)
              ->addPrimaryField($properties, $this->getPrimaryField($fields))
              ->addTimestamps($properties, $input->withoutTimestamps)
+             ->addSoftDelete($properties, $input->withSoftDelete)
              ->addFieldProperties($properties, $fields)
              ->addIndexes($properties, $input->indexes)
-             ->addForeignConstraints($properties, $input->keys); 
+             ->addForeignConstraints($properties, $input->keys);
 
         return $properties;
     }
@@ -109,8 +110,7 @@ class CreateMigrationCommand extends Command
      */
     protected function addForeignConstraints(& $properties, array $keys)
     {
-        foreach($keys as $key)
-        {
+        foreach ($keys as $key) {
             $this->addForeignConstraint($properties, $key)
                  ->addReferencesConstraint($properties, $key)
                  ->addOnConstraint($properties, $key)
@@ -178,8 +178,7 @@ class CreateMigrationCommand extends Command
      */
     protected function addOnDeleteConstraint(& $properties, $key)
     {
-        if(!empty($key->onDelete))
-        {
+        if (!empty($key->onDelete)) {
             $properties .= $this->getPropertyBaseSpace(18, true) . sprintf("->onDelete('%s')", $key->onDelete) ;
         }
 
@@ -196,8 +195,7 @@ class CreateMigrationCommand extends Command
      */
     protected function addOnUpdateConstraint(& $properties, $key)
     {
-        if(!empty($key->onUpdate))
-        {
+        if (!empty($key->onUpdate)) {
             $properties .= $this->getPropertyBaseSpace(18, true) . sprintf("->onUpdate('%s')", $key->onUpdate);
         }
 
@@ -217,26 +215,19 @@ class CreateMigrationCommand extends Command
 
         $constraints = Helpers::removeEmptyItems(explode('#', $keysString));
 
-        foreach($constraints as $constraint)
-        {
+        foreach ($constraints as $constraint) {
             $keyParts = Helpers::removeEmptyItems(explode('|', $constraint));
 
-            if(isset($keyParts[4]))
-            {
+            if (isset($keyParts[4])) {
                 //At this point we know there are foreign, references, on, onDelete, onUpdate
-                $keys[] = $this->getReferenceObject($keyParts[0],$keyParts[1],$keyParts[2],$keyParts[3],$keyParts[4]);
-            } 
-            elseif(isset($keyParts[3]))
-            {
+                $keys[] = $this->getReferenceObject($keyParts[0], $keyParts[1], $keyParts[2], $keyParts[3], $keyParts[4]);
+            } elseif (isset($keyParts[3])) {
                 //At this point we know there are foreign, references, onDelete
-                $keys[] = $this->getReferenceObject($keyParts[0],$keyParts[1],$keyParts[2],$keyParts[3]);
-            } 
-            elseif(isset($keyParts[2]))
-            {
+                $keys[] = $this->getReferenceObject($keyParts[0], $keyParts[1], $keyParts[2], $keyParts[3]);
+            } elseif (isset($keyParts[2])) {
                 //At this point we know there are foreign, references
-                $keys[] = $this->getReferenceObject($keyParts[0],$keyParts[1],$keyParts[2]);
+                $keys[] = $this->getReferenceObject($keyParts[0], $keyParts[1], $keyParts[2]);
             } else {
-
                 throw new Exception('The foreign key relation is not configured correctly.');
             }
         }
@@ -275,9 +266,8 @@ class CreateMigrationCommand extends Command
      */
     protected function addIndexes(& $properties, array $indexes)
     {
-        foreach($indexes as $index)
-        {
-            $properties .= sprintf('%s([%s])', $this->getPropertyBase($index->type), implode(',', $index->columns) );
+        foreach ($indexes as $index) {
+            $properties .= sprintf('%s([%s])', $this->getPropertyBase($index->type), implode(',', $index->columns));
             $this->addFieldPropertyClousure($properties);
         }
 
@@ -297,16 +287,13 @@ class CreateMigrationCommand extends Command
         $finalIndexes = [];
         $indexes = explode('#', $indexesString);
 
-        foreach($indexes as $index)
-        {
+        foreach ($indexes as $index) {
             $indexParts = Helpers::removeEmptyItems(explode('=', $index));
 
-            if(isset($indexParts[1]) && in_array( strtolower($indexParts[0]), $this->validIndexTypes))
-            {
+            if (isset($indexParts[1]) && in_array(strtolower($indexParts[0]), $this->validIndexTypes)) {
                 $columns = $this->getCleanColumns($indexParts[1]);
 
-                if(isset($columns[0])) 
-                {
+                if (isset($columns[0])) {
                     $finalIndexes[] = $this->getForeignObject(strtolower($indexParts[0]), $columns);
                 }
             }
@@ -341,7 +328,7 @@ class CreateMigrationCommand extends Command
      */
     protected function getCleanColumns($columnsString)
     {
-        $columns = Helpers::removeEmptyItems(explode(',', $columnsString), function($column){
+        $columns = Helpers::removeEmptyItems(explode(',', $columnsString), function ($column) {
             return trim(Helpers::removeNonEnglishChars($column));
         });
 
@@ -360,10 +347,8 @@ class CreateMigrationCommand extends Command
     {
         $primaryField = $this->getPrimaryField($fields);
 
-        foreach($fields as $field)
-        {
-            if($field instanceof Field && $field != $primaryField && !is_null($primaryField))
-            {
+        foreach ($fields as $field) {
+            if ($field instanceof Field && $field != $primaryField && !is_null($primaryField)) {
                 $this->addFieldType($properties, $field)
                      ->addFieldComment($properties, $field)
                      ->addFieldUnsigned($properties, $field)
@@ -403,8 +388,7 @@ class CreateMigrationCommand extends Command
     {
         $type = strtolower(Helpers::removeNonEnglishChars($field->dataType));
 
-        if(isset($this->getTypeToMethodMap()[$type]) )
-        {
+        if (isset($this->getTypeToMethodMap()[$type])) {
             $params = $this->getMethodParamerters($field);
             $property .= sprintf("%s('%s'%s)", $this->getPropertyBase($this->getTypeToMethodMap()[$type]), $field->name, $params);
         }
@@ -433,8 +417,7 @@ class CreateMigrationCommand extends Command
     {
         $params = count($field->methodParams) == 0 ? '' : ', ' . implode(',', $field->methodParams);
 
-        if( $field->dataType == 'enum')
-        {
+        if ($field->dataType == 'enum') {
             $params = ', ' . $this->getEnumParams($field);
         }
 
@@ -450,18 +433,15 @@ class CreateMigrationCommand extends Command
      */
     protected function getEnumParams(Field $field)
     {
-
-        if( $field->dataType != 'enum')
-        {  
+        if ($field->dataType != 'enum') {
             throw new Exception('The field type is not enum! Cannot create an enum column with no options.');
         }
 
-        $values = array_filter($field->getOptionsByLang(), function($option){
+        $values = array_filter($field->getOptionsByLang(), function ($option) {
             return ! ($field->isRequired() && $option->value == '');
         });
 
-        if( count($values) == 0)
-        {  
+        if (count($values) == 0) {
             throw new Exception('Could not find any option values to construct the enum values from. ' .
                                 'It is possible that this field is required but only have option available has an empty string.');
         }
@@ -602,8 +582,7 @@ class CreateMigrationCommand extends Command
      */
     protected function addFieldDefaultValue(& $property, Field $field)
     {
-        if( !is_null($field->dataValue) && !$field->nullable)
-        {
+        if (!is_null($field->dataValue) && !$field->nullable) {
             $property .= sprintf("->default('%s')", $field->dataValue);
         }
     
@@ -620,8 +599,7 @@ class CreateMigrationCommand extends Command
      */
     protected function addFieldUnsigned(& $property, Field $field)
     {
-        if($field->isUnsigned)
-        {
+        if ($field->isUnsigned) {
             $property .= '->unsigned()';
         }
     
@@ -638,8 +616,7 @@ class CreateMigrationCommand extends Command
      */
     protected function addFieldUnique(& $property, Field $field)
     {
-        if($field->isUnique)
-        {
+        if ($field->isUnique) {
             $property .= '->unique()';
         }
     
@@ -656,8 +633,7 @@ class CreateMigrationCommand extends Command
      */
     protected function addFieldIndex(& $property, Field $field)
     {
-        if($field->isIndex && !$field->isUnique)
-        {
+        if ($field->isIndex && !$field->isUnique) {
             $property .= '->index()';
         }
     
@@ -674,8 +650,7 @@ class CreateMigrationCommand extends Command
      */
     protected function addFieldNullable(& $property, Field $field)
     {
-        if($field->isNullable)
-        {
+        if ($field->isNullable) {
             $property .= '->nullable()';
         }
     
@@ -692,8 +667,7 @@ class CreateMigrationCommand extends Command
      */
     protected function addFieldComment(& $property, Field $field)
     {
-        if(!empty($field->comment))
-        {
+        if (!empty($field->comment)) {
             $property .= sprintf("->comment('%s')", $field->comment);
         }
     
@@ -710,8 +684,7 @@ class CreateMigrationCommand extends Command
      */
     protected function addEngineName(& $property, $name)
     {
-        if(!empty($name))
-        {
+        if (!empty($name)) {
             $property .= sprintf("%s = '%s'", $this->getPropertyBase('engine'), $name);
             $this->addFieldPropertyClousure($property);
         }
@@ -729,8 +702,7 @@ class CreateMigrationCommand extends Command
      */
     protected function addPrimaryField(& $property, Field $field = null)
     {
-        if(!is_null($field))
-        {
+        if (!is_null($field)) {
             $eloquentMethodName = $this->getPrimaryMethodName($field->dataType);
             $property .= sprintf("%s('%s')", $this->getPropertyBase($eloquentMethodName), $field->name);
             $this->addFieldPropertyClousure($property);
@@ -749,9 +721,27 @@ class CreateMigrationCommand extends Command
      */
     protected function addTimestamps(& $property, $without)
     {
-        if(!$without)
-        {
+        if (!$without) {
             $property .= sprintf("%s()", $this->getPropertyBase('timestamps'));
+            $this->addFieldPropertyClousure($property);
+        }
+    
+        return $this;
+    }
+
+
+    /**
+     * Adds 'delete_at' columns to a giving propery.
+     *
+     * @param string $property
+     * @param bool $withSoftDelete
+     *
+     * @return $this
+     */
+    protected function addSoftDelete(& $property, $withSoftDelete)
+    {
+        if ($withSoftDelete) {
+            $property .= sprintf("%s()", $this->getPropertyBase('softDelete'));
             $this->addFieldPropertyClousure($property);
         }
     
@@ -771,16 +761,11 @@ class CreateMigrationCommand extends Command
 
         $methodName = 'primary';
 
-        if(in_array($type, ['int','integer']))
-        {
+        if (in_array($type, ['int','integer'])) {
             $methodName = 'increments';
-        } 
-        elseif(in_array($type, ['bigint','biginteger']))
-        {
+        } elseif (in_array($type, ['bigint','biginteger'])) {
             $methodName = 'bigIncrements';
-        } 
-        elseif(in_array($type, ['mediuminteger','mediumincrements']))
-        {
+        } elseif (in_array($type, ['mediuminteger','mediumincrements'])) {
             $methodName = 'mediumincrements';
         }
 
@@ -806,9 +791,10 @@ class CreateMigrationCommand extends Command
         $keys = $this->getKeysCollections(trim($this->option('foreign-keys')));
         $template = $this->getTemplateName();
         $withoutTimestamps = $this->option('without-timestamps');
+        $withSoftDelete = $this->option('with-soft-delete');
 
-        return (object) compact('tableName','className','connection','engine',
-                                'fields','fieldsFile','force','indexes','keys','template','withoutTimestamps');
+        return (object) compact('tableName', 'className', 'connection', 'engine',
+                                'fields', 'fieldsFile', 'force', 'indexes', 'keys', 'template', 'withoutTimestamps','withSoftDelete');
     }
 
 
@@ -836,8 +822,7 @@ class CreateMigrationCommand extends Command
      */
     protected function makeDirectory($path)
     {
-        if (!File::isDirectory($path)) 
-        {
+        if (!File::isDirectory($path)) {
             File::makeDirectory($path, 0755, true, true);
         }
 
@@ -885,14 +870,12 @@ class CreateMigrationCommand extends Command
      */
     protected function makeFile($fileFullname, $stub, $force = false)
     {
-        if(File::exists($fileFullname) && !$force)
-        {
+        if (File::exists($fileFullname) && !$force) {
             $this->error('The provided migration\'s name already exists!');
             return $this;
         }
 
-        if( ! File::put($fileFullname, $stub))
-        {
+        if (! File::put($fileFullname, $stub)) {
             throw new Exception('The migration failed to create');
         }
 
@@ -900,5 +883,4 @@ class CreateMigrationCommand extends Command
 
         return $this;
     }
-
 }

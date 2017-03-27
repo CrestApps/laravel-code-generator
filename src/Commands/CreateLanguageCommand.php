@@ -48,13 +48,11 @@ class CreateLanguageCommand extends Command
      */
     public function handle()
     {
-        
         $input = $this->getCommandInput();
         $fields = $this->getFields($input->fields, $input->fileName, $input->fieldsFile);
         $languages = $this->getLanguageItems($fields);
 
-        foreach ($languages as $language => $labels) 
-        {
+        foreach ($languages as $language => $labels) {
             $fileFullName = $this->getLocalePath($language) . $input->fileName . '.php';
             $messagesToRegister = [];
             $phrases = $this->getLangPhrases($labels, $messagesToRegister);
@@ -75,8 +73,7 @@ class CreateLanguageCommand extends Command
      */
     protected function registerMessages(array $messages, $language)
     {
-        if( count($messages) > 0)
-        {
+        if (count($messages) > 0) {
             $this->getTranslator()->addLines($messages, $language);
         }
 
@@ -92,7 +89,7 @@ class CreateLanguageCommand extends Command
      * @return bool
      */
     protected function isMessageExists($key, $language)
-    {   
+    {
         return $this->getTranslator()->has($key, $language, false);
     }
 
@@ -103,8 +100,7 @@ class CreateLanguageCommand extends Command
      */
     protected function getTranslator()
     {
-        if(!$this->isNewerThan('5.3'))
-        {
+        if (!$this->isNewerThan('5.3')) {
             return CrestAppsTranslator::getTranslator();
         }
 
@@ -123,19 +119,12 @@ class CreateLanguageCommand extends Command
      */
     protected function addMessagesToFile($fileFullname, $messages, $language, $template)
     {
-        if(empty($messages))
-        {
+        if (empty($messages)) {
             $this->info('There was no messages to add the language files');
-        } 
-        else 
-        {
-
-            if(File::exists($fileFullname))
-            {
+        } else {
+            if (File::exists($fileFullname)) {
                 $this->appendMessageToFile($fileFullname, "\n" . $messages);
-            } 
-            else
-            {
+            } else {
                 $this->createMessageToFile($fileFullname, $messages, $language, $template);
             }
         }
@@ -156,15 +145,13 @@ class CreateLanguageCommand extends Command
         $stub = File::get($fileFullname);
         $index = $this->getCursorPosition($stub);
 
-        if($index === false)
-        {
+        if ($index === false) {
             throw new Exception('Could not find a position in the [' . basename($fileFullname) . '] file to insert the messages.');
         }
 
-        if( ! File::put($fileFullname, substr_replace($stub, $messages, $index + 1, 0)))
-        {
+        if (! File::put($fileFullname, substr_replace($stub, $messages, $index + 1, 0))) {
             throw new Exception('An error occurred! No messages were added!');
-        } 
+        }
 
         $this->info('New messages were added to the [' . basename($fileFullname) . '] file');
         
@@ -199,10 +186,9 @@ class CreateLanguageCommand extends Command
 
         $this->replaceFieldName($stub, $messages);
 
-        if( ! File::put($fileFullname, $stub))
-        {
+        if (! File::put($fileFullname, $stub)) {
             throw new Exception('An error occurred! The file  [' . $language . '/' . basename($fileFullname) . '] was not created.');
-        } 
+        }
 
         $this->info('The file  [' . $language . '/' . basename($fileFullname) . '] was created successfully.');
 
@@ -220,28 +206,20 @@ class CreateLanguageCommand extends Command
     {
         $items = [];
 
-        foreach($fields as $field)
-        {
-            foreach($field->getLabels() as $label)
-            {
-                if(!$label->isPlain)
-                {
+        foreach ($fields as $field) {
+            foreach ($field->getLabels() as $label) {
+                if (!$label->isPlain) {
                     $items[$label->lang][] = $label;
                 }
             }
 
-            foreach($field->getOptions() as $lang => $labels)
-            {
-                foreach($labels as $label)
-                {
-                    if(!$label->isPlain)
-                    {
+            foreach ($field->getOptions() as $lang => $labels) {
+                foreach ($labels as $label) {
+                    if (!$label->isPlain) {
                         $items[$label->lang][] = $label;
                     }
                 }
-
             }
-
         }
 
         return $items;
@@ -268,8 +246,7 @@ class CreateLanguageCommand extends Command
      */
     protected function createPath($path)
     {
-        if ( ! File::isDirectory($path)) 
-        {
+        if (! File::isDirectory($path)) {
             File::makeDirectory($path, 0755, true);
         }
 
@@ -288,7 +265,7 @@ class CreateLanguageCommand extends Command
         $fieldsFile =  trim($this->option('fields-file'));
         $template = trim($this->option('template-name'));
 
-        return (object) compact('fileName','fields','fieldsFile','template');
+        return (object) compact('fileName', 'fields', 'fieldsFile', 'template');
     }
 
     /**
@@ -301,10 +278,8 @@ class CreateLanguageCommand extends Command
     protected function getLangPhrases(array $labels, array & $messagesToRegister)
     {
         $messages = [];
-        foreach ($labels as $label) 
-        {
-            if( ! $this->isMessageExists($label->localeGroup, $label->lang))
-            {
+        foreach ($labels as $label) {
+            if (! $this->isMessageExists($label->localeGroup, $label->lang)) {
                 $messages[] = sprintf("    '%s' => '%s'", $label->id, $label->text);
                 $messagesToRegister[$label->localeGroup] = $label->text;
             }

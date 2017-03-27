@@ -53,13 +53,11 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function buildClass($name)
     {
-
         $stub = $this->files->get($this->getStub('model'));
         $input = $this->getCommandInput();
         $fields = $this->getFields($input->fields, 'model', $input->fieldsFile);
 
-        if($input->useSoftDelete)
-        {
+        if ($input->useSoftDelete) {
             $fields = $this->upsertDeletedAt($fields);
         }
 
@@ -102,10 +100,8 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function upsertDeletedAt(array $fields)
     {
-        foreach($fields as $field)
-        {
-            if($field->name == 'deleted_at')
-            {
+        foreach ($fields as $field) {
+            if ($field->name == 'deleted_at') {
                 return $fields;
             }
         }
@@ -122,7 +118,7 @@ class CreateModelCommand extends GeneratorCommand
     protected function getNewDeletedAtField()
     {
         $field = new Field('deleted_at');
-        $field->isDate = true; 
+        $field->isDate = true;
 
         return $field;
     }
@@ -146,8 +142,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function getFillables($fillables, array $fields)
     {
-        if(!empty($fillables))
-        {
+        if (!empty($fillables)) {
             return $this->getFillablesFromString($fillables);
         }
 
@@ -161,7 +156,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function getFillablesFromString($fillablesString)
     {
-        $columns = Helpers::removeEmptyItems(explode(',', $fillablesString), function($column){
+        $columns = Helpers::removeEmptyItems(explode(',', $fillablesString), function ($column) {
             return trim(Helpers::removeNonEnglishChars($column));
         });
 
@@ -177,10 +172,8 @@ class CreateModelCommand extends GeneratorCommand
     {
         $fillables = [];
 
-        foreach($fields as $field)
-        {
-            if($field->isOnFormView)
-            {
+        foreach ($fields as $field) {
+            if ($field->isOnFormView) {
                 $fillables[] = sprintf("'%s'", Helpers::removeNonEnglishChars($field->name));
             }
         }
@@ -197,10 +190,8 @@ class CreateModelCommand extends GeneratorCommand
     {
         $dates = [];
 
-        foreach($fields as $field)
-        {
-            if($field->isDate)
-            {
+        foreach ($fields as $field) {
+            if ($field->isDate) {
                 $dates[] = sprintf("'%s'", Helpers::removeNonEnglishChars($field->name));
             }
         }
@@ -214,7 +205,7 @@ class CreateModelCommand extends GeneratorCommand
      * @return object
      */
     protected function getCommandInput()
-    {        
+    {
         $table = trim($this->option('table-name')) ?: strtolower(str_plural(trim($this->argument('model-name'))));
         $fillable = trim($this->option('fillable'));
         $primaryKey = trim($this->option('primary-key'));
@@ -225,7 +216,7 @@ class CreateModelCommand extends GeneratorCommand
         $fieldsFile = trim($this->option('fields-file'));
         $template = $this->getTemplateName();
 
-        return (object) compact('table','fillable','primaryKey','relationships','useSoftDelete','useTimeStamps','fields','fieldsFile','template');
+        return (object) compact('table', 'fillable', 'primaryKey', 'relationships', 'useSoftDelete', 'useTimeStamps', 'fields', 'fieldsFile', 'template');
     }
 
     /**
@@ -237,8 +228,7 @@ class CreateModelCommand extends GeneratorCommand
     {
         $path = trim($this->option('model-directory'));
 
-        if(!empty($path))
-        {
+        if (!empty($path)) {
             $path = Helpers::getPathWithSlash(ucfirst($path));
         }
 
@@ -252,7 +242,8 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function getClassNameFromPath($path)
     {
-        return strrpos($path, '\\') === false ?: substr($path, $nameStartIndex + 1);;
+        return strrpos($path, '\\') === false ?: substr($path, $nameStartIndex + 1);
+        ;
     }
 
     /**
@@ -266,19 +257,16 @@ class CreateModelCommand extends GeneratorCommand
     {
         $methods = [];
 
-        foreach ($relationships as $relationship) 
-        {
+        foreach ($relationships as $relationship) {
             $relationshipParts = explode('#', $relationship);
 
-            if (count($relationshipParts) != 3) 
-            {
+            if (count($relationshipParts) != 3) {
                 throw new Exception("One or more of the provided relations are not formatted correctly. Make sure your input adheres to the following pattern 'posts#hasMany#App\Post|id|post_id'");
             }
 
             $methodArguments = explode('|', trim($relationshipParts[2]));
 
             $methods[] = $this->createRelationshipMethod(trim($relationshipParts[0]), trim($relationshipParts[1]), $methodArguments);
-
         }
 
         return $methods;
@@ -307,10 +295,8 @@ class CreateModelCommand extends GeneratorCommand
     {
         $accessors = [];
 
-        foreach($fields as $field)
-        {
-            if($field->isMultipleAnswers)
-            {
+        foreach ($fields as $field) {
+            if ($field->isMultipleAnswers) {
                 $accessors[] = $this->getAccessor($field);
             }
         }
@@ -329,10 +315,8 @@ class CreateModelCommand extends GeneratorCommand
     {
         $mutators = [];
 
-        foreach($fields as $field)
-        {
-            if($field->isMultipleAnswers)
-            {
+        foreach ($fields as $field) {
+            if ($field->isMultipleAnswers) {
                 $mutators[] = $this->getMutator($field);
             }
         }
@@ -476,14 +460,10 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceSoftDelete(&$stub, $shouldUseSoftDelete)
     {
-        if($shouldUseSoftDelete)
-        {
+        if ($shouldUseSoftDelete) {
             $stub = str_replace('{{useSoftDelete}}', PHP_EOL . 'use Illuminate\Database\Eloquent\SoftDeletes;' . PHP_EOL, $stub);
             $stub = str_replace('{{useSoftDeleteTrait}}', PHP_EOL . '    use SoftDeletes;' . PHP_EOL, $stub);
-        } 
-        else 
-        {
-
+        } else {
             $stub = str_replace('{{useSoftDelete}}', null, $stub);
             $stub = str_replace('{{useSoftDeleteTrait}}', null, $stub);
         }
@@ -531,7 +511,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceRelationshipPlaceholder(&$stub, array $relationMethods)
     {
-        $stub = str_replace('{{relationships}}', implode("\r\n",$relationMethods), $stub);
+        $stub = str_replace('{{relationships}}', implode("\r\n", $relationMethods), $stub);
 
         return $this;
     }
@@ -554,7 +534,6 @@ public function {$relationshipName}()
         return \$this->{$relationshipType}({$argumentsString})
     }
 EOT;
-
     }
 
     /**
@@ -573,7 +552,6 @@ EOT;
     */
     protected \$primaryKey = '{$primaryKey}';
 EOT;
-
     }
 
     /**
@@ -586,11 +564,9 @@ EOT;
      */
     protected function replaceTimestamps(&$stub, $shouldUseTimeStamps)
     {
-        if($shouldUseTimeStamps)
-        {
+        if ($shouldUseTimeStamps) {
             $stub = str_replace('{{timeStamps}}', null, $stub);
         } else {
-
             $timestampBlock = <<<EOT
 /**
      * Indicates if the model should be timestamped.

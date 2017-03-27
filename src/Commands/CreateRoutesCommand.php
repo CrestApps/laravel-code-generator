@@ -51,16 +51,14 @@ class CreateRoutesCommand extends Command
     {
         $input = $this->getCommandInput();
 
-        if($this->isRouteNameExists($this->getDotNotationName($input->modelName, $input->prefix, 'index')))
-        {
+        if ($this->isRouteNameExists($this->getDotNotationName($input->modelName, $input->prefix, 'index'))) {
             $this->warn("The route is already registred!");
             return;
         }
 
         $routesFile = $this->getRoutesFileName();
 
-        if ( ! File::exists($routesFile))
-        {
+        if (! File::exists($routesFile)) {
             throw new Exception("The routes file does not exists. The expected location was " . $routesFile);
         }
 
@@ -87,7 +85,7 @@ class CreateRoutesCommand extends Command
         $template = $this->getTemplateName();
         $controllerDirectory = trim($this->option('controller-directory'));
 
-        return (object) compact('modelName','controllerName','prefix','template','controllerDirectory');
+        return (object) compact('modelName', 'controllerName', 'prefix', 'template', 'controllerDirectory');
     }
 
     /**
@@ -100,8 +98,7 @@ class CreateRoutesCommand extends Command
      */
     protected function appendToRoutesFile($stub, $routesFile)
     {
-        if ( ! File::append($routesFile, $stub)) 
-        {
+        if (! File::append($routesFile, $stub)) {
             throw new Exception('Unable to add the route to ' . $routesFile);
         }
 
@@ -212,8 +209,7 @@ class CreateRoutesCommand extends Command
     {
         $prefix = trim($prefix);
 
-        if(!empty($prefix) || !empty($namespace))
-        {
+        if (!empty($prefix) || !empty($namespace)) {
             $groupStub = File::get($this->getStubByName('routes-group', $template));
 
             $this->replacePrefix($groupStub, $this->getGroupPrefix($prefix))
@@ -261,10 +257,8 @@ class CreateRoutesCommand extends Command
     {
         $existingRoutes = Route::getRoutes();
 
-        foreach ($existingRoutes as $existingRoute) 
-        {
-            if($existingRoute->getName() == $name)
-            {
+        foreach ($existingRoutes as $existingRoute) {
+            if ($existingRoute->getName() == $name) {
                 return true;
             }
         }

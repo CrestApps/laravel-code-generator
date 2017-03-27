@@ -8,7 +8,7 @@ use Exception;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\Field;
 
-trait CommonCommand 
+trait CommonCommand
 {
     /**
      * The default route actions
@@ -27,11 +27,11 @@ trait CommonCommand
     /**
      * Gets the field from the input
      *
-     * @return Field array 
+     * @return Field array
      */
     protected function getFields($fields, $langFile, $fieldsFile = null)
     {
-        if( !empty($fieldsFile))
+        if (!empty($fieldsFile)) 
         {
             return Helpers::getFieldsFromFile($fieldsFile, $langFile);
         }
@@ -58,8 +58,7 @@ trait CommonCommand
      */
     protected function getRoutesFileName()
     {
-        if ($this->isNewerThan())
-        {
+        if ($this->isNewerThan()) {
             return base_path('routes/web.php');
         }
 
@@ -73,8 +72,7 @@ trait CommonCommand
      */
     public function arguments()
     {
-        if ($this->isNewerThan())
-        {
+        if ($this->isNewerThan()) {
             return parent::arguments();
         }
 
@@ -85,14 +83,12 @@ trait CommonCommand
      * Reduceses multiple new line into one.
      *
      * @param string $stub
-     * 
+     *
      * @return $this
      */
     protected function reduceNewLines(&$stub)
     {
-
-        while(strpos($stub, "\r\n\r\n") !== false)
-        {
+        while (strpos($stub, "\r\n\r\n") !== false) {
             $stub = str_replace("\r\n\r\n", "\r\n", $stub);
         }
 
@@ -106,8 +102,7 @@ trait CommonCommand
      */
     public function options()
     {
-        if ($this->isNewerThan())
-        {
+        if ($this->isNewerThan()) {
             return parent::options();
         }
 
@@ -127,8 +122,7 @@ trait CommonCommand
     {
         $views = empty($views) ? $this->views : $views;
 
-        foreach ($views as $view)
-        {
+        foreach ($views as $view) {
             $viewName = $this->getDotNotationName($viewDirectory, $routesPrefix, $view);
             $stub = str_replace($this->getViewName($view), $viewName, $stub);
         }
@@ -147,13 +141,11 @@ trait CommonCommand
      */
     protected function getDotNotationName($viewDirectory, $routesPrefix, $name = 'index')
     {
-        if(!empty($viewDirectory))
-        {
+        if (!empty($viewDirectory)) {
             $name = Helpers::getWithDotPostFix(Helpers::convertToDotNotation($viewDirectory)) . $name;
         }
 
-        if(!empty($routesPrefix))
-        {
+        if (!empty($routesPrefix)) {
             $name = Helpers::getWithDotPostFix(Helpers::convertToDotNotation($routesPrefix)) . $name;
         }
 
@@ -187,8 +179,7 @@ trait CommonCommand
     {
         $actions = empty($actions) ? $this->actions : $actions;
 
-        foreach ($actions as $action)
-        {
+        foreach ($actions as $action) {
             $routeName = $this->getDotNotationName($modelName, $routesPrefix, $action);
             $stub = str_replace($this->getRouteName($action), $routeName, $stub);
         }
@@ -243,10 +234,10 @@ trait CommonCommand
      */
     protected function replaceModelName(&$stub, $modelName)
     {
-        $stub = str_replace('{{modelName}}', strtolower($modelName), $stub);   
-        $stub = str_replace('{{modelNameClass}}', ucwords($modelName), $stub);  
-        $stub = str_replace('{{modelNamePlural}}', str_plural(strtolower($modelName)), $stub); 
-        $stub = str_replace('{{modelNamePluralCap}}', ucwords(str_plural(strtolower($modelName))), $stub);        
+        $stub = str_replace('{{modelName}}', strtolower($modelName), $stub);
+        $stub = str_replace('{{modelNameClass}}', ucwords($modelName), $stub);
+        $stub = str_replace('{{modelNamePlural}}', str_plural(strtolower($modelName)), $stub);
+        $stub = str_replace('{{modelNamePluralCap}}', ucwords(str_plural(strtolower($modelName))), $stub);
 
         return $this;
     }
@@ -259,8 +250,7 @@ trait CommonCommand
      */
     protected function alreadyExists($rawName)
     {
-        if($this->option('force'))
-        {
+        if ($this->option('force')) {
             return false;
         }
 
@@ -272,14 +262,12 @@ trait CommonCommand
      *
      * @param array $fields
      *
-     * @return CrestApps\CodeGenerator\Models\Field 
+     * @return CrestApps\CodeGenerator\Models\Field
      */
     protected function getPrimaryField(array $fields)
     {
-        foreach($fields as $field)
-        {
-            if( $this->isField($field) && ($field->isPrimary || $field->isAutoIncrement))
-            {
+        foreach ($fields as $field) {
+            if ($this->isField($field) && ($field->isPrimary || $field->isAutoIncrement)) {
                 return $field;
             }
         }
@@ -295,10 +283,8 @@ trait CommonCommand
      */
     protected function getHeaderField(array $fields)
     {
-        foreach($fields as $field)
-        {
-            if( $this->isField($field) && $field->isHeader)
-            {
+        foreach ($fields as $field) {
+            if ($this->isField($field) && $field->isHeader) {
                 return $field;
             }
         }
@@ -314,8 +300,7 @@ trait CommonCommand
      */
     protected function createDirectory($path)
     {
-        if (!File::isDirectory($path)) 
-        {
+        if (!File::isDirectory($path)) {
             File::makeDirectory($path, 0777, true, true);
         }
 
@@ -333,10 +318,8 @@ trait CommonCommand
     {
         $validations = '';
 
-        foreach($fields as $field)
-        {
-            if(!empty($field->validationRules))
-            {
+        foreach ($fields as $field) {
+            if (!empty($field->validationRules)) {
                 $validations .= sprintf("        '%s' => '%s',\n    ", $field->name, implode('|', $field->validationRules));
             }
         }
@@ -370,7 +353,7 @@ trait CommonCommand
      * @return string
      */
     protected function getControllersPath()
-    {   
+    {
         return Helpers::getPathWithSlash(config('codegenerator.controllers_path'));
     }
 
@@ -446,8 +429,7 @@ trait CommonCommand
         $template = Helpers::getPathWithSlash($template ?: config('codegenerator.template'));
         $path = Helpers::getPathWithSlash(config('codegenerator.templates_path')) . $template;
 
-        if(!File::exists($path))
-        {
+        if (!File::exists($path)) {
             throw new Exception('Invalid template name or the templates is invalid. Make sure the following path exists: "' . $path . '"');
         }
 
@@ -483,7 +465,7 @@ trait CommonCommand
      */
     protected function isContainfile(array $fields)
     {
-        $filtered = array_filter($fields, function($field){
+        $filtered = array_filter($fields, function ($field) {
             return $field->isFile();
         });
         

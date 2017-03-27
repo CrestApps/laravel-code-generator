@@ -47,13 +47,11 @@ class CreateFieldsFileCommand extends Command
      */
     public function handle()
     {
-        if(File::exists($this->getDestinationFullname()) && !$this->isForce())
-        {
-            throw new Exception('The file ' . $this->getFilename() . ' already exists. To override it try passing the --force option to override it.' );
+        if (File::exists($this->getDestinationFullname()) && !$this->isForce()) {
+            throw new Exception('The file ' . $this->getFilename() . ' already exists. To override it try passing the --force option to override it.');
         }
 
-        if(!$this->createFile($this->getDestinationFullname(), $this->getFieldAsJson()))
-        {
+        if (!$this->createFile($this->getDestinationFullname(), $this->getFieldAsJson())) {
             throw new Exception('Something went wrong while trying to create the fields file.');
         }
 
@@ -68,7 +66,7 @@ class CreateFieldsFileCommand extends Command
      */
     protected function getFieldAsJson()
     {
-        $fields =  array_map(function($field){
+        $fields =  array_map(function ($field) {
             return $field->toArray();
         }, $this->getFields());
 
@@ -109,8 +107,7 @@ class CreateFieldsFileCommand extends Command
     {
         $driver = strtolower(DB::getDriverName());
 
-        if(!in_array($driver, $this->drivers))
-        {
+        if (!in_array($driver, $this->drivers)) {
             throw new Exception('The database driver user is not supported!');
         }
 

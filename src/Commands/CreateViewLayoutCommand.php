@@ -57,7 +57,6 @@ class CreateViewLayoutCommand extends Command
              ->createDirectory($path)
              ->makeFile($path . $input->layoutFileName, $stub, $input->force)
              ->info('The layout have been created!');
-
     }
 
     /**
@@ -70,14 +69,12 @@ class CreateViewLayoutCommand extends Command
      * @return $this
      */
     protected function makeFile($filename, $content, $force)
-    {   
-        if($this->fileExists($filename, $force))
-        {
+    {
+        if ($this->fileExists($filename, $force)) {
             throw new Exception('The destenation file already exists. To override the existing file, pass "--force" option.');
         }
 
-        if( ! File::put($filename, $content))
-        {
+        if (! File::put($filename, $content)) {
             throw new Exception('Unexpected error occurred while trying to create the file. please try your request again.');
         }
 
@@ -107,8 +104,7 @@ class CreateViewLayoutCommand extends Command
      */
     protected function getDestenationPath($path)
     {
-        if(!empty($path) )
-        {
+        if (!empty($path)) {
             $path = Helpers::getPathWithSlash($path);
         }
 
@@ -128,7 +124,7 @@ class CreateViewLayoutCommand extends Command
         $withoutValidation = $this->option('without-validation');
         $force =  $this->option('force');
 
-        return (object) compact('appName','layoutFileName','layoutDirectory','withoutValidation','force');
+        return (object) compact('appName', 'layoutFileName', 'layoutDirectory', 'withoutValidation', 'force');
     }
 
     /**

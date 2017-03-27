@@ -1,19 +1,20 @@
 <?php
 
 namespace CrestApps\CodeGenerator\Support;
+
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Model\FieldMapper;
 use CrestApps\CodeGenerator\Support\OptimizerBase;
 
 class FieldsOptimizer extends OptimizerBase
 {
-	
+    
     /**
      * The field mappers.
      *
      * @var array
      */
-	protected $mappers;
+    protected $mappers;
 
     /**
      * The optimized fields.
@@ -49,8 +50,7 @@ class FieldsOptimizer extends OptimizerBase
         $this->assignPrimaryKey($mappers)
              ->assignPrimaryTitle($mappers);
 
-        foreach($mappers as $mapper)
-        {
+        foreach ($mappers as $mapper) {
             $optimizer = new FieldOptimizer($mapper->field, $mapper->meta);
 
             $this->addField($optimizer->optimize()->getField());
@@ -82,20 +82,17 @@ class FieldsOptimizer extends OptimizerBase
     {
         $foundPrimary = false;
 
-        foreach($mappers as $mapper)
-        {
-            if($foundPrimary)
-            {
+        foreach ($mappers as $mapper) {
+            if ($foundPrimary) {
                 $mapper->field->isPrimary = false;
                 $mapper->field->isAutoIncrement = false;
                 continue;
             }
 
-            if( $this->isPrimaryField($mapper->field) )
-            {
+            if ($this->isPrimaryField($mapper->field)) {
                 $mapper->field->isPrimary = true;
                 $foundPrimary = true;
-            }        
+            }
         }
 
         return $this;
@@ -109,24 +106,20 @@ class FieldsOptimizer extends OptimizerBase
     */
     protected function assignPrimaryTitle(array & $mappers)
     {
-        $fieldsWithHeader = array_filter($mappers, function($mapper){
+        $fieldsWithHeader = array_filter($mappers, function ($mapper) {
             return $mapper->field->isHeader;
         });
 
-        if(count($fieldsWithHeader) != 1)
-        {
+        if (count($fieldsWithHeader) == 0) {
             $found = false;
 
-            foreach ($mappers as $mapper) 
-            {
-                if($found)
-                {
+            foreach ($mappers as $mapper) {
+                if ($found) {
                     $mapper->field->isHeader = false;
                     continue;
                 }
-
-                if($this->isPrimaryHeader($mapper->field))
-                {
+  
+                if ($this->isPrimaryHeader($mapper->field) && ( ! array_key_exists('is-header', $mapper->meta) || $mapper->meta['is-header'])   ) {
                     $found = true;
                     $mapper->field->isHeader = true;
                 }
@@ -146,5 +139,4 @@ class FieldsOptimizer extends OptimizerBase
     {
         return ($field->isHeader || in_array($field->name, $this->getCommonHeadersNames()));
     }
-
 }

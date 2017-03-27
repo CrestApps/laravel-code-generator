@@ -6,7 +6,8 @@ use File;
 use Exception;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 
-class Helpers {
+class Helpers
+{
 
     /**
      * It trims each element in a givin array and removes the empty elements.
@@ -21,14 +22,12 @@ class Helpers {
     {
         $final = [];
 
-        foreach($items as $item)
-        {
+        foreach ($items as $item) {
             $item = trim($item);
 
             $item = !is_null($callback) && is_callable($callback) ? call_user_func($callback, $item) : $item;
 
-            if(!empty($item))
-            {
+            if (!empty($item)) {
                 $final[] = $item;
             }
         }
@@ -56,7 +55,7 @@ class Helpers {
      */
     public static function startsWith($haystack, $needle)
     {
-         return (substr($haystack, 0, strlen($needle)) === $needle);
+        return (substr($haystack, 0, strlen($needle)) === $needle);
     }
 
     /**
@@ -122,8 +121,7 @@ class Helpers {
      */
     public static function stringToBool($str)
     {
-        if(is_bool($str))
-        {
+        if (is_bool($str)) {
             return $str;
         }
         
@@ -139,7 +137,7 @@ class Helpers {
      */
     public static function getFields($fieldsLine, $langFile = 'generic')
     {
-    	return FieldTransformer::text($fieldsLine, $langFile);
+        return FieldTransformer::text($fieldsLine, $langFile);
     }
 
     /**
@@ -153,8 +151,7 @@ class Helpers {
     {
         $fileFullname = self::getPathWithSlash(config('codegenerator.fields_file_path')) . $fileName;
 
-        if(!File::exists($fileFullname))
-        {
+        if (!File::exists($fileFullname)) {
             throw new Exception('the file ' . $fileFullname . ' was not found!');
         }
 
@@ -171,8 +168,7 @@ class Helpers {
      */
     public static function removePostFixWith($name, $postFix = '/')
     {
-        if(substr($name, strlen($postFix) * -1 ) === $postFix)
-        {
+        if (substr($name, strlen($postFix) * -1) === $postFix) {
             return strstr($name, $postFix, true);
         }
 
@@ -189,8 +185,7 @@ class Helpers {
      */
     public static function postFixWith($name, $postFix = '/')
     {
-        if(substr($name, strlen($postFix) * -1 ) !== $postFix)
-        {
+        if (substr($name, strlen($postFix) * -1) !== $postFix) {
             return $name . $postFix;
         }
 
@@ -207,8 +202,7 @@ class Helpers {
      */
     public static function preFixWith($name, $preFix = '/')
     {
-        if(substr($name, 0, strlen($preFix) ) !== $preFix)
-        {
+        if (substr($name, 0, strlen($preFix)) !== $preFix) {
             return $preFix . $name;
         }
 
@@ -258,12 +252,10 @@ class Helpers {
      */
     public static function wrapItems(array $items, $wrapper = "'")
     {
-        return array_map(function($item) use ($wrapper){
-
+        return array_map(function ($item) use ($wrapper) {
             $item = str_replace($wrapper, '\\' . $wrapper, trim($item, $wrapper));
             
             return sprintf('%s%s%s', $wrapper, $item, $wrapper);
-
         }, $items);
     }
 
@@ -285,8 +277,7 @@ class Helpers {
      */
     public static function convertStringToArray($str, $seperator = ',')
     {
-        return self::removeEmptyItems(explode($seperator, $str), function($param){
-
+        return self::removeEmptyItems(explode($seperator, $str), function ($param) {
             return self::trimQuots($param);
         });
     }

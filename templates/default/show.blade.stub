@@ -6,7 +6,7 @@
     <div class="panel-heading clearfix">
 
         <span class="pull-left">
-            {{ !empty({{modelHeader}}) ? {{modelHeader}} : '{{modelName}}'}}
+            {{ isset({{modelHeader}}) ? {{modelHeader}} : '{{modelName}}' }}
         </span>
 
         <div class="pull-right">

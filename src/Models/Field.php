@@ -5,23 +5,23 @@ namespace CrestApps\CodeGenerator\Models;
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Helpers;
 
-class Field 
+class Field
 {
-	
+    
     /**
      * The name of the field
      *
      * @var string
      */
-	public $name;
+    public $name;
 
     /**
      * The labels of the field
      *
      * @var array
      */
-	private $labels = [];
-	
+    private $labels = [];
+    
     /**
      * The html-type of the field
      *
@@ -34,7 +34,7 @@ class Field
      *
      * @var array
      */
-	protected $options = [];
+    protected $options = [];
 
     /**
      * The html-value of the field
@@ -220,8 +220,7 @@ class Field
      */
     public function getLabel($lang = 'en')
     {
-        if(!isset($this->labels[$lang]))
-        {
+        if (!isset($this->labels[$lang])) {
             return null;
         }
 
@@ -269,12 +268,9 @@ class Field
     {
         $finalOptions = [];
 
-        foreach($this->getOptions() as $options)
-        {
-            foreach($options as $option)
-            {
-                if($option->lang == $lang || $option->isPlain)
-                {
+        foreach ($this->getOptions() as $options) {
+            foreach ($options as $option) {
+                if ($option->lang == $lang || $option->isPlain) {
                     $finalOptions[] = $option;
                 }
             }
@@ -325,8 +321,7 @@ class Field
      */
     protected function getFieldId($optionValue = null)
     {
-        if(!is_null($optionValue))
-        {
+        if (!is_null($optionValue)) {
             return sprintf('%s_%s', $this->name, $this->cleanValue($optionValue));
         }
 
@@ -401,6 +396,87 @@ class Field
     }
 
     /**
+     * Checks if the data type contains decimal.
+     *
+     * @return bool
+     */
+    public function isDecimalType()
+    {
+        return in_array($this->dataType, ['float','decimal','double']);
+    }
+
+    /**
+     * Get the total decimal point
+     *
+     * @return int
+     */
+    public function getDecimalPointLength()
+    {
+        if ($this->isDecimalType() && ! is_null($value = $this->getMethodParam(1))) {
+            return $value / ($value * 100);
+        }
+
+        return 0;
+    }
+
+    protected function getPositionPlacement()
+    {
+        return $this->getMethodParam(1) ?: 0;
+    }
+
+    public function getMaxValue()
+    {
+        $max = null;
+
+        if ($this->isDecimalType()) {
+            $length = $this->getMethodParam(0) ?: 1;
+            $declimal = $this->getMethodParam(1) ?: 0;
+            $max = str_repeat('9', $length);
+
+            if ($declimal > 0) {
+                $max = substr_replace($max, '.', $declimal * -1, 0);
+            }
+            $max = floatval($max);
+
+        } elseif ($this->dataType == 'integer') {
+            $max = $this->isUnsigned ? 4294967295 : 2147483647;
+        } elseif ($this->dataType == 'mediumInteger') {
+            $max = $this->isUnsigned ? 16777215 : 8388607;
+        } elseif ($this->dataType == 'smallInteger') {
+            $max = $this->isUnsigned ? 65535 : 32767;
+        } elseif ($this->dataType == 'tinyInteger') {
+            $max = $this->isUnsigned ? 255 : 127;
+        } elseif ($this->dataType == 'bigInteger') {
+            $max = $this->isUnsigned ? 18446744073709551615 : 9223372036854775807;
+        }
+
+        return $max;
+    }
+
+    public function getMinValue()
+    {
+
+        if ($this->isUnsigned) {
+            return 0;
+        }
+
+        if (! is_null($value = $this->getMaxValue())) {
+            return ($value * -1) - ($this->isDecimalType() ? 0: 1);
+        }
+
+        return null;
+    }
+
+    protected function getMethodParam($index)
+    {
+        if (isset($this->methodParams[$index]) && ($value = intval($this->methodParams[$index])) > 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
      * Gets current labels in a raw format.
      *
      * @return mix (string|object)
@@ -409,10 +485,8 @@ class Field
     {
         $final = [];
 
-        foreach($labels as $label)
-        {
-            if($label->isPlain)
-            {
+        foreach ($labels as $label) {
+            if ($label->isPlain) {
                 return $label->text;
             }
 
@@ -431,27 +505,21 @@ class Field
     {
         $final = [];
 
-        foreach($options as $lang => $labels)
-        {
+        foreach ($options as $lang => $labels) {
             $finalWithTranslations = [];
-            foreach($labels as $label)
-            {                
-                if($label->isPlain)
-                {
+            foreach ($labels as $label) {
+                if ($label->isPlain) {
                     $final[$label->value] = $label->text;
                 } else {
                     $finalWithTranslations[$label->value][$label->lang] = $label->text;
                 }
             }
 
-            foreach($finalWithTranslations as $value => $finalWithTranslation)
-            {
+            foreach ($finalWithTranslations as $value => $finalWithTranslation) {
                 $final[$value] = (object) $finalWithTranslation;
             }
-            
         }
 
         return (object) $final;
     }
-
 }

@@ -1,16 +1,17 @@
 <?php
 
 namespace CrestApps\CodeGenerator\Models;
+
 use CrestApps\CodeGenerator\Models\Field;
 
-class FieldMapper 
+class FieldMapper
 {
     /**
      * The field to optimize
      *
      * @var array of CrestApps\CodeGenerator\Models\Field
      */
-	public $field;
+    public $field;
 
     /**
      * Create a new optimizer instance.
@@ -21,7 +22,7 @@ class FieldMapper
 
     public function __construct(Field $field, array $meta = null)
     {
-    	$this->field = $field;
-    	$this->meta = $meta;
+        $this->field = $field;
+        $this->meta = $meta;
     }
 }
