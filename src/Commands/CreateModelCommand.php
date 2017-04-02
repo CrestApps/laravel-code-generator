@@ -297,7 +297,16 @@ class CreateModelCommand extends GeneratorCommand
 
         foreach ($fields as $field) {
             if ($field->isMultipleAnswers) {
-                $accessors[] = $this->getAccessor($field);
+                $content = $this->getStubContent('model-accessor-multiple-answers');
+
+                $accessors[] = $this->getAccessor($field, $content);
+            }
+
+            if ($field->isDateOrTime()) {
+                $content = $this->getStubContent('model-accessor-datetime');
+                $this->replaceDateFormat($content, $field->dateFormat);
+
+                $accessors[] = $this->getAccessor($field, $content);
             }
         }
 
@@ -317,7 +326,17 @@ class CreateModelCommand extends GeneratorCommand
 
         foreach ($fields as $field) {
             if ($field->isMultipleAnswers) {
-                $mutators[] = $this->getMutator($field);
+                $content = $this->getStubContent('model-mutator-multiple-answers');
+                $this->replaceFieldName($content, $field->name);
+
+                $mutators[] = $this->getMutator($field, $content);
+            }
+
+            if ($field->isDateOrTime()) {
+                $content = $this->getStubContent('model-mutator-datetime');
+                $this->replaceFieldName($content, $field->name);
+
+                $mutators[] = $this->getMutator($field, $content);
             }
         }
 
@@ -328,15 +347,15 @@ class CreateModelCommand extends GeneratorCommand
      * Gets accessor for a giving field.
      *
      * @param  CrestApps\CodeGenerator\Models\Field  $field
-     *
+     * @param  string $content
      * @return string
      */
-    protected function getAccessor(Field $field)
+    protected function getAccessor(Field $field, $content)
     {
         $stub = $this->getStubContent('model-accessor');
 
         $this->replaceFieldName($stub, $field->name)
-             ->replaceDelimiter($stub, $field->optionsDelimiter);
+             ->replaceFieldContent($stub, $content);
 
         return $stub;
     }
@@ -345,17 +364,50 @@ class CreateModelCommand extends GeneratorCommand
      * Gets mutator for a giving field.
      *
      * @param  CrestApps\CodeGenerator\Models\Field  $field
+     * @param  string $content
      *
      * @return string
      */
-    protected function getMutator(Field $field)
+    protected function getMutator(Field $field, $content)
     {
         $stub = $this->getStubContent('model-mutator');
 
         $this->replaceFieldName($stub, $field->name)
-             ->replaceDelimiter($stub, $field->optionsDelimiter);
+             ->replaceFieldContent($stub, $content);
 
         return $stub;
+    }
+
+
+
+    /**
+     * Replaces date format for the giving field.
+     *
+     * @param  string  $stub
+     * @param  string  $format
+     *
+     * @return $this
+     */
+    protected function replaceDateFormat(&$stub, $format)
+    {
+        $stub = str_replace('{{dateFormat}}', $format, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces content of the giving stub.
+     *
+     * @param  string  $stub
+     * @param  string  $content
+     *
+     * @return $this
+     */
+    protected function replaceFieldContent(&$stub, $content)
+    {
+        $stub = str_replace('{{content}}', $content, $stub);
+
+        return $this;
     }
 
     /**
@@ -445,7 +497,7 @@ class CreateModelCommand extends GeneratorCommand
     {
         $stub = str_replace('{{fieldName}}', $name, $stub);
 
-        $stub = str_replace('{{fieldNameCap}}', ucfirst($name), $stub);
+        $stub = str_replace('{{fieldNameCap}}', ucwords(camel_case($name)), $stub);
 
         return $this;
     }
@@ -463,10 +515,12 @@ class CreateModelCommand extends GeneratorCommand
         if ($shouldUseSoftDelete) {
             $stub = str_replace('{{useSoftDelete}}', PHP_EOL . 'use Illuminate\Database\Eloquent\SoftDeletes;' . PHP_EOL, $stub);
             $stub = str_replace('{{useSoftDeleteTrait}}', PHP_EOL . '    use SoftDeletes;' . PHP_EOL, $stub);
-        } else {
-            $stub = str_replace('{{useSoftDelete}}', null, $stub);
-            $stub = str_replace('{{useSoftDeleteTrait}}', null, $stub);
+
+            return $this;
         }
+
+        $stub = str_replace('{{useSoftDelete}}', null, $stub);
+        $stub = str_replace('{{useSoftDeleteTrait}}', null, $stub);
 
         return $this;
     }

@@ -176,6 +176,20 @@ class Field
     public $optionsDelimiter  = '; ';
 
     /**
+     * Additional css cssClass to add to the field's input.
+     *
+     * @var string
+     */
+    public $cssClass  = '';
+
+    /**
+     * Defines the datetime display format for a date field.
+     *
+     * @var string
+     */
+    public $dateFormat  = '';
+
+    /**
      * The range of a selector
      *
      * @var array
@@ -300,6 +314,26 @@ class Field
     }
 
     /**
+     * Checks if this field is boolean type.
+     *
+     * @return bool
+     */
+    public function isBoolean()
+    {
+        return $this->dataType == 'boolean';
+    }
+
+    /**
+     * Checks if this field's html is checkbox
+     *
+     * @return bool
+     */
+    public function isCheckbox()
+    {
+        return $this->htmlType == 'checkbox';
+    }
+
+    /**
      * Creates locale key for a giving languagefile
      *
      * @param string $stub
@@ -396,13 +430,118 @@ class Field
     }
 
     /**
+     * Checks if the data type is datetime.
+     *
+     * @return bool
+     */
+    public function isDateTime()
+    {
+        return in_array($this->dataType, ['dateTime','dateTimeTz']) || in_array($this->name, ['created_at','updated_at','deleted_at']);
+    }
+
+    /**
+     * Checks if the data type is date.
+     *
+     * @return bool
+     */
+    public function isDate()
+    {
+        return $this->dataType == 'date';
+    }
+
+    /**
+     * Checks if the data type is time.
+     *
+     * @return bool
+     */
+    public function isTime()
+    {
+        return in_array($this->dataType, ['time','timeTz']);
+    }
+
+    /**
+     * Checks if the field's type is any valid date.
+     *
+     * @return bool
+     */
+    public function isDateOrTime()
+    {
+        return $this->isDate() || $this->isDateTime() || $this->isTime();
+    }
+
+    /**
+     * Checks if the data type is time stamp.
+     *
+     * @return bool
+     */
+    public function isTimeStamp()
+    {
+        return in_array($this->dataType, ['timestamp','timestampTz']);
+    }
+
+    /**
      * Checks if the data type contains decimal.
      *
      * @return bool
      */
-    public function isDecimalType()
+    public function isDecimal()
     {
         return in_array($this->dataType, ['float','decimal','double']);
+    }
+
+    /**
+     * Gets the true label for the boolean field.
+     *
+     * @return mix(null | restApps\CodeGenerator\Models\Label)
+     */
+    public function getTrueBooleanOption()
+    {
+        if (!$this->isBoolean()) {
+            return null;
+        }
+
+        $options = $this->getOptionsByLang();
+
+        if (isset($options[1])) {
+            return $options[1];
+        }
+
+        if (isset($options[0])) {
+            return $options[0];
+        }
+
+        return new Label('Yes', $this->getLocaleKey(''), true, 'en', $this->name, $this->getFieldId(1), 1);
+    }
+
+
+    /**
+     * Gets the false label for the boolean field.
+     *
+     * @return mix(null | restApps\CodeGenerator\Models\Label)
+     */
+    public function getFalseBooleanOption()
+    {
+        if (!$this->isBoolean()) {
+            return null;
+        }
+
+        $options = $this->getOptionsByLang();
+
+        if (isset($options[0])) {
+            return $options[0];
+        }
+
+        return new Label('No', $this->getLocaleKey(''), true, 'en', $this->name, $this->getFieldId(0), 0);
+    }
+
+    /**
+     * Checks if the data type is numeric.
+     *
+     * @return bool
+     */
+    public function isNumeric()
+    {
+        return $this->isDecimal() || in_array($this->dataType, ['bigIncrements','bigInteger','increments','integer','mediumIncrements','mediumInteger','smallIncrements','smallInteger','tinyInteger','unsignedBigInteger','unsignedInteger','unsignedMediumInteger','unsignedSmallInteger','unsignedTinyInteger']);
     }
 
     /**
@@ -412,23 +551,25 @@ class Field
      */
     public function getDecimalPointLength()
     {
-        if ($this->isDecimalType() && ! is_null($value = $this->getMethodParam(1))) {
+        if ($this->isDecimal() && ! is_null($value = $this->getMethodParam(1))) {
             return $value / ($value * 100);
         }
 
         return 0;
     }
 
-    protected function getPositionPlacement()
-    {
-        return $this->getMethodParam(1) ?: 0;
-    }
-
+    /**
+     * Gets the maximum value a field can equal.
+     *
+     * @return int|float|null
+     */
     public function getMaxValue()
     {
-        $max = null;
+        if (! $this->isNumeric()) {
+            return null;
+        }
 
-        if ($this->isDecimalType()) {
+        if ($this->isDecimal()) {
             $length = $this->getMethodParam(0) ?: 1;
             $declimal = $this->getMethodParam(1) ?: 0;
             $max = str_repeat('9', $length);
@@ -437,7 +578,6 @@ class Field
                 $max = substr_replace($max, '.', $declimal * -1, 0);
             }
             $max = floatval($max);
-
         } elseif ($this->dataType == 'integer') {
             $max = $this->isUnsigned ? 4294967295 : 2147483647;
         } elseif ($this->dataType == 'mediumInteger') {
@@ -453,20 +593,29 @@ class Field
         return $max;
     }
 
+    /**
+     * Gets the minimum value a field can equal.
+     *
+     * @return int|float|null
+     */
     public function getMinValue()
     {
-
         if ($this->isUnsigned) {
             return 0;
         }
 
         if (! is_null($value = $this->getMaxValue())) {
-            return ($value * -1) - ($this->isDecimalType() ? 0: 1);
+            return ($value * -1) - ($this->isDecimal() ? 0: 1);
         }
 
         return null;
     }
 
+    /**
+     * Gets method's parameter for a giving index.
+     *
+     * @return mix (int|null)
+     */
     protected function getMethodParam($index)
     {
         if (isset($this->methodParams[$index]) && ($value = intval($this->methodParams[$index])) > 0) {

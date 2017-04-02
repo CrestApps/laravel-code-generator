@@ -32,7 +32,7 @@ class FieldOptimizer extends OptimizerBase
 
     /**
      * Array of the valid primary key data-types
-     * 
+     *
      * @return array
     */
     protected $validPrimaryDataTypes =
@@ -69,6 +69,8 @@ class FieldOptimizer extends OptimizerBase
     {
         $this->optimizeStringField()
              ->optimizeRequiredField()
+             ->optimizeDateFields()
+             ->optimizeBoolean()
              ->optimizePrimaryKey();
 
         return $this;
@@ -77,7 +79,7 @@ class FieldOptimizer extends OptimizerBase
     /**
      * If the "data-type-params" is not set, and the dataType is string,
      * yet the validation rules has a max value, create data-type-parameter
-     * 
+     *
      *
      * @return $this
     */
@@ -105,10 +107,40 @@ class FieldOptimizer extends OptimizerBase
     }
 
     /**
+     * If the field is date, datetime or time, set the output format.
+     *
+     * @return $this
+    */
+    protected function optimizeDateFields()
+    {
+        if (empty($this->field->dateFormat) && $this->field->isDateOrTime()) {
+            $this->field->dateFormat = 'm/d/Y H:i A';
+        }
+
+        return $this;
+    }
+
+    /**
+     * If the data-type is boolean, make the field boolean as well.
+     *
+     * @return $this
+    */
+    protected function optimizeBoolean()
+    {
+        if ($this->field->dataType == 'boolean') {
+            $this->field->isBoolean = true;
+            $this->isMultipleAnswers = false;
+        }
+
+        return $this;
+    }
+
+
+    /**
      * If the property name is "id" or if the field is primary or autoincrement.
      * Ensure, the datatype is set to be valid otherwise make it "int".
      * It also make sure the primary column does not appears on the views unless it specified
-     * 
+     *
      * @param CrestApps\CodeGenerator\Models\Field $this->field
      *
      * @return $this
@@ -148,7 +180,7 @@ class FieldOptimizer extends OptimizerBase
 
     /**
      * It checks if the field is numeric type
-     * 
+     *
      * @return bool
     */
     protected function isNumericField()

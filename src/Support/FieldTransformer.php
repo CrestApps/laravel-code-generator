@@ -35,7 +35,7 @@ class FieldTransformer
 
     /**
      * Mapps the user input to a valid property name in the field object
-     * 
+     *
      * @return array
     */
     protected $predefinedKeyMapping =
@@ -53,21 +53,20 @@ class FieldTransformer
         'is-unique' => 'isUnique',
         'comment' => 'comment',
         'is-nullable' => 'isNullable',
-        'is-unsigned' => 'isUnsigned',
         'is-auto-increment' => 'isAutoIncrement',
         'is-inline-options' => 'isInlineOptions',
         'placeholder' => 'placeHolder',
         'place-holder' => 'placeHolder',
         'delimiter' => 'optionsDelimiter',
         'is-header' => 'isHeader',
-        'is-date' => 'isDate'
+        'class' => 'cssClass',
+        'css-class' => 'cssClass',
+        'date-format' => 'dateFormat',
     ];
-
-
 
     /**
      * Array of the valid html-types
-     * 
+     *
      * @return array
     */
     protected $validHtmlTypes = [
@@ -82,7 +81,7 @@ class FieldTransformer
         'select',
         'multipleSelect',
         'textarea',
-        'selectMonth'
+        'selectMonth',
     ];
 
     /**
@@ -97,20 +96,20 @@ class FieldTransformer
      *
      * @return void
      */
-    protected function __construct($fields, $localeGroup)
+    protected function __construct($properties, $localeGroup)
     {
         if (empty($localeGroup)) {
             throw new Exception("$localeGroup must have a valid value");
         }
 
-        $this->rawFields = is_array($fields) ? $fields : $this->parseRawString($fields);
+        $this->rawFields = is_array($properties) ? $properties : $this->parseRawString($properties);
         $this->localeGroup = $localeGroup;
         $this->defaultLang = App::getLocale();
     }
 
     /**
      * It transfred a gining string to a collection of field
-     * 
+     *
      * @param string $fieldsString
      * @param string $localeGroup
      *
@@ -125,7 +124,7 @@ class FieldTransformer
 
     /**
      * It transfres a gining string to a collection of field
-     * 
+     *
      * @param string|json $json
      * @param string $localeGroup
      *
@@ -144,7 +143,7 @@ class FieldTransformer
 
     /**
      * It transfres the raw fields into Fields by setting the $this->fields array
-     * 
+     *
      * @return $this
     */
     protected function transfer()
@@ -165,7 +164,7 @@ class FieldTransformer
 
     /**
      * It transfres a giving array to a field object by matching predefined keys
-     * 
+     *
      * @param array $field
      * @param string $localeGroup
      *
@@ -183,8 +182,6 @@ class FieldTransformer
 
         $field = new Field(Helpers::removeNonEnglishChars($properties['name']));
 
-        $field->isDate = in_array($field->name, ['created_at','updated_at','deleted_at']);
-
         $this->setPredefindProperties($field, $properties)
              ->setDataType($field, $properties)
              ->setOptionsProperty($field, $properties)
@@ -192,6 +189,7 @@ class FieldTransformer
              ->setLabelsProperty($field, $properties)
              ->setDataTypeParams($field, $properties)
              ->setMultipleAnswers($field, $properties)
+             ->setUnsignedProperty($field, $properties)
              ->setRange($field, $properties);
 
         if ($this->isValidSelectRangeType($properties)) {
@@ -207,46 +205,45 @@ class FieldTransformer
 
    /**
      * Checks if a field contains a valid html-type name
-     * 
-     * @param array $field
+     *
+     * @param array $properties
      *
      * @return bool
     */
-    protected function isValidHtmlType(array $field)
+    protected function isValidHtmlType(array $properties)
     {
-        return $this->isKeyExists($field, 'html-type') &&
+        return $this->isKeyExists($properties, 'html-type') &&
         (
-             in_array($field['html-type'], $this->validHtmlTypes)
-          || $this->isValidSelectRangeType($field)
+             in_array($properties['html-type'], $this->validHtmlTypes)
+          || $this->isValidSelectRangeType($properties)
         );
     }
 
-    protected function validateFields(array $fields)
+    protected function validateFields(array $properties)
     {
-        $names = array_column($fields, 'name');
+        $names = array_column($properties, 'name');
         $un = array_unique($names);
 
-        if(array_unique($names) !== $names)
-        {
+        if (array_unique($names) !== $names) {
             throw new Exception('Each field name must be unique. Please check the profided field names');
         }
     }
 
    /**
-     * Checks if a field contains a valid "selectRange" html-type element.
-     * 
-     * @param array $field
+     * Checks if a properties contains a valid "selectRange" html-type element.
+     *
+     * @param array $properties
      *
      * @return bool
     */
-    protected function isValidSelectRangeType(array $field)
+    protected function isValidSelectRangeType(array $properties)
     {
-        return $this->isKeyExists($field, 'html-type') && Helpers::startsWith($field['html-type'], 'selectRange|');
+        return $this->isKeyExists($properties, 'html-type') && Helpers::startsWith($properties['html-type'], 'selectRange|');
     }
 
    /**
      * Checks if a key exists in a giving array
-     * 
+     *
      * @param array $properties
      * @param string $name
      *
@@ -259,7 +256,7 @@ class FieldTransformer
 
     /**
      * Sets the dataType for a giving field
-     * 
+     *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param array $properties
      *
@@ -278,16 +275,16 @@ class FieldTransformer
 
     /**
      * Sets the range for a giving field
-     * 
-     * @param CrestApps\CodeGenerator\Models\Field $newField
-     * @param array $field
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
      *
      * @return $this
     */
-    protected function setRange(Field & $newField, array $field)
+    protected function setRange(Field & $field, array $properties)
     {
-        if ($this->isValidSelectRangeType($field)) {
-            $newField->range = explode(':', substr($field['html-type'], 12));
+        if ($this->isValidSelectRangeType($properties)) {
+            $field->range = explode(':', substr($properties['html-type'], 12));
         }
 
         return $this;
@@ -295,8 +292,8 @@ class FieldTransformer
 
     /**
      * Sets the DataTypeParam for a giving field
-     * 
-     * @param CrestApps\CodeGenerator\Models\Field $newField
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param array $properties
      *
      * @return $this
@@ -312,14 +309,14 @@ class FieldTransformer
 
     /**
      * Sets the isMultipleAnswers for a giving field
-     * 
-     * @param CrestApps\CodeGenerator\Models\Field $newField
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return $this
     */
     protected function setMultipleAnswers(Field & $field)
     {
-        if (in_array($field->htmlType, ['checkbox','multipleSelect'])) {
+        if (in_array($field->htmlType, ['checkbox','multipleSelect']) && !$field->isBoolean()) {
             $field->isMultipleAnswers = true;
         }
 
@@ -327,19 +324,48 @@ class FieldTransformer
     }
 
     /**
-     * It set the labels property for a giving field
-     * 
-     * @param CrestApps\CodeGenerator\Models\Field $newField
-     * @param array $field
+     * Sets the isUnsigned for a giving field
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
      *
      * @return $this
     */
-    protected function setLabelsProperty(Field & $newField, array $field)
+    protected function setUnsignedProperty(Field & $field, array $properties)
     {
-        $labels = $this->getLabels($field);
+        $field->isUnsigned = $this->isUnsigned($field, $properties);
+
+        return $this;
+    }
+
+    /**
+     * Checks if a field should be unsigned or not.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
+     *
+     * @return bool
+    */
+    protected function isUnsigned(Field & $field, array $properties)
+    {
+        return ($this->isKeyExists($properties, 'is-unsigned') && $properties['is-unsigned'])
+              || in_array($field->dataType, ['bigIncrements','bigInteger','increments','mediumIncrements','smallIncrements','unsignedBigInteger','unsignedInteger','unsignedMediumInteger','unsignedSmallInteger','unsignedTinyInteger']);
+    }
+
+    /**
+     * It set the labels property for a giving field
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
+     *
+     * @return $this
+    */
+    protected function setLabelsProperty(Field & $field, array $properties)
+    {
+        $labels = $this->getLabels($properties);
 
         foreach ($labels as $label) {
-            $newField->addLabel($label->text, $this->localeGroup, $label->isPlain, $label->lang);
+            $field->addLabel($label->text, $this->localeGroup, $label->isPlain, $label->lang);
         }
 
         return $this;
@@ -347,16 +373,16 @@ class FieldTransformer
 
     /**
      * It set the validationRules property for a giving field
-     * 
-     * @param CrestApps\CodeGenerator\Models\Field $newField
-     * @param array $field
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
      *
      * @return $this
     */
-    protected function setValidationProperty(Field & $newField, array $field)
+    protected function setValidationProperty(Field & $field, array $properties)
     {
-        if ($this->isKeyExists($field, 'validation')) {
-            $newField->validationRules = is_array($field['validation']) ? $field['validation'] : Helpers::removeEmptyItems(explode('|', $field['validation']));
+        if ($this->isKeyExists($properties, 'validation')) {
+            $field->validationRules = is_array($properties['validation']) ? $properties['validation'] : Helpers::removeEmptyItems(explode('|', $properties['validation']));
         }
 
         return $this;
@@ -364,19 +390,19 @@ class FieldTransformer
 
     /**
      * It set the options property for a giving field
-     * 
-     * @param CrestApps\CodeGenerator\Models\Field $newField
-     * @param array $field
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
      *
      * @return $this
     */
-    protected function setOptionsProperty(Field & $newField, array $field)
+    protected function setOptionsProperty(Field & $field, array $properties)
     {
-        $options = $this->getOptions($field);
+        $options = $this->getOptions($field, $properties);
 
         if (!is_null($options)) {
             foreach ($options as $option) {
-                $newField->addOption($option->text, $this->localeGroup, $option->isPlain, $option->lang, $option->value);
+                $field->addOption($option->text, $this->localeGroup, $option->isPlain, $option->lang, $option->value);
             }
         }
 
@@ -385,36 +411,50 @@ class FieldTransformer
 
     /**
      * Gets the options from a giving field
-     * 
-     * @param array $field
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
      *
      * @return array|null
     */
-    protected function getOptions(array $field)
+    protected function getOptions(Field & $field, array $properties)
     {
-        if (!$this->isKeyExists($field, 'options')) {
+        if (!$this->isKeyExists($properties, 'options')) {
             return null;
         }
 
-        return is_array($field['options']) ? $this->transferOptionsToLabels($field['options']) : $this->parseOptions($field['options']);
+        return is_array($properties['options']) ? $this->transferOptionsToLabels($field, $properties['options']) : $this->parseOptions($properties['options']);
     }
 
     /**
      * Transfers options array to array on Labels
-     * 
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param array $options
      *
      * @return array
     */
-    protected function transferOptionsToLabels(array $options)
+    protected function transferOptionsToLabels(Field & $field, array $options)
     {
         $finalOptions = [];
 
         $associative = Helpers::isAssociative($options);
         
+        $index = 0;
         foreach ($options as $value => $option) {
-            $value = $associative ? $value : $option;
+            if ($field->isBoolean()) {
+                // Since we know this field is a boolean type,
+                // we should allow  only two options and it must 0 or 1
+                $value = $index;
 
+                if ($index > 1) {
+                    continue;
+                }
+            } elseif (!$associative) {
+                $value = $option;
+            }
+            ++$index;
+            
             if (!is_array($option)) {
                 // At this point the options are plain text without locale
                 $finalOptions[] = $this->getLabelObject($option, true, $this->defaultLang, $value);
@@ -434,22 +474,22 @@ class FieldTransformer
     /**
      * It set the predefined property for a giving field.
      * it uses the predefinedKeyMapping array
-     * 
-     * @param CrestApps\CodeGenerator\Models\Field $newField
-     * @param array $field
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
      *
      * @return $this
     */
-    protected function setPredefindProperties(Field & $newField, array $field)
+    protected function setPredefindProperties(Field & $field, array $properties)
     {
         foreach ($this->predefinedKeyMapping as $key => $property) {
-            if ($this->isKeyExists($field, $key)) {
+            if ($this->isKeyExists($properties, $key)) {
                 if (is_array($property)) {
                     foreach ($property as $name) {
-                        $newField->{$name} = $field[$key];
+                        $field->{$name} = $properties[$key];
                     }
                 } else {
-                    $newField->{$property} = $field[$key];
+                    $field->{$property} = $properties[$key];
                 }
             }
         }
@@ -469,7 +509,7 @@ class FieldTransformer
 
     /**
      * It get the labels from a giving array
-     * 
+     *
      * @param array $items
      *
      * @return $this
@@ -488,7 +528,7 @@ class FieldTransformer
 
     /**
      * It returns a label object from the giving properties
-     * 
+     *
      * @param string $value
      * @param bool $isPlain
      * @param string $lang
@@ -506,51 +546,51 @@ class FieldTransformer
     }
 
     /**
-     * It will get the provided labels from with the $field's 'label' or 'labels' property
-     * 
-     * @param array $field
+     * It will get the provided labels from with the $properties's 'label' or 'labels' property
+     *
+     * @param array $properties
      *
      * @return array
     */
-    protected function getLabels(array $field)
+    protected function getLabels(array $properties)
     {
-        if (isset($field['labels']) && is_array($field['labels'])) {
+        if (isset($properties['labels']) && is_array($properties['labels'])) {
             //At this point we know the is array of labels
             return $this->getLabelsFromArray($field['labels']);
         }
 
-        if (isset($field['label'])) {
-            if (is_array($field['label'])) {
+        if (isset($properties['label'])) {
+            if (is_array($properties['label'])) {
                 //At this point we know this the label
-                return $this->getLabelsFromArray($field['label']);
+                return $this->getLabelsFromArray($properties['label']);
             }
 
-            return [ $this->getLabelObject($field['label'], true, $this->defaultLang) ];
+            return [ $this->getLabelObject($properties['label'], true, $this->defaultLang) ];
         }
 
-        $labels = $this->getLabelsFromRawProperties($field);
+        $labels = $this->getLabelsFromRawProperties($properties);
 
-        if (!isset($labels[0]) && isset($field['name'])) {
+        if (!isset($labels[0]) && isset($properties['name'])) {
             //At this point we know there are no labels found, generate one use the name
-            return [$this->getLabelObject($this->convertNameToLabel($field['name']), true, $this->defaultLang)];
+            return [$this->getLabelObject($this->convertNameToLabel($properties['name']), true, $this->defaultLang)];
         }
 
         return $labels;
     }
 
     /**
-     * It will get the provided labels from with the $field's label property
+     * It will get the provided labels from with the $properties's label property
      * it will convert the following format "en|ar:label=Some Label" or "label=Some Label" to an array
-     * 
-     * @param array $field
+     *
+     * @param array $properties
      *
      * @return array
     */
-    protected function getLabelsFromRawProperties(array $field)
+    protected function getLabelsFromRawProperties(array $properties)
     {
         $labels = [];
 
-        foreach ($field as $key => $label) {
+        foreach ($properties as $key => $label) {
             if (!in_array($key, ['labels','label'])) {
                 continue;
             }
@@ -573,7 +613,7 @@ class FieldTransformer
 
     /**
      * Parses a giving string and turns it into a valid array
-     * 
+     *
      * @param string $optionsString
      *
      * @return array
@@ -598,7 +638,7 @@ class FieldTransformer
 
     /**
      * Parses giving string and turns it into a valid array
-     * 
+     *
      * @param string $fieldsString
      *
      * @return array
@@ -625,7 +665,7 @@ class FieldTransformer
 
     /**
      * Parses the properties array
-     * 
+     *
      * @param string $properties
      *
      * @return array
@@ -649,7 +689,7 @@ class FieldTransformer
 
     /**
      * Checks if a string starts with the word "is"
-     * 
+     *
      * @param string $str
      *
      * @return bool
@@ -661,7 +701,7 @@ class FieldTransformer
 
     /**
      * Gets a label from a giving name
-     * 
+     *
      * @param string $name
      *
      * @return string

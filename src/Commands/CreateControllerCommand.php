@@ -85,7 +85,9 @@ class CreateControllerCommand extends GeneratorCommand
                     ->replaceFormRequestName($stub, $formRequestName)
                     ->replaceFormRequestFullName($stub, $this->getRequestsNamespace() . $formRequestName)
                     ->replacePaginationNumber($stub, $input->perPage)
-                    ->replaceFileSnippet($stub, $this->getFileReadySnippet($fields))
+                    ->replaceFileSnippet($stub, $this->getFileSnippet($fields))
+                    ->replaceBooleadSnippet($stub, $this->getBooleanSnippet($fields))
+                    ->replaceStringToNullSnippet($stub, $this->getStringToNullSnippet($fields))
                     ->replaceFileMethod($stub, $this->getUploadFileMethod($fields))
                     ->replaceClass($stub, $name);
     }
@@ -288,6 +290,36 @@ class CreateControllerCommand extends GeneratorCommand
     }
 
     /**
+     * Replaces the boolean snippet for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $snippet
+     *
+     * @return $this
+     */
+    protected function replaceBooleadSnippet(&$stub, $snippet)
+    {
+        $stub = str_replace('{{booleanSnippet}}', $snippet, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the form-request's name for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $snippet
+     *
+     * @return $this
+     */
+    protected function replaceStringToNullSnippet(&$stub, $snippet)
+    {
+        $stub = str_replace('{{stringToNullSnippet}}', $snippet, $stub);
+
+        return $this;
+    }
+
+    /**
      * Replaces the upload-method's code for the given stub.
      *
      * @param $stub
@@ -342,17 +374,58 @@ class CreateControllerCommand extends GeneratorCommand
      *
      * @return string
      */
-    protected function getFileReadySnippet(array $fields)
+    protected function getFileSnippet(array $fields)
     {
         $code = '';
 
         foreach ($fields as $field) {
             if ($field->isFile()) {
-                $code = ($code) ?: '$this';
+                $code = ($code) ?: '        $this';
                 $code .= sprintf("->uploadFile('%s', \$data)", $field->name);
             }
         }
 
         return $code != '' ? $code . ';' : $code;
+    }
+
+    /**
+     * Gets the code that is needed to check for bool property.
+     *
+     * @param array $fields
+     *
+     * @return string
+     */
+    protected function getBooleanSnippet(array $fields)
+    {
+        $code = '';
+
+        foreach ($fields as $field) {
+            if ($field->isBoolean() && $field->isCheckbox()) {
+                $code .= sprintf("        \$data['%s'] = \$request->has('%s');", $field->name, $field->name) . PHP_EOL;
+            }
+        }
+
+        return $code;
+    }
+
+
+    /**
+     * Gets the code that is needed to convert empty string to null.
+     *
+     * @param array $fields
+     *
+     * @return string
+     */
+    protected function getStringToNullSnippet(array $fields)
+    {
+        $code = '';
+
+        foreach ($fields as $field) {
+            if ($field->isNullable && !$field->isPrimary && !$field->isAutoIncrement && !$field->isRequired() && !$field->isBoolean()) {
+                $code .= sprintf("        \$data['%s'] = !empty(\$request->input('%s')) ? \$request->input('%s') : null;", $field->name, $field->name, $field->name) . PHP_EOL;
+            }
+        }
+
+        return $code;
     }
 }

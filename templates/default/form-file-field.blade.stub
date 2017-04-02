@@ -1,4 +1,4 @@
         <label class="btn btn-default">
-        	Browse <input type="file" name="{{fieldName}}" id="{{fieldName}}" class="hidden">
+        	Browse <input type="file" name="{{fieldName}}" id="{{fieldName}}" class="hidden{{cssClass}}">
         </label>
         

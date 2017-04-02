@@ -1,4 +1,4 @@
         <label for="{{itemId}}" class="{{fieldType}}-inline">
-            {!! Form::{{fieldType}}('{{fieldName}}', '{{optionValue}}', null, ['id' => '{{itemId}}', 'class' => '{{requiredClass}}'{{requiredField}}]) !!}
+            {!! Form::{{fieldType}}('{{fieldName}}', '{{optionValue}}', null, ['id' => '{{itemId}}', 'class' => '{{requiredClass}}{{cssClass}}'{{requiredField}}]) !!}
             {{itemTitle}}
         </label>

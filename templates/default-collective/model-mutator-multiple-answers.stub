@@ -1,0 +1,1 @@
+$this->attributes['{{fieldName}}'] = json_encode($value);

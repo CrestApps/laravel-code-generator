@@ -1,4 +1,4 @@
-        <select class="form-control" id="{{fieldName}}" name="{{fieldName}}" {{fieldMultiple}}{{requiredField}}>
+        <select class="form-control{{cssClass}}" id="{{fieldName}}" name="{{fieldName}}" {{fieldMultiple}}{{requiredField}}>
         	    {{placeHolder}}
         	@foreach ({{fieldItems}} as $value => $title)
 			    <option value="{{ $value }}"{{selectedValue}}>

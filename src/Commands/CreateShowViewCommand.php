@@ -57,7 +57,7 @@ class CreateShowViewCommand extends ViewsCommand
         if ($this->canCreateView($destenationFile, $input->force, $fields)) {
             $this->replaceCommonTemplates($stub, $input)
                  ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
-                 ->replaceTableRows($stub, $htmlCreator->getShowRowsHtmlField())
+                 ->replaceTableRows($stub, $htmlCreator->getShowRowsHtml())
                  ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($fields, $input->modelName))
                  ->createViewFile($stub, $destenationFile)
                  ->info('Show view was crafted successfully.');

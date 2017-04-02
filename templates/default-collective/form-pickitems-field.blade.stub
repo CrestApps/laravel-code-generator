@@ -1,6 +1,6 @@
         <div class="{{fieldType}}">
             <label for='{{itemId}}'>
-                {!! Form::{{fieldType}}('{{fieldName}}', '{{optionValue}}', null, ['id' => '{{itemId}}', 'class' => '{{requiredClass}}',{{requiredField}}]) !!}
+                {!! Form::{{fieldType}}('{{fieldName}}', '{{optionValue}}', null, ['id' => '{{itemId}}', 'class' => '{{requiredClass}}{{cssClass}}',{{requiredField}}]) !!}
                 {{itemTitle}}
             </label>
         </div>

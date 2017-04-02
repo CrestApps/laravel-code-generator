@@ -251,7 +251,7 @@ class StandardHtml extends HtmlGeneratorBase
     }
 
     /**
-     * Gets the html steps attribute.     
+     * Gets the html steps attribute.
      *
      * @param int value
      *
@@ -259,7 +259,6 @@ class StandardHtml extends HtmlGeneratorBase
      */
     protected function getStepsValue($value)
     {
-        return $value > 0 ? sprintf(' step="%s"', $value) : '';
+        return ($value) > 0 ? ' step="any"' : '';
     }
-
 }

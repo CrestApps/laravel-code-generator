@@ -1,1 +1,1 @@
-        <textarea class="form-control" name="{{fieldName}}" cols="50" rows="10" id="{{fieldName}}"{{minLength}}{{maxLength}}{{minValue}}{{maxValue}}{{requiredField}}{{placeHolder}}>{{fieldValue}}</textarea>
+        <textarea class="form-control{{cssClass}}" name="{{fieldName}}" cols="50" rows="10" id="{{fieldName}}"{{minLength}}{{maxLength}}{{minValue}}{{maxValue}}{{requiredField}}{{placeHolder}}>{{fieldValue}}</textarea>

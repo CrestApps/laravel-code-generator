@@ -1,4 +1,4 @@
-        <select class="form-control" id="{{fieldName}}" name="{{fieldName}}">
+        <select class="form-control{{cssClass}}" id="{{fieldName}}" name="{{fieldName}}">
             {{placeHolder}}
         	@foreach (range(1, 12) as $value)
 			    <option value="{{ $value }}"{{selectedValue}}>

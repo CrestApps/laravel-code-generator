@@ -43,9 +43,8 @@ class DummyClass extends Controller
     public function store(Request $request)
     {
         $this->affirm($request);
-        $data = $request->all();
-        {{fileSnippet}}
-        {{modelNameClass}}::create($data);
+
+        {{modelNameClass}}::create($this->getRequestsData($request));
 
         Session::flash('success_message', '{{modelNameClass}} was added!');
 
@@ -92,9 +91,7 @@ class DummyClass extends Controller
     {
         $this->affirm($request);
         ${{modelName}} = {{modelNameClass}}::findOrFail($id);
-        $data = $request->all();
-        {{fileSnippet}}
-        ${{modelName}}->update($data);
+        ${{modelName}}->update($this->getRequestsData($request));
 
         Session::flash('success_message', '{{modelNameClass}} was updated!');
 
@@ -131,7 +128,22 @@ class DummyClass extends Controller
         return $this->validate($request, [
     {{validationRules}}            
         ]);
+    }
 
+    /**
+     * Get the data from the givin request.
+     *
+     * @param  Illuminate\Http\Request  $request
+     *
+     * @return array
+     */
+    protected function getRequestsData(Request $request)
+    {
+        $data = $request->all();
+{{fileSnippet}}
+{{booleanSnippet}}
+{{stringToNullSnippet}}
+        return $data;
     }
 {{uploadMethod}}
 }

@@ -1,4 +1,4 @@
         <label for="{{itemId}}" class="{{fieldType}}-inline">
-            <input id="{{itemId}}" class="{{requiredClass}}" name="{{fieldName}}" type="{{fieldType}}" value="{{optionValue}}"{{requiredField}}{{checkedItem}}>
+            <input id="{{itemId}}" class="{{requiredClass}}{{cssClass}}" name="{{fieldName}}" type="{{fieldType}}" value="{{optionValue}}"{{requiredField}}{{checkedItem}}>
             {{itemTitle}}
         </label>

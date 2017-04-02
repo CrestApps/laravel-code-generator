@@ -6,5 +6,5 @@
      */
     public function set{{fieldNameCap}}Attribute($value)
     {
-        $this->attributes['{{fieldName}}'] = json_encode($value);
+        {{content}}
     }

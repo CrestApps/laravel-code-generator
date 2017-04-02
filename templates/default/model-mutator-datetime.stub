@@ -1,0 +1,1 @@
+$this->attributes['{{fieldName}}'] = date('Y-m-d H:i:s', strtotime($value));

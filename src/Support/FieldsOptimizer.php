@@ -100,7 +100,7 @@ class FieldsOptimizer extends OptimizerBase
 
     /**
      * Giving a mappers collection, it'll update the the field by making one as primary title
-     * 
+     *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @return bool
     */
@@ -119,7 +119,7 @@ class FieldsOptimizer extends OptimizerBase
                     continue;
                 }
   
-                if ($this->isPrimaryHeader($mapper->field) && ( ! array_key_exists('is-header', $mapper->meta) || $mapper->meta['is-header'])   ) {
+                if ($this->isPrimaryHeader($mapper->field) && (! array_key_exists('is-header', $mapper->meta) || $mapper->meta['is-header'])) {
                     $found = true;
                     $mapper->field->isHeader = true;
                 }
@@ -131,7 +131,7 @@ class FieldsOptimizer extends OptimizerBase
 
     /**
      * It checks if a giving field is a primary or not.
-     * 
+     *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @return bool
     */

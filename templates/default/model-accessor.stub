@@ -6,5 +6,5 @@
      */
     public function get{{fieldNameCap}}Attribute($value)
     {
-        return json_decode($value) ?: [];
+        {{content}}
     }

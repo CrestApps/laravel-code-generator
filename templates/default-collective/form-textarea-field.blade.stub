@@ -1,1 +1,1 @@
-        {!! Form::textarea('{{fieldName}}', {{fieldValue}}, ['class' => 'form-control',{{minLength}}{{maxLength}}{{minValue}}{{maxValue}}{{requiredField}}{{placeHolder}}]) !!}
+        {!! Form::textarea('{{fieldName}}', {{fieldValue}}, ['class' => 'form-control{{cssClass}}',{{minLength}}{{maxLength}}{{minValue}}{{maxValue}}{{requiredField}}{{placeHolder}}]) !!}
