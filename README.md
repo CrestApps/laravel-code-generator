@@ -23,6 +23,8 @@ A clean code generator for Laravel framework that will save you time! This aweso
 * Change the template at run time to generate different views.
 * Create code to upload file.
 * Ability to generate views with and without Laravel-Collective.
+* Nicely format any datetime, date or time field.
+* Auto handles any boolean field.
 * Lots of documentation.
 
 ## Installation
