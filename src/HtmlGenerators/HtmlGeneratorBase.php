@@ -326,7 +326,7 @@ abstract class HtmlGeneratorBase
             }
         }
 
-        $this->wrapField($fields, $field, true, (($field->htmlType == 'checkbox') && !$field->isBoolean) ? 'required' : '');
+        $this->wrapField($fields, $field, true, (($field->htmlType == 'checkbox') && !$field->isBoolean()) ? 'required' : '');
 
         return $fields;
     }
