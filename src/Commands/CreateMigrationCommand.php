@@ -437,7 +437,7 @@ class CreateMigrationCommand extends Command
             throw new Exception('The field type is not enum! Cannot create an enum column with no options.');
         }
 
-        $values = array_filter($field->getOptionsByLang(), function ($option) {
+        $values = array_filter($field->getOptionsByLang(), function ($option) use ($field) {
             return ! ($field->isRequired() && $option->value == '');
         });
 
@@ -446,7 +446,7 @@ class CreateMigrationCommand extends Command
                                 'It is possible that this field is required but only have option available has an empty string.');
         }
 
-        return sprintf('[%s]', implode(',', Helpers::wrapItems($values)));
+        return sprintf('[%s]', implode(',', Helpers::wrapItems( array_column($values, 'value') )));
     }
 
     /**
