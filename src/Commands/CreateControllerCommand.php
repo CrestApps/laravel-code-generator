@@ -35,7 +35,7 @@ class CreateControllerCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $description = 'Create a new resource controller.';
+    protected $description = 'Create a new controller.';
 
     /**
      * The type of class being generated.

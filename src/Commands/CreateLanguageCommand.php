@@ -29,7 +29,7 @@ class CreateLanguageCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create language file for the model.';
+    protected $description = 'Create a language file for the model.';
 
     /**
      * Create a new command instance.

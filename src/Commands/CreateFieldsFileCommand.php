@@ -31,7 +31,7 @@ class CreateFieldsFileCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create json fields file from existing database table.';
+    protected $description = 'Create a json fields file from existing database table.';
 
     /**
      * The supported database drivers. lowercase only

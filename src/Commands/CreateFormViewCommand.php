@@ -28,7 +28,7 @@ class CreateFormViewCommand extends ViewsCommand
      *
      * @var string
      */
-    protected $description = 'From views for the model.';
+    protected $description = 'Create a from-view for the model.';
 
     /**
      * Create a new command instance.

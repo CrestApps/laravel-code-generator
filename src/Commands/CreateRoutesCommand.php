@@ -30,7 +30,7 @@ class CreateRoutesCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create routes for the crud';
+    protected $description = 'Create "create, read, update and delete" routes for the model.';
 
     /**
      * Creates a new command instance.
@@ -213,7 +213,6 @@ class CreateRoutesCommand extends Command
             $groupStub = File::get($this->getStubByName('routes-group', $template));
 
             $this->replacePrefix($groupStub, $this->getGroupPrefix($prefix))
-                 //->replaceNamespace($groupStub, $this->getGroupNamespace($namespace))
                  ->replaceRoutes($groupStub, $stub);
 
             $stub = $groupStub;

@@ -64,7 +64,6 @@ class Label
         $this->value = $value;
     }
 
-
     /**
      * Returns current object into proper json format.
      *

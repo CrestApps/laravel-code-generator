@@ -51,7 +51,7 @@ class CreateResourcesCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create a new resource.';
+    protected $description = 'Create all resources for a model.';
 
     /**
      * Executes the console command.

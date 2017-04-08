@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 
 class CreateMigrationCommand extends Command
@@ -37,7 +38,7 @@ class CreateMigrationCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create form-request file for the model.';
+    protected $description = 'Create a migration file for the model.';
 
     /**
      * The index types eloquent is capable of creating.
@@ -437,16 +438,38 @@ class CreateMigrationCommand extends Command
             throw new Exception('The field type is not enum! Cannot create an enum column with no options.');
         }
 
-        $values = array_filter($field->getOptionsByLang(), function ($option) use ($field) {
+        $labels = array_filter($field->getOptionsByLang(), function ($option) use ($field) {
             return ! ($field->isRequired() && $option->value == '');
         });
+
+        $values = $this->getLabelValues($labels);
 
         if (count($values) == 0) {
             throw new Exception('Could not find any option values to construct the enum values from. ' .
                                 'It is possible that this field is required but only have option available has an empty string.');
         }
 
-        return sprintf('[%s]', implode(',', Helpers::wrapItems( array_column($values, 'value') )));
+        return sprintf('[%s]', implode(',', Helpers::wrapItems($values)));
+    }
+
+    /**
+     * It gets label's value for each label in the giving labels
+     *
+     * @param array $labels
+     *
+     * @return string
+     */
+    protected function getLabelValues(array $labels)
+    {
+        $values = [];
+
+        foreach ($labels as $label) {
+            if ($label instanceof Label) {
+                $values[] = $label->value;
+            }
+        }
+
+        return $values;
     }
 
     /**
@@ -490,7 +513,6 @@ class CreateMigrationCommand extends Command
 
         return $stub;
     }
-
 
     /**
      * Constructs the schema up command.
@@ -729,7 +751,6 @@ class CreateMigrationCommand extends Command
         return $this;
     }
 
-
     /**
      * Adds 'delete_at' columns to a giving propery.
      *
@@ -772,7 +793,6 @@ class CreateMigrationCommand extends Command
         return $methodName;
     }
 
-
     /**
      * Gets a clean user inputs.
      *
@@ -794,7 +814,7 @@ class CreateMigrationCommand extends Command
         $withSoftDelete = $this->option('with-soft-delete');
 
         return (object) compact('tableName', 'className', 'connection', 'engine',
-                                'fields', 'fieldsFile', 'force', 'indexes', 'keys', 'template', 'withoutTimestamps','withSoftDelete');
+                                'fields', 'fieldsFile', 'force', 'indexes', 'keys', 'template', 'withoutTimestamps', 'withSoftDelete');
     }
 
 
@@ -812,8 +832,7 @@ class CreateMigrationCommand extends Command
         return Helpers::postFixWith($filename, '.php');
     }
 
-
-     /**
+    /**
      * Creats the directory for the class if one does not already exists.
      *
      * @param  string  $path
@@ -828,7 +847,6 @@ class CreateMigrationCommand extends Command
 
         return $this;
     }
-
 
     /**
      * Replaces the schema_up for the given stub.

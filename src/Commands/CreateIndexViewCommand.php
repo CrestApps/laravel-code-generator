@@ -28,7 +28,7 @@ class CreateIndexViewCommand extends ViewsCommand
      *
      * @var string
      */
-    protected $description = 'Index views for the model.';
+    protected $description = 'Create an index-views for the model.';
 
     /**
      * Create a new command instance.

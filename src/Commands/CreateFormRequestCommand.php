@@ -29,7 +29,7 @@ class CreateFormRequestCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create form-request file for the model.';
+    protected $description = 'Create a form-request file for the model.';
 
     /**
      * Create a new command instance.

@@ -30,7 +30,7 @@ class CreateViewLayoutCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create layout for the views.';
+    protected $description = 'Create a layout for the views.';
 
     /**
      * Creates a new command instance.

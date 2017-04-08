@@ -106,6 +106,14 @@ abstract class HtmlGeneratorBase
         return $rows;
     }
 
+    /**
+     * Gets show row html code for the giving field.
+     *
+     * @param string $stub
+     * @param CreatApps\Models\Field $field
+     *
+     * @return string
+    */
     protected function getShowRowHtmlField($stub, Field $field)
     {
         $this->replaceFieldName($stub, $field->name)
@@ -162,6 +170,14 @@ abstract class HtmlGeneratorBase
         return $rows;
     }
 
+    /**
+     * Gets index body cell html code for the giving field.
+     *
+     * @param string $stub
+     * @param CreatApps\Models\Field $field
+     *
+     * @return string
+    */
     protected function getIndexBodyCell($stub, Field $field)
     {
         $this->replaceFieldName($stub, $field->name)
@@ -287,6 +303,14 @@ abstract class HtmlGeneratorBase
         return $stub;
     }
     
+    /**
+     * Gets the html min value.
+     *
+     * @param mix (int|float) $validationMinValue
+     * @param mix (int|float) $fieldMinValue
+     *
+     * @return mix (int|float)
+    */
     protected function getHtmlMinValue($validationMinValue, $fieldMinValue)
     {
         if (! is_null($validationMinValue)) {
@@ -296,6 +320,14 @@ abstract class HtmlGeneratorBase
         return $fieldMinValue;
     }
 
+    /**
+     * Gets the html max value.
+     *
+     * @param mix (int|float) $validationMaxValue
+     * @param mix (int|float) $fieldMaxValue
+     *
+     * @return mix (int|float)
+    */
     protected function getHtmlMaxValue($validationMaxValue, $fieldMaxValue)
     {
         if (! is_null($validationMaxValue)) {
@@ -397,11 +429,29 @@ abstract class HtmlGeneratorBase
         return $stub;
     }
 
+    /**
+     * Gets the selected value for the pick items.
+     *
+     * @param string $value
+     * @param string $name
+     * @param bool $isMultiple
+     *
+     * @return string
+    */
     protected function getCheckedItemForPickItem($value, $name, $isMultiple)
     {
         return $isMultiple ? $this->getMultipleCheckedItem($value, $name) : $this->getCheckedItem($value, $name);
     }
 
+    /**
+     * Gets the selected value for a menu.
+     *
+     * @param string $value
+     * @param string $name
+     * @param bool $isMultiple
+     *
+     * @return string
+    */
     protected function getSelectedValueForMenu($value, $name, $isMultiple)
     {
         return $isMultiple ? $this->getMultipleSelectedValue($name) : $this->getSelectedValue($name);
