@@ -1,23 +1,20 @@
-    
+  
     /**
-     * Moves the uploaded file to the server.
+     * Moves the attached file to the server.
      *
-     * @param string $name
-     * @param array $data
+     * @param Symfony\Component\HttpFoundation\File\UploadedFile $file
      *
-     * @return $this
+     * @return string
      */
-    protected function uploadFile($name, array & $data)
+    protected function moveFile($file)
     {
-        $file = Input::file($name);
-
-        if( $file && $file->isValid() )
-        {
-            $destination = config('codegenerator.files_upload_path');
-            $newName = sprintf('%s.%s', str_random(30), $file->getClientOriginalExtension());
-            $file->move($destination, $newName);
-            $data[$name] = $file->getRealPath() . '/' . $newName;
+        if (! $file->isValid()) {
+            return '';
         }
-        
-        return $this;
+            
+        $uploadPath = config('codegenerator.files_upload_path');
+        $name = sprintf('%s.%s', str_random(30), $file->getClientOriginalExtension());
+        $file->move(public_path($uploadPath), $name);
+
+        return asset($uploadPath) . "/". $name;
     }

@@ -50,7 +50,7 @@ return [
     |
     |
     */
-    'files_upload_path' => public_path('uploads'),
+    'files_upload_path' => 'uploads',
 
     /*
     |--------------------------------------------------------------------------

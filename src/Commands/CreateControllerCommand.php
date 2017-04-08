@@ -377,15 +377,19 @@ class CreateControllerCommand extends GeneratorCommand
     protected function getFileSnippet(array $fields)
     {
         $code = '';
+        $template = <<<EOF
+        if (\$request->hasFile('%s')) {
+            \$data['%s'] = \$this->moveFile(\$request->file('%s'));
+        }
+EOF;
 
         foreach ($fields as $field) {
             if ($field->isFile()) {
-                $code = ($code) ?: '        $this';
-                $code .= sprintf("->uploadFile('%s', \$data)", $field->name);
+                $code .= sprintf($template, $field->name, $field->name, $field->name);
             }
         }
 
-        return $code != '' ? $code . ';' : $code;
+        return $code;
     }
 
     /**
@@ -421,7 +425,7 @@ class CreateControllerCommand extends GeneratorCommand
         $code = '';
 
         foreach ($fields as $field) {
-            if ($field->isNullable && !$field->isPrimary && !$field->isAutoIncrement && !$field->isRequired() && !$field->isBoolean()) {
+            if ($field->isNullable && !$field->isPrimary && !$field->isAutoIncrement && !$field->isRequired() && !$field->isBoolean() && !$field->isFile()) {
                 $code .= sprintf("        \$data['%s'] = !empty(\$request->input('%s')) ? \$request->input('%s') : null;", $field->name, $field->name, $field->name) . PHP_EOL;
             }
         }

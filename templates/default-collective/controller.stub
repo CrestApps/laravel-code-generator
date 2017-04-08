@@ -4,7 +4,6 @@ namespace DummyNamespace;
 
 use Session;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
 use DummyRootNamespaceHttp\Controllers\Controller;
 use DummyRootNamespace{{modelFullName}};
 
