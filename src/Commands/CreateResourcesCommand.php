@@ -2,6 +2,7 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;

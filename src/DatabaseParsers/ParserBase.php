@@ -92,8 +92,8 @@ abstract class ParserBase
     protected function transfer(array $columns)
     {
         $fields = array_map(function ($field) {
-            return new FieldMapper($field, null);
-        }, $this->getTransfredField($column));
+            return new FieldMapper($field);
+        }, $this->getTransfredFields($columns));
 
         $optimizer = new FieldsOptimizer($fields);
 
@@ -329,9 +329,9 @@ abstract class ParserBase
     abstract protected function getColumn();
 
     /**
-     * Gets the field after transfering it from a giving query object.
+     * Transfers every column in the giving array to a collection of fields.
      *
-     * @return CrestApps\CodeGenerator\Models\Field;
+     * @return array of CrestApps\CodeGenerator\Models\Field;
     */
-    abstract protected function getTransfredField($column);
+    abstract protected function getTransfredFields(array $columns);
 }

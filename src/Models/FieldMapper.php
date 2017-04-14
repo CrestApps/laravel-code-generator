@@ -20,7 +20,7 @@ class FieldMapper
      */
     public $meta;
 
-    public function __construct(Field $field, array $meta = null)
+    public function __construct(Field $field, array $meta = [])
     {
         $this->field = $field;
         $this->meta = $meta;

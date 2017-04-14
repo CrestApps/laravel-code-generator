@@ -38,22 +38,28 @@ class MysqlParser extends ParserBase
      *
      * @return CrestApps\CodeGenerator\Model\Field;
     */
-    protected function getTransfredField($column)
+    protected function getTransfredFields(array $columns)
     {
-        $field = new Field($column->COLUMN_NAME);
+        $fields = [];
 
-        $this->setIsNullable($field, $column->IS_NULLABLE)
-             ->setMaxLength($field, $column->CHARACTER_MAXIMUM_LENGTH)
-             ->setDefault($field, $column->COLUMN_DEFAULT)
-             ->setDataType($field, $column->DATA_TYPE)
-             ->setKey($field, $column->COLUMN_KEY, $column->EXTRA)
-             ->setLabel($field, $column->COLUMN_NAME)
-             ->setComment($field, $column->COLUMN_COMMENT)
-             ->setOptions($field, $column->COLUMN_TYPE)
-             ->setUnsigned($field, $column->COLUMN_TYPE)
-             ->setHtmlType($field, $column->DATA_TYPE);
+        foreach($columns as $column)
+        {
+            $field = new Field($column->COLUMN_NAME);
+            $this->setIsNullable($field, $column->IS_NULLABLE)
+                 ->setMaxLength($field, $column->CHARACTER_MAXIMUM_LENGTH)
+                 ->setDefault($field, $column->COLUMN_DEFAULT)
+                 ->setDataType($field, $column->DATA_TYPE)
+                 ->setKey($field, $column->COLUMN_KEY, $column->EXTRA)
+                 ->setLabel($field, $column->COLUMN_NAME)
+                 ->setComment($field, $column->COLUMN_COMMENT)
+                 ->setOptions($field, $column->COLUMN_TYPE)
+                 ->setUnsigned($field, $column->COLUMN_TYPE)
+                 ->setHtmlType($field, $column->DATA_TYPE);
 
-        return $field;
+            $fields[] = $field;
+        }
+
+        return $fields;
     }
 
     /**
