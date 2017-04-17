@@ -19,7 +19,7 @@ class MysqlParser extends ParserBase
 		                   COLUMN_NAME
 		                  ,COLUMN_DEFAULT
 		                  ,IS_NULLABLE
-		                  ,DATA_TYPE
+		                  ,CASE WHEN COLUMN_TYPE = \'tinyint(1)\' THEN \'boolean\' ELSE DATA_TYPE END AS DATA_TYPE
 		                  ,CHARACTER_MAXIMUM_LENGTH
 		                  ,COLUMN_KEY
 		                  ,EXTRA
@@ -37,22 +37,22 @@ class MysqlParser extends ParserBase
      * @param object $column
      *
      * @return CrestApps\CodeGenerator\Model\Field;
-    */
+     */
     protected function getTransfredFields(array $columns)
     {
         $fields = [];
 
-        foreach($columns as $column)
-        {
+        foreach ($columns as $column) {
             $field = new Field($column->COLUMN_NAME);
+
             $this->setIsNullable($field, $column->IS_NULLABLE)
                  ->setMaxLength($field, $column->CHARACTER_MAXIMUM_LENGTH)
                  ->setDefault($field, $column->COLUMN_DEFAULT)
                  ->setDataType($field, $column->DATA_TYPE)
                  ->setKey($field, $column->COLUMN_KEY, $column->EXTRA)
-                 ->setLabel($field, $column->COLUMN_NAME)
+                 ->setLabel($field, $this->getLabelName($column->COLUMN_NAME))
                  ->setComment($field, $column->COLUMN_COMMENT)
-                 ->setOptions($field, $column->COLUMN_TYPE)
+                 ->setOptions($field, $column)
                  ->setUnsigned($field, $column->COLUMN_TYPE)
                  ->setHtmlType($field, $column->DATA_TYPE);
 
@@ -66,20 +66,42 @@ class MysqlParser extends ParserBase
      * Set the options for a giving field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
-     * @param string $type
+     * @param object $column
      *
      * @return $this
     */
-    protected function setOptions(Field & $field, $type)
+    protected function setOptions(Field & $field, $column)
     {
-        if (($options = $this->getOptions($type)) !== null) {
-            if (empty($this->languages)) {
-                return $this->addOptionsFor($field, $options, true, $this->locale);
-            }
+        if ($column->DATA_TYPE == 'boolean') {
+            return $this->addOptions($field, [
+                '0' => 'No',
+                '1' => 'Yes'
+            ]);
+        }
 
-            foreach ($this->languages as $language) {
-                $this->addOptionsFor($field, $options, false, $language);
-            }
+        if (($options = $this->getOptions($column->COLUMN_TYPE)) !== null) {
+            return $this->addOptions($field, $options);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Adds the options for a giving field.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $options
+     *
+     * @return $this
+    */
+    protected function addOptions(Field & $field, array $options)
+    {
+        if (empty($this->languages)) {
+            return $this->addOptionsFor($field, $options, true, $this->locale);
+        }
+
+        foreach ($this->languages as $language) {
+            $this->addOptionsFor($field, $options, false, $language);
         }
 
         return $this;
@@ -97,8 +119,12 @@ class MysqlParser extends ParserBase
     */
     protected function addOptionsFor(Field & $field, array $options, $isPlain, $locale)
     {
-        foreach ($options as $option) {
-            $field->addOption($this->getLabelName($option), $this->tableName, $isPlain, $locale, $option);
+        foreach ($options as $value => $option) {
+            if ($field->dataType != 'boolean') {
+                $value = $option;
+            }
+
+            $field->addOption($this->getLabelName($option), $this->tableName, $isPlain, $locale, $value);
         }
 
         return $this;

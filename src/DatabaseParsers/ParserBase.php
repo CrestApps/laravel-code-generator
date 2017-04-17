@@ -210,35 +210,41 @@ abstract class ParserBase
      * Sets the labels for a giving field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
-     * @param string $name
+     * @param string $label
      *
      * @return $this
     */
-    protected function setLabel(Field & $field, $name)
+    protected function setLabel(Field & $field, $label)
     {
         if (empty($this->languages)) {
-            $field->addLabel($this->getLabelName($name), $this->tableName, true, $this->locale);
-
+            $field->addLabel($label, $this->tableName, true, $this->locale);
             return $this;
         }
         
-        return $this->addLabelForLanguages($field, $name);
+        foreach ($this->languages as $language) {
+            $field->addLabel($label, $this->tableName, false, $language);
+        }
+
+        return $this;
     }
 
     /**
-     * Adds labels for all languages for a giving field.
+     * Adds the labels for a giving field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
-     * @param string $name
+     * @param array $names
+     * @param string $table
+     * @param bool $isPlain
+     * @param string $locale
      *
      * @return $this
     */
-    protected function addLabelForLanguages(Field $field, $name)
+    protected function addLabels(Field & $field, array $names, $table, $isPlain, $locale)
     {
-        foreach ($this->languages as $language) {
-            $field->addLabel($this->getLabelName($name), $this->tableName, false, $language);
+        foreach ($names as $name) {
+            $field->addLabel($name, $table, $isPlain, $locale);
         }
-
+        
         return $this;
     }
 

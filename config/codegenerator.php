@@ -187,7 +187,7 @@ return [
         'bigIncrements' => 'number',
         'bigIncrements' => 'number',
         'binary' => 'textarea',
-        'boolean' => 'radio',
+        'boolean' => 'checkbox',
         'decimal' => 'number',
         'double' => 'number',
         'enum' => 'select',

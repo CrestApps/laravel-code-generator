@@ -263,10 +263,11 @@ class Field
      * @param string $localeGroup
      * @param bool $isPlain
      * @param string $lang
+     * @param string $value
      *
      * @return object
      */
-    public function addOption($text, $localeGroup, $isPlain = true, $lang = 'en', $value)
+    public function addOption($text, $localeGroup, $isPlain = true, $lang = 'en', $value = null)
     {
         $this->options[$lang][] = new Label($text, $this->getLocaleKey($localeGroup, $value), $isPlain, $lang, $this->getFieldId($value), $value);
     }
