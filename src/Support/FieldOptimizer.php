@@ -99,7 +99,7 @@ class FieldOptimizer extends OptimizerBase
     */
     protected function optimizeRequiredField()
     {
-        if (!$this->parser->isRequired() || $this->parser->isNullable() || $this->parser->isConditionalRequired()) {
+        if ($this->parser->isNullable() || !$this->parser->isRequired() || $this->parser->isConditionalRequired()) {
             $this->field->isNullable = true;
         }
 

@@ -138,6 +138,22 @@ abstract class ParserBase
     }
 
     /**
+     * Set the required validation rule.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     *
+     * @return $this
+    */
+    protected function setRequired(Field & $field)
+    {
+        if (!$field->isNullable) {
+            $field->validationRules[] = 'required';
+        }
+
+        return $this;
+    }
+
+    /**
      * Set the data type for a giving field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
@@ -151,6 +167,11 @@ abstract class ParserBase
 
         if (array_key_exists($type, $map)) {
             $field->dataType = $map[$type];
+        }
+
+        if($field->dataType == 'boolean')
+        {
+            $field->validationRules[] = 'boolean';
         }
 
         return $this;
@@ -167,8 +188,8 @@ abstract class ParserBase
     protected function setIsNullable(Field & $field, $nullable)
     {
         $field->isNullable = (strtoupper($nullable) == 'YES');
-
-        return $this;
+        
+        return $this->setRequired($field);
     }
 
     /**

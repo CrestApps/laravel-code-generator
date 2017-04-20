@@ -1,6 +1,6 @@
 # An awesome code generator for laravel framework - with client-side validation
 
-For full documentation and live demo please visit <a href="https://crestapps.com/laravel-code-generator/docs/1.1" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
+For full documentation and live demo please visit <a href="https://crestapps.com/laravel-code-generator/docs/1.2" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
 
 ## Introduction
 
@@ -71,9 +71,9 @@ php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServ
 * php artisan create:language [language-file-name]
 * php artisan create:fields-file [table-name]
 
-> Full documentation available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/docs/1.1 "Laravel Code Generator Documentation"). 
+> Full documentation available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/docs/1.2 "Laravel Code Generator Documentation"). 
 
-> Live demo is available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/demos/1.1 "Laravel Code Generator Live Demo"). 
+> Live demo is available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/demos/1.2 "Laravel Code Generator Live Demo"). 
 
 
 ## License

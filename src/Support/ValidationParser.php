@@ -274,7 +274,7 @@ class ValidationParser
      * @return bool
      */
     public function isNullable()
-    {
+    {        
         if (is_null($this->nullable)) {
             $this->nullable = $this->isRuleExists('nullable');
         }
