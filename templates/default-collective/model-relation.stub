@@ -1,0 +1,7 @@
+    /**
+     * Get the {{relationName}} for this model.
+     */
+    public function {{relationName}}()
+    {
+        return $this->{{relationType}}({{relationParams}})
+    }

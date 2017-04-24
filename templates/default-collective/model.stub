@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class DummyClass extends Model
 {
     {{useSoftDeleteTrait}}
-    {{timeStamps}}
+{{timeStamps}}
     /**
      * The database table used by the model.
      *
@@ -15,7 +15,7 @@ class DummyClass extends Model
      */
     protected $table = '{{table}}';
 
-    {{primaryKey}}
+{{primaryKey}}
 
     /**
      * Attributes that should be mass-assignable.
@@ -30,7 +30,8 @@ class DummyClass extends Model
      * @var array
      */
     protected $dates = {{dates}};
-    {{relationships}}
+    
+{{relationships}}
 {{mutators}}
 {{accessors}}
 }

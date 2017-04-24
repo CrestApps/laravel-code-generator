@@ -8,6 +8,7 @@ use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\FieldsOptimizer;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\FieldMapper;
+use CrestApps\CodeGenerator\Models\ForeignRelationship;
 
 class FieldTransformer
 {
@@ -190,6 +191,7 @@ class FieldTransformer
              ->setDataTypeParams($field, $properties)
              ->setMultipleAnswers($field, $properties)
              ->setUnsignedProperty($field, $properties)
+             ->setForeignRelation($field, $properties)
              ->setRange($field, $properties);
 
         if ($this->isValidSelectRangeType($properties)) {
@@ -249,9 +251,18 @@ class FieldTransformer
      *
      * @return bool
     */
-    protected function isKeyExists(array $properties, $name)
+    protected function isKeyExists(array $properties, ...$name)
     {
-        return array_key_exists($name, $properties);
+        $exists = false;
+        $args = func_get_args();
+
+        for ($i = 1; $i < count($args); $i++) {
+            if (!array_key_exists($args[$i], $properties)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -336,6 +347,96 @@ class FieldTransformer
         $field->isUnsigned = $this->isUnsigned($field, $properties);
 
         return $this;
+    }
+
+    /**
+     * Sets the foreign relations for a giving field
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
+     *
+     * @return $this
+    */
+    protected function setForeignRelation(Field & $field, array $properties)
+    {
+        if ($this->isKeyExists($properties, 'is-foreign-relation') && !$properties['is-foreign-relation']) {
+            return $this;
+        }
+
+        if ($this->isKeyExists($properties, 'foreign-relation')) {
+            $field->setForeignRelation($this->getForeignRelation((array)$properties['foreign-relation']));
+        } else {
+            $field->setForeignRelation($this->getPredectableForeignRelation($properties['name']));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get a foreign relationship from giving array
+     *
+     * @param array $options
+     *
+     * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
+    */
+    protected function getForeignRelation(array $options)
+    {
+        if ($this->isKeyExists($options, 'relation-name', 'foreign-name', 'type', 'params')) {
+            return new ForeignRelationship(
+                                    $options['type'],
+                                    $options['params'],
+                                    $options['relation-name'],
+                                    $options['foreign-name']
+                                );
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get a predictable foreign relation using the giving field's name
+     *
+     * @param string $name
+     *
+     * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
+     */
+    protected function getPredectableForeignRelation($name)
+    {
+        if (ends_with($name, '_id')) {
+            $foreignName = $this->extractModelName($name);
+            $model = $this->guessModelFullName($name);
+            $parameters = [$model, $name, 'id'];
+
+            return new ForeignRelationship('belongsTo', $parameters, $foreignName);
+        }
+
+        return null;
+    }
+
+    /**
+     * Guesses the model full name using the giving field's name
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    protected function guessModelFullName($name)
+    {
+        $model = $this->getModelsPath() . ucfirst($this->extractModelName($name));
+
+        return Helpers::convertSlashToBackslash($model);
+    }
+
+    /**
+     * Extracts the model name from the giving field's name.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    protected function extractModelName($name)
+    {
+        return studly_case(str_replace('_id', '', $name));
     }
 
     /**
@@ -696,7 +797,7 @@ class FieldTransformer
     */
     protected function isProperyBool($str)
     {
-        return Helpers::startsWith($str, 'is');
+        return starts_with($str, 'is');
     }
 
     /**

@@ -4,6 +4,7 @@ namespace CrestApps\CodeGenerator\Models;
 
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Models\ForeignRelationship;
 
 class Field
 {
@@ -204,6 +205,13 @@ class Field
     public $isDate = false;
 
     /**
+     * The foreign relations
+     *
+     * @var CrestApps\CodeGenerator\Models\ForeignRelationship
+     */
+    private $foreignRelations;
+
+    /**
      * Creates a new field instance.
      *
      * @param string $name
@@ -254,6 +262,28 @@ class Field
     public function addLabel($text, $localeGroup, $isPlain = true, $lang = 'en')
     {
         $this->labels[$lang] = new Label($text, $this->getLocaleKey($localeGroup), $isPlain, $lang, $this->name);
+    }
+
+    /**
+     * Sets the foreign relationship of the field.
+     *
+     * @param CrestApps\CodeGenerator\Models\ForeignRelationship $relation
+     *
+     * @return void
+     */
+    public function setForeignRelation(ForeignRelationship $relation = null)
+    {
+        $this->foreignRelations = $relation;
+    }
+
+    /**
+     * Gets the field's foreign relationship.
+     *
+     * @return CrestApps\CodeGenerator\Models\ForeignRelationship
+     */
+    public function getForeignRelation()
+    {
+        return $this->foreignRelations;
     }
 
     /**

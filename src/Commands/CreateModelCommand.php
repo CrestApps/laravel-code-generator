@@ -6,6 +6,7 @@ use Illuminate\Console\GeneratorCommand;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Models\ForeignRelationship;
 
 class CreateModelCommand extends GeneratorCommand
 {
@@ -66,11 +67,11 @@ class CreateModelCommand extends GeneratorCommand
         return $this->replaceNamespace($stub, $name)
                     ->replaceTable($stub, $input->table)
                     ->replaceSoftDelete($stub, $input->useSoftDelete)
-                    ->replaceTimestamps($stub, $input->useTimeStamps)
+                    ->replaceTimestamps($stub, $this->getTimeStampsStub($input->useTimeStamps))
                     ->replaceFillable($stub, $this->getFillables($input->fillable, $fields))
                     ->replaceDateFields($stub, $this->getDateFields($fields))
                     ->replacePrimaryKey($stub, $primaryKey)
-                    ->replaceRelationshipPlaceholder($stub, $this->createRelationMethods($input->relationships))
+                    ->replaceRelationshipPlaceholder($stub, $this->getRelationMethods($input->relationships, $fields))
                     ->replaceAccessors($stub, $this->getAccessors($fields))
                     ->replaceMutators($stub, $this->getMutators($fields))
                     ->replaceClass($stub, $name);
@@ -243,17 +244,17 @@ class CreateModelCommand extends GeneratorCommand
     protected function getClassNameFromPath($path)
     {
         return strrpos($path, '\\') === false ?: substr($path, $nameStartIndex + 1);
-        ;
     }
 
     /**
-     * Creates the relations methods.
+     * Gets the relations methods.
      *
      * @param  array $relationships
+     * @param  array $fields
      *
      * @return array
      */
-    protected function createRelationMethods(array $relationships)
+    protected function getRelationMethods(array $relationships, array $fields)
     {
         $methods = [];
 
@@ -265,8 +266,15 @@ class CreateModelCommand extends GeneratorCommand
             }
 
             $methodArguments = explode('|', trim($relationshipParts[2]));
+            $relation = new ForeignRelationship(trim($relationshipParts[1]), $methodArguments, trim($relationshipParts[0]));
+            $methods[$name] = $this->getRelationshipMethod($relation);
+        }
 
-            $methods[] = $this->createRelationshipMethod(trim($relationshipParts[0]), trim($relationshipParts[1]), $methodArguments);
+        foreach ($fields as $field) {
+            $relation = $field->getForeignRelation();
+            if (!is_null($relation)) {
+                $methods[$relation->name] = $this->getRelationshipMethod($relation);
+            }
         }
 
         return $methods;
@@ -378,7 +386,54 @@ class CreateModelCommand extends GeneratorCommand
         return $stub;
     }
 
+    /**
+     * Creates the code for a relationship.
+     *
+     * @param CrestApps\CodeGenerator\Models\ForeignRelation $relation
+     *
+     * @return string
+     */
+    protected function getRelationshipMethod(ForeignRelationship $relation)
+    {
+        $stub = $this->getStubContent('model-relation');
 
+        $this->replaceRelationName($stub, $relation->name)
+             ->replaceRelationType($stub, $relation->getType())
+             ->replaceRelationParams($stub, $this->turnRelationArgumentToString($relation->parameters));
+
+        return $stub;
+    }
+
+    /**
+     * Get the default namespace for the class.
+     *
+     * @param  string  $rootNamespace
+     * @return string
+     */
+    protected function getNewPrimaryKey($primaryKey)
+    {
+        $stub = $this->getStubContent('model-primary-key');
+
+        $this->replacePrimaryKey($stub, $primaryKey);
+
+        return $stub;
+    }
+
+    /**
+     * Gets the timestamp block.
+     *
+     * @param  bool  $shouldUseTimeStamps
+     *
+     * @return string
+     */
+    protected function getTimeStampsStub($shouldUseTimeStamps)
+    {
+        if($shouldUseTimeStamps)
+        {
+            return null;
+        }
+        return $this->getStubContent('model-timestamps');
+    }
 
     /**
      * Replaces date format for the giving field.
@@ -496,7 +551,6 @@ class CreateModelCommand extends GeneratorCommand
     protected function replaceFieldName(&$stub, $name)
     {
         $stub = str_replace('{{fieldName}}', $name, $stub);
-
         $stub = str_replace('{{fieldNameCap}}', ucwords(camel_case($name)), $stub);
 
         return $this;
@@ -569,70 +623,62 @@ class CreateModelCommand extends GeneratorCommand
 
         return $this;
     }
-
     /**
-     * Creates the code for a relationship.
+     * Replaces the replation type for the giving stub.
      *
      * @param string $stub
-     * @param string $relationshipName  the name of the function, e.g. owners
-     * @param string $relationshipType  the type of the relationship, hasOne, hasMany, belongsTo etc
-     * @param string $methodArguments   arguments for the relationship function
+     * @param string $type
+     *
+     * @return $this
      */
-    protected function createRelationshipMethod($relationshipName, $relationshipType, $methodArguments)
+    protected function replaceRelationType(&$stub, $type)
     {
-        $argumentsString = $this->turnRelationArgumentToString($methodArguments);
+        $stub = str_replace('{{relationType}}', $type, $stub);
 
-        return  <<<EOT
-public function {$relationshipName}()
-    {
-        return \$this->{$relationshipType}({$argumentsString})
-    }
-EOT;
+        return $this;
     }
 
     /**
-     * Get the default namespace for the class.
+     * Replaces the replation name for the giving stub.
      *
-     * @param  string  $rootNamespace
-     * @return string
+     * @param string $stub
+     * @param string $name
+     *
+     * @return $this
      */
-    protected function getNewPrimaryKey($primaryKey)
+    protected function replaceRelationName(&$stub, $name)
     {
-        return  <<<EOT
-/**
-    * The database primary key value.
-    *
-    * @var string
-    */
-    protected \$primaryKey = '{$primaryKey}';
-EOT;
+        $stub = str_replace('{{relationName}}', $name, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the replation params for the giving stub.
+     *
+     * @param string $stub
+     * @param string $params
+     *
+     * @return $this
+     */
+    protected function replaceRelationParams(&$stub, $params)
+    {
+        $stub = str_replace('{{relationParams}}', $params, $stub);
+
+        return $this;
     }
 
     /**
      * Replace the table for the given stub.
      *
      * @param  string  $stub
-     * @param  bool  $shouldUseTimeStamps
+     * @param  string  $timestamp
      *
      * @return $this
      */
-    protected function replaceTimestamps(&$stub, $shouldUseTimeStamps)
+    protected function replaceTimestamps(&$stub, $timestamp)
     {
-        if ($shouldUseTimeStamps) {
-            $stub = str_replace('{{timeStamps}}', null, $stub);
-        } else {
-            $timestampBlock = <<<EOT
-/**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public \$timestamps = false;
-
-EOT;
-
-            $stub = str_replace('{{timeStamps}}', $timestampBlock, $stub);
-        }
+        $stub = str_replace('{{timeStamps}}', $timestamp, $stub);
         
         return $this;
     }
