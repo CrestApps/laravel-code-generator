@@ -440,7 +440,7 @@ class Field
             'is-primary' => $this->isPrimary,
             'comment' => $this->comment,
             'is-nullable' => $this->isNullable,
-            'is-unsiged' => $this->isUnsigned,
+            'is-unsigned' => $this->isUnsigned,
             'is-auto-increment' => $this->isAutoIncrement,
             'is-inline-options' => $this->isInlineOptions,
             'is-multiple-answers' => $this->isMultipleAnswers,
