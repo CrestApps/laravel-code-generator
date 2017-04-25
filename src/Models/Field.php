@@ -447,9 +447,25 @@ class Field
             'placeholder' => $this->placeHolder,
             'delimiter' => $this->optionsDelimiter,
             'range' => $this->range,
+            'foreign-relations' => $this->getForeignRelationToRaw()
         ];
     }
 
+    public function getForeignRelationToRaw()
+    {
+        $relation = $this->getForeignRelation();
+        if( !is_null($relation))
+        {
+            return [
+                        'relation-name' => $relation->name,
+                        'type' => $relation->type,
+                        'params' => $relation->parameters,
+                        'foreign-name' => $relation->foreignColumns
+                   ];
+        }
+
+        return null;
+    }
     /**
      * Returns current object into proper json format.
      *
