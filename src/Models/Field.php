@@ -454,8 +454,7 @@ class Field
     public function getForeignRelationToRaw()
     {
         $relation = $this->getForeignRelation();
-        if( !is_null($relation))
-        {
+        if (!is_null($relation)) {
             return [
                         'relation-name' => $relation->name,
                         'type' => $relation->type,

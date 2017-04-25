@@ -140,15 +140,13 @@ class MysqlParser extends ParserBase
     */
     protected function setIsOnViews(Field & $field)
     {
-        if(in_array($field->name, ['created_at','updated_at','deleted_at','id']))
-        {
+        if (in_array($field->name, ['created_at','updated_at','deleted_at','id'])) {
             $field->isOnIndexView = false;
             $field->isOnShowView = false;
             $field->isOnFormView = false;
         }
 
-        if($field->htmlType == 'textarea')
-        {
+        if ($field->htmlType == 'textarea') {
             $field->isOnIndexView = false;
         }
 
