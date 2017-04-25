@@ -115,7 +115,6 @@ class FieldOptimizer extends OptimizerBase
     {
         if (empty($this->field->dateFormat) && $this->field->isDateOrTime()) {
             $this->field->dateFormat = 'm/d/Y H:i A';
-	        if ( in_array ( $this->field->name, ['created_at', 'updated_at', 'deleted_at'] ) ) $this->field->isOnFormView = false;
         }
 
         return $this;
