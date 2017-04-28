@@ -12,7 +12,9 @@ use CrestApps\CodeGenerator\Models\ForeignRelationship;
 
 class FieldTransformer
 {
-
+	
+	use CommonCommand;
+	
     /**
      * The raw field before transformation
      *
