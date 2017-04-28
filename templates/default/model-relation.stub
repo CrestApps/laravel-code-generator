@@ -3,5 +3,5 @@
      */
     public function {{relationName}}()
     {
-        return $this->{{relationType}}({{relationParams}})
+        return $this->{{relationType}}({{relationParams}});
     }
