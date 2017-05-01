@@ -104,17 +104,23 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         return $isMulti ? "'multiple' => 'multiple'," : '';
     }
-
+    
     /**
      * It gets converts an array to a stringbase array for the views.
      *
-     * @param array $labels
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return string
      */
-    protected function getFieldItems(array $labels)
+    protected function getFieldItems(field $field)
     {
-        return sprintf('[%s]', implode(', ', $this->getKeyValueStringsFromLabels($labels)));
+        if ($field->hasForeignRelation() && $field->isOnFormView) {
+            return sprintf('$%s', $field->getForeignRelation()->getCollectionName());
+        }
+
+        $labels = $field->getOptionsByLang();
+
+        return sprintf('[%s]', implode(',' . PHP_EOL, $this->getKeyValueStringsFromLabels($labels)));
     }
 
     /**
@@ -166,10 +172,11 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      * Gets selected value attribute.
      *
      * @param string $name
+     * @param string $valueAccessor
      *
      * @return string
      */
-    protected function getSelectedValue($name)
+    protected function getSelectedValue($name, $valueAccessor)
     {
         return '';
     }
@@ -191,10 +198,11 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      * Gets selected value attribute.
      *
      * @param string $name
+     * @param string $valueAccessor
      *
      * @return string
      */
-    protected function getMultipleSelectedValue($name)
+    protected function getMultipleSelectedValue($name, $valueAccessor)
     {
         return '';
     }

@@ -9,12 +9,12 @@ use CrestApps\CodeGenerator\Support\FieldsOptimizer;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\FieldMapper;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
 
 class FieldTransformer
 {
-	
-	use CommonCommand;
-	
+    use CommonCommand;
+    
     /**
      * The raw field before transformation
      *
@@ -361,14 +361,14 @@ class FieldTransformer
     */
     protected function setForeignRelation(Field & $field, array $properties)
     {
-        if ($this->isKeyExists($properties, 'is-foreign-relation') && !$properties['is-foreign-relation']) {
+        if ($this->isKeyExists($properties, 'is-foreign-relation') && ! $properties['is-foreign-relation']) {
             return $this;
         }
 
         if ($this->isKeyExists($properties, 'foreign-relation')) {
             $field->setForeignRelation($this->getForeignRelation((array)$properties['foreign-relation']));
         } else {
-            $field->setForeignRelation($this->getPredectableForeignRelation($properties['name']));
+            $field->setForeignRelation(self::getPredectableForeignRelation($properties['name'], $this->getModelsPath()));
         }
 
         return $this;
@@ -383,12 +383,12 @@ class FieldTransformer
     */
     protected function getForeignRelation(array $options)
     {
-        if ($this->isKeyExists($options, 'relation-name', 'foreign-name', 'type', 'params')) {
+        if ($this->isKeyExists($options, 'type', 'params', 'name', 'field')) {
             return new ForeignRelationship(
                                     $options['type'],
                                     $options['params'],
-                                    $options['relation-name'],
-                                    $options['foreign-name']
+                                    $options['name'],
+                                    $options['field']
                                 );
         }
         
@@ -399,14 +399,15 @@ class FieldTransformer
      * Get a predictable foreign relation using the giving field's name
      *
      * @param string $name
+     * @param string $modelPath
      *
      * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
      */
-    protected function getPredectableForeignRelation($name)
+    public static function getPredectableForeignRelation($name, $modelPath)
     {
         if (ends_with($name, '_id')) {
-            $foreignName = $this->extractModelName($name);
-            $model = $this->guessModelFullName($name);
+            $foreignName = self::extractModelName($name);
+            $model = self::guessModelFullName($name, $modelPath);
             $parameters = [$model, $name, 'id'];
 
             return new ForeignRelationship('belongsTo', $parameters, $foreignName);
@@ -419,12 +420,13 @@ class FieldTransformer
      * Guesses the model full name using the giving field's name
      *
      * @param string $name
+     * @param string $modelsPath
      *
      * @return string
      */
-    protected function guessModelFullName($name)
+    public static function guessModelFullName($name, $modelsPath)
     {
-        $model = $this->getModelsPath() . ucfirst($this->extractModelName($name));
+        $model = $modelsPath . ucfirst(self::extractModelName($name));
 
         return Helpers::convertSlashToBackslash($model);
     }
@@ -436,7 +438,7 @@ class FieldTransformer
      *
      * @return string
      */
-    protected function extractModelName($name)
+    public static function extractModelName($name)
     {
         return studly_case(str_replace('_id', '', $name));
     }

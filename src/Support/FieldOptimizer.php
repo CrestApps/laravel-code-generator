@@ -71,7 +71,9 @@ class FieldOptimizer extends OptimizerBase
              ->optimizeRequiredField()
              ->optimizeDateFields()
              ->optimizeBoolean()
-             ->optimizePrimaryKey();
+             ->optimizePrimaryKey()
+             ->optimizeValidations()
+             ->optimizeHtmlType();
 
         return $this;
     }
@@ -115,6 +117,48 @@ class FieldOptimizer extends OptimizerBase
     {
         if (empty($this->field->dateFormat) && $this->field->isDateOrTime()) {
             $this->field->dateFormat = 'm/d/Y H:i A';
+        }
+
+        return $this;
+    }
+
+    /**
+     * If the field is not visible on the form view, clear the validation.
+     *
+     * @return $this
+    */
+    protected function optimizeValidations()
+    {
+        if ($this->field->isCheckBox() && $this->field->isBoolean()) {
+            // At this point we know the field is a check book and is a boolean type
+            // remove the required validation rule.
+            $this->field->validationRules = array_filter($this->field->validationRules, function ($rule) {
+                return $rule != 'required';
+            });
+        }
+
+        if (! $this->field->isOnFormView) {
+            // At this point we know the field is not going to be on any request form
+            // remove all validation rules if any exists.
+            $this->field->validationRules = [];
+        }
+
+        return $this;
+    }
+
+    /**
+     * If the field is not visible on the form view, clear the validation.
+     *
+     * @return $this
+    */
+    protected function optimizeHtmlType()
+    {
+
+        if ($this->field->hasForeignRelation()) {
+            // At this point we know the field has a foreign relation
+            // set the htmlType to select since the user will have to select an item(s)
+            // from a colelction
+            $this->field->htmlType = 'select';
         }
 
         return $this;

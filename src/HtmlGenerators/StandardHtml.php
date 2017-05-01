@@ -4,6 +4,7 @@ namespace CrestApps\CodeGenerator\HtmlGenerators;
 
 use CrestApps\CodeGenerator\HtmlGenerators\HtmlGeneratorBase;
 use CrestApps\CodeGenerator\Models\Label;
+use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Support\Helpers;
 
 class StandardHtml extends HtmlGeneratorBase
@@ -109,12 +110,18 @@ class StandardHtml extends HtmlGeneratorBase
     /**
      * It gets converts an array to a stringbase array for the views.
      *
-     * @param array $labels
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return string
      */
-    protected function getFieldItems(array $labels)
+    protected function getFieldItems(field $field)
     {
+        if ($field->hasForeignRelation() && $field->isOnFormView) {
+            return sprintf('$%s', $field->getForeignRelation()->getCollectionName());
+        }
+
+        $labels = $field->getOptionsByLang() ?: [];
+
         return sprintf('[%s]', implode(',' . PHP_EOL, $this->getKeyValueStringsFromLabels($labels)));
     }
 
@@ -174,24 +181,26 @@ class StandardHtml extends HtmlGeneratorBase
      * Gets selected value attribute.
      *
      * @param string $name
+     * @param string $valueAccessor
      *
      * @return string
      */
-    protected function getMultipleSelectedValue($name)
+    protected function getMultipleSelectedValue($name, $valueAccessor)
     {
-        return sprintf(" {{ %s ? 'selected' : '' }}", $this->getMultipleRawOptionValue($name, '$value'));
+        return sprintf(" {{ %s ? 'selected' : '' }}", $this->getMultipleRawOptionValue($name, $valueAccessor));
     }
 
     /**
      * Gets selected value attribute.
      *
      * @param string $name
+     * @param string $valueAccessor
      *
      * @return string
      */
-    protected function getSelectedValue($name)
+    protected function getSelectedValue($name, $valueAccessor)
     {
-        return sprintf(" {{ %s == \$value ? 'selected' : '' }}", $this->getRawOptionValue($name, ''));
+        return sprintf(" {{ %s == %s ? 'selected' : '' }}", $this->getRawOptionValue($name, ''), $valueAccessor);
     }
 
     /**

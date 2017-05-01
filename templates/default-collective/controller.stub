@@ -5,7 +5,7 @@ namespace DummyNamespace;
 use Session;
 use Illuminate\Http\Request;
 use DummyRootNamespaceHttp\Controllers\Controller;
-use DummyRootNamespace{{modelFullName}};
+{{useCommandPlaceHolder}}
 
 class DummyClass extends Controller
 {
@@ -17,9 +17,9 @@ class DummyClass extends Controller
      */
     public function index()
     {
-        ${{modelNamePlural}} = {{modelNameClass}}::paginate({{modelsPerPage}});
+        ${{modelNamePlural}} = {{modelNameClass}}::{{withRelationsForIndex}}paginate({{modelsPerPage}});
 
-        return view('{{indexViewName}}', compact('{{modelNamePlural}}'));
+        return view('{{indexViewName}}'{{viewVariablesForIndex}});
     }
 
     /**
@@ -29,7 +29,8 @@ class DummyClass extends Controller
      */
     public function create()
     {
-        return view('{{createViewName}}');
+        {{relationCollections}}
+        return view('{{createViewName}}'{{viewVariablesForCreate}});
     }
 
     /**
@@ -59,9 +60,9 @@ class DummyClass extends Controller
      */
     public function show($id)
     {
-        ${{modelName}} = {{modelNameClass}}::findOrFail($id);
+        ${{modelName}} = {{modelNameClass}}::{{withRelationsForShow}}findOrFail($id);
 
-        return view('{{showViewName}}', compact('{{modelName}}'));
+        return view('{{showViewName}}'{{viewVariablesForShow}});
     }
 
     /**
@@ -74,8 +75,8 @@ class DummyClass extends Controller
     public function edit($id)
     {
         ${{modelName}} = {{modelNameClass}}::findOrFail($id);
-
-        return view('{{editViewName}}', compact('{{modelName}}'));
+        {{relationCollections}}
+        return view('{{editViewName}}'{{viewVariablesForEdit}});
     }
 
     /**

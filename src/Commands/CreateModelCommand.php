@@ -25,7 +25,7 @@ class CreateModelCommand extends GeneratorCommand
                             {--primary-key=id : The name of the primary key.}
                             {--fields= : Fields to use for creating the validation rules.}
                             {--fields-file= : File name to import fields from.}
-                            {--model-directory=Models : The directory where the model should be created.}
+                            {--model-directory= : The directory where the model should be created.}
                             {--with-soft-delete : Enables softdelete future should be enable in the model.}
                             {--without-timestamps : Prevent Eloquent from maintaining both created_at and the updated_at properties.}
                             {--template-name= : The template name to use when generating the code.}
@@ -271,8 +271,9 @@ class CreateModelCommand extends GeneratorCommand
         }
 
         foreach ($fields as $field) {
-            $relation = $field->getForeignRelation();
-            if (!is_null($relation)) {
+            
+            if ( $field->hasForeignRelation() ) {
+                $relation = $field->getForeignRelation();
                 $methods[$relation->name] = $this->getRelationshipMethod($relation);
             }
         }

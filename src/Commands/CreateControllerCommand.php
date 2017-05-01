@@ -5,6 +5,7 @@ namespace CrestApps\CodeGenerator\Commands;
 use Illuminate\Console\GeneratorCommand;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Models\ForeignRelationship;
 
 class CreateControllerCommand extends GeneratorCommand
 {
@@ -76,20 +77,234 @@ class CreateControllerCommand extends GeneratorCommand
 
         $fields = $this->getFields($input->fields, $input->langFile, $input->fieldsFile);
 
+        $viewVariablesForIndex = $this->getCompactVariablesFor($fields, $this->getModelPluralName($input->modelName), 'index');
+        $viewVariablesForShow = $this->getCompactVariablesFor($fields, $this->getModelName($input->modelName), 'show');
+        $viewVariablesForEdit = $this->getCompactVariablesFor($fields, $this->getModelName($input->modelName), 'form');
+
+        $modelFullName = $this->getModelFullName($input->modelDirectory, $input->modelName);
+        
         return $this->replaceNamespace($stub, $name)
                     ->replaceViewNames($stub, $input->viewDirectory, $input->prefix)
                     ->replaceModelName($stub, $input->modelName)
-                    ->replaceModelFullName($stub, $this->getModelFullName($input->modelDirectory, $input->modelName))
+                    ->replaceUseCommandPlaceHolder($stub, $this->getRequiredUseClasses($fields, $modelFullName))
                     ->replaceRouteNames($stub, $input->modelName, $input->prefix)
                     ->replaceValidationRules($stub, $this->getValidationRules($fields))
                     ->replaceFormRequestName($stub, $formRequestName)
-                    ->replaceFormRequestFullName($stub, $this->getRequestsNamespace() . $formRequestName)
+                    ->replaceFormRequestFullName($stub, $this->getApplicationNamespace() . $this->getRequestsNamespace() . $formRequestName)
                     ->replacePaginationNumber($stub, $input->perPage)
                     ->replaceFileSnippet($stub, $this->getFileSnippet($fields))
                     ->replaceBooleadSnippet($stub, $this->getBooleanSnippet($fields))
                     ->replaceStringToNullSnippet($stub, $this->getStringToNullSnippet($fields))
                     ->replaceFileMethod($stub, $this->getUploadFileMethod($fields))
+                    ->replaceViewVariablesForIndex($stub, $viewVariablesForIndex)
+                    ->replaceViewVariablesForShow($stub, $viewVariablesForShow)
+                    ->replaceViewVariablesForCreate($stub, $this->getCompactVariablesFor($fields, null, 'form'))
+                    ->replaceViewVariablesForEdit($stub, $viewVariablesForEdit)
+                    ->replaceWithRelationsForIndex($stub, $this->getWithRelationFor($fields, 'index'))
+                    ->replaceWithRelationsForShow($stub, $this->getWithRelationFor($fields, 'show'))
+                    ->replaceRelationCollections($stub, $this->getRequiredRelationCollections($fields))
                     ->replaceClass($stub, $name);
+    }
+
+    /**
+     * Gets the needed compact variables for the edit/create views.
+     *
+     * @param array $fields
+     * @param string $view
+     *
+     * @return string
+     */
+    protected function getWithRelationFor(array $fields, $view)
+    {
+        $variables = [];
+        $collections = $this->getRelationCollections($fields, $view);
+
+        foreach ($collections as $collection) {
+            if (! in_array($collection->name, $variables)) {
+                $variables[] = $collection->name;
+            }
+        }
+
+        return $this->getWithRelationsStatement($variables);
+    }
+
+    /**
+     * Gets the needed compact variables for the edit/create views.
+     *
+     * @param array $fields
+     *
+     * @return string
+     */
+    protected function getRequiredRelationCollections(array $fields)
+    {
+        $variables = [];
+
+        $collections = $this->getRelationCollections($fields, 'form');
+
+        foreach ($collections as $collection) {
+            $accesor = $this->getRelationAccessor($collection);
+            
+            if (! in_array($accesor, $variables)) {
+                $variables[] = $accesor;
+            }
+        }
+
+        return implode(PHP_EOL, $variables);
+    }
+
+    /**
+     * Gets the needed models to use for in the controller.
+     *
+     * @param array $fields
+     * @param array $model's full name
+     *
+     * @return string
+     */
+    protected function getRequiredUseClasses(array $fields, $modelFullName)
+    {
+        $commands[] = $this->getUseClassCommand($modelFullName);
+
+        $collections = $this->getRelationCollections($fields, 'form');
+
+        foreach ($collections as $collection) {
+            $command = $this->getUseClassCommand($collection->getFullForeignModel());
+
+            if (! in_array($command, $commands)) {
+                $commands[] = $this->getUseClassCommand($collection->getFullForeignModel());
+            }
+        }
+
+        return implode(PHP_EOL, $commands);
+    }
+
+
+    /**
+     * Gets the relation accessor for the giving foreign renationship.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    protected function getUseClassCommand($name)
+    {
+        return sprintf('use %s;', $name);
+    }
+
+    /**
+     * Gets the relation accessor for the giving foreign renationship.
+     *
+     * @param CrestApps\CodeGenerator\Models\ForeignRelationship $collection
+     *
+     * @return string
+     */
+    protected function getRelationAccessor(ForeignRelationship $collection)
+    {
+        return sprintf('$%s = %s::all();', $collection->getCollectionName(), $collection->getForeignModel());
+    }
+
+    /**
+     * Gets the needed compact variables for the edit/create views.
+     *
+     * @param array $fields
+     *
+     * @return string
+     */
+    protected function getCompactVariablesFor(array $fields, $modelName, $view)
+    {
+        $variables = [];
+
+        if (! empty($modelName)) {
+            $variables[] = $modelName;
+        }
+
+        if ($view == 'form') {
+            $collections = $this->getRelationCollections($fields, $view);
+
+            foreach ($collections as $collection) {
+                $variables[] = $collection->getCollectionName();
+            }
+        }
+
+        return $this->getCompactVariables($variables);
+    }
+
+
+    /**
+     * Gets the needed compact variables for the edit/create views.
+     *
+     * @param array $fields
+     *
+     * @return array
+     */
+    /*
+    protected function getWithRelations(array $fields, $view)
+    {
+        $variables = [];
+
+        if($view != 'form')
+        {
+            foreach ($fields as $field) {
+
+                if ($field->hasForeignRelation() && $field->isOnView($view)) {
+                    $variables[] = $field->getForeignRelation()->name;
+                }
+            }
+        }
+
+        return $variables;
+    }
+    */
+
+    /**
+     * Gets the needed compact variables for the edit/create views.
+     *
+     * @param array $fields
+     *
+     * @return array
+     */
+    protected function getRelationCollections(array $fields, $view)
+    {
+        $variables = [];
+
+        foreach ($fields as $field) {
+            if ($field->hasForeignRelation() && $field->isOnView($view)) {
+                $variables[] = $field->getForeignRelation();
+            }
+        }
+
+        return $variables;
+    }
+
+    /**
+     * Converts giving array of variables to a compact statements.
+     *
+     * @param array $variables
+     *
+     * @return string
+     */
+    protected function getCompactVariables(array $variables)
+    {
+        if (empty($variables)) {
+            return '';
+        }
+
+        return sprintf(', compact(%s)', implode(',', Helpers::wrapItems($variables)));
+    }
+
+    /**
+     * Converts giving array of relation name to a with() statements.
+     *
+     * @param array $variables
+     *
+     * @return string
+     */
+    protected function getWithRelationsStatement(array $relations)
+    {
+        if (empty($relations)) {
+            return '';
+        }
+
+        return sprintf('with(%s)->', implode(',', Helpers::wrapItems($relations)));
     }
 
     /**
@@ -160,16 +375,16 @@ class CreateControllerCommand extends GeneratorCommand
     /**
      * Gets the full model name
      *
-     * @param  string $path
+     * @param  string $directory
      * @param  string $name
      *
      * @return string
      */
-    protected function getModelFullName($path, $name)
+    protected function getModelFullName($directory, $name)
     {
-        $final = !empty($path) ? $this->getModelsPath() . Helpers::getPathWithSlash($path) : $this->getModelsPath();
+        $final = !empty($directory) ? $this->getModelsPath() . Helpers::getPathWithSlash($directory) : $this->getModelsPath();
 
-        return Helpers::convertSlashToBackslash($final . $name);
+        return Helpers::convertSlashToBackslash($this->getApplicationNamespace() . $final . $name);
     }
 
     /**
@@ -200,16 +415,16 @@ class CreateControllerCommand extends GeneratorCommand
     }
 
     /**
-     * Replaces the model's fullname for the given stub.
+     * Replaces useCommandPlaceHolder
      *
      * @param  string  $stub
-     * @param  string  $name
+     * @param  string  $commands
      *
      * @return $this
      */
-    protected function replaceModelFullName(&$stub, $name)
+    protected function replaceUseCommandPlaceHolder(&$stub, $commands)
     {
-        $stub = str_replace('{{modelFullName}}', $name, $stub);
+        $stub = str_replace('{{useCommandPlaceHolder}}', $commands, $stub);
 
         return $this;
     }
@@ -345,6 +560,111 @@ class CreateControllerCommand extends GeneratorCommand
     protected function replaceFieldName(&$stub, $name)
     {
         $stub = str_replace('{{fieldName}}', $name, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the create-index variables.
+     *
+     * @param $stub
+     * @param $variables
+     *
+     * @return $this
+     */
+    protected function replaceViewVariablesForIndex(&$stub, $variables)
+    {
+        $stub = str_replace('{{viewVariablesForIndex}}', $variables, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the create-view variables.
+     *
+     * @param $stub
+     * @param $variables
+     *
+     * @return $this
+     */
+    protected function replaceViewVariablesForCreate(&$stub, $variables)
+    {
+        $stub = str_replace('{{viewVariablesForCreate}}', $variables, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the create-edit variables.
+     *
+     * @param $stub
+     * @param $variables
+     *
+     * @return $this
+     */
+    protected function replaceViewVariablesForEdit(&$stub, $variables)
+    {
+        $stub = str_replace('{{viewVariablesForEdit}}', $variables, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the create-show variables.
+     *
+     * @param $stub
+     * @param $variables
+     *
+     * @return $this
+     */
+    protected function replaceViewVariablesForShow(&$stub, $variables)
+    {
+        $stub = str_replace('{{viewVariablesForShow}}', $variables, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces withRelationsForIndex for the giving stub.
+     *
+     * @param $stub
+     * @param $relations
+     *
+     * @return $this
+     */
+    protected function replaceWithRelationsForIndex(&$stub, $relations)
+    {
+        $stub = str_replace('{{withRelationsForIndex}}', $relations, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces withRelationsForShow for the giving stub.
+     *
+     * @param $stub
+     * @param $relations
+     *
+     * @return $this
+     */
+    protected function replaceWithRelationsForShow(&$stub, $relations)
+    {
+        $stub = str_replace('{{withRelationsForShow}}', $relations, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces relationCollections for the giving stub.
+     *
+     * @param $stub
+     * @param $collections
+     *
+     * @return $this
+     */
+    protected function replaceRelationCollections(&$stub, $collections)
+    {
+        $stub = str_replace('{{relationCollections}}', $collections, $stub);
 
         return $this;
     }

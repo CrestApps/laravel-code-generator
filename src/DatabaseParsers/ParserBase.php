@@ -7,9 +7,35 @@ use Exception;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\FieldMapper;
 use CrestApps\CodeGenerator\Support\FieldsOptimizer;
+use CrestApps\CodeGenerator\Support\FieldTransformer;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
 
 abstract class ParserBase
 {
+    use CommonCommand;
+
+    /**
+     * List of the field to exclude from all views.
+     *
+     * @var array
+     */
+    protected $exclude = [
+        'id',
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
+
+    /**
+     * The default boolean options to use.
+     *
+     * @var array
+     */
+    protected $booleanOptions = [
+        '0' => 'No',
+        '1' => 'Yes'
+    ];
+    
     /**
      * The table name.
      *
@@ -169,8 +195,7 @@ abstract class ParserBase
             $field->dataType = $map[$type];
         }
 
-        if($field->dataType == 'boolean')
-        {
+        if ($field->dataType == 'boolean') {
             $field->validationRules[] = 'boolean';
         }
 
@@ -245,6 +270,22 @@ abstract class ParserBase
         foreach ($this->languages as $language) {
             $field->addLabel($label, $this->tableName, false, $language);
         }
+
+        return $this;
+    }
+
+    /**
+     * Sets the foreign renation of the giving field by the name.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     *
+     * @return $this
+    */
+    protected function setForeignRelations(Field $field)
+    {
+        $relation = FieldTransformer::getPredectableForeignRelation($field->name, $this->getApplicationNamespace() . $this->getModelsPath());
+
+        $field->setForeignRelation($relation);
 
         return $this;
     }
@@ -343,6 +384,28 @@ abstract class ParserBase
     {
         if (!empty($comment)) {
             $field->comment = $comment;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sets the views visibility status for the giving field.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     *
+     * @return $this
+    */
+    protected function setIsOnViews(Field & $field)
+    {
+        if (in_array($field->name, $this->exclude)) {
+            $field->isOnIndexView = false;
+            $field->isOnShowView = false;
+            $field->isOnFormView = false;
+        }
+
+        if ($field->htmlType == 'textarea') {
+            $field->isOnIndexView = false;
         }
 
         return $this;

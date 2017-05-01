@@ -2,6 +2,8 @@
 
 namespace CrestApps\CodeGenerator\Models;
 
+use Exception;
+
 class ForeignRelationship
 {
     /**
@@ -36,11 +38,11 @@ class ForeignRelationship
     public $parameters = [];
     
     /**
-     * The name of the columns on the foreign model to represent the field on display.
+     * The name of the property/field's name on the foreign model to represent the field on display.
      *
-     * @var array
+     * @var string
      */
-    public $foreignColumns = [];
+    public $field;
 
     /**
      * The name of the foreign relation.
@@ -49,22 +51,29 @@ class ForeignRelationship
      */
     public $name;
 
+   /**
+     * Instance of the foreign model.
+     *
+     * @var Illuminate\Database\Eloquent\Model
+     */
+    private $foreignModel;
+
     /**
      * Creates a new field instance.
      *
      * @param string $type
      * @param string|array $parameters
-     * @param string $foreignName
-     * @param string|array $foreignColumns
+     * @param string $name
+     * @param string $field
      *
      * @return void
      */
-    public function __construct($type, $parameters, $foreignName, $foreignColumns = 'id')
+    public function __construct($type, $parameters, $name, $field = 'id')
     {
         $this->setType($type);
         $this->parameters = (array) $parameters;
-        $this->name = $foreignName;
-        $this->setColumns($foreignColumns);
+        $this->name = $name;
+        $this->field = $field;
     }
 
     /**
@@ -81,23 +90,6 @@ class ForeignRelationship
         ]);
     }
 
-    /**
-     * Sets the foreign columns
-     *
-     * @param string|array $columns
-     *
-     * @return void
-     */
-    public function setColumns($columns)
-    {
-        if (!is_array($columns)) {
-            $columns = (array) $columns;
-        }
-
-        foreach ($columns as $column) {
-            $this->foreignColumns[] = $column;
-        }
-    }
 
     /**
      * Sets the type of the relation
@@ -125,5 +117,95 @@ class ForeignRelationship
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * Gets the name of the collection.
+     *
+     * @return string
+     */
+    public function getCollectionName()
+    {
+        return str_plural($this->name);
+    }
+
+    /**
+     * Gets the name of an item in the collection.
+     *
+     * @return string
+     */
+    public function getSingleName()
+    {
+        return str_singular($this->name);
+    }
+
+    /**
+     * Gets the foreign model's full name.
+     *
+     * @return string
+     */
+    public function getFullForeignModel()
+    {
+        return current($this->parameters);
+    }
+
+    /**
+     * Gets the foreign model name.
+     *
+     * @return string
+     */
+    public function getForeignModel()
+    {
+        $model = $this->getFullForeignModel();
+
+        if ($model) {
+            $index = strripos($model, '\\');
+
+            if ($index !== false) {
+                return substr($model, $index + 1);
+            }
+            
+            return $model;
+        }
+
+        return '';
+    }
+
+    /**
+     * Gets the name of the foreign model's primary key name.
+     *
+     * @return sting
+     */
+    public function getPrimaryKeyForForeignModel()
+    {
+        $model = $this->getForeignModelInstance();
+
+        if ($model) {
+            return $model->getKeyName();
+        }
+
+        return 'id';
+    }
+
+    /**
+     * Gets a single instance of the foreign mode.
+     *
+     * @return Illuminate\Database\Eloquent\Model
+     */
+    private function getForeignModelInstance()
+    {
+        try {
+            if (!$this->foreignModel) {
+                $model = $this->getFullForeignModel();
+
+                if ($model) {
+                    $this->foreignModel = new $model();
+                }
+            }
+
+            return $this->foreignModel;
+        } catch (Exception $e) {
+            return null;
+        }
     }
 }

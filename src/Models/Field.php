@@ -287,6 +287,32 @@ class Field
     }
 
     /**
+     * Checks if the field has a foreign relation.
+     *
+     * @return bool
+     */
+    public function hasForeignRelation()
+    {
+        return ! is_null($this->foreignRelations);
+    }
+
+    /**
+     * Checks if the field is on a giving view.
+     *
+     * @return bool
+     */
+    public function isOnView($view)
+    {
+        $view = ucfirst(strtolower($view));
+
+        if (in_array($view, ['Form','Index','Show'])) {
+            return $this->{'isOn' . $view . 'View'};
+        }
+
+        return false;
+    }
+
+    /**
      * Adds a label to the options collection
      *
      * @param string $value
@@ -447,24 +473,31 @@ class Field
             'placeholder' => $this->placeHolder,
             'delimiter' => $this->optionsDelimiter,
             'range' => $this->range,
-            'foreign-relations' => $this->getForeignRelationToRaw()
+            'foreign-relation' => $this->getForeignRelationToRaw()
         ];
     }
 
+    /**
+     * Gets a relation properties.
+     *
+     * @return array | null
+     */
     public function getForeignRelationToRaw()
     {
-        $relation = $this->getForeignRelation();
-        if (!is_null($relation)) {
+        if ($this->hasForeignRelation()) {
+            $relation = $this->getForeignRelation();
+
             return [
-                        'relation-name' => $relation->name,
-                        'type' => $relation->type,
+                        'name' => $relation->name,
+                        'type' => $relation->getType(),
                         'params' => $relation->parameters,
-                        'foreign-name' => $relation->foreignColumns
+                        'field' => $relation->field
                    ];
         }
 
         return null;
     }
+
     /**
      * Returns current object into proper json format.
      *
@@ -558,7 +591,6 @@ class Field
 
         return new Label('Yes', $this->getLocaleKey(''), true, 'en', $this->name, $this->getFieldId(1), 1);
     }
-
 
     /**
      * Gets the false label for the boolean field.

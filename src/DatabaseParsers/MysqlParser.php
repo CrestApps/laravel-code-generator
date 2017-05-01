@@ -55,7 +55,8 @@ class MysqlParser extends ParserBase
                  ->setOptions($field, $column)
                  ->setUnsigned($field, $column->COLUMN_TYPE)
                  ->setHtmlType($field, $column->DATA_TYPE)
-                 ->setIsOnViews($field);
+                 ->setIsOnViews($field)
+                 ->setForeignRelations($field);
 
             $fields[] = $field;
         }
@@ -74,10 +75,7 @@ class MysqlParser extends ParserBase
     protected function setOptions(Field & $field, $column)
     {
         if ($column->DATA_TYPE == 'boolean') {
-            return $this->addOptions($field, [
-                '0' => 'No',
-                '1' => 'Yes'
-            ]);
+            return $this->addOptions($field, $this->booleanOptions);
         }
 
         if (($options = $this->getOptions($column->COLUMN_TYPE)) !== null) {
@@ -131,27 +129,6 @@ class MysqlParser extends ParserBase
         return $this;
     }
 
-    /**
-     * Sets the property visibility status for the giving field.
-     *
-     * @param CrestApps\CodeGenerator\Models\Field $field
-     *
-     * @return $this
-    */
-    protected function setIsOnViews(Field & $field)
-    {
-        if (in_array($field->name, ['created_at','updated_at','deleted_at','id'])) {
-            $field->isOnIndexView = false;
-            $field->isOnShowView = false;
-            $field->isOnFormView = false;
-        }
-
-        if ($field->htmlType == 'textarea') {
-            $field->isOnIndexView = false;
-        }
-
-        return $this;
-    }
     /**
      * Parses out the options from a giving type
      *

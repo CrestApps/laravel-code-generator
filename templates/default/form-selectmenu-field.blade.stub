@@ -1,8 +1,8 @@
         <select class="form-control{{cssClass}}" id="{{fieldName}}" name="{{fieldName}}" {{fieldMultiple}}{{requiredField}}>
         	    {{placeHolder}}
-        	@foreach ({{fieldItems}} as $value => $title)
-			    <option value="{{ $value }}"{{selectedValue}}>
-			    	{{ $title }}
+        	@foreach ({{fieldItems}} as $key => {{fieldItem}})
+			    <option value="{{ {{fieldValueAccessor}} }}"{{selectedValue}}>
+			    	{{ {{fieldItemAccessor}} }}
 			    </option>
 			@endforeach
         </select>
