@@ -57,6 +57,7 @@ class CreateCreateViewCommand extends ViewsCommand
                  ->createMissingViews($input)
                  ->replaceCommonTemplates($stub, $input)
                  ->replaceFileUpload($stub, $fields)
+                 ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($fields, $input->modelName))
                  ->createViewFile($stub, $destenationFile)
                  ->info('Create view was crafted successfully.');
         }

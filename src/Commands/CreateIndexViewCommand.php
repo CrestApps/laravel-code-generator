@@ -59,6 +59,7 @@ class CreateIndexViewCommand extends ViewsCommand
                  ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
                  ->replaceHeaderCells($stub, $htmlCreator->getIndexHeaderCells())
                  ->replaceBodyCells($stub, $htmlCreator->getIndexBodyCells())
+                 ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($fields, $input->modelName))
                  ->createViewFile($stub, $destenationFile)
                  ->info('Index view was crafted successfully.');
         }

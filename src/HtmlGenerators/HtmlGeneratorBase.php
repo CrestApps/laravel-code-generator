@@ -141,12 +141,28 @@ abstract class HtmlGeneratorBase
         foreach ($fields as $field) {
             if ($field->isOnIndexView) {
                 $row = $stub;
-                $this->replaceFieldTitle($row, $this->getTitle($field->getLabel(), true));
+                $this->replaceFieldTitle($row, $this->getTitle($field->getLabel(), true))
+                     ->replaceCommonTemplates($row, $field);
                 $rows .= $row . PHP_EOL;
             }
         }
 
         return $rows;
+    }
+
+    /**
+     * Replaces field's common templates
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     *
+     * @return $this
+    */
+    public function replaceCommonTemplates(& $stub, Field $field)
+    {
+        return $this->replaceFieldName($stub, $field->name)
+                    ->replaceModelName($stub, $this->modelName)
+                    ->replaceCssClass($stub, $field->cssClass)
+                    ->replaceFieldType($stub, $field->htmlType);
     }
 
     /**
@@ -183,7 +199,8 @@ abstract class HtmlGeneratorBase
         $this->replaceFieldName($stub, $field->name)
              ->replaceModelName($stub, $this->modelName)
              ->replaceRowFieldValue($stub, $this->getFieldAccessorValue($field, 'index'))
-             ->replaceFieldTitle($stub, $this->getTitle($field->getLabel(), true));
+             ->replaceFieldTitle($stub, $this->getTitle($field->getLabel(), true))
+             ->replaceCommonTemplates($stub, $field);
 
         return $stub;
     }
@@ -499,7 +516,7 @@ abstract class HtmlGeneratorBase
     {
         $valueAccessor = $this->getFieldValueAccessor($field);
 
-        if($field->isMultipleAnswers) {
+        if ($field->isMultipleAnswers) {
             return $this->getMultipleSelectedValue($field->name, $valueAccessor);
         }
 

@@ -58,6 +58,7 @@ class CreateFormViewCommand extends ViewsCommand
             $this->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
                  ->replaceCommonTemplates($stub, $input)
                  ->replaceFields($stub, $htmlCreator->getHtmlFields())
+                 ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($fields, $input->modelName))
                  ->createViewFile($stub, $destenationFile)
                  ->info('Form view was crafted successfully.');
         }

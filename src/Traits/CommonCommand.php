@@ -7,11 +7,10 @@ use File;
 use Exception;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\Field;
-use Illuminate\Console\AppNamespaceDetectorTrait;
+use Illuminate\Container\Container;
 
 trait CommonCommand
 {
-    use AppNamespaceDetectorTrait;
     /**
      * The default route actions
      *
@@ -33,8 +32,7 @@ trait CommonCommand
      */
     protected function getFields($fields, $langFile, $fieldsFile = null)
     {
-        if (!empty($fieldsFile)) 
-        {
+        if (!empty($fieldsFile)) {
             return Helpers::getFieldsFromFile($fieldsFile, $langFile);
         }
 
@@ -264,9 +262,9 @@ trait CommonCommand
         return ucwords($this->getModelPluralName($name));
     }
 
-    protected function getApplicationNamespace()
+    protected function getAppNamespace()
     {
-        return $this->getAppNamespace();
+        return Container::getInstance()->getNamespace();
     }
 
     /**

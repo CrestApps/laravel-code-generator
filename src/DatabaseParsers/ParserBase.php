@@ -283,7 +283,7 @@ abstract class ParserBase
     */
     protected function setForeignRelations(Field $field)
     {
-        $relation = FieldTransformer::getPredectableForeignRelation($field->name, $this->getApplicationNamespace() . $this->getModelsPath());
+        $relation = FieldTransformer::getPredectableForeignRelation($field->name, $this->getAppNamespace() . $this->getModelsPath());
 
         $field->setForeignRelation($relation);
 

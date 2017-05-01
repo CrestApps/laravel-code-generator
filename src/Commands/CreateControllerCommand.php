@@ -90,7 +90,7 @@ class CreateControllerCommand extends GeneratorCommand
                     ->replaceRouteNames($stub, $input->modelName, $input->prefix)
                     ->replaceValidationRules($stub, $this->getValidationRules($fields))
                     ->replaceFormRequestName($stub, $formRequestName)
-                    ->replaceFormRequestFullName($stub, $this->getApplicationNamespace() . $this->getRequestsNamespace() . $formRequestName)
+                    ->replaceFormRequestFullName($stub, $this->getAppNamespace() . $this->getRequestsNamespace() . $formRequestName)
                     ->replacePaginationNumber($stub, $input->perPage)
                     ->replaceFileSnippet($stub, $this->getFileSnippet($fields))
                     ->replaceBooleadSnippet($stub, $this->getBooleanSnippet($fields))
@@ -384,7 +384,7 @@ class CreateControllerCommand extends GeneratorCommand
     {
         $final = !empty($directory) ? $this->getModelsPath() . Helpers::getPathWithSlash($directory) : $this->getModelsPath();
 
-        return Helpers::convertSlashToBackslash($this->getApplicationNamespace() . $final . $name);
+        return Helpers::convertSlashToBackslash($this->getAppNamespace() . $final . $name);
     }
 
     /**
