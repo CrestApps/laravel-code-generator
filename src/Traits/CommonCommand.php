@@ -7,11 +7,11 @@ use File;
 use Exception;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\Field;
-use Illuminate\Console\AppNamespaceDetectorTrait;
+use Illuminate\Console\DetectsApplicationNamespace;
 
 trait CommonCommand
 {
-    use AppNamespaceDetectorTrait;
+    use DetectsApplicationNamespace;
     /**
      * The default route actions
      *
