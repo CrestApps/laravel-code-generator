@@ -121,7 +121,7 @@ class CreateControllerCommand extends GeneratorCommand
 
         foreach ($collections as $collection) {
             if (! in_array($collection->name, $variables)) {
-                $variables[] = $collection->name;
+                $variables[] = strtolower($collection->name);
             }
         }
 

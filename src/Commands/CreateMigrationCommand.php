@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\Label;
+use CrestApps\CodeGenerator\Models\ForeignConstraint;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 
 class CreateMigrationCommand extends Command
@@ -84,11 +85,15 @@ class CreateMigrationCommand extends Command
     /**
      * Creates the table properties.
      *
+     * @param array $fields
+     * @param (onject) $input
      * @return string
      */
     protected function getTableProperties(array $fields, $input)
     {
         $properties = '';
+
+        $constraints = array_merge($this->getConstraintsFromfields($fields), $input->constraints);
 
         $this->addEngineName($properties, $input->engine)
              ->addPrimaryField($properties, $this->getPrimaryField($fields))
@@ -96,7 +101,7 @@ class CreateMigrationCommand extends Command
              ->addSoftDelete($properties, $input->withSoftDelete)
              ->addFieldProperties($properties, $fields)
              ->addIndexes($properties, $input->indexes)
-             ->addForeignConstraints($properties, $input->keys);
+             ->addForeignConstraints($properties, $constraints);
 
         return $properties;
     }
@@ -105,36 +110,57 @@ class CreateMigrationCommand extends Command
      * Adds foreign key constraint to a giving properties.
      *
      * @param string $properties
-     * @param array $keys
+     * @param array $constraints
      *
      * @return $this
      */
-    protected function addForeignConstraints(& $properties, array $keys)
+    protected function addForeignConstraints(& $properties, array $constraints)
     {
-        foreach ($keys as $key) {
-            $this->addForeignConstraint($properties, $key)
-                 ->addReferencesConstraint($properties, $key)
-                 ->addOnConstraint($properties, $key)
-                 ->addOnDeleteConstraint($properties, $key)
-                 ->addOnUpdateConstraint($properties, $key)
+        foreach ($constraints as $constraint) {
+            $this->addForeignConstraint($properties, $constraint)
+                 ->addReferencesConstraint($properties, $constraint)
+                 ->addOnConstraint($properties, $constraint)
+                 ->addOnDeleteConstraint($properties, $constraint)
+                 ->addOnUpdateConstraint($properties, $constraint)
                  ->addFieldPropertyClousure($properties);
         }
 
         return $this;
     }
 
+    /**
+     * Gets Foreign contstrains from giving fields.
+     *
+     * @param array of CrestApps\CodeGenerator\Models\Field $field
+     *
+     * @return array of CrestApps\CodeGenerator\Models\ForeignConstraint $field
+     */
+    protected function getConstraintsFromfields(array $fields)
+    {
+        $constraints = [];
+
+        foreach($fields as $field)
+        {
+            if($field->hasForeignConstraint())
+            {
+                $constraints[] = $field->getForeignConstraint();
+            }
+        }
+
+        return $constraints;
+    }
 
     /**
      * Adds 'foreign' eloquent method to a giving properties.
      *
      * @param string $properties
-     * @param (object) $key
+     * @param CrestApps\CodeGenerator\Models\ForeignConstraint $constraint
      *
      * @return $this
      */
-    protected function addForeignConstraint(& $properties, $key)
+    protected function addForeignConstraint(& $properties, ForeignConstraint $constraint)
     {
-        $properties .= PHP_EOL . sprintf("%s('%s')", $this->getPropertyBase('foreign'), $key->foreign);
+        $properties .= PHP_EOL . sprintf("%s('%s')", $this->getPropertyBase('foreign'), $constraint->column);
 
         return $this;
     }
@@ -143,13 +169,13 @@ class CreateMigrationCommand extends Command
      * Adds 'references' eloquent method to a giving properties.
      *
      * @param string $properties
-     * @param (object) $key
+     * @param CrestApps\CodeGenerator\Models\ForeignConstraint $constraint
      *
      * @return $this
      */
-    protected function addReferencesConstraint(& $properties, $key)
+    protected function addReferencesConstraint(& $properties, ForeignConstraint $constraint)
     {
-        $properties .= $this->getPropertyBaseSpace(18, true) . sprintf("->references('%s')", $key->references);
+        $properties .= $this->getPropertyBaseSpace(18, true) . sprintf("->references('%s')", $constraint->references);
 
         return $this;
     }
@@ -158,13 +184,13 @@ class CreateMigrationCommand extends Command
      * Adds 'on' eloquent method to a giving properties.
      *
      * @param string $properties
-     * @param (object) $key
+     * @param CrestApps\CodeGenerator\Models\ForeignConstraint $constraint
      *
      * @return $this
      */
-    protected function addOnConstraint(& $properties, $key)
+    protected function addOnConstraint(& $properties, ForeignConstraint $constraint)
     {
-        $properties .= $this->getPropertyBaseSpace(18, true) . sprintf("->on('%s')", $key->on);
+        $properties .= $this->getPropertyBaseSpace(18, true) . sprintf("->on('%s')", $constraint->on);
 
         return $this;
     }
@@ -173,14 +199,14 @@ class CreateMigrationCommand extends Command
      * Adds 'onDelete' eloquent method to a giving properties.
      *
      * @param string $properties
-     * @param (object) $key
+     * @param CrestApps\CodeGenerator\Models\ForeignConstraint $constraint
      *
      * @return $this
      */
-    protected function addOnDeleteConstraint(& $properties, $key)
+    protected function addOnDeleteConstraint(& $properties, ForeignConstraint $constraint)
     {
-        if (!empty($key->onDelete)) {
-            $properties .= $this->getPropertyBaseSpace(18, true) . sprintf("->onDelete('%s')", $key->onDelete) ;
+        if ($constraint->hasDeleteAction()) {
+            $properties .= $this->getPropertyBaseSpace(18, true) . sprintf("->onDelete('%s')", $constraint->onDelete) ;
         }
 
         return $this;
@@ -190,14 +216,14 @@ class CreateMigrationCommand extends Command
      * Adds 'onUpdate' eloquent method to a giving properties.
      *
      * @param string $properties
-     * @param (object) $key
+     * @param CrestApps\CodeGenerator\Models\ForeignConstraint $constraint
      *
      * @return $this
      */
-    protected function addOnUpdateConstraint(& $properties, $key)
+    protected function addOnUpdateConstraint(& $properties, ForeignConstraint $constraint)
     {
-        if (!empty($key->onUpdate)) {
-            $properties .= $this->getPropertyBaseSpace(18, true) . sprintf("->onUpdate('%s')", $key->onUpdate);
+        if ($constraint->hasUpdateAction()) {
+            $properties .= $this->getPropertyBaseSpace(18, true) . sprintf("->onUpdate('%s')", $constraint->onUpdate);
         }
 
         return $this;
@@ -210,9 +236,9 @@ class CreateMigrationCommand extends Command
      *
      * @return array
      */
-    protected function getKeysCollections($keysString)
+    protected function getForeignConstraints($keysString)
     {
-        $keys = [];
+        $constraints = [];
 
         $constraints = Helpers::removeEmptyItems(explode('#', $keysString));
 
@@ -221,41 +247,19 @@ class CreateMigrationCommand extends Command
 
             if (isset($keyParts[4])) {
                 //At this point we know there are foreign, references, on, onDelete, onUpdate
-                $keys[] = $this->getReferenceObject($keyParts[0], $keyParts[1], $keyParts[2], $keyParts[3], $keyParts[4]);
+                $constraints[] = new ForeignConstraint($keyParts[0], $keyParts[1], $keyParts[2], $keyParts[3], $keyParts[4]);
             } elseif (isset($keyParts[3])) {
                 //At this point we know there are foreign, references, onDelete
-                $keys[] = $this->getReferenceObject($keyParts[0], $keyParts[1], $keyParts[2], $keyParts[3]);
+                $constraints[] = new ForeignConstraint($keyParts[0], $keyParts[1], $keyParts[2], $keyParts[3]);
             } elseif (isset($keyParts[2])) {
                 //At this point we know there are foreign, references
-                $keys[] = $this->getReferenceObject($keyParts[0], $keyParts[1], $keyParts[2]);
+                $constraints[] = new ForeignConstraint($keyParts[0], $keyParts[1], $keyParts[2]);
             } else {
                 throw new Exception('The foreign key relation is not configured correctly.');
             }
         }
 
-        return $keys;
-    }
-
-    /**
-     * Creates foreign relation object.
-     *
-     * @param string $foreign
-     * @param string $refrerences
-     * @param string $on
-     * @param string $onDelete
-     * @param string $onUpdate
-     *
-     * @return object
-     */
-    protected function getReferenceObject($foreign, $refrerences, $on, $onDelete = null, $onUpdate = null)
-    {
-        return (object) [
-                            'foreign' => $foreign,
-                            'references' => $refrerences,
-                            'on' => $on,
-                            'onDelete' => $onDelete,
-                            'onUpdate' => $onUpdate,
-                       ];
+        return $constraints;
     }
 
     /**
@@ -808,13 +812,13 @@ class CreateMigrationCommand extends Command
         $fieldsFile = trim($this->option('fields-file'));
         $indexes = $this->getIndexColelction(trim($this->option('indexes')));
         $force = $this->option('force');
-        $keys = $this->getKeysCollections(trim($this->option('foreign-keys')));
+        $constraints = $this->getForeignConstraints(trim($this->option('foreign-keys')));
         $template = $this->getTemplateName();
         $withoutTimestamps = $this->option('without-timestamps');
         $withSoftDelete = $this->option('with-soft-delete');
 
         return (object) compact('tableName', 'className', 'connection', 'engine',
-                                'fields', 'fieldsFile', 'force', 'indexes', 'keys', 'template', 'withoutTimestamps', 'withSoftDelete');
+                                'fields', 'fieldsFile', 'force', 'indexes', 'constraints', 'template', 'withoutTimestamps', 'withSoftDelete');
     }
 
 

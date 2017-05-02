@@ -9,6 +9,7 @@ use CrestApps\CodeGenerator\Support\FieldsOptimizer;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\FieldMapper;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
+use CrestApps\CodeGenerator\Models\ForeignConstraint;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 
 class FieldTransformer
@@ -194,7 +195,8 @@ class FieldTransformer
              ->setMultipleAnswers($field, $properties)
              ->setUnsignedProperty($field, $properties)
              ->setForeignRelation($field, $properties)
-             ->setRange($field, $properties);
+             ->setRange($field, $properties)
+             ->setForeignConstraint($field, $properties);
 
         if ($this->isValidSelectRangeType($properties)) {
             $field->htmlType = 'selectRange';
@@ -366,12 +368,63 @@ class FieldTransformer
         }
 
         if ($this->isKeyExists($properties, 'foreign-relation')) {
-            $field->setForeignRelation($this->getForeignRelation((array)$properties['foreign-relation']));
+            $relation = $this->getForeignRelation((array)$properties['foreign-relation']);
+            $field->setForeignRelation($relation);
         } else {
-            $field->setForeignRelation(self::getPredectableForeignRelation($properties['name'], $this->getModelsPath()));
+            $field->setForeignRelation(self::getPredectableForeignRelation($properties['name'], $this->getAppNamespace() . $this->getModelsPath()));
         }
 
         return $this;
+    }
+
+    /**
+     * Sets the foreign key for a giving field
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
+     *
+     * @return $this
+    */
+    protected function setForeignConstraint(Field & $field, array $properties)
+    {
+        $foreignConstraint = $this->getForeignConstraint($properties);
+
+        $field->setForeignConstraint($foreignConstraint);
+
+        if ($field->hasForeignConstraint() && ! $field->hasForeignRelation()) {
+            $field->setForeignRelation($foreignConstraint->getForeignRelation());
+        }
+
+        return $this;
+    }
+
+    protected function getForeignConstraint(array $properties)
+    {
+        if ($this->hasForeignConstraint($properties)) {
+            $constraint = $properties['foreign-constraint'];
+            $onUpdate = $this->isKeyExists($constraint, 'on-update') ? $constraint['on-update'] : null;
+            $onDelete = $this->isKeyExists($constraint, 'on-delete') ? $constraint['on-delete'] : null;
+            $modelPath = $this->getAppNamespace() . $this->getModelsPath();
+            $model = $this->isKeyExists($constraint, 'references-model') ? $constraint['references-model'] : self::guessModelFullName($name, $modelPath);
+
+            return new ForeignConstraint($constraint['field'], $constraint['references'], $constraint['on'], $onDelete, $onUpdate, $model);
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if giving properties contains a valid foreign key object
+     *
+     * @param array $properties
+     *
+     * @return bool
+     */
+    protected function hasForeignConstraint(array $properties)
+    {
+        return  $this->isKeyExists($properties, 'foreign-constraint')
+                && is_array($properties['foreign-constraint'])
+                && $this->isKeyExists($properties['foreign-constraint'], 'field', 'references', 'on');
     }
 
     /**
@@ -380,7 +433,7 @@ class FieldTransformer
      * @param array $options
      *
      * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
-    */
+     */
     protected function getForeignRelation(array $options)
     {
         if ($this->isKeyExists($options, 'type', 'params', 'name', 'field')) {

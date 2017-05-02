@@ -4,7 +4,7 @@ namespace CrestApps\CodeGenerator\Models;
 
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Models\ForeignRelationship;
+use CrestApps\CodeGenerator\Models\ForeignRelationhip;
 
 class Field
 {
@@ -207,9 +207,16 @@ class Field
     /**
      * The foreign relations
      *
-     * @var CrestApps\CodeGenerator\Models\ForeignRelationship
+     * @var CrestApps\CodeGenerator\Models\ForeignRelationhip
      */
-    private $foreignRelations;
+    private $foreignRelation;
+
+    /**
+     * The foreign Constraint.
+     *
+     * @var CrestApps\CodeGenerator\Models\ForeignConstraint
+     */
+    private $foreignConstraint;
 
     /**
      * Creates a new field instance.
@@ -273,17 +280,39 @@ class Field
      */
     public function setForeignRelation(ForeignRelationship $relation = null)
     {
-        $this->foreignRelations = $relation;
+        $this->foreignRelation = $relation;
+    }
+
+    /**
+     * Sets the foreign key of the field.
+     *
+     * @param CrestApps\CodeGenerator\Models\ForeignConstraint $foreignConstraint
+     *
+     * @return void
+     */
+    public function setForeignConstraint(ForeignConstraint $constraint = null)
+    {
+        $this->foreignConstraint = $constraint;
     }
 
     /**
      * Gets the field's foreign relationship.
      *
-     * @return CrestApps\CodeGenerator\Models\ForeignRelationship
+     * @return CrestApps\CodeGenerator\Models\ForeignRelationhip
      */
     public function getForeignRelation()
     {
-        return $this->foreignRelations;
+        return $this->foreignRelation;
+    }
+
+    /**
+     * Gets the field's foreign key.
+     *
+     * @return CrestApps\CodeGenerator\Models\ForeignConstraint
+     */
+    public function getForeignConstraint()
+    {
+        return $this->foreignConstraint;
     }
 
     /**
@@ -293,9 +322,18 @@ class Field
      */
     public function hasForeignRelation()
     {
-        return ! is_null($this->foreignRelations);
+        return ! is_null($this->foreignRelation);
     }
 
+    /**
+     * Checks if the field has a foreign relation.
+     *
+     * @return bool
+     */
+    public function hasForeignConstraint()
+    {
+        return ! is_null($this->foreignConstraint);
+    }
     /**
      * Checks if the field is on a giving view.
      *
@@ -473,7 +511,8 @@ class Field
             'placeholder' => $this->placeHolder,
             'delimiter' => $this->optionsDelimiter,
             'range' => $this->range,
-            'foreign-relation' => $this->getForeignRelationToRaw()
+            'foreign-relation' => $this->getForeignRelationToRaw(),
+            'foreign-constraint' => $this->getForeignKeyToRaw()
         ];
     }
 
@@ -498,6 +537,28 @@ class Field
         return null;
     }
 
+    /**
+     * Gets a foreign key to a raw format.
+     *
+     * @return array | null
+     */
+    public function getForeignConstraintToRaw()
+    {
+        if ($this->hasForeignConstraint()) {
+            $relation = $this->getForeignConstraint();
+
+            return [
+                        'field' => $relation->field,
+                        'references' => $relation->references,
+                        'on' => $relation->on,
+                        'on-delete' => $relation->onDelete,
+                        'on-update' => $relation->onUpdate,
+                        'references-model' => $relation->referencesModel
+                   ];
+        }
+
+        return null;
+    }
     /**
      * Returns current object into proper json format.
      *
