@@ -268,6 +268,57 @@ trait CommonCommand
     }
 
     /**
+     * Gets the common name patterns to use for headers.
+     * 
+     * @return array
+    */
+    protected function getCommonHeadersPatterns()
+    {
+        return config('codegenerator.common_header_patterns') ?: [];
+    }
+
+    /**
+     * Gets the common datetime patterns.
+     * 
+     * @return array
+    */
+    protected function getCommonDateTimePatterns()
+    {
+        return config('codegenerator.common_datetime_patterns') ?: [];
+    }
+
+    /**
+     * Gets the common primary ids patterns.
+     * 
+     * @return array
+    */
+    protected function getCommonIdPatterns()
+    {
+        return config('codegenerator.common_id_patterns') ?: [];
+    }
+
+    /**
+     * Gets the common key patterns.
+     * 
+     * @return array
+    */
+    protected function getCommonKeyPatterns()
+    {
+        return config('codegenerator.common_key_patterns') ?: [];
+    }
+
+    /**
+     * It checks if a giving field is a primary or not.
+     * 
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @return bool
+    */
+    protected function isPrimaryField(Field $field)
+    {
+        return (in_array($field->name, $this->getCommonHeadersPatterns()) || $field->isAutoIncrement || $field->isPrimary);
+    }
+
+    /**
      * Determine if the class already exists.
      *
      * @param  string  $rawName
