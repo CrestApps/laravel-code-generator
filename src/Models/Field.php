@@ -512,7 +512,7 @@ class Field
             'delimiter' => $this->optionsDelimiter,
             'range' => $this->range,
             'foreign-relation' => $this->getForeignRelationToRaw(),
-            'foreign-constraint' => $this->getForeignKeyToRaw()
+            'foreign-constraint' => $this->getForeignConstraintToRaw ()
         ];
     }
 
