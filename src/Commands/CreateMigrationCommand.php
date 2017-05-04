@@ -821,7 +821,6 @@ class CreateMigrationCommand extends Command
                                 'fields', 'fieldsFile', 'force', 'indexes', 'constraints', 'template', 'withoutTimestamps', 'withSoftDelete');
     }
 
-
     /**
      * Makes a file name for the migration.
      *

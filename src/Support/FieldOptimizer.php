@@ -4,10 +4,11 @@ namespace CrestApps\CodeGenerator\Support;
 
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Support\ValidationParser;
-use CrestApps\CodeGenerator\Support\OptimizerBase;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
 
-class FieldOptimizer extends OptimizerBase
+class FieldOptimizer
 {
+    use CommonCommand;
     
     /**
      * The field to optimize
@@ -153,7 +154,6 @@ class FieldOptimizer extends OptimizerBase
     */
     protected function optimizeHtmlType()
     {
-
         if ($this->field->hasForeignRelation()) {
             // At this point we know the field has a foreign relation
             // set the htmlType to select since the user will have to select an item(s)

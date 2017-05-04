@@ -4,11 +4,13 @@ namespace CrestApps\CodeGenerator\Support;
 
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Model\FieldMapper;
-use CrestApps\CodeGenerator\Support\OptimizerBase;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\Helpers;
 
-class FieldsOptimizer extends OptimizerBase
+class FieldsOptimizer
 {
-    
+    use CommonCommand;
+
     /**
      * The field mappers.
      *
@@ -137,6 +139,6 @@ class FieldsOptimizer extends OptimizerBase
     */
     protected function isPrimaryHeader(Field $field)
     {
-        return ($field->isHeader || in_array($field->name, $this->getCommonHeadersNames()));
+        return $field->isHeader || Helpers::strIs($this->getCommonHeadersPatterns(), $field->name);
     }
 }

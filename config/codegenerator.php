@@ -102,14 +102,42 @@ return [
     | Key phrases that are will be used to determine if a field name should be used for header.
     |--------------------------------------------------------------------------
     */
-    'common_header_names' => ['title','name','label','header'],
+    'common_header_patterns' => ['title','name','label','header'],
 
     /*
     |--------------------------------------------------------------------------
     | Key phrases that are will be used to determine if a field should be a primary key.
     |--------------------------------------------------------------------------
     */
-    'common_id_names' => ['id'],
+    'common_id_patterns' => ['id'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Key phrases that are will be used to determine if a field should have a relation.
+    |--------------------------------------------------------------------------
+    |
+    | When creating resources from existing database, the codegenerator scans
+    | the field's name for a mattching pattern. When found, these field are considred 
+    | foreign keys even if the database does not have a foreign constraints.
+    | Here you can specify patterns to help the generator understand your
+    | database naming convension.
+    |
+    */
+    'common_key_patterns' => ['*_id','*_by'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Key phrases that are will be used to determine if a field should have a relation.
+    |--------------------------------------------------------------------------
+    |
+    | When creating resources from existing database, the codegenerator scans
+    | the field's name for a mattching pattern. When found, these field are considred 
+    | foreign keys even if the database does not have a foreign constraints.
+    | Here you can specify patterns to help the generator understand your
+    | database naming convension.
+    |
+    */
+    'common_datetime_patterns' => ['*_at'],
 
     /*
     |--------------------------------------------------------------------------

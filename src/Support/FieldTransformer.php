@@ -89,6 +89,24 @@ class FieldTransformer
     ];
 
     /**
+     * List of data types that would make a field unsigned.
+     *
+     * @return array
+    */
+    protected $unsignedTypes = [
+        'bigIncrements',
+        'bigInteger',
+        'increments',
+        'mediumIncrements',
+        'smallIncrements',
+        'unsignedBigInteger',
+        'unsignedInteger',
+        'unsignedMediumInteger',
+        'unsignedSmallInteger',
+        'unsignedTinyInteger'
+    ];
+
+    /**
      * The apps default language
      *
      * @var string
@@ -436,12 +454,14 @@ class FieldTransformer
      */
     protected function getForeignRelation(array $options)
     {
-        if ($this->isKeyExists($options, 'type', 'params', 'name', 'field')) {
+        if ($this->isKeyExists($options, 'type', 'params', 'name')) {
+            $field = $this->isKeyExists($options, 'field') ? $options['field'] : null;
+
             return new ForeignRelationship(
                                     $options['type'],
                                     $options['params'],
                                     $options['name'],
-                                    $options['field']
+                                    $field
                                 );
         }
         
@@ -461,7 +481,8 @@ class FieldTransformer
         if (ends_with($name, '_id')) {
             $foreignName = self::extractModelName($name);
             $model = self::guessModelFullName($name, $modelPath);
-            $parameters = [$model, $name, 'id'];
+            
+            $parameters = [$model, $name];
 
             return new ForeignRelationship('belongsTo', $parameters, $foreignName);
         }
@@ -493,7 +514,7 @@ class FieldTransformer
      */
     public static function extractModelName($name)
     {
-        return studly_case(str_replace('_id', '', $name));
+        return ucfirst(studly_case(str_replace('_id', '', $name)));
     }
 
     /**
@@ -507,7 +528,7 @@ class FieldTransformer
     protected function isUnsigned(Field & $field, array $properties)
     {
         return ($this->isKeyExists($properties, 'is-unsigned') && $properties['is-unsigned'])
-              || in_array($field->dataType, ['bigIncrements','bigInteger','increments','mediumIncrements','smallIncrements','unsignedBigInteger','unsignedInteger','unsignedMediumInteger','unsignedSmallInteger','unsignedTinyInteger']);
+              || in_array($field->dataType, $this->unsignedTypes);
     }
 
     /**

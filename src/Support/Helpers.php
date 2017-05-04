@@ -36,6 +36,29 @@ class Helpers
     }
 
     /**
+     * Checks if a string matches at least one giving pattern
+     *
+     * @param string|array $patterns
+     * @param string $subject
+     *
+     * @return bool
+     */
+    public static function strIs($patterns, $subject)
+    {
+        if (!is_array($patterns)) {
+            $patterns = (array) $patterns;
+        }
+
+        foreach ($patterns as $pattern) {
+            if (str_is($pattern, $subject)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Converts a string to a dot notation format
      *
      * @param string $string

@@ -504,6 +504,7 @@ class Field
             'is-primary' => $this->isPrimary,
             'comment' => $this->comment,
             'is-nullable' => $this->isNullable,
+            'is-header' => $this->isHeader,
             'is-unsigned' => $this->isUnsigned,
             'is-auto-increment' => $this->isAutoIncrement,
             'is-inline-options' => $this->isInlineOptions,
@@ -512,7 +513,7 @@ class Field
             'delimiter' => $this->optionsDelimiter,
             'range' => $this->range,
             'foreign-relation' => $this->getForeignRelationToRaw(),
-            'foreign-constraint' => $this->getForeignConstraintToRaw ()
+            'foreign-constraint' => $this->getForeignConstraintToRaw()
         ];
     }
 

@@ -3,6 +3,8 @@
 namespace CrestApps\CodeGenerator\Models;
 
 use Exception;
+use DB;
+use CrestApps\CodeGenerator\Support\Helpers;
 
 class ForeignRelationship
 {
@@ -42,7 +44,7 @@ class ForeignRelationship
      *
      * @var string
      */
-    public $field;
+    private $field;
 
     /**
      * The name of the foreign relation.
@@ -68,12 +70,12 @@ class ForeignRelationship
      *
      * @return void
      */
-    public function __construct($type, $parameters, $name, $field = 'id')
+    public function __construct($type, $parameters, $name, $field = null)
     {
         $this->setType($type);
         $this->parameters = (array) $parameters;
         $this->name = $name;
-        $this->field = $field;
+        $this->setField($field);
     }
 
     /**
@@ -90,11 +92,10 @@ class ForeignRelationship
         ]);
     }
 
-
     /**
      * Sets the type of the relation
      *
-     * @param string $name
+     * @param string $type
      *
      * @return void
      */
@@ -105,6 +106,64 @@ class ForeignRelationship
         }
 
         $this->type = $type;
+    }
+
+    /**
+     * Sets the name column name of the foreign relation
+     *
+     * @param string $name
+     *
+     * @return void
+     */
+    public function setType($name)
+    {
+        $this->field = $name;
+    }
+
+    /**
+     * Get the foreign field name.
+     *
+     * @return string
+     */
+    public function getField()
+    {
+        if (empty($this->field)) {
+            $this->field = $this->guessForeignField();
+        }
+
+        return $this->field;
+    }
+
+    /**
+     * Guesses the name of the foreign key.
+     *
+     * @return string
+     */
+    protected function guessForeignField()
+    {
+        $model = $this->getPrimaryKeyForForeignModel();
+        $columns = DB::getSchemaBuilder()->getColumnListing($model->getTable());
+        $names = config('codegenerator.common_header_patterns') ?: [];
+
+        foreach ($columns as $column) {
+            if (in_array($column, $names)) {
+                return $column;
+            }
+        }
+
+        $primary = $this->getPrimaryKeyForForeignModel();
+        $datetimePatterns = config('codegenerator.common_datetime_patterns') ?: [];
+        $idPatterns = config('codegenerator.common_id_patterns') ?: [];
+
+        $columns = array_filter($columns, function ($column) use ($primary, $idPatterns, $datetimePatterns) {
+            return $column != $primary && ! Helpers::strIs($idPatterns, $column) && ! Helpers::strIs($datetimePatterns, $column);
+        });
+
+        if (count($columns) == 1) {
+            return $columns[0];
+        }
+
+        return $primary;
     }
 
     /**
