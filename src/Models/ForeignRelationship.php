@@ -115,7 +115,7 @@ class ForeignRelationship
      *
      * @return void
      */
-    public function setType($name)
+    public function setField($name)
     {
         $this->field = $name;
     }
@@ -141,7 +141,7 @@ class ForeignRelationship
      */
     protected function guessForeignField()
     {
-        $model = $this->getPrimaryKeyForForeignModel();
+        $model = $this->getForeignModelInstance();
         $columns = DB::getSchemaBuilder()->getColumnListing($model->getTable());
         $names = config('codegenerator.common_header_patterns') ?: [];
 

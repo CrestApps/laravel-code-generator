@@ -531,7 +531,7 @@ class Field
                         'name' => $relation->name,
                         'type' => $relation->getType(),
                         'params' => $relation->parameters,
-                        'field' => $relation->field
+                        'field' => $relation->getField()
                    ];
         }
 
