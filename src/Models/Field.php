@@ -531,7 +531,7 @@ class Field
                         'name' => $relation->name,
                         'type' => $relation->getType(),
                         'params' => $relation->parameters,
-                        'field' => $relation->field
+                        'field' => $relation->getField()
                    ];
         }
 
@@ -549,7 +549,7 @@ class Field
             $relation = $this->getForeignConstraint();
 
             return [
-                        'field' => $relation->field,
+                        'field' => $relation->getField(),
                         'references' => $relation->references,
                         'on' => $relation->on,
                         'on-delete' => $relation->onDelete,
