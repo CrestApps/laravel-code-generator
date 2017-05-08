@@ -382,8 +382,8 @@ trait CommonCommand
     protected function getPathToTemplates($template = null)
     {
         $template = Helpers::getPathWithSlash($template ?: Config::getDefaultTemplateName());
-
-        $path = Helpers::getPathWithSlash(base_path() . '/'. Config::getTemplatesPath() . $template);
+        $basePath = base_path(Config::getTemplatesPath() . $template);
+        $path = Helpers::getPathWithSlash($basePath);
   
         if (!$this->isFileExists($path)) {
             throw new Exception('Invalid template name or the templates is invalid. Make sure the following path exists: "' . $path . '"');
@@ -399,7 +399,7 @@ trait CommonCommand
      *
      * @return bool
      */
-    protected function isContainfile(array $fields)
+    protected function containsfile(array $fields)
     {
         $filtered = array_filter($fields, function ($field) {
             return $field->isFile();

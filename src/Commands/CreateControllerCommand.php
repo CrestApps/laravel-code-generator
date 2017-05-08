@@ -301,7 +301,7 @@ class CreateControllerCommand extends Command
      */
     protected function getUploadFileMethod(array $fields)
     {
-        if ($this->isContainfile($fields)) {
+        if ($this->containsfile($fields)) {
             return $this->getStubContent('controller-upload-method', $this->getTemplateName());
         }
 
@@ -315,7 +315,7 @@ class CreateControllerCommand extends Command
      */
     protected function getDestenationFile($name)
     {
-        $path = Helpers::postFixWith(base_path(), '/') . $this->getAppNamespace() . Config::getControllersPath();
+        $path = base_path($this->getAppNamespace() . Config::getControllersPath());
 
         return Helpers::postFixWith($path, '/') . $name . '.php';
     }

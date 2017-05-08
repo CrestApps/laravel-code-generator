@@ -223,8 +223,15 @@ class ForeignRelationship
             return class_basename($model);
         }
 
+        $position = strrpos($model, '\\');
+
+        if($position !== false) {
+            return substr($model, $position + 1);
+        }
+        
         return '';
     }
+
 
     /**
      * Check if a giving class is an an instance of Model

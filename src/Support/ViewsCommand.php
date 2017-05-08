@@ -190,7 +190,7 @@ abstract class ViewsCommand extends Command
      */
     protected function replaceFileUpload(&$stub, array $fields)
     {
-        $code = $this->isContainfile($fields) ? $this->getFileUploadAttribute($this->getTemplateName()) : '';
+        $code = $this->containsfile($fields) ? $this->getFileUploadAttribute($this->getTemplateName()) : '';
 
         $stub = str_replace('{{uploadFiles}}', $code, $stub);
 

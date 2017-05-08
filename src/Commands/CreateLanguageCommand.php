@@ -234,7 +234,7 @@ class CreateLanguageCommand extends Command
      */
     protected function getLocalePath($language)
     {
-        return base_path() . '/' . Config::getLanguagesPath() . $language . '/';
+        return base_path(Config::getLanguagesPath() . $language . '/');
     }
 
     /**
