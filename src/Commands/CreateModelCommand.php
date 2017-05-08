@@ -2,15 +2,17 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use Illuminate\Console\GeneratorCommand;
+use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
 
-class CreateModelCommand extends GeneratorCommand
+class CreateModelCommand extends Command
 {
-    use CommonCommand;
+    use CommonCommand, GeneratorReplacers;
 
     /**
      * The name and signature of the console command.
@@ -48,33 +50,67 @@ class CreateModelCommand extends GeneratorCommand
     /**
      * Builds the model class with the given name.
      *
-     * @param  string  $name
-     *
      * @return string
      */
-    protected function buildClass($name)
+    public function handle()
     {
-        $stub = $this->files->get($this->getStub('model'));
+        $stub = $this->getStubContent('model');
         $input = $this->getCommandInput();
-        $fields = $this->getFields($input->fields, 'model', $input->fieldsFile);
 
+        $fields = $this->getFields($input->fields, 'model', $input->fieldsFile);
+        
         if ($input->useSoftDelete) {
             $fields = $this->upsertDeletedAt($fields);
         }
 
         $primaryKey = $this->getNewPrimaryKey($this->getPrimaryKeyName($fields, $input->primaryKey));
+        $destenationFile = $this->getDestenationFile($input->modelName);
+        
+        if ($this->alreadyExists($destenationFile)) {
+            $this->error('The model already exists! To override the existing file, use --force option.');
 
-        return $this->replaceNamespace($stub, $name)
-                    ->replaceTable($stub, $input->table)
+            return false;
+        }
+
+        $relations = $this->getRelationMethods($input->relationships, $fields);
+
+        return $this->replaceTable($stub, $input->table)
+                    ->replaceModelName($stub, $input->modelName)
+                    ->replaceNamespace($stub, $this->getNamespace($input->modelName))
                     ->replaceSoftDelete($stub, $input->useSoftDelete)
                     ->replaceTimestamps($stub, $this->getTimeStampsStub($input->useTimeStamps))
                     ->replaceFillable($stub, $this->getFillables($input->fillable, $fields))
                     ->replaceDateFields($stub, $this->getDateFields($fields))
                     ->replacePrimaryKey($stub, $primaryKey)
-                    ->replaceRelationshipPlaceholder($stub, $this->getRelationMethods($input->relationships, $fields))
+                    ->replaceRelationshipPlaceholder($stub, $relations)
                     ->replaceAccessors($stub, $this->getAccessors($fields))
                     ->replaceMutators($stub, $this->getMutators($fields))
-                    ->replaceClass($stub, $name);
+                    ->createFile($destenationFile, $stub)
+                    ->info('A model was crafted successfully.');
+    }
+
+    /**
+     * Gets the destenation file to be created.
+     *
+     * @param array $name
+     *
+     * @return string
+     */
+    protected function getDestenationFile($name)
+    {
+        return app_path() . '/' . Config::getModelsPath($name) . '.php';
+    }
+
+    /**
+     * Gets the model's namespace.
+     *
+     * @return string
+     */
+    protected function getNamespace()
+    {
+        $namespace = $this->getAppNamespace() . Config::getModelsPath();
+
+        return rtrim(Helpers::convertSlashToBackslash($namespace), '\\');
     }
 
     /**
@@ -216,8 +252,9 @@ class CreateModelCommand extends GeneratorCommand
         $fields = trim($this->option('fields'));
         $fieldsFile = trim($this->option('fields-file'));
         $template = $this->getTemplateName();
+        $modelName = ucfirst(str_singular($table));
 
-        return (object) compact('table', 'fillable', 'primaryKey', 'relationships', 'useSoftDelete', 'useTimeStamps', 'fields', 'fieldsFile', 'template');
+        return (object) compact('table', 'fillable', 'primaryKey', 'relationships', 'useSoftDelete', 'useTimeStamps', 'fields', 'fieldsFile', 'template', 'modelName');
     }
 
     /**
@@ -233,7 +270,7 @@ class CreateModelCommand extends GeneratorCommand
             $path = Helpers::getPathWithSlash(ucfirst($path));
         }
 
-        return $this->getModelsPath() . $path . Helpers::upperCaseEveyWord(trim($this->argument('model-name')));
+        return Config::getModelsPath() . $path . Helpers::upperCaseEveyWord(trim($this->argument('model-name')));
     }
 
     /**

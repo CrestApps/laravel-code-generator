@@ -3,6 +3,8 @@
 namespace CrestApps\CodeGenerator\HtmlGenerators;
 
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Helpers;
@@ -11,7 +13,7 @@ use CrestApps\CodeGenerator\Support\ValidationParser;
 
 abstract class HtmlGeneratorBase
 {
-    use CommonCommand;
+    use CommonCommand, GeneratorReplacers;
 
     /**
      * Array of fields.
@@ -265,7 +267,7 @@ abstract class HtmlGeneratorBase
         if ($field->hasForeignRelation() && $field->isOnView($view)) {
             $relation = $field->getForeignRelation();
 
-            $fieldAccessor = sprintf('$%s->%s->%s', $this->getModelName($this->modelName), $relation->name, $relation->field);
+            $fieldAccessor = sprintf('$%s->%s->%s', $this->getModelName($this->modelName), $relation->name, $relation->getField());
         }
 
         if ($field->isBoolean()) {
@@ -471,8 +473,7 @@ abstract class HtmlGeneratorBase
     {
         if ($field->hasForeignRelation()) {
             $relation = $field->getForeignRelation();
-
-            return sprintf('$%s->%s', $relation->getSingleName(), $relation->field);
+            return sprintf('$%s->%s', $relation->getSingleName(), $relation->getField());
         }
 
         return '$text';

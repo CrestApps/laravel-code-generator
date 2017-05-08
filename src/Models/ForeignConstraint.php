@@ -3,6 +3,8 @@
 namespace CrestApps\CodeGenerator\Models;
 
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\FieldTransformer;
 
 class ForeignConstraint
 {
@@ -76,7 +78,7 @@ class ForeignConstraint
     public function getReferencesModel()
     {
         if (empty($this->referencesModel)) {
-            $this->referencesModel = FieldTransformer::guessModelFullName($name, $this->getAppNamespace() . $this->getModelsPath());
+            $this->referencesModel = $this->getModelNamespace() . '\\' . ucfirst($this->getForeignModelName());
         }
 
         return $this->referencesModel;
@@ -93,9 +95,19 @@ class ForeignConstraint
         return new ForeignRelationship(
                                     'belongsTo',
                                     $params,
-                                    camel_case(str_singular($this->references)),
+                                    $this->getForeignModelName(),
                                     $this->on
                                 );
+    }
+
+    protected function getModelNamespace()
+    {
+        return $this->getAppNamespace() . rtrim(Config::getModelsPath(), '/');
+    }
+
+    protected function getForeignModelName()
+    {
+        return camel_case(str_singular($this->references));
     }
 
     public function hasDeleteAction()

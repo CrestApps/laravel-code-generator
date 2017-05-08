@@ -8,10 +8,12 @@ use Exception;
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 
 class CreateRoutesCommand extends Command
 {
-    use CommonCommand;
+    use CommonCommand,  GeneratorReplacers;
 
     /**
      * The name and signature of the console command.
@@ -31,16 +33,6 @@ class CreateRoutesCommand extends Command
      * @var string
      */
     protected $description = 'Create "create, read, update and delete" routes for the model.';
-
-    /**
-     * Creates a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
 
     /**
      * Executes the console command.
@@ -68,7 +60,8 @@ class CreateRoutesCommand extends Command
              ->replaceControllerName($stub, $this->getControllerName($input->controllerName, $input->controllerDirectory))
              ->replaceRouteNames($stub, $input->modelName, $input->prefix)
              ->processRoutesGroup($stub, $input->prefix, $input->controllerDirectory, $input->template)
-             ->appendToRoutesFile($stub, $routesFile);
+             ->appendToRoutesFile($stub, $routesFile)
+             ->info('The routes were added successfully.');
     }
 
     /**
@@ -101,8 +94,6 @@ class CreateRoutesCommand extends Command
         if (! File::append($routesFile, $stub)) {
             throw new Exception('Unable to add the route to ' . $routesFile);
         }
-
-        $this->info('The routes were added successfully.');
 
         return $this;
     }

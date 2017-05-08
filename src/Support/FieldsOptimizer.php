@@ -5,12 +5,11 @@ namespace CrestApps\CodeGenerator\Support;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Model\FieldMapper;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 
 class FieldsOptimizer
 {
-    use CommonCommand;
-
     /**
      * The field mappers.
      *
@@ -91,7 +90,7 @@ class FieldsOptimizer
                 continue;
             }
 
-            if ($this->isPrimaryField($mapper->field)) {
+            if ($mapper->field->isPrimary() || in_array($mapper->field->name, Config::getIdPatterns())) {
                 $mapper->field->isPrimary = true;
                 $foundPrimary = true;
             }
@@ -139,6 +138,6 @@ class FieldsOptimizer
     */
     protected function isPrimaryHeader(Field $field)
     {
-        return $field->isHeader || Helpers::strIs($this->getCommonHeadersPatterns(), $field->name);
+        return $field->isHeader || Helpers::strIs(Config::getHeadersPatterns(), $field->name);
     }
 }

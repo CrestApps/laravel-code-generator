@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\Config;
 
 class CreateViewLayoutCommand extends Command
 {
@@ -33,16 +34,6 @@ class CreateViewLayoutCommand extends Command
     protected $description = 'Create a layout for the views.';
 
     /**
-     * Creates a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Executes the console command.
      *
      * @return void
@@ -50,13 +41,21 @@ class CreateViewLayoutCommand extends Command
     public function handle()
     {
         $input = $this->getCommandInput();
-        $stub = $this->getStubContent($input->withoutValidation ? 'layout' : 'layout-with-validation', $this->getTemplateName());
         $path = $this->getDestenationPath($input->layoutDirectory);
+        $destenationFile = $path . $input->layoutFileName;
+
+        if ($this->alreadyExists($destenationFile)) {
+            $this->error('The layout already exists!');
+
+            return false;
+        }
+
+        $stubName = $input->withoutValidation ? 'layout' : 'layout-with-validation';
+        $stub = $this->getStubContent($stubName, $this->getTemplateName());
 
         $this->replaceApplicationName($stub, $input->appName)
-             ->createDirectory($path)
-             ->makeFile($path . $input->layoutFileName, $stub, $input->force)
-             ->info('The layout have been created!');
+             ->createFile($destenationFile, $stub)
+             ->info('A layout have been created!');
     }
 
     /**
@@ -108,7 +107,7 @@ class CreateViewLayoutCommand extends Command
             $path = Helpers::getPathWithSlash($path);
         }
 
-        return $this->getViewsPath() . $path;
+        return Config::getViewsPath() . $path;
     }
 
     /**

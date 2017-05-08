@@ -2,10 +2,10 @@
 
 namespace CrestApps\CodeGenerator\Traits;
 
-use App;
 use File;
 use Exception;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Models\Field;
 use Illuminate\Container\Container;
 
@@ -40,25 +40,13 @@ trait CommonCommand
     }
 
     /**
-     * Evaluates the current version of the framework to see if it >= a giving version.
-     *
-     * @param $version
-     *
-     * @return bool
-     */
-    protected function isNewerThan($version = '5.3')
-    {
-        return (App::VERSION() >= $version);
-    }
-
-    /**
      * Gets the correct routes fullname based on current framework version.
      *
      * @return string
      */
     protected function getRoutesFileName()
     {
-        if ($this->isNewerThan()) {
+        if (Helpers::isNewerThan()) {
             return base_path('routes/web.php');
         }
 
@@ -72,7 +60,7 @@ trait CommonCommand
      */
     public function arguments()
     {
-        if ($this->isNewerThan()) {
+        if (Helpers::isNewerThan()) {
             return parent::arguments();
         }
 
@@ -102,7 +90,7 @@ trait CommonCommand
      */
     public function options()
     {
-        if ($this->isNewerThan()) {
+        if (Helpers::isNewerThan()) {
             return parent::options();
         }
 
@@ -224,113 +212,66 @@ trait CommonCommand
         return File::get($this->getStubByName($name, $template));
     }
 
-    /**
-     * Replace the modelName fo the given stub.
-     *
-     * @param string $stub
-     * @param string $modelName
-     *
-     * @return $this
-     */
-    protected function replaceModelName(&$stub, $modelName)
-    {
-        $stub = str_replace('{{modelName}}', $this->getModelName($modelName), $stub);
-        $stub = str_replace('{{modelNameClass}}', $this->getModelClassName($modelName), $stub);
-        $stub = str_replace('{{modelNamePlural}}', $this->getModelPluralName($modelName), $stub);
-        $stub = str_replace('{{modelNamePluralCap}}', $this->getModelNamePluralCap($modelName), $stub);
-
-        return $this;
-    }
-
-    protected function getModelClassName($name)
-    {
-        return ucwords($name);
-    }
-
-    protected function getModelName($name)
-    {
-        return strtolower($name);
-    }
-
-    protected function getModelPluralName($name)
-    {
-        return str_plural(strtolower($name));
-    }
-
-    protected function getModelNamePluralCap($name)
-    {
-        return ucwords($this->getModelPluralName($name));
-    }
-
     protected function getAppNamespace()
     {
         return Container::getInstance()->getNamespace();
     }
 
-    /**
-     * Gets the common name patterns to use for headers.
-     * 
-     * @return array
-    */
-    protected function getCommonHeadersPatterns()
+    protected function getAppName()
     {
-        return config('codegenerator.common_header_patterns') ?: [];
+        return rtrim($this->getAppNamespace(), '\\');
     }
 
     /**
-     * Gets the common datetime patterns.
-     * 
-     * @return array
-    */
-    protected function getCommonDateTimePatterns()
-    {
-        return config('codegenerator.common_datetime_patterns') ?: [];
-    }
-
-    /**
-     * Gets the common primary ids patterns.
-     * 
-     * @return array
-    */
-    protected function getCommonIdPatterns()
-    {
-        return config('codegenerator.common_id_patterns') ?: [];
-    }
-
-    /**
-     * Gets the common key patterns.
-     * 
-     * @return array
-    */
-    protected function getCommonKeyPatterns()
-    {
-        return config('codegenerator.common_key_patterns') ?: [];
-    }
-
-    /**
-     * It checks if a giving field is a primary or not.
-     * 
-     * @param CrestApps\CodeGenerator\Models\Field $field
-     * @return bool
-    */
-    protected function isPrimaryField(Field $field)
-    {
-        return (in_array($field->name, $this->getCommonHeadersPatterns()) || $field->isAutoIncrement || $field->isPrimary);
-    }
-
-    /**
-     * Determine if the class already exists.
+     * Determine if a file already exists after checking for a --force option in the command.
      *
-     * @param  string  $rawName
+     * @param  string  $file
      * @return bool
      */
-    protected function alreadyExists($rawName)
+    protected function alreadyExists($file)
     {
         if ($this->option('force')) {
             return false;
         }
 
-        return parent::alreadyExists($rawName);
+        return $this->isFileExists($file);
+    }
+
+    /**
+     * Determine if a file already exists.
+     *
+     * @param  string  $file
+     * @return bool
+     */
+    protected function isFileExists($file)
+    {
+        return File::exists($file);
+    }
+
+    /**
+     * Get the givin file content.
+     *
+     * @param  string  $file
+     *
+     * @return string
+     */
+    protected function getFileContent($file)
+    {
+        return File::get($file);
+    }
+
+    /**
+     * Adds content to a giving file.
+     *
+     * @param  string  $file
+     *
+     * @return $this
+     */
+    protected function putContentInFile($file, $content)
+    {
+        $bytesWritten = File::put($file, $content);
+
+        return $this;
     }
 
     /**
@@ -384,6 +325,24 @@ trait CommonCommand
     }
 
     /**
+     * It creates a new file. If the target path does not exists one will be created.
+     *
+     * @param string $file
+     * @param string $stub
+     *
+     * @return $this
+     */
+    protected function createFile($file, $stub)
+    {
+        $path = dirname($file);
+        $this->createDirectory($path);
+
+        $this->putContentInFile($file, $stub);
+
+        return $this;
+    }
+
+    /**
      * Gets laravel ready field validation format from a giving string
      *
      * @param string $validations
@@ -404,46 +363,6 @@ trait CommonCommand
     }
 
     /**
-     * Gets the path to requests
-     *
-     * @return string
-     */
-    protected function getRequestsPath()
-    {
-        return Helpers::getPathWithSlash(config('codegenerator.form_requests_path'));
-    }
-
-    /**
-     * Gets the path to models
-     *
-     * @return string
-     */
-    protected function getModelsPath()
-    {
-        return Helpers::getPathWithSlash(config('codegenerator.models_path'));
-    }
-
-    /**
-     * Gets the path to controllers
-     *
-     * @return string
-     */
-    protected function getControllersPath()
-    {
-        return Helpers::getPathWithSlash(config('codegenerator.controllers_path'));
-    }
-
-    /**
-     * Gets the path to languages
-     *
-     * @return string
-     */
-    protected function getLanguagesPath()
-    {
-        return Helpers::getPathWithSlash(config('codegenerator.languages_path'));
-    }
-
-    /**
      * Checks if the givin field is an instance of a field or not.
      *
      * @return string
@@ -451,46 +370,6 @@ trait CommonCommand
     protected function isField($field)
     {
         return $field instanceof Field;
-    }
-
-    /**
-     * Gets the path to views
-     *
-     * @return string
-     */
-    protected function getViewsPath()
-    {
-        return Helpers::getPathWithSlash(config('view.paths')[0]);
-    }
-
-    /**
-     * Gets the migrations path.
-     *
-     * @return string
-     */
-    protected function getMigrationsPath()
-    {
-        return Helpers::getPathWithSlash(config('codegenerator.migrations_path'));
-    }
-
-    /**
-     * Gets the field's file path.
-     *
-     * @return string
-     */
-    protected function getFieldsFilePath()
-    {
-        return Helpers::getPathWithSlash(config('codegenerator.fields_file_path'));
-    }
-
-    /**
-     * Gets the template names that uses Laravel-Collective
-     *
-     * @return array
-     */
-    protected function getCollectiveTemplates()
-    {
-        return config('codegenerator.laravel_collective_templates', ['default-collective']);
     }
 
     /**
@@ -502,34 +381,15 @@ trait CommonCommand
      */
     protected function getPathToTemplates($template = null)
     {
-        $template = Helpers::getPathWithSlash($template ?: config('codegenerator.template'));
-        $path = Helpers::getPathWithSlash(config('codegenerator.templates_path')) . $template;
+        $template = Helpers::getPathWithSlash($template ?: Config::getDefaultTemplateName());
 
-        if (!File::exists($path)) {
+        $path = Helpers::getPathWithSlash(base_path() . '/'. Config::getTemplatesPath() . $template);
+  
+        if (!$this->isFileExists($path)) {
             throw new Exception('Invalid template name or the templates is invalid. Make sure the following path exists: "' . $path . '"');
         }
 
         return $path;
-    }
-
-    /**
-     * Gets the template name from the options line.
-     *
-     * @return string
-     */
-    protected function getTemplateName()
-    {
-        return trim($this->option('template-name')) ?: $this->getDefaultTemplateName();
-    }
-
-    /**
-     * Gets the default template name.
-     *
-     * @return string
-     */
-    protected function getDefaultTemplateName()
-    {
-        return config('codegenerator.template', 'default');
     }
 
     /**
@@ -546,5 +406,15 @@ trait CommonCommand
         });
         
         return (count($filtered) > 0);
+    }
+
+    /**
+     * Gets the template name from the options line.
+     *
+     * @return string
+     */
+    public function getTemplateName()
+    {
+        return trim($this->option('template-name')) ?: Config::getDefaultTemplateName();
     }
 }

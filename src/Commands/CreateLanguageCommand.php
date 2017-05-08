@@ -2,12 +2,12 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use File;
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Models\Label;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\CrestAppsTranslator;
+use CrestApps\CodeGenerator\Support\Config;
 
 class CreateLanguageCommand extends Command
 {
@@ -32,16 +32,6 @@ class CreateLanguageCommand extends Command
     protected $description = 'Create a language file for the model.';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return void
@@ -53,14 +43,30 @@ class CreateLanguageCommand extends Command
         $languages = $this->getLanguageItems($fields);
 
         foreach ($languages as $language => $labels) {
-            $fileFullName = $this->getLocalePath($language) . $input->fileName . '.php';
+
+            $file = $this->getDestenationFile($language, $input->fileName);
             $messagesToRegister = [];
             $phrases = $this->getLangPhrases($labels, $messagesToRegister);
 
-            $this->createPath($this->getLocalePath($language))
-                 ->addMessagesToFile($fileFullName, $phrases, $language, $input->template)
+            $this->addMessagesToFile($file, $phrases, $language)
                  ->registerMessages($messagesToRegister, $language);
+            
         }
+    }
+
+    /**
+     * Gets the destenation file.
+     *
+     * @param array $path
+     * @param string $name
+     *
+     * @return string
+     */
+    protected function getDestenationFile($language, $name)
+    {
+        $path = $this->getLocalePath($language);
+
+        return sprintf('%s%s.php', $path, $name);
     }
 
     /**
@@ -100,7 +106,7 @@ class CreateLanguageCommand extends Command
      */
     protected function getTranslator()
     {
-        if (!$this->isNewerThan('5.3')) {
+        if (! Helpers::isNewerThan('5.3')) {
             return CrestAppsTranslator::getTranslator();
         }
 
@@ -113,22 +119,22 @@ class CreateLanguageCommand extends Command
      * @param string $fileFullname
      * @param string $messages
      * @param string $language
-     * @param string $template
      *
      * @return $this
      */
-    protected function addMessagesToFile($fileFullname, $messages, $language, $template)
+    protected function addMessagesToFile($fileFullname, $messages, $language)
     {
         if (empty($messages)) {
             $this->info('There was no messages to add the language files');
-        } else {
-            if (File::exists($fileFullname)) {
-                $this->appendMessageToFile($fileFullname, "\n" . $messages);
-            } else {
-                $this->createMessageToFile($fileFullname, $messages, $language, $template);
-            }
+            return $this;
         }
 
+        if ($this->isFileExists($fileFullname)) {
+            $this->appendMessageToFile($fileFullname, $messages);
+        } else {
+            $this->createMessageToFile($fileFullname, $messages, $language);
+        }
+        
         return $this;
     }
 
@@ -138,24 +144,22 @@ class CreateLanguageCommand extends Command
      * @param string $fileFullname
      * @param string $messages
      *
-     * @return $this
+     * @return void
      */
     protected function appendMessageToFile($fileFullname, $messages)
     {
-        $stub = File::get($fileFullname);
-        $index = $this->getCursorPosition($stub);
+        $content = $this->getFileContent($fileFullname);
+        $index = $this->getCursorPosition($content);
+        $baseFile = basename($fileFullname);
 
         if ($index === false) {
-            throw new Exception('Could not find a position in the [' . basename($fileFullname) . '] file to insert the messages.');
+            throw new Exception('Could not find a position in the [' . $baseFile . '] file to insert the messages.');
         }
 
-        if (! File::put($fileFullname, substr_replace($stub, $messages, $index + 1, 0))) {
-            throw new Exception('An error occurred! No messages were added!');
-        }
+        $newContent = substr_replace($content, PHP_EOL . $messages, $index + 1, 1);
 
-        $this->info('New messages were added to the [' . basename($fileFullname) . '] file');
-        
-        return $this;
+        $this->putContentInFile($fileFullname, $newContent)
+             ->info('New messages were added to the [' . $baseFile . '] file');
     }
 
     /**
@@ -167,7 +171,9 @@ class CreateLanguageCommand extends Command
      */
     protected function getCursorPosition($stub)
     {
-        return strrpos($stub, ',') !== false ?: strrpos($stub, '[');
+        $position = strrpos($stub, ',');
+
+        return $position !== false ? $position : strrpos($stub, '[');
     }
 
     /**
@@ -176,23 +182,17 @@ class CreateLanguageCommand extends Command
      * @param string $fileFullname
      * @param string $messages
      * @param string $language
-     * @param string $template
      *
-     * @return $this
+     * @return void
      */
-    protected function createMessageToFile($fileFullname, $messages, $language, $template)
+    protected function createMessageToFile($fileFullname, $messages, $language)
     {
-        $stub = $this->getStubContent('language', $template);
+        $stub = $this->getStubContent('language');
 
-        $this->replaceFieldName($stub, $messages);
-
-        if (! File::put($fileFullname, $stub)) {
-            throw new Exception('An error occurred! The file  [' . $language . '/' . basename($fileFullname) . '] was not created.');
-        }
+        $this->replaceFieldName($stub, $messages)
+             ->createFile($fileFullname, $stub);
 
         $this->info('The file  [' . $language . '/' . basename($fileFullname) . '] was created successfully.');
-
-        return $this;
     }
 
     /**
@@ -234,23 +234,7 @@ class CreateLanguageCommand extends Command
      */
     protected function getLocalePath($language)
     {
-        return $this->getLanguagesPath() . $language . '/';
-    }
-
-    /**
-     * Creates a giving directory if one does not already exists.
-     *
-     * @param string $path
-     *
-     * @return $this
-     */
-    protected function createPath($path)
-    {
-        if (! File::isDirectory($path)) {
-            File::makeDirectory($path, 0755, true);
-        }
-
-        return $this;
+        return base_path() . '/' . Config::getLanguagesPath() . $language . '/';
     }
 
     /**
@@ -269,23 +253,39 @@ class CreateLanguageCommand extends Command
     }
 
     /**
-     * Creates a string on phrases
+     * Creates a string on phrases.
      *
      * @param array $fields
+     * @param array & $messagesToRegister
      *
      * @return string
      */
     protected function getLangPhrases(array $labels, array & $messagesToRegister)
     {
         $messages = [];
+
         foreach ($labels as $label) {
             if (! $this->isMessageExists($label->localeGroup, $label->lang)) {
-                $messages[] = sprintf("    '%s' => '%s'", $label->id, $label->text);
+                $messages[] = $this->getMessage($label);
                 $messagesToRegister[$label->localeGroup] = $label->text;
             }
         }
 
-        return !isset($messages[0]) ? '' : implode(",\n", $messages) . ",\n";
+        $glue =  "," . PHP_EOL;
+
+        return !isset($messages[0]) ? '' : implode($glue, $messages) . $glue;
+    }
+
+    /**
+     * Get file ready message.
+     *
+     * @param CrestApps\CodeGenerator\Models\Label
+     *
+     * @return string
+     */
+    protected function getMessage(Label $label)
+    {
+        return sprintf("    '%s' => '%s'", $label->id, $label->text);
     }
 
     /**

@@ -5,6 +5,7 @@ namespace CrestApps\CodeGenerator\Models;
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\ForeignRelationhip;
+use App;
 
 class Field
 {
@@ -219,6 +220,13 @@ class Field
     private $foreignConstraint;
 
     /**
+     * The app's default language.
+     *
+     * @var string
+     */
+    protected $defaultLang;
+
+    /**
      * Creates a new field instance.
      *
      * @param string $name
@@ -228,6 +236,7 @@ class Field
     public function __construct($name)
     {
         $this->name = $name;
+        $this->defaultLang = App::getLocale();
     }
 
     /**
@@ -245,15 +254,39 @@ class Field
      *
      * @param string $lang
      *
-     * @return object
+     * @return CrestApps\CodeGenerator\Models\Label
      */
-    public function getLabel($lang = 'en')
+    public function getLabel($lang = null)
     {
+        $lang = empty($lang) ? $this->getDefaultLanguage() : $lang;
+        
         if (!isset($this->labels[$lang])) {
-            return null;
+            return $this->getFirstLabel();
         }
 
         return $this->labels[$lang];
+    }
+
+    /**
+     * Gets the app's default language.
+     *
+     * @return string
+     */
+    public function getDefaultLanguage()
+    {
+        return $this->defaultLang;
+    }
+
+    /**
+     * Gets the first available label if any.
+     *
+     * @param string $lang
+     *
+     * @return CrestApps\CodeGenerator\Models\Label
+     */
+    public function getFirstLabel()
+    {
+        return current($this->labels);
     }
 
     /**
@@ -363,7 +396,10 @@ class Field
      */
     public function addOption($text, $localeGroup, $isPlain = true, $lang = 'en', $value = null)
     {
-        $this->options[$lang][] = new Label($text, $this->getLocaleKey($localeGroup, $value), $isPlain, $lang, $this->getFieldId($value), $value);
+        $localKey = $this->getLocaleKey($localeGroup, $value);
+        $id = $this->getFieldId($value);
+        
+        $this->options[$lang][] = new Label($text, $localKey, $isPlain, $lang, $id, $value);
     }
 
     /**
@@ -531,7 +567,7 @@ class Field
                         'name' => $relation->name,
                         'type' => $relation->getType(),
                         'params' => $relation->parameters,
-                        'field' => $relation->field
+                        'field' => $relation->getField()
                    ];
         }
 
@@ -549,12 +585,12 @@ class Field
             $relation = $this->getForeignConstraint();
 
             return [
-                        'field' => $relation->field,
+                        'field' => $relation->column,
                         'references' => $relation->references,
                         'on' => $relation->on,
                         'on-delete' => $relation->onDelete,
                         'on-update' => $relation->onUpdate,
-                        'references-model' => $relation->referencesModel
+                        'references-model' => $relation->getReferencesModel()
                    ];
         }
 
@@ -568,6 +604,16 @@ class Field
     public function toJson()
     {
         return json_encode($this->toArray());
+    }
+
+    /**
+     * Checks if the field is the primary.
+     *
+     * @return bool
+     */
+    public function isPrimary()
+    {
+        return $this->isAutoIncrement || $this->isPrimary;
     }
 
     /**
@@ -792,23 +838,25 @@ class Field
      */
     protected function optionsToRaw(array $options)
     {
-        $final = [];
+        $collections = [];
 
         foreach ($options as $lang => $labels) {
             $finalWithTranslations = [];
             foreach ($labels as $label) {
                 if ($label->isPlain) {
-                    $final[$label->value] = $label->text;
+                    $collections[$label->value] = $label->text;
                 } else {
-                    $finalWithTranslations[$label->value][$label->lang] = $label->text;
+                    $collections[$label->value][$label->lang] = $label->text;
                 }
-            }
-
-            foreach ($finalWithTranslations as $value => $finalWithTranslation) {
-                $final[$value] = (object) $finalWithTranslation;
             }
         }
 
-        return (object) $final;
+        $finals = [];
+
+        foreach ($collections as $value => $collection) {
+            $finals[$value] = is_array($collection) ? (object) $collection : $collection;
+        }
+
+        return (object) $finals;
     }
 }

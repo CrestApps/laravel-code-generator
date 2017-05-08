@@ -8,6 +8,7 @@ A clean code generator for Laravel framework that will save you time! This aweso
 
 ## Features
 
+* Create very clean code to build on.
 * Create full resources using a single command with/without <strong>migration</strong> or from <strong>existing database</strong>.
 * Create standard CRUD controllers with simple or form-request validation.
 * Create model with relations.
@@ -17,14 +18,16 @@ A clean code generator for Laravel framework that will save you time! This aweso
 * (Beta) Client-side validation.
 * File uploading handling.
 * Auto multiple-response storing in the database.
-* Create form-request.
+* Create form-request for complex validation.
 * Customizable view’s templates to enable you to change the standard look and feel of your application.
 * Create view's layouts with and without client-side validation.
 * Change the template at run time to generate different views.
 * Create code to upload file.
 * Ability to generate views with and without Laravel-Collective.
-* Nicely format any datetime, date or time field.
+* Nicely deals with and format datetime, date or time field.
 * Auto handles any boolean field.
+* Auto add foreign relations to the model.
+* Auto use foreign relation in the controller and the views when needed.
 * Lots of documentation.
 
 ## Installation

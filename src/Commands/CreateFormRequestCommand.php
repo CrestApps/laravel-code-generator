@@ -7,10 +7,12 @@ use Exception;
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use CrestApps\CodeGenerator\Support\Config;
 
 class CreateFormRequestCommand extends Command
 {
-    use CommonCommand;
+    use CommonCommand, GeneratorReplacers;
 
     /**
      * The name and signature of the console command.
@@ -32,16 +34,6 @@ class CreateFormRequestCommand extends Command
     protected $description = 'Create a form-request file for the model.';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return void
@@ -52,12 +44,20 @@ class CreateFormRequestCommand extends Command
 
         $stub = $this->getStubContent('form-request', $input->template);
         $fields = $this->getFields($input->fields, 'crestapps', $input->fieldsFile);
-        $fileFullName = $this->getRequestsPath() . $input->fileName . '.php';
+        $destenationFile = Config::getRequestsPath() . $input->fileName . '.php';
         $validations = $this->getValidationRules($fields);
+
+        if ($this->alreadyExists($destenationFile)) {
+            $this->error('The form-request already exists! To override the existing file, use --force option.');
+
+            return false;
+        }
 
         $this->replaceFormRequestClass($stub, $input->fileName)
              ->replaceValidationRules($stub, $validations)
-             ->makeFile($fileFullName, $stub, $input->force);
+             ->replaceAppName($stub, $this->getAppName())
+             ->createFile($destenationFile, $stub)
+             ->info('A new form-request have been crafted!');
     }
     
      /**
@@ -111,21 +111,6 @@ class CreateFormRequestCommand extends Command
     protected function replaceFormRequestClass(&$stub, $name)
     {
         $stub = str_replace('{{formRequestClass}}', $name, $stub);
-
-        return $this;
-    }
-
-    /**
-     * Replace the validation rules for the given stub.
-     *
-     * @param string $stub
-     * @param string $rules
-     *
-     * @return $this
-     */
-    protected function replaceValidationRules(&$stub, $rules)
-    {
-        $stub = str_replace('{{validationRules}}', $rules, $stub);
 
         return $this;
     }

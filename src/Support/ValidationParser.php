@@ -2,8 +2,6 @@
 
 namespace CrestApps\CodeGenerator\Support;
 
-use CrestApps\CodeGenerator\Support\Helpers;
-
 class ValidationParser
 {
 
@@ -274,7 +272,7 @@ class ValidationParser
      * @return bool
      */
     public function isNullable()
-    {        
+    {
         if (is_null($this->nullable)) {
             $this->nullable = $this->isRuleExists('nullable');
         }
@@ -318,10 +316,9 @@ class ValidationParser
     protected function getFirst($key)
     {
         foreach ($this->rules as $rule) {
-
             if (substr($rule, 0, strlen($key)) == $key) {
                 $params = explode(':', $rule, 2);
-                if(isset($params[1])){
+                if (isset($params[1])) {
                     return intval($params[1]);
                 }
             }
@@ -340,7 +337,7 @@ class ValidationParser
     protected function startsWith($key)
     {
         foreach ($this->rules as $rule) {
-            if (Helpers::startsWith($rule, $key)) {
+            if (starts_with($rule, $key)) {
                 return true;
             }
         }

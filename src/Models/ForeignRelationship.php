@@ -2,9 +2,11 @@
 
 namespace CrestApps\CodeGenerator\Models;
 
-use Exception;
 use DB;
+use Exception;
+use Illuminate\Database\Eloquent\Model;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Config;
 
 class ForeignRelationship
 {
@@ -115,11 +117,11 @@ class ForeignRelationship
      *
      * @return void
      */
-    public function setType($name)
+    public function setField($name)
     {
         $this->field = $name;
     }
-
+    
     /**
      * Get the foreign field name.
      *
@@ -141,12 +143,12 @@ class ForeignRelationship
      */
     protected function guessForeignField()
     {
-        $model = $this->getPrimaryKeyForForeignModel();
-        $columns = DB::getSchemaBuilder()->getColumnListing($model->getTable());
-        $names = config('codegenerator.common_header_patterns') ?: [];
+        $columns = $this->getModelColumns();
+        $names = Config::getHeadersPatterns();
 
         foreach ($columns as $column) {
-            if (in_array($column, $names)) {
+            $matchedPattern = '';
+            if (Helpers::strIs($names, $column, $matchedPattern)) {
                 return $column;
             }
         }
@@ -217,21 +219,25 @@ class ForeignRelationship
     {
         $model = $this->getFullForeignModel();
 
-        if ($model) {
-            $index = strripos($model, '\\');
-
-            if ($index !== false) {
-                return substr($model, $index + 1);
-            }
-            
-            return $model;
+        if ($this->isModel($model)) {
+            return class_basename($model);
         }
 
         return '';
     }
 
     /**
-     * Gets the name of the foreign model's primary key name.
+     * Check if a giving class is an an instance of Model
+     *
+     * @return bool
+     */
+    protected function isModel($model)
+    {
+        return $model instanceof Modle;
+    }
+
+    /**
+     * Gets the name of the foreign model's primary key.
      *
      * @return sting
      */
@@ -239,11 +245,28 @@ class ForeignRelationship
     {
         $model = $this->getForeignModelInstance();
 
-        if ($model) {
+        if ($this->isModel($model)) {
             return $model->getKeyName();
         }
 
         return 'id';
+    }
+
+    /**
+     * Gets the foreign model columns.
+     *
+     * @return array
+     */
+    public function getModelColumns()
+    {
+        $model = $this->getForeignModelInstance();
+
+        if ($this->isModel($model)) {
+            $tableName = $model->getTable();
+            return DB::getSchemaBuilder()->getColumnListing($tableName);
+        }
+
+        return [];
     }
 
     /**
@@ -257,8 +280,10 @@ class ForeignRelationship
             if (!$this->foreignModel) {
                 $model = $this->getFullForeignModel();
 
-                if ($model) {
+                if (class_exists($model)) {
                     $this->foreignModel = new $model();
+                } else {
+                    $this->foreignModel = '';
                 }
             }
 

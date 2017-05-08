@@ -28,7 +28,7 @@ return [
     | In this path, you can add more templates.
     |
     */
-    'templates_path' => base_path('resources/codegenerator-templates'),
+    'templates_path' => 'resources/codegenerator-templates',
 
     /*
     |--------------------------------------------------------------------------
@@ -60,21 +60,21 @@ return [
     | In this path, you can create json file to import the fields from.
     |
     */
-    'fields_file_path' => base_path('resources/codegenerator-files'),
+    'fields_file_path' => 'resources/codegenerator-files',
 
     /*
     |--------------------------------------------------------------------------
     | The default path of where the migrations will be generated into.
     |--------------------------------------------------------------------------
     */
-    'migrations_path' => base_path('database/migrations'),
+    'migrations_path' => 'database/migrations',
 
     /*
     |--------------------------------------------------------------------------
     | The default path of where the controllers will be generated into.
     |--------------------------------------------------------------------------
     */
-    'form_requests_path' => app_path('Http/Requests'),
+    'form_requests_path' => 'Http/Requests',
 
     /*
     |--------------------------------------------------------------------------
@@ -95,7 +95,7 @@ return [
     | The default path of where the languages will be generated into.
     |--------------------------------------------------------------------------
     */
-    'languages_path' => base_path('resources/lang'),
+    'languages_path' => 'resources/lang',
 
     /*
     |--------------------------------------------------------------------------
@@ -127,17 +127,27 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Key phrases that are will be used to determine if a field should have a relation.
+    | Patterns to use to determine "datetime" fields if date-type is not provided
     |--------------------------------------------------------------------------
     |
-    | When creating resources from existing database, the codegenerator scans
-    | the field's name for a mattching pattern. When found, these field are considred 
-    | foreign keys even if the database does not have a foreign constraints.
-    | Here you can specify patterns to help the generator understand your
-    | database naming convension.
+    | If the date-type for a field is not, the codegenerator scanns the field's name 
+    | for a matching pattern. If the name matches any of the set pattern, the the 
+    | field's type will automaticly be set to datetime.
     |
     */
     'common_datetime_patterns' => ['*_at'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Patterns to use to determine "boolean" fields if date-type is not provided
+    |--------------------------------------------------------------------------
+    |
+    | If the date-type for a field is not, the codegenerator scanns the field's name 
+    | for a matching pattern. If the name matches any of the set pattern, the the 
+    | field's type will automaticly be set to boolean.
+    |
+    */
+    'common_boolean_patterns' => ['is_*','has_*'],
 
     /*
     |--------------------------------------------------------------------------

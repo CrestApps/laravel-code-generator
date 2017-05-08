@@ -1,10 +1,10 @@
 <?php
 
-namespace DummyNamespace;
+namespace {{namespace}};
 
 use Illuminate\Database\Eloquent\Model;
 {{useSoftDelete}}
-class DummyClass extends Model
+class {{modelNameClass}} extends Model
 {
     {{useSoftDeleteTrait}}
 {{timeStamps}}
@@ -30,7 +30,6 @@ class DummyClass extends Model
      * @var array
      */
     protected $dates = {{dates}};
-    
 {{relationships}}
 {{mutators}}
 {{accessors}}

@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\Config;
 
 class CreateLayoutCommand extends Command
 {
@@ -31,16 +32,6 @@ class CreateLayoutCommand extends Command
      * @var string
      */
     protected $description = 'Create a layout for the views.';
-
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
 
     /**
      * Execute the console command.
@@ -110,7 +101,7 @@ class CreateLayoutCommand extends Command
             $path = Helpers::getPathWithSlash($path);
         }
 
-        return $this->getViewsPath() . $path;
+        return Config::getViewsPath() . $path;
     }
 
     /**

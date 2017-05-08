@@ -1,13 +1,13 @@
 <?php
 
-namespace DummyNamespace;
+namespace {{namespace}};
 
 use Session;
-use DummyRootNamespaceHttp\Controllers\Controller;
+use {{appName}}\Http\Controllers\Controller;
 use {{formRequestFullName}};
 {{useCommandPlaceHolder}}
 
-class DummyClass extends Controller
+class {{controllerName}} extends Controller
 {
 
     /**

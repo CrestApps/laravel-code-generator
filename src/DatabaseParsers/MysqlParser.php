@@ -2,11 +2,20 @@
 namespace CrestApps\CodeGenerator\DatabaseParsers;
 
 use DB;
+use App;
 use CrestApps\CodeGenerator\DatabaseParsers\ParserBase;
 use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Models\ForeignConstraint;
+use CrestApps\CodeGenerator\Support\FieldTransformer;
 
 class MysqlParser extends ParserBase
 {
+    /**
+     * List of the foreign constraints.
+     *
+     * @var array
+     */
+    protected $constrains;
 
     /**
      * Gets column meta info from the information schema.
@@ -30,7 +39,48 @@ class MysqlParser extends ParserBase
                           [$this->tableName, $this->databaseName]);
     }
 
+    /**
+     * Gets foreign key constraint info for a giving column name.
+     *
+     * @return mix (null|object)
+    */
+    protected function getConstraint($foreign)
+    {
+        foreach ($this->getConstraints() as $constraint) {
+            if ($constraint->foreign == $foreign) {
+                return (object) $constraint;
+            }
+        }
 
+        return null;
+    }
+
+    /**
+     * Gets foreign key constraints info from the information schema.
+     *
+     * @return array
+    */
+    protected function getConstraints()
+    {
+        if (is_null($this->constrains)) {
+            $this->constrains = DB::select('SELECT 
+                                            r.referenced_table_name AS `references`
+                                           ,r.CONSTRAINT_NAME AS `name`
+                                           ,r.UPDATE_RULE AS `onUpdate`
+                                           ,r.DELETE_RULE AS `onDelete`
+                                           ,u.referenced_column_name AS `on`
+                                           ,u.column_name AS `foreign`
+                                           FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS r
+                                           INNER JOIN information_schema.key_column_usage AS u ON u.CONSTRAINT_NAME = r.CONSTRAINT_NAME
+                                                                                               AND u.table_schema = r.constraint_schema
+                                                                                               AND u.table_name = r.table_name
+                                           WHERE u.table_name = ? AND u.constraint_schema = ?;',
+                                          [$this->tableName, $this->databaseName]);
+        }
+
+        return $this->constrains;
+    }
+    
     /**
      * Gets the field after transfering it from a giving query object.
      *
@@ -56,12 +106,39 @@ class MysqlParser extends ParserBase
                  ->setUnsigned($field, $column->COLUMN_TYPE)
                  ->setHtmlType($field, $column->DATA_TYPE)
                  ->setIsOnViews($field)
-                 ->setForeignRelations($field);
+                 ->setForeignConstraint($field)
+                 ->setForeignRelation($field);
 
             $fields[] = $field;
         }
 
         return $fields;
+    }
+
+    /**
+     * Set the foreign constrain for the giving field.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     *
+     * @return $this
+     */
+    protected function setForeignConstraint(Field & $field)
+    {
+        $raw = $this->getConstraint($field->name);
+
+        if (!is_null($raw)) {
+            $constraint = new ForeignConstraint(
+                                strtolower($raw->foreign),
+                                strtolower($raw->references),
+                                strtolower($raw->on),
+                                strtolower($raw->onDelete),
+                                strtolower($raw->onUpdate)
+                            );
+            
+            $field->setForeignConstraint($constraint);
+        }
+
+        return $this;
     }
 
     /**
@@ -71,11 +148,11 @@ class MysqlParser extends ParserBase
      * @param object $column
      *
      * @return $this
-    */
+     */
     protected function setOptions(Field & $field, $column)
     {
         if ($column->DATA_TYPE == 'boolean') {
-            return $this->addOptions($field, $this->booleanOptions);
+            return $this->addOptions($field, $this->getBooleanOptions());
         }
 
         if (($options = $this->getOptions($column->COLUMN_TYPE)) !== null) {
@@ -83,6 +160,37 @@ class MysqlParser extends ParserBase
         }
 
         return $this;
+    }
+
+    /**
+     * Get boolean options
+     *
+     * @return array
+     */
+    protected function getBooleanOptions()
+    {
+        $options = [];
+        if (! $this->hasLanguages()) {
+            return $this->booleanOptions;
+        }
+
+        foreach ($this->booleanOptions as $key => $title) {
+            foreach ($this->languages as $language) {
+                $options[$key][$language] = $title;
+            }
+        }
+
+        return $options;
+    }
+
+    /**
+     * Checks if the request requires languages.
+     *
+     * @return bool
+    */
+    protected function hasLanguages()
+    {
+        return ! empty($this->languages);
     }
 
     /**
@@ -95,12 +203,16 @@ class MysqlParser extends ParserBase
     */
     protected function addOptions(Field & $field, array $options)
     {
-        if (empty($this->languages)) {
+        if (! $this->hasLanguages()) {
             return $this->addOptionsFor($field, $options, true, $this->locale);
         }
 
         foreach ($this->languages as $language) {
-            $this->addOptionsFor($field, $options, false, $language);
+            $labels = FieldTransformer::transferOptionsToLabels($field, $options, $language, $this->tableName);
+            foreach ($labels as $label) {
+                $labelTitle = $this->getLabelName($label->text);
+                $field->addOption($labelTitle, $this->tableName, $label->isPlain, $label->lang, $label->value);
+            }
         }
 
         return $this;
@@ -119,11 +231,8 @@ class MysqlParser extends ParserBase
     protected function addOptionsFor(Field & $field, array $options, $isPlain, $locale)
     {
         foreach ($options as $value => $option) {
-            if ($field->dataType != 'boolean') {
-                $value = $option;
-            }
-
-            $field->addOption($this->getLabelName($option), $this->tableName, $isPlain, $locale, $value);
+            $name = is_array($option) ? current($option) : $option;
+            $field->addOption($this->getLabelName($name), $this->tableName, $isPlain, $locale, $value);
         }
 
         return $this;
@@ -142,8 +251,27 @@ class MysqlParser extends ParserBase
 
         preg_match('#enum\((.*?)\)#', $type, $match);
 
-        return !isset($match[1]) ? null : array_map(function ($option) {
+        if (!isset($match[1])) {
+            return null;
+        }
+
+        $options =  array_map(function ($option) {
             return trim($option, "'");
         }, explode(',', $match[1]));
+
+        $finals = [];
+
+        foreach ($options as $option) {
+            if ($this->hasLanguages()) {
+                foreach ($this->languages as $language) {
+                    $finals[$option][$language] = $option;
+                }
+                continue;
+            }
+
+            $finals[$option] = $option;
+        }
+
+        return $finals;
     }
 }

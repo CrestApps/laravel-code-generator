@@ -32,14 +32,13 @@ class CreateViewsCommand extends ViewsCommand
     protected $description = 'Create the "form,create,edit,show and index" views for the model.';
 
     /**
-     * Create a new command instance.
+     * Gets the name of the stub to process.
      *
-     * @return void
+     * @return string
      */
-    public function __construct()
+    protected function getStubName()
     {
-        parent::__construct();
-        $this->stubName = 'create.blade';
+        return '';
     }
 
     /**
@@ -56,8 +55,10 @@ class CreateViewsCommand extends ViewsCommand
             $this->info('Crafting views...');
 
             foreach ($this->getOnlyViews() as $view) {
+
                 $this->call($this->getViewCommand($view), $input->getArrguments());
             }
+
         }
     }
 

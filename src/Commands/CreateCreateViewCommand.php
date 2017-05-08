@@ -30,16 +30,15 @@ class CreateCreateViewCommand extends ViewsCommand
     protected $description = 'Create a create-views for the model.';
 
     /**
-     * Create a new command instance.
+     * Gets the name of the stub to process.
      *
-     * @return void
+     * @return string
      */
-    public function __construct()
+    protected function getStubName()
     {
-        parent::__construct();
-        $this->stubName = 'create.blade';
+        return 'create.blade';
     }
-
+    
     /**
      * Execute the console command.
      *
@@ -48,17 +47,19 @@ class CreateCreateViewCommand extends ViewsCommand
     protected function handleCreateView()
     {
         $input = $this->getCommandInput();
-        $stub = $this->getStubContent($this->stubName);
         $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'create');
 
-        if ($this->canCreateView($destenationFile, $input->force)) {
+        if ($this->canCreateView($destenationFile, $input->force, $fields)) {
+            $stub = $this->getStub();
+            $headers = $this->getHeaderFieldAccessor($fields, $input->modelName);
+
             $this->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
                  ->createMissingViews($input)
                  ->replaceCommonTemplates($stub, $input)
                  ->replaceFileUpload($stub, $fields)
-                 ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($fields, $input->modelName))
-                 ->createViewFile($stub, $destenationFile)
+                 ->replaceModelHeader($stub, $headers)
+                 ->createFile($destenationFile, $stub)
                  ->info('Create view was crafted successfully.');
         }
     }

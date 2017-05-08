@@ -2,14 +2,16 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use Illuminate\Console\GeneratorCommand;
+use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
 
-class CreateControllerCommand extends GeneratorCommand
+class CreateControllerCommand extends Command
 {
-    use CommonCommand;
+    use CommonCommand,  GeneratorReplacers;
 
     /**
      * The name and signature of the console command.
@@ -62,9 +64,9 @@ class CreateControllerCommand extends GeneratorCommand
      *
      * @return string
      */
-    protected function buildClass($name)
+    public function handle()
     {
-        $stub = $this->files->get($this->getStub());
+        $stub = $this->getStubContent('controller');
         $input = $this->getCommandInput();
 
         $formRequestName = 'Request';
@@ -82,10 +84,17 @@ class CreateControllerCommand extends GeneratorCommand
         $viewVariablesForEdit = $this->getCompactVariablesFor($fields, $this->getModelName($input->modelName), 'form');
 
         $modelFullName = $this->getModelFullName($input->modelDirectory, $input->modelName);
-        
-        return $this->replaceNamespace($stub, $name)
-                    ->replaceViewNames($stub, $input->viewDirectory, $input->prefix)
+        $destenationFile = $this->getDestenationFile($input->controllerName);
+
+        if ($this->alreadyExists($destenationFile)) {
+            $this->error('The controller already exists! To override the existing file, use --force option.');
+
+            return false;
+        }
+
+        return $this->replaceViewNames($stub, $input->viewDirectory, $input->prefix)
                     ->replaceModelName($stub, $input->modelName)
+                    ->replaceNamespace($stub, $this->getControllersNamespace())
                     ->replaceUseCommandPlaceHolder($stub, $this->getRequiredUseClasses($fields, $modelFullName))
                     ->replaceRouteNames($stub, $input->modelName, $input->prefix)
                     ->replaceValidationRules($stub, $this->getValidationRules($fields))
@@ -103,7 +112,10 @@ class CreateControllerCommand extends GeneratorCommand
                     ->replaceWithRelationsForIndex($stub, $this->getWithRelationFor($fields, 'index'))
                     ->replaceWithRelationsForShow($stub, $this->getWithRelationFor($fields, 'show'))
                     ->replaceRelationCollections($stub, $this->getRequiredRelationCollections($fields))
-                    ->replaceClass($stub, $name);
+                    ->replaceAppName($stub, $this->getAppName())
+                    ->replaceControllerName($stub, $input->controllerName)
+                    ->createFile($destenationFile, $stub)
+                    ->info('A controller was crafted successfully.');
     }
 
     /**
@@ -228,33 +240,6 @@ class CreateControllerCommand extends GeneratorCommand
         return $this->getCompactVariables($variables);
     }
 
-
-    /**
-     * Gets the needed compact variables for the edit/create views.
-     *
-     * @param array $fields
-     *
-     * @return array
-     */
-    /*
-    protected function getWithRelations(array $fields, $view)
-    {
-        $variables = [];
-
-        if($view != 'form')
-        {
-            foreach ($fields as $field) {
-
-                if ($field->hasForeignRelation() && $field->isOnView($view)) {
-                    $variables[] = $field->getForeignRelation()->name;
-                }
-            }
-        }
-
-        return $variables;
-    }
-    */
-
     /**
      * Gets the needed compact variables for the edit/create views.
      *
@@ -324,15 +309,39 @@ class CreateControllerCommand extends GeneratorCommand
     }
 
     /**
+     * Gets the controller's fullname
+     *
+     * @return string
+     */
+    protected function getDestenationFile($name)
+    {
+        $path = Helpers::postFixWith(base_path(), '/') . $this->getAppNamespace() . Config::getControllersPath();
+
+        return Helpers::postFixWith($path, '/') . $name . '.php';
+    }
+
+    /**
      * Gets the Requests namespace
      *
      * @return string
      */
     protected function getRequestsNamespace()
     {
-        $path = str_replace(app_path(), '', $this->getRequestsPath());
+        $path = $this->getAppNamespace() . Config::getRequestsPath();
 
-        return ltrim(Helpers::convertSlashToBackslash($path), '\\');
+        return rtrim(Helpers::convertSlashToBackslash($path), '\\');
+    }
+
+    /**
+     * Gets the controllers namespace
+     *
+     * @return string
+     */
+    protected function getControllersNamespace()
+    {
+        $path = $this->getAppNamespace() . Config::getControllersPath();
+
+        return rtrim(Helpers::convertSlashToBackslash($path), '\\');
     }
 
     /**
@@ -382,7 +391,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function getModelFullName($directory, $name)
     {
-        $final = !empty($directory) ? $this->getModelsPath() . Helpers::getPathWithSlash($directory) : $this->getModelsPath();
+        $final = !empty($directory) ? Config::getModelsPath() . Helpers::getPathWithSlash($directory) : Config::getModelsPath();
 
         return Helpers::convertSlashToBackslash($this->getAppNamespace() . $final . $name);
     }
@@ -394,8 +403,8 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function getCommandInput()
     {
-        $controllerName = trim($this->argument('controller-name'));
-        $plainControllerName = str_singular(Helpers::removePostFixWith($controllerName, 'Controller'));
+        $controllerName = Helpers::postFixWith(trim($this->argument('controller-name')), 'Controller');
+        $plainControllerName= str_singular(Helpers::removePostFixWith($controllerName, 'Controller'));
 
         $modelName = trim($this->option('model-name')) ?: $plainControllerName;
         $viewDirectory = trim($this->option('views-directory'));
@@ -411,7 +420,7 @@ class CreateControllerCommand extends GeneratorCommand
         $template = $this->getTemplateName();
 
         return (object) compact('viewDirectory', 'viewName', 'modelName', 'prefix', 'perPage', 'fileSnippet', 'modelDirectory',
-                                'langFile', 'fields', 'formRequest', 'formRequestName', 'force', 'fieldsFile', 'template');
+                                'langFile', 'fields', 'formRequest', 'formRequestName', 'force', 'fieldsFile', 'template','controllerName');
     }
 
     /**
@@ -455,21 +464,6 @@ class CreateControllerCommand extends GeneratorCommand
     protected function replaceFormRequestFullName(&$stub, $name)
     {
         $stub = str_replace('{{formRequestFullName}}', $name, $stub);
-
-        return $this;
-    }
-
-    /**
-     * Replaces the validation rules for the given stub.
-     *
-     * @param  string  $stub
-     * @param  string  $rules
-     *
-     * @return $this
-     */
-    protected function replaceValidationRules(&$stub, $rules)
-    {
-        $stub = str_replace('{{validationRules}}', $rules, $stub);
 
         return $this;
     }
@@ -545,21 +539,6 @@ class CreateControllerCommand extends GeneratorCommand
     protected function replaceFileMethod(&$stub, $method)
     {
         $stub = str_replace('{{uploadMethod}}', $method, $stub);
-
-        return $this;
-    }
-
-    /**
-     * Replaces the field's name for the given stub.
-     *
-     * @param $stub
-     * @param $nane
-     *
-     * @return $this
-     */
-    protected function replaceFieldName(&$stub, $name)
-    {
-        $stub = str_replace('{{fieldName}}', $name, $stub);
 
         return $this;
     }
@@ -677,7 +656,7 @@ class CreateControllerCommand extends GeneratorCommand
     public function getNameInput()
     {
         $name = Helpers::upperCaseEveyWord(trim($this->argument('controller-name')));
-        $path = $this->getControllersPath();
+        $path = Config::getControllersPath();
         $directory = trim($this->option('controller-directory'));
 
         if (!empty($directory)) {

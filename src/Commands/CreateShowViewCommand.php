@@ -31,14 +31,13 @@ class CreateShowViewCommand extends ViewsCommand
     protected $description = 'Create a show-view for the model.';
 
     /**
-     * Creates a new command instance.
+     * Gets the name of the stub to process.
      *
-     * @return void
+     * @return string
      */
-    public function __construct()
+    protected function getStubName()
     {
-        parent::__construct();
-        $this->stubName = 'show.blade';
+        return 'show.blade';
     }
 
     /**
@@ -49,17 +48,18 @@ class CreateShowViewCommand extends ViewsCommand
     protected function handleCreateView()
     {
         $input = $this->getCommandInput();
-        $stub = $this->getStubContent($this->stubName);
         $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
-        $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName, $this->getTemplateName());
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'show');
         
         if ($this->canCreateView($destenationFile, $input->force, $fields)) {
+            $stub = $this->getStub();
+            $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName, $this->getTemplateName());
+
             $this->replaceCommonTemplates($stub, $input)
                  ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
                  ->replaceTableRows($stub, $htmlCreator->getShowRowsHtml())
                  ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($fields, $input->modelName))
-                 ->createViewFile($stub, $destenationFile)
+                 ->createFile($destenationFile, $stub)
                  ->info('Show view was crafted successfully.');
         }
     }

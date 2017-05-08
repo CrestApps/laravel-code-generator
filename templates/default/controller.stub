@@ -1,15 +1,14 @@
 <?php
 
-namespace DummyNamespace;
+namespace {{namespace}};
 
 use Session;
 use Illuminate\Http\Request;
-use DummyRootNamespaceHttp\Controllers\Controller;
+use {{appName}}\Http\Controllers\Controller;
 {{useCommandPlaceHolder}}
 
-class DummyClass extends Controller
+class {{controllerName}} extends Controller
 {
-    
     /**
      * Display a listing of the {{modelNamePlural}}.
      *
