@@ -174,7 +174,9 @@ class Helpers
             throw new Exception('the file ' . $fileFullname . ' was not found!');
         }
 
-        return FieldTransformer::json(File::get($fileFullname), $langFile);
+        $file = File::get($fileFullname);
+        
+        return FieldTransformer::json($file, $langFile);
     }
 
     /**

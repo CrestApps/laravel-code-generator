@@ -87,7 +87,7 @@ class CreateControllerCommand extends Command
         $destenationFile = $this->getDestenationFile($input->controllerName);
 
         if ($this->alreadyExists($destenationFile)) {
-            $this->error('The controller already exists! To override the existing file, use --force option.');
+            $this->error('The controller already exists!');
 
             return false;
         }

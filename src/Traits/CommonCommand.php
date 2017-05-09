@@ -209,14 +209,24 @@ trait CommonCommand
      */
     protected function getStubContent($name, $template = null)
     {
-        return File::get($this->getStubByName($name, $template));
+        return $this->getFileContent($this->getStubByName($name, $template));
     }
 
+    /**
+     * Gets the app namespace.
+     *
+     * @return string
+     */
     protected function getAppNamespace()
     {
         return Container::getInstance()->getNamespace();
     }
 
+    /**
+     * Gets the app folder name,
+     *
+     * @return string
+     */
     protected function getAppName()
     {
         return rtrim($this->getAppNamespace(), '\\');
@@ -261,6 +271,18 @@ trait CommonCommand
     }
 
     /**
+     * Get the givin file content.
+     *
+     * @param  string  $file
+     *
+     * @return string
+     */
+    protected function deleteFile($file)
+    {
+        return File::delete($file);
+    }
+
+    /**
      * Adds content to a giving file.
      *
      * @param  string  $file
@@ -274,6 +296,19 @@ trait CommonCommand
         return $this;
     }
 
+    /**
+     * Adds content to a giving file.
+     *
+     * @param  string  $file
+     *
+     * @return $this
+     */
+    protected function appendContentToFile($file, $content)
+    {
+        $bytesWritten = File::append($file, $content);
+
+        return $this;
+    }
     /**
      * Determine the primary field in a giving array
      *

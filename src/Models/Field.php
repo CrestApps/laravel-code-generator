@@ -502,7 +502,9 @@ class Field
      */
     protected function cleanValue($optionValue)
     {
-        return Helpers::removeNonEnglishChars(strtolower(str_replace(' ', '_', $optionValue)));
+        $value = strtolower(str_replace(' ', '_', $optionValue));
+        
+        return Helpers::removeNonEnglishChars($value);
     }
 
     /**

@@ -84,7 +84,7 @@ class CreateFieldsFileCommand extends Command
      */
     protected function getDestinationFullname()
     {
-        return base_path() . '/'. Config::getFieldsFilePath() . $this->getFilename();
+        return base_path(Config::getFieldsFilePath()) . $this->getFilename();
     }
 
     /**
