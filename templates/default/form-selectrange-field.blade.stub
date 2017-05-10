@@ -1,7 +1,7 @@
-        <select class="form-control{{cssClass}}" id="{{fieldName}}" name="{{fieldName}}">
-        	    {{placeHolder}}
-        	@foreach (range({{minValue}}, {{maxValue}}) as $value)
-			    <option value="{{ $value }}"{{selectedValue}}>
+        <select class="form-control[% css_class %]" id="[% field_name %]" name="[% field_name %]">
+        	    [% placeholder %]
+        	@foreach (range([% min_value %], [% max_value %]) as $value)
+			    <option value="{{ $value }}"[% selected_value %]>
 			    	{{ $value }}
 			    </option>
 			@endforeach

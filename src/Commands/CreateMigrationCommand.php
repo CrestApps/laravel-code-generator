@@ -548,7 +548,7 @@ class CreateMigrationCommand extends Command
      */
     protected function replaceMigationName(&$stub, $className)
     {
-        $stub = str_replace('{{migrationName}}', $className, $stub);
+        $stub = $this->strReplace('migration_name', $className, $stub);
 
         return $this;
     }
@@ -563,7 +563,7 @@ class CreateMigrationCommand extends Command
      */
     protected function replaceBlueprintBodyName(&$stub, $blueprintBody)
     {
-        $stub = str_replace('{{blueprintBody}}', $blueprintBody, $stub);
+        $stub = $this->strReplace('blue_print_body', $blueprintBody, $stub);
 
         return $this;
     }
@@ -578,7 +578,7 @@ class CreateMigrationCommand extends Command
      */
     protected function replaceTableName(&$stub, $name)
     {
-        $stub = str_replace('{{tableName}}', $name, $stub);
+        $stub = $this->strReplace('table_name', $name, $stub);
 
         return $this;
     }
@@ -595,7 +595,7 @@ class CreateMigrationCommand extends Command
     {
         $connectionLine = !empty($name) ? sprintf("connection('%s')->", $name) : '';
 
-        $stub = str_replace('{{connectionName}}', $connectionLine, $stub);
+        $stub = $this->strReplace('connection_name', $connectionLine, $stub);
 
         return $this;
     }
@@ -847,7 +847,7 @@ class CreateMigrationCommand extends Command
      */
     protected function replaceSchemaUp(&$stub, $schemaUp)
     {
-        $stub = str_replace('{{schema_up}}', $schemaUp, $stub);
+        $stub = $this->strReplace('schema_up', $schemaUp, $stub);
 
         return $this;
     }
@@ -862,7 +862,7 @@ class CreateMigrationCommand extends Command
      */
     protected function replaceSchemaDown(&$stub, $schemaDown)
     {
-        $stub = str_replace('{{schema_down}}', $schemaDown, $stub);
+        $stub = $this->strReplace('schema_down', $schemaDown, $stub);
 
         return $this;
     }

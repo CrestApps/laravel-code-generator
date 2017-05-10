@@ -7,7 +7,6 @@ use CrestApps\CodeGenerator\Support\GenerateFormViews;
 
 class CreateFormViewCommand extends ViewsCommand
 {
-
     /**
      * The name and signature of the console command.
      *
@@ -75,7 +74,7 @@ class CreateFormViewCommand extends ViewsCommand
      */
     protected function replaceFields(&$stub, $fields)
     {
-        $stub = str_replace('{{formFieldsHtml}}', $fields, $stub);
+        $stub = $this->strReplace('form_fields_html', $fields, $stub);
 
         return $this;
     }

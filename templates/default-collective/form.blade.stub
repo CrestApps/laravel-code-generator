@@ -1,4 +1,4 @@
-{{formFieldsHtml}}
+[% form_fields_html %]
 <div class="form-group">
     <div class="col-md-offset-2 col-md-10">
         {!! Form::submit(isset($submitButtonLabel) ? $submitButtonLabel : 'Add', ['class' => 'btn btn-primary']) !!}

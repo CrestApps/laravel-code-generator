@@ -1,1 +1,1 @@
-        {!! Form::{{fieldType}}('{{fieldName}}',{{fieldValue}}, ['class' => 'form-control{{cssClass}}',{{minLength}}{{maxLength}}{{minValue}}{{maxValue}}{{requiredField}}{{placeHolder}}{{step}}]) !!}
+        {!! Form::[% field_type %]('[% field_name %]',[% field_value %], ['class' => 'form-control[% css_class %]',[% min_length %][% max_length %][% min_value %][% max_value %][% required_field %][% placeholder %][% step %]) !!}

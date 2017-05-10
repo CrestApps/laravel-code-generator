@@ -136,7 +136,7 @@ class CreateViewLayoutCommand extends Command
      */
     protected function replaceApplicationName(&$stub, $appName)
     {
-        $stub = str_replace('{{applicationName}}', $appName, $stub);
+        $stub = $this->strReplace('application_name', $appName, $stub);
 
         return $this;
     }

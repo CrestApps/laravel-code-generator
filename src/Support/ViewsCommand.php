@@ -175,7 +175,7 @@ abstract class ViewsCommand extends Command
      */
     protected function replaceLayoutName(&$stub, $layout)
     {
-        $stub = str_replace('{{layoutName}}', $layout, $stub);
+        $stub = $this->strReplace('layout_name', $layout, $stub);
 
         return $this;
     }
@@ -192,7 +192,7 @@ abstract class ViewsCommand extends Command
     {
         $code = $this->containsfile($fields) ? $this->getFileUploadAttribute($this->getTemplateName()) : '';
 
-        $stub = str_replace('{{uploadFiles}}', $code, $stub);
+        $stub = $this->strReplace('upload_files', $code, $stub);
 
         return $this;
     }
@@ -211,21 +211,6 @@ abstract class ViewsCommand extends Command
         }
 
         return ' enctype="multipart/form-data"';
-    }
-
-    /**
-     * It Replaces the primary key in a giving stub
-     *
-     * @param string $stub
-     * @param string $primaryKey
-     *
-     * @return $this
-     */
-    protected function replacePrimaryKey(&$stub, $primaryKey)
-    {
-        $stub = str_replace('{{primaryKey}}', $primaryKey, $stub);
-
-        return $this;
     }
 
     /**
@@ -379,7 +364,7 @@ abstract class ViewsCommand extends Command
      */
     protected function replaceModelHeader(& $stub, $title)
     {
-        $stub = str_replace('{{modelHeader}}', $title, $stub);
+        $stub = $this->strReplace('model_header', $title, $stub);
 
         return $this;
     }

@@ -1,4 +1,4 @@
-@extends('{{layoutName}}')
+@extends('[% layout_name %]')
 
 @section('content')
 
@@ -7,16 +7,16 @@
         <div class="panel-heading clearfix">
 
             <span class="pull-left">
-                {{ !empty({{modelHeader}}) ? {{modelHeader}} : '{{modelName}}'}}
+                {{ !empty([% model_header %]) ? [% model_header %] : '[% model_name %]'}}
             </span>
 
             <div class="btn-group btn-group-xs pull-right" role="group">
 
-                <a href="{{ route('{{indexRouteName}}') }}" class="btn btn-primary" title="Show all {{modelNamePlural}}">
+                <a href="{{ route('[% index_route_name %]') }}" class="btn btn-primary" title="Show all [% model_name_plural %]">
                     <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                 </a>
 
-                <a href="{{ route('{{createRouteName}}') }}" class="btn btn-primary" title="Add {{modelNameClass}}">
+                <a href="{{ route('[% create_route_name %]') }}" class="btn btn-primary" title="Add [% model_name_class %]">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </a>
 
@@ -33,16 +33,16 @@
                 </ul>
             @endif
 
-            {!! Form::model(${{modelName}}, [
+            {!! Form::model($[% model_name %], [
                 'method' => 'PUT',
-                'route' => ['{{updateRouteName}}', ${{modelName}}->{{primaryKey}}],
+                'route' => ['[% update_route_name %]', $[% model_name %]->[% primary_key %]],
                 'class' => 'form-horizontal',
-                {{uploadFiles}}
+                [% upload_files %]
             ]) !!}
 
-            @include ('{{formViewName}}', [
+            @include ('[% form_view_name %]', [
                                         'submitButtonLabel' => 'Update', 
-                                        '{{modelName}}' => ${{modelName}},
+                                        '[% model_name %]' => $[% model_name %],
                                       ])
 
             {!! Form::close() !!}

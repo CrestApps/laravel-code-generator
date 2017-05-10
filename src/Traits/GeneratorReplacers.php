@@ -14,36 +14,111 @@ trait GeneratorReplacers
      */
     protected function replaceModelName(&$stub, $modelName)
     {
-        $stub = str_replace('{{modelName}}', $this->getModelName($modelName), $stub);
-        $stub = str_replace('{{modelNameCap}}', $this->getModelCapName($modelName), $stub);
-        $stub = str_replace('{{modelNameClass}}', $this->getModelCapName($modelName), $stub);
-        $stub = str_replace('{{modelNamePlural}}', $this->getModelPluralName($modelName), $stub);
-        $stub = str_replace('{{modelNamePluralCap}}', $this->getModelNamePluralCap($modelName), $stub);
+        $stub = $this->strReplace('model_name', $this->getModelName($modelName), $stub);
+        $stub = $this->strReplace('model_name_cap', $this->getModelCapName($modelName), $stub);
+        $stub = $this->strReplace('model_name_class', $this->getModelCapName($modelName), $stub);
+        $stub = $this->strReplace('model_name_plural', $this->getModelPluralName($modelName), $stub);
+        $stub = $this->strReplace('model_name_plural_cap', $this->getModelNamePluralCap($modelName), $stub);
 
         return $this;
     }
 
+    /**
+     * Replace the controller_name fo the given stub.
+     *
+     * @param string $stub
+     * @param string $modelName
+     *
+     * @return $this
+     */
     protected function replaceControllerName(&$stub, $name)
     {
-        $stub = str_replace('{{controllerName}}', $name, $stub);
-
-        return $this;
-    }
-
-    protected function replaceAppName(&$stub, $name)
-    {
-        $stub = str_replace('{{appName}}', $name, $stub);
-
-        return $this;
-    }
-
-    protected function replaceNamespace(&$stub, $namespace)
-    {
-        $stub = str_replace('{{namespace}}', $namespace, $stub);
+        $stub = $this->strReplace('controller_name', $name, $stub);
 
         return $this;
     }
     
+    /**
+     * It Replaces the primary key in a giving stub
+     *
+     * @param string $stub
+     * @param string $primaryKey
+     *
+     * @return $this
+     */
+    protected function replacePrimaryKey(&$stub, $primaryKey)
+    {
+        $stub = $this->strReplace('primary_key', $primaryKey, $stub);
+
+        return $this;
+    }
+    /**
+     * Replace the app_name fo the given stub.
+     *
+     * @param string $stub
+     * @param string $modelName
+     *
+     * @return $this
+     */
+    protected function replaceAppName(&$stub, $name)
+    {
+        $stub = $this->strReplace('app_name', $name, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replace the namespace fo the given stub.
+     *
+     * @param string $stub
+     * @param string $modelName
+     *
+     * @return $this
+     */
+    protected function replaceNamespace(&$stub, $namespace)
+    {
+        $stub = $this->strReplace('namespace', $namespace, $stub);
+
+        return $this;
+    }
+    
+    /**
+     * Replace the validation rules for the given stub.
+     *
+     * @param string $stub
+     * @param string $rules
+     *
+     * @return $this
+     */
+    protected function replaceValidationRules(&$stub, $rules)
+    {
+        $stub = $this->strReplace('validation_rules', $rules, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the field's name for the given stub.
+     *
+     * @param $stub
+     * @param $nane
+     *
+     * @return $this
+     */
+    protected function replaceFieldName(&$stub, $name)
+    {
+        $stub = $this->strReplace('field_name', $name, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Gets a model.
+     *
+     * @param $name
+     *
+     * @return string
+     */
     protected function getModelCapName($name)
     {
         return ucwords($name);
@@ -62,35 +137,5 @@ trait GeneratorReplacers
     protected function getModelNamePluralCap($name)
     {
         return ucwords($this->getModelPluralName($name));
-    }
-
-    /**
-     * Replace the validation rules for the given stub.
-     *
-     * @param string $stub
-     * @param string $rules
-     *
-     * @return $this
-     */
-    protected function replaceValidationRules(&$stub, $rules)
-    {
-        $stub = str_replace('{{validationRules}}', $rules, $stub);
-
-        return $this;
-    }
-
-    /**
-     * Replaces the field's name for the given stub.
-     *
-     * @param $stub
-     * @param $nane
-     *
-     * @return $this
-     */
-    protected function replaceFieldName(&$stub, $name)
-    {
-        $stub = str_replace('{{fieldName}}', $name, $stub);
-
-        return $this;
     }
 }

@@ -1,4 +1,4 @@
-Schema::{{connectionName}}create('{{tableName}}', function(Blueprint $table)
+Schema::[% connection_name %]create('[% table_name %]', function(Blueprint $table)
         {
-{{blueprintBody}}
+[% blue_print_body %]
         });

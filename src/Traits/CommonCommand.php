@@ -40,6 +40,28 @@ trait CommonCommand
     }
 
     /**
+     * Replaces a template variable in the giving subject.
+     *
+     * @return string
+     */
+    protected function strReplace($search, $replace, $subject)
+    {
+        $template = $this->getTemplateVariable($search);
+
+        return str_replace($template, $replace, $subject);
+    }
+
+    /**
+     * convert a key to a template variable.
+     *
+     * @return string
+     */
+    protected function getTemplateVariable($key)
+    {
+        return '[% ' . $key . ' %]';
+    }
+
+    /**
      * Gets the correct routes fullname based on current framework version.
      *
      * @return string
@@ -112,7 +134,8 @@ trait CommonCommand
 
         foreach ($views as $view) {
             $viewName = $this->getDotNotationName($viewDirectory, $routesPrefix, $view);
-            $stub = str_replace($this->getViewName($view), $viewName, $stub);
+            $viewTemplate = $this->getViewName($view);
+            $stub = $this->strReplace($viewTemplate, $viewName, $stub);
         }
         
         return $this;
@@ -169,7 +192,8 @@ trait CommonCommand
 
         foreach ($actions as $action) {
             $routeName = $this->getDotNotationName($modelName, $routesPrefix, $action);
-            $stub = str_replace($this->getRouteName($action), $routeName, $stub);
+            $routeTemplate = $this->getRouteName($action); 
+            $stub = $this->strReplace($routeTemplate, $routeName, $stub);
         }
         
         return $this;
@@ -184,7 +208,7 @@ trait CommonCommand
      */
     protected function getRouteName($action)
     {
-        return sprintf('{{%sRouteName}}', $action);
+        return sprintf('%s_route_name', $action);
     }
 
     /**
@@ -196,7 +220,7 @@ trait CommonCommand
      */
     protected function getViewName($view)
     {
-        return sprintf('{{%sViewName}}', $view);
+        return sprintf('%s_view_name', $view);
     }
 
     /**

@@ -1,1 +1,1 @@
-        {!! Form::select('{{fieldName}}',{{fieldItems}},{{fieldValue}}, ['class' => 'form-control{{cssClass}}',{{fieldMultiple}}{{requiredField}}{{placeHolder}}]) !!}
+        {!! Form::select('[% field_name %]',[% field_items %],[% field_value %], ['class' => 'form-control[% css_class %]',[% field_multiple %][% required_field %][% placeholder %] ]) !!}

@@ -59,30 +59,6 @@ class CreateFormRequestCommand extends Command
              ->createFile($destenationFile, $stub)
              ->info('A new form-request have been crafted!');
     }
-    
-     /**
-     * Creates a file
-     *
-     * @param  string  $fileFullname
-     * @param  string  $stub
-     * @return $this
-     */
-    protected function makeFile($fileFullname, $stub, $force = false)
-    {
-        $this->createDirectory(dirname($fileFullname));
-        
-        if (File::exists($fileFullname) && !$force) {
-            throw new Exception('There is a form-request class with the same name! To override existing file try passing "--force" command');
-        }
-
-        if (! File::put($fileFullname, $stub)) {
-            throw new Exception('New form-request have been created');
-        }
-
-        $this->error('The form-request failed to create');
-
-        return $this;
-    }
 
     /**
      * Gets a clean user inputs.
@@ -110,7 +86,7 @@ class CreateFormRequestCommand extends Command
      */
     protected function replaceFormRequestClass(&$stub, $name)
     {
-        $stub = str_replace('{{formRequestClass}}', $name, $stub);
+        $stub = $this->strReplace('form_request_class', $name, $stub);
 
         return $this;
     }

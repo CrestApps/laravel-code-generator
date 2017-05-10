@@ -1,25 +1,25 @@
 
-    Route::get('/', '{{controllerName}}@index')
-         ->name('{{indexRouteName}}');
+    Route::get('/', '[% controller_name %]@index')
+         ->name('[% index_route_name %]');
 
-    Route::get('/create','{{controllerName}}@create')
-         ->name('{{createRouteName}}');
+    Route::get('/create','[% controller_name %]@create')
+         ->name('[% create_route_name %]');
 
-    Route::get('/show/{{{modelName}}}','{{controllerName}}@show')
-         ->name('{{showRouteName}}')
+    Route::get('/show/{[% model_name %]}','[% controller_name %]@show')
+         ->name('[% show_route_name %]')
          ->where('id', '[0-9]+');
 
-    Route::get('/{{{modelName}}}/edit','{{controllerName}}@edit')
-         ->name('{{editRouteName}}')
+    Route::get('/{[% model_name %]}/edit','[% controller_name %]@edit')
+         ->name('[% edit_route_name %]')
          ->where('id', '[0-9]+');
 
-    Route::post('/', '{{controllerName}}@store')
-         ->name('{{storeRouteName}}');
+    Route::post('/', '[% controller_name %]@store')
+         ->name('[% store_route_name %]');
                
-    Route::put('{{modelName}}/{{{modelName}}}', '{{controllerName}}@update')
-         ->name('{{updateRouteName}}')
+    Route::put('[% model_name %]/{[% model_name %]}', '[% controller_name %]@update')
+         ->name('[% update_route_name %]')
          ->where('id', '[0-9]+');
 
-    Route::delete('/{{modelName}}/{{{modelName}}}','{{controllerName}}@destroy')
-         ->name('{{destroyRouteName}}')
+    Route::delete('/[% model_name %]/{[% model_name %]}','[% controller_name %]@destroy')
+         ->name('[% destroy_route_name %]')
          ->where('id', '[0-9]+');

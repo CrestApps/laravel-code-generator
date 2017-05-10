@@ -298,7 +298,7 @@ class CreateLanguageCommand extends Command
      */
     protected function replaceFieldName(&$stub, $messages)
     {
-        $stub = str_replace('{{messages}}', $messages, $stub);
+        $stub = $this->strReplace('messages', $messages, $stub);
 
         return $this;
     }

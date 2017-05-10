@@ -74,7 +74,7 @@ class CreateShowViewCommand extends ViewsCommand
      */
     protected function replaceTableRows(&$stub, $rows)
     {
-        $stub = str_replace('{{tableRows}}', $rows, $stub);
+        $stub = $this->strReplace('table_rows', $rows, $stub);
 
         return $this;
     }

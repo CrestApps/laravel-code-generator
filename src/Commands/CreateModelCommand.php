@@ -483,7 +483,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceDateFormat(&$stub, $format)
     {
-        $stub = str_replace('{{dateFormat}}', $format, $stub);
+        $stub = $this->strReplace('date_format', $format, $stub);
 
         return $this;
     }
@@ -498,7 +498,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceFieldContent(&$stub, $content)
     {
-        $stub = str_replace('{{content}}', $content, $stub);
+        $stub = $this->strReplace('content', $content, $stub);
 
         return $this;
     }
@@ -513,7 +513,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceTable(&$stub, $table)
     {
-        $stub = str_replace('{{table}}', $table, $stub);
+        $stub = $this->strReplace('table', $table, $stub);
 
         return $this;
     }
@@ -528,7 +528,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceAccessors(&$stub, $accessors)
     {
-        $stub = str_replace('{{accessors}}', $accessors, $stub);
+        $stub = $this->strReplace('accessors', $accessors, $stub);
 
         return $this;
     }
@@ -543,7 +543,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceDateFields(&$stub, $dates)
     {
-        $stub = str_replace('{{dates}}', $dates, $stub);
+        $stub = $this->strReplace('dates', $dates, $stub);
 
         return $this;
     }
@@ -558,7 +558,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceDelimiter(&$stub, $delimiter)
     {
-        $stub = str_replace('{{delimiter}}', $delimiter, $stub);
+        $stub = $this->strReplace('delimiter', $delimiter, $stub);
 
         return $this;
     }
@@ -573,7 +573,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceMutators(&$stub, $mutators)
     {
-        $stub = str_replace('{{mutators}}', $mutators, $stub);
+        $stub = $this->strReplace('mutators', $mutators, $stub);
 
         return $this;
     }
@@ -588,8 +588,8 @@ class CreateModelCommand extends Command
      */
     protected function replaceFieldName(&$stub, $name)
     {
-        $stub = str_replace('{{fieldName}}', $name, $stub);
-        $stub = str_replace('{{fieldNameCap}}', ucwords(camel_case($name)), $stub);
+        $stub = $this->strReplace('field_name', $name, $stub);
+        $stub = $this->strReplace('field_name_cap', ucwords(camel_case($name)), $stub);
 
         return $this;
     }
@@ -605,14 +605,14 @@ class CreateModelCommand extends Command
     protected function replaceSoftDelete(&$stub, $shouldUseSoftDelete)
     {
         if ($shouldUseSoftDelete) {
-            $stub = str_replace('{{useSoftDelete}}', PHP_EOL . 'use Illuminate\Database\Eloquent\SoftDeletes;' . PHP_EOL, $stub);
-            $stub = str_replace('{{useSoftDeleteTrait}}', PHP_EOL . '    use SoftDeletes;' . PHP_EOL, $stub);
+            $stub = $this->strReplace('use_soft_delete', PHP_EOL . 'use Illuminate\Database\Eloquent\SoftDeletes;' . PHP_EOL, $stub);
+            $stub = $this->strReplace('use_soft_delete_trait', PHP_EOL . '    use SoftDeletes;' . PHP_EOL, $stub);
 
             return $this;
         }
 
-        $stub = str_replace('{{useSoftDelete}}', null, $stub);
-        $stub = str_replace('{{useSoftDeleteTrait}}', null, $stub);
+        $stub = $this->strReplace('use_soft_delete', null, $stub);
+        $stub = $this->strReplace('use_soft_delete_trait', null, $stub);
 
         return $this;
     }
@@ -627,7 +627,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceFillable(&$stub, $fillable)
     {
-        $stub = str_replace('{{fillable}}', !empty($fillable) ? $fillable : '[]', $stub);
+        $stub = $this->strReplace('fillable', !empty($fillable) ? $fillable : '[]', $stub);
 
         return $this;
     }
@@ -642,7 +642,7 @@ class CreateModelCommand extends Command
      */
     protected function replacePrimaryKey(&$stub, $primaryKey)
     {
-        $stub = str_replace('{{primaryKey}}', $primaryKey, $stub);
+        $stub = $this->strReplace('primary_key', $primaryKey, $stub);
 
         return $this;
     }
@@ -657,7 +657,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceRelationshipPlaceholder(&$stub, array $relationMethods)
     {
-        $stub = str_replace('{{relationships}}', implode("\r\n", $relationMethods), $stub);
+        $stub = $this->strReplace('relationships', implode("\r\n", $relationMethods), $stub);
 
         return $this;
     }
@@ -671,7 +671,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceRelationType(&$stub, $type)
     {
-        $stub = str_replace('{{relationType}}', $type, $stub);
+        $stub = $this->strReplace('relation_type', $type, $stub);
 
         return $this;
     }
@@ -686,7 +686,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceRelationName(&$stub, $name)
     {
-        $stub = str_replace('{{relationName}}', $name, $stub);
+        $stub = $this->strReplace('relation_name', $name, $stub);
 
         return $this;
     }
@@ -701,7 +701,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceRelationParams(&$stub, $params)
     {
-        $stub = str_replace('{{relationParams}}', $params, $stub);
+        $stub = $this->strReplace('relation_params', $params, $stub);
 
         return $this;
     }
@@ -716,7 +716,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceTimestamps(&$stub, $timestamp)
     {
-        $stub = str_replace('{{timeStamps}}', $timestamp, $stub);
+        $stub = $this->strReplace('time_stamps', $timestamp, $stub);
         
         return $this;
     }

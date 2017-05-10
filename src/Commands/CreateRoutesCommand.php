@@ -126,7 +126,7 @@ class CreateRoutesCommand extends Command
      */
     protected function replaceRoutes(&$stub, $routes)
     {
-        $stub = str_replace('{{routes}}', $routes, $stub);
+        $stub = $this->strReplace('routes', $routes, $stub);
 
         return $this;
     }
@@ -141,7 +141,7 @@ class CreateRoutesCommand extends Command
      */
     protected function replacePrefix(&$stub, $prefix)
     {
-        $stub = str_replace('{{prefix}}', $prefix, $stub);
+        $stub = $this->strReplace('prefix', $prefix, $stub);
 
         return $this;
     }
@@ -161,7 +161,7 @@ class CreateRoutesCommand extends Command
         $prefix = trim($prefix);
 
         if (!empty($prefix) || !empty($namespace)) {
-            $groupStub = File::get($this->getStubByName('routes-group', $template));
+            $groupStub = $this->getStubContent('routes-group');
 
             $this->replacePrefix($groupStub, $this->getGroupPrefix($prefix))
                  ->replaceRoutes($groupStub, $stub);

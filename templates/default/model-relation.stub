@@ -1,7 +1,7 @@
     /**
-     * Get the {{relationName}} for this model.
+     * Get the [% relation_name %] for this model.
      */
-    public function {{relationName}}()
+    public function [% relation_name %]()
     {
-        return $this->{{relationType}}({{relationParams}});
+        return $this->[% relation_type %]([% relation_params %]);
     }

@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class {{migrationName}} extends Migration
+class [% migration_name %] extends Migration
 {
     /**
      * Run the migrations.
@@ -12,7 +12,7 @@ class {{migrationName}} extends Migration
      */
     public function up()
     {
-        {{schema_up}}
+        [% schema_up %]
     }
 
     /**
@@ -22,6 +22,6 @@ class {{migrationName}} extends Migration
      */
     public function down()
     {
-        {{schema_down}}
+        [% schema_down %]
     }
 }

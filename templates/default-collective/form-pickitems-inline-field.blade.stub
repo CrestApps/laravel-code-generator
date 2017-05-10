@@ -1,4 +1,4 @@
-        <label for="{{itemId}}" class="{{fieldType}}-inline">
-            {!! Form::{{fieldType}}('{{fieldName}}', '{{optionValue}}', null, ['id' => '{{itemId}}', 'class' => '{{requiredClass}}{{cssClass}}'{{requiredField}}]) !!}
-            {{itemTitle}}
+        <label for="[% item_id %]" class="[% field_type %]-inline">
+            {!! Form::[% field_type %]('[% field_name %]', '[% option_value %]', null, ['id' => '[% item_id %]', 'class' => '[% required_class %][% css_class %]'[% required_field %]]) !!}
+            [% item_title %]
         </label>

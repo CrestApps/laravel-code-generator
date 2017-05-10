@@ -216,7 +216,10 @@ class FieldTransformer
              ->setUnsignedProperty($field, $properties)
              ->setForeignRelation($field, $properties)
              ->setRange($field, $properties)
-             ->setForeignConstraint($field, $properties);
+             ->setForeignConstraint($field, $properties)
+             ->setOnCreate($field, $properties)
+             ->setOnUpdate($field, $properties)
+             ->setOnDelete($field, $properties);
 
         if ($this->isValidSelectRangeType($properties)) {
             $field->htmlType = 'selectRange';
@@ -333,6 +336,75 @@ class FieldTransformer
         }
 
         return $this;
+    }
+
+    /**
+     * Sets the raw php command to execute on create.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
+     *
+     * @return $this
+    */
+    protected function setOnCreate(Field & $field, array $properties)
+    {
+        if ($this->isKeyExists($properties, 'on-create')) {
+            $field->onCreate = $this->getOnAction($properties['on-create']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sets the raw php command to execute on update.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
+     *
+     * @return $this
+    */
+    protected function setOnUpdate(Field & $field, array $properties)
+    {
+        if ($this->isKeyExists($properties, 'on-update')) {
+            $field->onUpdate = $this->getOnAction($properties['on-update']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sets the raw php command to execute on delete.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
+     *
+     * @return $this
+    */
+    protected function setOnDelete(Field & $field, array $properties)
+    {
+        if ($this->isKeyExists($properties, 'on-delete')) {
+            $field->onDelete = $this->getOnAction($properties['on-delete']);
+        }
+
+        return $this;
+    }
+
+    /**
+    * Cleans up a giving action
+    *
+    * @param string $action
+    *
+    * @return string
+    */
+    protected function getOnAction($action)
+    {
+        $action = trim($action);
+
+        if(empty($action)) {
+            return null;
+        }
+
+        return Helpers::postFixWith($action, ';');
     }
 
     /**

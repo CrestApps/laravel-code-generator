@@ -227,6 +227,27 @@ class Field
     protected $defaultLang;
 
     /**
+     * raw php command to execute when the model is created.
+     *
+     * @var string
+     */
+    public $onCreate;
+
+    /**
+     * raw php command to execute when the model is updated.
+     *
+     * @var string
+     */
+    public $onUpdate;
+
+    /**
+     * raw php command to execute when the model is deleted.
+     *
+     * @var string
+     */
+    public $onDelete;
+
+    /**
      * Creates a new field instance.
      *
      * @param string $name
@@ -551,7 +572,10 @@ class Field
             'delimiter' => $this->optionsDelimiter,
             'range' => $this->range,
             'foreign-relation' => $this->getForeignRelationToRaw(),
-            'foreign-constraint' => $this->getForeignConstraintToRaw()
+            'foreign-constraint' => $this->getForeignConstraintToRaw(),
+            'on-create' => $this->onCreate,
+            'on-update' => $this->onUpdate,
+            'on-delete' => $this->onDelete,
         ];
     }
 

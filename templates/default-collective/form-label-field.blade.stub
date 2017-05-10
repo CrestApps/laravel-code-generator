@@ -1,1 +1,1 @@
-    {!! Form::label('{{fieldName}}',{{fieldTitle}},['class' => 'col-md-2 control-label']) !!}
+    {!! Form::label('[% field_name %]',[% field_title %],['class' => 'col-md-2 control-label']) !!}

@@ -1,4 +1,4 @@
-@extends('{{layoutName}}')
+@extends('[% layout_name %]')
 
 @section('content')
 
@@ -7,16 +7,16 @@
         <div class="panel-heading clearfix">
 
             <span class="pull-left">
-                {{ !empty({{modelHeader}}) ? {{modelHeader}} : '{{modelName}}'}}
+                {{ !empty([% model_header %]) ? [% model_header %] : '[% model_name %]' }}
             </span>
 
             <div class="btn-group btn-group-xs pull-right" role="group">
 
-                <a href="{{ route('{{indexRouteName}}') }}" class="btn btn-primary" title="Show all {{modelNamePlural}}">
+                <a href="{{ route('[% index_route_name %]') }}" class="btn btn-primary" title="Show all [% model_name_plural %]">
                     <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                 </a>
 
-                <a href="{{ route('{{createRouteName}}') }}" class="btn btn-primary" title="Add {{modelNameClass}}">
+                <a href="{{ route('[% create_route_name %]') }}" class="btn btn-primary" title="Add [% model_name_class %]">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </a>
 
@@ -33,12 +33,12 @@
                 </ul>
             @endif
 
-            <form method="POST" action="{{ route('{{updateRouteName}}', ${{modelName}}->{{primaryKey}}) }}" accept-charset="UTF-8" class="form-horizontal"{{uploadFiles}}>
+            <form method="POST" action="{{ route('[% update_route_name %]', $[% model_name %]->[% primary_key %]) }}" accept-charset="UTF-8" class="form-horizontal"[% upload_files %]>
             {{ csrf_field() }}
             <input name="_method" type="hidden" value="PUT">
-            @include ('{{formViewName}}', [
+            @include ('[% form_view_name %]', [
                                         'submitButtonLabel' => 'Update', 
-                                        '{{modelName}}' => ${{modelName}},
+                                        '[% model_name %]' => $[% model_name %],
                                       ])
             </form>
 
