@@ -7,10 +7,12 @@ use App;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\FieldsOptimizer;
 use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Models\FieldMapper;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Models\ForeignConstraint;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\Config;
 
 class FieldTransformer
 {
@@ -214,7 +216,10 @@ class FieldTransformer
              ->setUnsignedProperty($field, $properties)
              ->setForeignRelation($field, $properties)
              ->setRange($field, $properties)
-             ->setForeignConstraint($field, $properties);
+             ->setForeignConstraint($field, $properties)
+             ->setOnCreate($field, $properties)
+             ->setOnUpdate($field, $properties)
+             ->setOnDelete($field, $properties);
 
         if ($this->isValidSelectRangeType($properties)) {
             $field->htmlType = 'selectRange';
@@ -262,7 +267,7 @@ class FieldTransformer
     */
     protected function isValidSelectRangeType(array $properties)
     {
-        return $this->isKeyExists($properties, 'html-type') && Helpers::startsWith($properties['html-type'], 'selectRange|');
+        return $this->isKeyExists($properties, 'html-type') && starts_with('selectRange|', $properties['html-type']);
     }
 
    /**
@@ -303,6 +308,16 @@ class FieldTransformer
             $field->dataType = $map[$properties['data-type']];
         }
 
+        if (! $this->isKeyExists($properties, 'data-type')) {
+            if (Helpers::strIs(Config::getDateTimePatterns(), $field->name)) {
+                $field->dataType = 'datetime';
+            } elseif (Helpers::strIs(Config::getBooleanPatterns(), $field->name)) {
+                $field->dataType = 'boolean';
+            } elseif (Helpers::strIs(Config::getKeyPatterns(), $field->name)) {
+                $field->dataType = 'integer';
+            }
+        }
+
         return $this;
     }
 
@@ -321,6 +336,75 @@ class FieldTransformer
         }
 
         return $this;
+    }
+
+    /**
+     * Sets the raw php command to execute on create.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
+     *
+     * @return $this
+    */
+    protected function setOnCreate(Field & $field, array $properties)
+    {
+        if ($this->isKeyExists($properties, 'on-create')) {
+            $field->onCreate = $this->getOnAction($properties['on-create']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sets the raw php command to execute on update.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
+     *
+     * @return $this
+    */
+    protected function setOnUpdate(Field & $field, array $properties)
+    {
+        if ($this->isKeyExists($properties, 'on-update')) {
+            $field->onUpdate = $this->getOnAction($properties['on-update']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sets the raw php command to execute on delete.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
+     *
+     * @return $this
+    */
+    protected function setOnDelete(Field & $field, array $properties)
+    {
+        if ($this->isKeyExists($properties, 'on-delete')) {
+            $field->onDelete = $this->getOnAction($properties['on-delete']);
+        }
+
+        return $this;
+    }
+
+    /**
+    * Cleans up a giving action
+    *
+    * @param string $action
+    *
+    * @return string
+    */
+    protected function getOnAction($action)
+    {
+        $action = trim($action);
+
+        if(empty($action)) {
+            return null;
+        }
+
+        return Helpers::postFixWith($action, ';');
     }
 
     /**
@@ -389,7 +473,7 @@ class FieldTransformer
             $relation = $this->getForeignRelation((array)$properties['foreign-relation']);
             $field->setForeignRelation($relation);
         } else {
-            $field->setForeignRelation(self::getPredectableForeignRelation($properties['name'], $this->getAppNamespace() . $this->getModelsPath()));
+            $field->setForeignRelation(self::getPredectableForeignRelation($properties['name'], $this->getAppNamespace() . Config::getModelsPath()));
         }
 
         return $this;
@@ -422,7 +506,7 @@ class FieldTransformer
             $constraint = $properties['foreign-constraint'];
             $onUpdate = $this->isKeyExists($constraint, 'on-update') ? $constraint['on-update'] : null;
             $onDelete = $this->isKeyExists($constraint, 'on-delete') ? $constraint['on-delete'] : null;
-            $modelPath = $this->getAppNamespace() . $this->getModelsPath();
+            $modelPath = $this->getAppNamespace() . Config::getModelsPath();
             $model = $this->isKeyExists($constraint, 'references-model') ? $constraint['references-model'] : self::guessModelFullName($name, $modelPath);
 
             return new ForeignConstraint($constraint['field'], $constraint['references'], $constraint['on'], $onDelete, $onUpdate, $model);
@@ -478,8 +562,10 @@ class FieldTransformer
      */
     public static function getPredectableForeignRelation($name, $modelPath)
     {
-        if (ends_with($name, '_id')) {
-            $foreignName = self::extractModelName($name);
+        $patterns = Config::getKeyPatterns();
+
+        if (Helpers::strIs($patterns, $name)) {
+            $foreignName = camel_case(self::extractModelName($name));
             $model = self::guessModelFullName($name, $modelPath);
             
             $parameters = [$model, $name];
@@ -577,11 +663,11 @@ class FieldTransformer
     */
     protected function setOptionsProperty(Field & $field, array $properties)
     {
-        $options = $this->getOptions($field, $properties);
+        $labels = $this->getOptions($field, $properties);
 
-        if (!is_null($options)) {
-            foreach ($options as $option) {
-                $field->addOption($option->text, $this->localeGroup, $option->isPlain, $option->lang, $option->value);
+        if (!is_null($labels)) {
+            foreach ($labels as $label) {
+                $field->addOption($label->text, $label->localeGroup, $label->isPlain, $label->lang, $label->value);
             }
         }
 
@@ -602,7 +688,11 @@ class FieldTransformer
             return null;
         }
 
-        return is_array($properties['options']) ? $this->transferOptionsToLabels($field, $properties['options']) : $this->parseOptions($properties['options']);
+        if (is_array($properties['options'])) {
+            return self::transferOptionsToLabels($field, $properties['options'], $this->defaultLang, $this->localeGroup);
+        }
+
+        return $this->parseOptions($properties['options']);
     }
 
     /**
@@ -610,20 +700,23 @@ class FieldTransformer
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param array $options
+     * @param string $lang
+     * @param string $localeGroup
      *
      * @return array
     */
-    protected function transferOptionsToLabels(Field & $field, array $options)
+    public static function transferOptionsToLabels(Field & $field, array $options, $lang, $localeGroup)
     {
         $finalOptions = [];
 
         $associative = Helpers::isAssociative($options);
         
         $index = 0;
+
         foreach ($options as $value => $option) {
             if ($field->isBoolean()) {
                 // Since we know this field is a boolean type,
-                // we should allow  only two options and it must 0 or 1
+                // we should allow only two options and it must 0 or 1
                 $value = $index;
 
                 if ($index > 1) {
@@ -636,14 +729,14 @@ class FieldTransformer
             
             if (!is_array($option)) {
                 // At this point the options are plain text without locale
-                $finalOptions[] = $this->getLabelObject($option, true, $this->defaultLang, $value);
+                $finalOptions[] = new Label($option, $localeGroup, true, $lang);
                 continue;
             }
 
             foreach ($option as $optionValue => $text) {
                 // At this point the options are in array which mean they need translation.
-                $lang = is_numeric($optionValue) || empty($optionValue) ? $this->defaultLang : $optionValue;
-                $finalOptions[] = $this->getLabelObject($text, false, $lang, $value);
+                $lang = is_numeric($optionValue) || empty($optionValue) ? $lang : $optionValue;
+                $finalOptions[] = new Label($text, $localeGroup, false, $lang, null, $value);
             }
         }
 
@@ -699,29 +792,10 @@ class FieldTransformer
 
         foreach ($items as $key => $label) {
             $lang = empty($key) || is_numeric($key) ? $this->defaultLang : $key;
-            $labels[] = $this->getLabelObject($label, false, $lang);
+            $labels[] = new Label($label, $this->localeGroup, false, $lang);
         }
 
         return $labels;
-    }
-
-    /**
-     * It returns a label object from the giving properties
-     *
-     * @param string $value
-     * @param bool $isPlain
-     * @param string $lang
-     *
-     * @return object
-    */
-    protected function getLabelObject($text, $isPlain, $lang, $value = null)
-    {
-        return (object) [
-                'text' => $text,
-                'isPlain' => $isPlain,
-                'lang' => $lang,
-                'value' => $value
-            ];
     }
 
     /**
@@ -735,7 +809,7 @@ class FieldTransformer
     {
         if (isset($properties['labels']) && is_array($properties['labels'])) {
             //At this point we know the is array of labels
-            return $this->getLabelsFromArray($field['labels']);
+            return $this->getLabelsFromArray($properties['labels']);
         }
 
         if (isset($properties['label'])) {
@@ -744,14 +818,20 @@ class FieldTransformer
                 return $this->getLabelsFromArray($properties['label']);
             }
 
-            return [ $this->getLabelObject($properties['label'], true, $this->defaultLang) ];
+            return [
+                new Label($properties['label'], $this->localeGroup, true, $this->defaultLang)
+            ];
         }
 
         $labels = $this->getLabelsFromRawProperties($properties);
 
         if (!isset($labels[0]) && isset($properties['name'])) {
             //At this point we know there are no labels found, generate one use the name
-            return [$this->getLabelObject($this->convertNameToLabel($properties['name']), true, $this->defaultLang)];
+            $label = $this->convertNameToLabel($properties['name']);
+
+            return [
+                new Label($label, $this->localeGroup, true, $this->defaultLang)
+            ];
         }
 
         return $labels;
@@ -780,9 +860,12 @@ class FieldTransformer
                 $index = strpos($message, ':');
 
                 if ($index !== false) {
-                    $labels[] = $this->getLabelObject(substr($message, $index + 1), false, substr($message, 0, $index));
+                    $labelText = substr($message, $index + 1);
+                    $labelValue = substr($message, 0, $index);
+
+                    $labels[] = new Label($labelText, $this->localeGroup, false, $labelValue);
                 } else {
-                    $labels[] = $this->getLabelObject($message, true, $this->defaultLang);
+                    $labels[] = new Label($message, $this->localeGroup, true, $this->defaultLang);
                 }
             }
         }
@@ -806,9 +889,11 @@ class FieldTransformer
             $index = strpos(':', $option);
 
             if ($index !== false) {
-                $finalOptions[] = $this->getLabelObject(substr($option, $index + 1), true, $this->defaultLang, substr($option, 0, $index));
+                $labelText = substr($option, $index + 1);
+                $labelValue = substr($option, 0, $index);
+                $finalOptions[] = new Label($labelText, $this->localeGroup, true, $this->defaultLang);
             } else {
-                $finalOptions[] = $this->getLabelObject($option, true, $this->defaultLang, null);
+                $finalOptions[] = new Label($option, $this->localeGroup, true, $this->defaultLang);
             }
         }
 
@@ -875,7 +960,9 @@ class FieldTransformer
     */
     protected function isProperyBool($str)
     {
-        return starts_with($str, 'is');
+        $patterns = Config::getBooleanPatterns();
+        
+        return Helpers::strIs($patterns, $str);
     }
 
     /**

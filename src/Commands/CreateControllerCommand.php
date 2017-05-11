@@ -2,14 +2,16 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use Illuminate\Console\GeneratorCommand;
+use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
 
-class CreateControllerCommand extends GeneratorCommand
+class CreateControllerCommand extends Command
 {
-    use CommonCommand;
+    use CommonCommand,  GeneratorReplacers;
 
     /**
      * The name and signature of the console command.
@@ -62,35 +64,43 @@ class CreateControllerCommand extends GeneratorCommand
      *
      * @return string
      */
-    protected function buildClass($name)
+    public function handle()
     {
-        $stub = $this->files->get($this->getStub());
         $input = $this->getCommandInput();
+        $destenationFile = $this->getDestenationFile($input->controllerName);
 
-        $formRequestName = 'Request';
+        if ($this->alreadyExists($destenationFile)) {
+            $this->error('The controller already exists!');
+
+            return false;
+        }
+
+        $requestName = 'Request';
+        $requestNameSpace = 'Illuminate\Http\Request';
 
         if ($input->formRequest) {
-            $stub = $this->getStubContent('controller-with-form-request', $input->template);
-            $formRequestName = $input->formRequestName;
+            $requestName = $input->formRequestName;
+            $requestNameSpace = $this->getRequestsNamespace($requestName);
             $this->makeFormRequest($input);
         }
 
         $fields = $this->getFields($input->fields, $input->langFile, $input->fieldsFile);
-
         $viewVariablesForIndex = $this->getCompactVariablesFor($fields, $this->getModelPluralName($input->modelName), 'index');
         $viewVariablesForShow = $this->getCompactVariablesFor($fields, $this->getModelName($input->modelName), 'show');
         $viewVariablesForEdit = $this->getCompactVariablesFor($fields, $this->getModelName($input->modelName), 'form');
-
         $modelFullName = $this->getModelFullName($input->modelDirectory, $input->modelName);
-        
-        return $this->replaceNamespace($stub, $name)
-                    ->replaceViewNames($stub, $input->viewDirectory, $input->prefix)
+        $affirmMethod = $this->getAffirmMethod($input->formRequest, $fields, $requestNameSpace);
+        $stub = $this->getStubContent('controller');
+
+        return $this->replaceViewNames($stub, $input->viewDirectory, $input->prefix)
                     ->replaceModelName($stub, $input->modelName)
+                    ->replaceNamespace($stub, $this->getControllersNamespace())
                     ->replaceUseCommandPlaceHolder($stub, $this->getRequiredUseClasses($fields, $modelFullName))
                     ->replaceRouteNames($stub, $input->modelName, $input->prefix)
-                    ->replaceValidationRules($stub, $this->getValidationRules($fields))
-                    ->replaceFormRequestName($stub, $formRequestName)
-                    ->replaceFormRequestFullName($stub, $this->getAppNamespace() . $this->getRequestsNamespace() . $formRequestName)
+                    ->replaceRequestName($stub, $requestName)
+                    ->replaceRequestFullName($stub, $requestNameSpace)
+                    ->replaceCallAffirm($stub, $this->getCallAffirm($input->formRequest))
+                    ->replaceAffirmMethod($stub, $affirmMethod)
                     ->replacePaginationNumber($stub, $input->perPage)
                     ->replaceFileSnippet($stub, $this->getFileSnippet($fields))
                     ->replaceBooleadSnippet($stub, $this->getBooleanSnippet($fields))
@@ -103,7 +113,10 @@ class CreateControllerCommand extends GeneratorCommand
                     ->replaceWithRelationsForIndex($stub, $this->getWithRelationFor($fields, 'index'))
                     ->replaceWithRelationsForShow($stub, $this->getWithRelationFor($fields, 'show'))
                     ->replaceRelationCollections($stub, $this->getRequiredRelationCollections($fields))
-                    ->replaceClass($stub, $name);
+                    ->replaceAppName($stub, $this->getAppName())
+                    ->replaceControllerName($stub, $input->controllerName)
+                    ->createFile($destenationFile, $stub)
+                    ->info('A controller was crafted successfully.');
     }
 
     /**
@@ -228,33 +241,6 @@ class CreateControllerCommand extends GeneratorCommand
         return $this->getCompactVariables($variables);
     }
 
-
-    /**
-     * Gets the needed compact variables for the edit/create views.
-     *
-     * @param array $fields
-     *
-     * @return array
-     */
-    /*
-    protected function getWithRelations(array $fields, $view)
-    {
-        $variables = [];
-
-        if($view != 'form')
-        {
-            foreach ($fields as $field) {
-
-                if ($field->hasForeignRelation() && $field->isOnView($view)) {
-                    $variables[] = $field->getForeignRelation()->name;
-                }
-            }
-        }
-
-        return $variables;
-    }
-    */
-
     /**
      * Gets the needed compact variables for the edit/create views.
      *
@@ -316,7 +302,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function getUploadFileMethod(array $fields)
     {
-        if ($this->isContainfile($fields)) {
+        if ($this->containsfile($fields)) {
             return $this->getStubContent('controller-upload-method', $this->getTemplateName());
         }
 
@@ -324,15 +310,39 @@ class CreateControllerCommand extends GeneratorCommand
     }
 
     /**
+     * Gets the controller's fullname
+     *
+     * @return string
+     */
+    protected function getDestenationFile($name)
+    {
+        $path = base_path($this->getAppNamespace() . Config::getControllersPath());
+
+        return Helpers::postFixWith($path, '/') . $name . '.php';
+    }
+
+    /**
      * Gets the Requests namespace
      *
      * @return string
      */
-    protected function getRequestsNamespace()
+    protected function getRequestsNamespace($name)
     {
-        $path = str_replace(app_path(), '', $this->getRequestsPath());
+        $path = $this->getAppNamespace() . Config::getRequestsPath();
 
-        return ltrim(Helpers::convertSlashToBackslash($path), '\\');
+        return Helpers::convertSlashToBackslash($path) . $name;
+    }
+
+    /**
+     * Gets the controllers namespace
+     *
+     * @return string
+     */
+    protected function getControllersNamespace()
+    {
+        $path = $this->getAppNamespace() . Config::getControllersPath();
+
+        return rtrim(Helpers::convertSlashToBackslash($path), '\\');
     }
 
     /**
@@ -382,7 +392,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function getModelFullName($directory, $name)
     {
-        $final = !empty($directory) ? $this->getModelsPath() . Helpers::getPathWithSlash($directory) : $this->getModelsPath();
+        $final = !empty($directory) ? Config::getModelsPath() . Helpers::getPathWithSlash($directory) : Config::getModelsPath();
 
         return Helpers::convertSlashToBackslash($this->getAppNamespace() . $final . $name);
     }
@@ -394,8 +404,8 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function getCommandInput()
     {
-        $controllerName = trim($this->argument('controller-name'));
-        $plainControllerName = str_singular(Helpers::removePostFixWith($controllerName, 'Controller'));
+        $controllerName = Helpers::postFixWith(trim($this->argument('controller-name')), 'Controller');
+        $plainControllerName= str_singular(Helpers::removePostFixWith($controllerName, 'Controller'));
 
         $modelName = trim($this->option('model-name')) ?: $plainControllerName;
         $viewDirectory = trim($this->option('views-directory'));
@@ -411,7 +421,7 @@ class CreateControllerCommand extends GeneratorCommand
         $template = $this->getTemplateName();
 
         return (object) compact('viewDirectory', 'viewName', 'modelName', 'prefix', 'perPage', 'fileSnippet', 'modelDirectory',
-                                'langFile', 'fields', 'formRequest', 'formRequestName', 'force', 'fieldsFile', 'template');
+                                'langFile', 'fields', 'formRequest', 'formRequestName', 'force', 'fieldsFile', 'template', 'controllerName');
     }
 
     /**
@@ -424,7 +434,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function replaceUseCommandPlaceHolder(&$stub, $commands)
     {
-        $stub = str_replace('{{useCommandPlaceHolder}}', $commands, $stub);
+        $stub = $this->strReplace('use_command_placeholder', $commands, $stub);
 
         return $this;
     }
@@ -437,13 +447,43 @@ class CreateControllerCommand extends GeneratorCommand
      *
      * @return $this
      */
-    protected function replaceFormRequestName(&$stub, $name)
+    protected function replaceRequestName(&$stub, $name)
     {
-        $stub = str_replace('{{formRequestName}}', $name, $stub);
+        $stub = $this->strReplace('request_name', $name, $stub);
 
         return $this;
     }
     
+    /**
+     * Replaces call affirm for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    protected function replaceCallAffirm(&$stub, $name)
+    {
+        $stub = $this->strReplace('call_affirm', $name, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces affirm method for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    protected function replaceAffirmMethod(&$stub, $name)
+    {
+        $stub = $this->strReplace('affirm_method', $name, $stub);
+
+        return $this;
+    }
+
     /**
      * Replace sthe form-request's fullname for the given stub.
      *
@@ -452,24 +492,9 @@ class CreateControllerCommand extends GeneratorCommand
      *
      * @return $this
      */
-    protected function replaceFormRequestFullName(&$stub, $name)
+    protected function replaceRequestFullName(&$stub, $name)
     {
-        $stub = str_replace('{{formRequestFullName}}', $name, $stub);
-
-        return $this;
-    }
-
-    /**
-     * Replaces the validation rules for the given stub.
-     *
-     * @param  string  $stub
-     * @param  string  $rules
-     *
-     * @return $this
-     */
-    protected function replaceValidationRules(&$stub, $rules)
-    {
-        $stub = str_replace('{{validationRules}}', $rules, $stub);
+        $stub = $this->strReplace('request_fullname', $name, $stub);
 
         return $this;
     }
@@ -484,7 +509,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function replacePaginationNumber(&$stub, $total)
     {
-        $stub = str_replace('{{modelsPerPage}}', $total, $stub);
+        $stub = $this->strReplace('models_per_page', $total, $stub);
 
         return $this;
     }
@@ -499,7 +524,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function replaceFileSnippet(&$stub, $snippet)
     {
-        $stub = str_replace('{{fileSnippet}}', $snippet, $stub);
+        $stub = $this->strReplace('file_snippet', $snippet, $stub);
 
         return $this;
     }
@@ -514,7 +539,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function replaceBooleadSnippet(&$stub, $snippet)
     {
-        $stub = str_replace('{{booleanSnippet}}', $snippet, $stub);
+        $stub = $this->strReplace('boolean_snippet', $snippet, $stub);
 
         return $this;
     }
@@ -529,7 +554,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function replaceStringToNullSnippet(&$stub, $snippet)
     {
-        $stub = str_replace('{{stringToNullSnippet}}', $snippet, $stub);
+        $stub = $this->strReplace('string_to_null_snippet', $snippet, $stub);
 
         return $this;
     }
@@ -544,22 +569,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function replaceFileMethod(&$stub, $method)
     {
-        $stub = str_replace('{{uploadMethod}}', $method, $stub);
-
-        return $this;
-    }
-
-    /**
-     * Replaces the field's name for the given stub.
-     *
-     * @param $stub
-     * @param $nane
-     *
-     * @return $this
-     */
-    protected function replaceFieldName(&$stub, $name)
-    {
-        $stub = str_replace('{{fieldName}}', $name, $stub);
+        $stub = $this->strReplace('upload_method', $method, $stub);
 
         return $this;
     }
@@ -574,7 +584,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function replaceViewVariablesForIndex(&$stub, $variables)
     {
-        $stub = str_replace('{{viewVariablesForIndex}}', $variables, $stub);
+        $stub = $this->strReplace('view_variables_for_index', $variables, $stub);
 
         return $this;
     }
@@ -589,7 +599,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function replaceViewVariablesForCreate(&$stub, $variables)
     {
-        $stub = str_replace('{{viewVariablesForCreate}}', $variables, $stub);
+        $stub = $this->strReplace('view_variables_for_create', $variables, $stub);
 
         return $this;
     }
@@ -604,7 +614,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function replaceViewVariablesForEdit(&$stub, $variables)
     {
-        $stub = str_replace('{{viewVariablesForEdit}}', $variables, $stub);
+        $stub = $this->strReplace('view_variables_for_edit', $variables, $stub);
 
         return $this;
     }
@@ -619,7 +629,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function replaceViewVariablesForShow(&$stub, $variables)
     {
-        $stub = str_replace('{{viewVariablesForShow}}', $variables, $stub);
+        $stub = $this->strReplace('view_variables_for_show', $variables, $stub);
 
         return $this;
     }
@@ -634,7 +644,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function replaceWithRelationsForIndex(&$stub, $relations)
     {
-        $stub = str_replace('{{withRelationsForIndex}}', $relations, $stub);
+        $stub = $this->strReplace('with_relations_for_index', $relations, $stub);
 
         return $this;
     }
@@ -649,7 +659,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function replaceWithRelationsForShow(&$stub, $relations)
     {
-        $stub = str_replace('{{withRelationsForShow}}', $relations, $stub);
+        $stub = $this->strReplace('with_relations_for_show', $relations, $stub);
 
         return $this;
     }
@@ -664,7 +674,7 @@ class CreateControllerCommand extends GeneratorCommand
      */
     protected function replaceRelationCollections(&$stub, $collections)
     {
-        $stub = str_replace('{{relationCollections}}', $collections, $stub);
+        $stub = $this->strReplace('relation_collections', $collections, $stub);
 
         return $this;
     }
@@ -677,7 +687,7 @@ class CreateControllerCommand extends GeneratorCommand
     public function getNameInput()
     {
         $name = Helpers::upperCaseEveyWord(trim($this->argument('controller-name')));
-        $path = $this->getControllersPath();
+        $path = Config::getControllersPath();
         $directory = trim($this->option('controller-directory'));
 
         if (!empty($directory)) {
@@ -732,6 +742,43 @@ EOF;
         return $code;
     }
 
+    /**
+     * Gets the affirm method.
+     *
+     * @param bool $isFormRequest
+     * @param array $fields
+     *
+     * @return string
+     */
+    protected function getAffirmMethod($withFormRequest, array $fields, $requestNamespace)
+    {
+        if ($withFormRequest) {
+            return '';
+        }
+        
+        $stub = $this->getStubContent('controller-affirm-method');
+
+        $this->replaceValidationRules($stub, $this->getValidationRules($fields))
+             ->replaceRequestFullName($stub, $requestNamespace);
+
+        return $stub;
+    }
+
+    /**
+     * Gets the affirm method call.
+     *
+     * @param bool $isFormRequest
+     *
+     * @return string
+     */
+    protected function getCallAffirm($withFormRequest)
+    {
+        if ($withFormRequest) {
+            return '';
+        }
+
+        return '$this->affirm($request);';
+    }
 
     /**
      * Gets the code that is needed to convert empty string to null.

@@ -2,16 +2,17 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use File;
 use Route;
 use Exception;
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Config;
 
 class CreateRoutesCommand extends Command
 {
-    use CommonCommand;
+    use CommonCommand, GeneratorReplacers;
 
     /**
      * The name and signature of the console command.
@@ -33,16 +34,6 @@ class CreateRoutesCommand extends Command
     protected $description = 'Create "create, read, update and delete" routes for the model.';
 
     /**
-     * Creates a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Executes the console command.
      *
      * @return mixed
@@ -58,17 +49,20 @@ class CreateRoutesCommand extends Command
 
         $routesFile = $this->getRoutesFileName();
 
-        if (! File::exists($routesFile)) {
+        if (! $this->isFileExists($routesFile)) {
             throw new Exception("The routes file does not exists. The expected location was " . $routesFile);
         }
 
-        $stub = File::get($this->getStubByName('routes', $input->template));
+        $stub = $this->getStubContent('routes');
+
+        $controllnerName = $this->getControllerName($input->controllerName, $input->controllerDirectory);
 
         $this->replaceModelName($stub, $input->modelName)
-             ->replaceControllerName($stub, $this->getControllerName($input->controllerName, $input->controllerDirectory))
+             ->replaceControllerName($stub, $controllnerName)
              ->replaceRouteNames($stub, $input->modelName, $input->prefix)
              ->processRoutesGroup($stub, $input->prefix, $input->controllerDirectory, $input->template)
-             ->appendToRoutesFile($stub, $routesFile);
+             ->appendToRoutesFile($stub, $routesFile)
+             ->info('The routes were added successfully.');
     }
 
     /**
@@ -98,11 +92,7 @@ class CreateRoutesCommand extends Command
      */
     protected function appendToRoutesFile($stub, $routesFile)
     {
-        if (! File::append($routesFile, $stub)) {
-            throw new Exception('Unable to add the route to ' . $routesFile);
-        }
-
-        $this->info('The routes were added successfully.');
+        $this->appendContentToFile($routesFile, $stub);
 
         return $this;
     }
@@ -117,52 +107,13 @@ class CreateRoutesCommand extends Command
      */
     protected function getControllerName($name, $namespace)
     {
-        return empty($namespace) ? $name : Helpers::convertSlashToBackslash(Helpers::postFixWith($namespace, '\\') . $name);
-    }
+        if(empty($namespace)) {
+            return $name;
+        }
 
-    /**
-     * Replaces the controller name for the given stub.
-     *
-     * @param string $stub
-     * @param string $name
-     *
-     * @return $this
-     */
-    protected function replaceControllerName(&$stub, $name)
-    {
-        $stub = str_replace('{{controllerName}}', $name, $stub);
+        $path = Helpers::postFixWith($namespace, '\\');
 
-        return $this;
-    }
-
-    /**
-     * Replaces the prefix for the given stub.
-     *
-     * @param string $stub
-     * @param string $prefix
-     *
-     * @return $this
-     */
-    protected function replaceRoutePrefix(&$stub, $prefix)
-    {
-        $stub = str_replace('{{prefix}}', $prefix, $stub);
-
-        return $this;
-    }
-
-    /**
-     * Replaces the routes' namespace for the given stub.
-     *
-     * @param string $stub
-     * @param string $name
-     *
-     * @return $this
-     */
-    protected function replaceNamespace(&$stub, $name)
-    {
-        $stub = str_replace('{{namespace}}', $name, $stub);
-
-        return $this;
+        return Helpers::convertSlashToBackslash( $path . $name);
     }
 
     /**
@@ -175,7 +126,7 @@ class CreateRoutesCommand extends Command
      */
     protected function replaceRoutes(&$stub, $routes)
     {
-        $stub = str_replace('{{routes}}', $routes, $stub);
+        $stub = $this->strReplace('routes', $routes, $stub);
 
         return $this;
     }
@@ -190,7 +141,7 @@ class CreateRoutesCommand extends Command
      */
     protected function replacePrefix(&$stub, $prefix)
     {
-        $stub = str_replace('{{prefix}}', $prefix, $stub);
+        $stub = $this->strReplace('prefix', $prefix, $stub);
 
         return $this;
     }
@@ -210,7 +161,7 @@ class CreateRoutesCommand extends Command
         $prefix = trim($prefix);
 
         if (!empty($prefix) || !empty($namespace)) {
-            $groupStub = File::get($this->getStubByName('routes-group', $template));
+            $groupStub = $this->getStubContent('routes-group');
 
             $this->replacePrefix($groupStub, $this->getGroupPrefix($prefix))
                  ->replaceRoutes($groupStub, $stub);

@@ -3,4 +3,4 @@
     *
     * @var string
     */
-    protected $primaryKey = '{{primaryKey}}';
+    protected $primaryKey = '[% primary_key %]';

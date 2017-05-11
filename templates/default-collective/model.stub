@@ -1,37 +1,36 @@
 <?php
 
-namespace DummyNamespace;
+namespace [% namespace %];
 
 use Illuminate\Database\Eloquent\Model;
-{{useSoftDelete}}
-class DummyClass extends Model
+[% use_soft_delete %]
+class [% model_name_class %] extends Model
 {
-    {{useSoftDeleteTrait}}
-{{timeStamps}}
+    [% use_soft_delete_trait %]
+[% time_stamps %]
     /**
      * The database table used by the model.
      *
      * @var string
      */
-    protected $table = '{{table}}';
+    protected $table = '[% table %]';
 
-{{primaryKey}}
+[% primary_key %]
 
     /**
      * Attributes that should be mass-assignable.
      *
      * @var array
      */
-    protected $fillable = {{fillable}};
+    protected $fillable = [% fillable %];
 
     /**
      * The attributes that should be mutated to dates.
      *
      * @var array
      */
-    protected $dates = {{dates}};
-    
-{{relationships}}
-{{mutators}}
-{{accessors}}
+    protected $dates = [% dates %];
+[% relationships %]
+[% mutators %]
+[% accessors %]
 }

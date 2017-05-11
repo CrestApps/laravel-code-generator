@@ -7,7 +7,6 @@ use CrestApps\CodeGenerator\Support\GenerateFormViews;
 
 class CreateFormViewCommand extends ViewsCommand
 {
-
     /**
      * The name and signature of the console command.
      *
@@ -31,14 +30,13 @@ class CreateFormViewCommand extends ViewsCommand
     protected $description = 'Create a from-view for the model.';
 
     /**
-     * Create a new command instance.
+     * Gets the name of the stub to process.
      *
-     * @return void
+     * @return string
      */
-    public function __construct()
+    protected function getStubName()
     {
-        parent::__construct();
-        $this->stubName = 'form.blade';
+        return 'form.blade';
     }
 
     /**
@@ -49,17 +47,19 @@ class CreateFormViewCommand extends ViewsCommand
     protected function handleCreateView()
     {
         $input = $this->getCommandInput();
-        $stub = $this->getStubContent($this->stubName);
         $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'form');
-        $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName, $this->getTemplateName());
-        
-        if ($this->canCreateView($destenationFile, $input->force)) {
+
+        if ($this->canCreateView($destenationFile, $input->force, $fields)) {
+            $stub = $this->getStub();
+            $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName, $this->getTemplateName());
+            $headers = $this->getHeaderFieldAccessor($fields, $input->modelName);
+
             $this->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
                  ->replaceCommonTemplates($stub, $input)
                  ->replaceFields($stub, $htmlCreator->getHtmlFields())
-                 ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($fields, $input->modelName))
-                 ->createViewFile($stub, $destenationFile)
+                 ->replaceModelHeader($stub, $headers)
+                 ->createFile($destenationFile, $stub)
                  ->info('Form view was crafted successfully.');
         }
     }
@@ -74,7 +74,7 @@ class CreateFormViewCommand extends ViewsCommand
      */
     protected function replaceFields(&$stub, $fields)
     {
-        $stub = str_replace('{{formFieldsHtml}}', $fields, $stub);
+        $stub = $this->strReplace('form_fields_html', $fields, $stub);
 
         return $this;
     }

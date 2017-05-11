@@ -10,6 +10,7 @@ use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Models\ForeignConstraint;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\Config;
 
 class CreateMigrationCommand extends Command
 {
@@ -74,12 +75,13 @@ class CreateMigrationCommand extends Command
         }
 
         $properites = $this->getTableProperties($fields, $input);
+        $destenationFile = Config::getMigrationsPath() . $this->makeFileName($input->tableName);
 
         $this->replaceSchemaUp($stub, $this->getSchemaUpCommand($input, $properites))
              ->replaceSchemaDown($stub, $this->getSchemaDownCommand($input))
-             ->replaceClassName($stub, $input->className)
-             ->makeDirectory($this->getMigrationsPath())
-             ->makeFile($this->getMigrationsPath() . $this->makeFileName($input->tableName), $stub, $input->force);
+             ->replaceMigationName($stub, $input->className)
+             ->createFile($destenationFile, $stub)
+             ->info('A migration was crafted successfully.');
     }
    
     /**
@@ -544,9 +546,9 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function replaceClassName(&$stub, $className)
+    protected function replaceMigationName(&$stub, $className)
     {
-        $stub = str_replace('DummyClass', $className, $stub);
+        $stub = $this->strReplace('migration_name', $className, $stub);
 
         return $this;
     }
@@ -561,7 +563,7 @@ class CreateMigrationCommand extends Command
      */
     protected function replaceBlueprintBodyName(&$stub, $blueprintBody)
     {
-        $stub = str_replace('{{blueprintBody}}', $blueprintBody, $stub);
+        $stub = $this->strReplace('blue_print_body', $blueprintBody, $stub);
 
         return $this;
     }
@@ -576,7 +578,7 @@ class CreateMigrationCommand extends Command
      */
     protected function replaceTableName(&$stub, $name)
     {
-        $stub = str_replace('{{tableName}}', $name, $stub);
+        $stub = $this->strReplace('table_name', $name, $stub);
 
         return $this;
     }
@@ -593,7 +595,7 @@ class CreateMigrationCommand extends Command
     {
         $connectionLine = !empty($name) ? sprintf("connection('%s')->", $name) : '';
 
-        $stub = str_replace('{{connectionName}}', $connectionLine, $stub);
+        $stub = $this->strReplace('connection_name', $connectionLine, $stub);
 
         return $this;
     }
@@ -836,22 +838,6 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * Creats the directory for the class if one does not already exists.
-     *
-     * @param  string  $path
-     *
-     * @return $this
-     */
-    protected function makeDirectory($path)
-    {
-        if (!File::isDirectory($path)) {
-            File::makeDirectory($path, 0755, true, true);
-        }
-
-        return $this;
-    }
-
-    /**
      * Replaces the schema_up for the given stub.
      *
      * @param  string  $stub
@@ -861,7 +847,7 @@ class CreateMigrationCommand extends Command
      */
     protected function replaceSchemaUp(&$stub, $schemaUp)
     {
-        $stub = str_replace('{{schema_up}}', $schemaUp, $stub);
+        $stub = $this->strReplace('schema_up', $schemaUp, $stub);
 
         return $this;
     }
@@ -876,31 +862,7 @@ class CreateMigrationCommand extends Command
      */
     protected function replaceSchemaDown(&$stub, $schemaDown)
     {
-        $stub = str_replace('{{schema_down}}', $schemaDown, $stub);
-
-        return $this;
-    }
-
-     /**
-     * Creates a file.
-     *
-     * @param  string  $fileFullname
-     * @param  string  $stub
-     *
-     * @return $this
-     */
-    protected function makeFile($fileFullname, $stub, $force = false)
-    {
-        if (File::exists($fileFullname) && !$force) {
-            $this->error('The provided migration\'s name already exists!');
-            return $this;
-        }
-
-        if (! File::put($fileFullname, $stub)) {
-            throw new Exception('The migration failed to create');
-        }
-
-        $this->info('Migrations have been created');
+        $stub = $this->strReplace('schema_down', $schemaDown, $stub);
 
         return $this;
     }

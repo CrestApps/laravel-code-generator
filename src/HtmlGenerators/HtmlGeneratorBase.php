@@ -3,6 +3,8 @@
 namespace CrestApps\CodeGenerator\HtmlGenerators;
 
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Helpers;
@@ -11,7 +13,7 @@ use CrestApps\CodeGenerator\Support\ValidationParser;
 
 abstract class HtmlGeneratorBase
 {
-    use CommonCommand;
+    use CommonCommand, GeneratorReplacers;
 
     /**
      * Array of fields.
@@ -215,7 +217,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceSelectedValue(& $stub, $value)
     {
-        $stub = str_replace('{{selectedValue}}', $value, $stub);
+        $stub = $this->strReplace('selected_value', $value, $stub);
 
         return $this;
     }
@@ -230,7 +232,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceCheckedItem(& $stub, $value)
     {
-        $stub = str_replace('{{checkedItem}}', $value, $stub);
+        $stub = $this->strReplace('checked_item', $value, $stub);
 
         return $this;
     }
@@ -245,7 +247,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceRowFieldValue(& $stub, $value)
     {
-        $stub = str_replace('{{fieldValue}}', $value, $stub);
+        $stub = $this->strReplace('field_value', $value, $stub);
 
         return $this;
     }
@@ -471,7 +473,6 @@ abstract class HtmlGeneratorBase
     {
         if ($field->hasForeignRelation()) {
             $relation = $field->getForeignRelation();
-
             return sprintf('$%s->%s', $relation->getSingleName(), $relation->getField());
         }
 
@@ -815,7 +816,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldName(&$stub, $fieldName)
     {
-        $stub = str_replace('{{fieldName}}', $fieldName, $stub);
+        $stub = $this->strReplace('field_name', $fieldName, $stub);
 
         return $this;
     }
@@ -830,7 +831,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldItem(&$stub, $name)
     {
-        $stub = str_replace('{{fieldItem}}', $name, $stub);
+        $stub = $this->strReplace('field_item', $name, $stub);
 
         return $this;
     }
@@ -845,7 +846,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldItemAccessor(&$stub, $name)
     {
-        $stub = str_replace('{{fieldItemAccessor}}', $name, $stub);
+        $stub = $this->strReplace('field_item_accessor', $name, $stub);
 
         return $this;
     }
@@ -860,7 +861,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldValueAccessor(&$stub, $name)
     {
-        $stub = str_replace('{{fieldValueAccessor}}', $name, $stub);
+        $stub = $this->strReplace('field_value_accessor', $name, $stub);
 
         return $this;
     }
@@ -875,7 +876,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldMinValue(&$stub, $minValue)
     {
-        $stub = str_replace('{{minValue}}', $minValue, $stub);
+        $stub = $this->strReplace('min_value', $minValue, $stub);
 
         return $this;
     }
@@ -890,7 +891,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldMaxValue(&$stub, $maxValue)
     {
-        $stub = str_replace('{{maxValue}}', $maxValue, $stub);
+        $stub = $this->strReplace('max_value', $maxValue, $stub);
 
         return $this;
     }
@@ -905,7 +906,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldMinLengthName(&$stub, $minLength)
     {
-        $stub = str_replace('{{minLength}}', $this->getFieldMinLengthName($minLength), $stub);
+        $stub = $this->strReplace('min_length', $this->getFieldMinLengthName($minLength), $stub);
 
         return $this;
     }
@@ -920,7 +921,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldMaxLengthName(&$stub, $maxLength)
     {
-        $stub = str_replace('{{maxLength}}', $this->getFieldMaxLengthName($maxLength), $stub);
+        $stub = $this->strReplace('max_length', $this->getFieldMaxLengthName($maxLength), $stub);
 
         return $this;
     }
@@ -935,7 +936,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldRequired(&$stub, $required)
     {
-        $stub = str_replace('{{requiredField}}', $this->getFieldRequired($required), $stub);
+        $stub = $this->strReplace('required_field', $this->getFieldRequired($required), $stub);
 
         return $this;
     }
@@ -950,7 +951,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldPlaceHolder(&$stub, $placeholder)
     {
-        $stub = str_replace('{{placeHolder}}', $placeholder, $stub);
+        $stub = $this->strReplace('placeholder', $placeholder, $stub);
 
         return $this;
     }
@@ -965,7 +966,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldValue(&$stub, $fieldValue)
     {
-        $stub = str_replace('{{fieldValue}}', $fieldValue, $stub);
+        $stub = $this->strReplace('field_value', $fieldValue, $stub);
 
         return $this;
     }
@@ -980,7 +981,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceOptionValue(&$stub, $optionValue)
     {
-        $stub = str_replace('{{optionValue}}', $optionValue, $stub);
+        $stub = $this->strReplace('option_value', $optionValue, $stub);
 
         return $this;
     }
@@ -995,7 +996,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceRequiredClass(&$stub, $class)
     {
-        $stub = str_replace('{{requiredClass}}', $this->getRequiredClass($class), $stub);
+        $stub = $this->strReplace('required_class', $this->getRequiredClass($class), $stub);
 
         return $this;
     }
@@ -1010,7 +1011,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceItemId(&$stub, $itemId)
     {
-        $stub = str_replace('{{itemId}}', $itemId, $stub);
+        $stub = $this->strReplace('item_id', $itemId, $stub);
 
         return $this;
     }
@@ -1025,7 +1026,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceItemLabel(&$stub, $itemTitle)
     {
-        $stub = str_replace('{{itemTitle}}', $itemTitle, $stub);
+        $stub = $this->strReplace('item_title', $itemTitle, $stub);
 
         return $this;
     }
@@ -1040,7 +1041,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldType(&$stub, $fieldType)
     {
-        $stub = str_replace('{{fieldType}}', $fieldType, $stub);
+        $stub = $this->strReplace('field_type', $fieldType, $stub);
 
         return $this;
     }
@@ -1056,7 +1057,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceCssClass(&$stub, $class)
     {
-        $stub = str_replace('{{cssClass}}', (!empty($class) ? ' ' . $class : ''), $stub);
+        $stub = $this->strReplace('css_class', (!empty($class) ? ' ' . $class : ''), $stub);
 
         return $this;
     }
@@ -1072,7 +1073,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldTitle(&$stub, $title)
     {
-        $stub = str_replace('{{fieldTitle}}', $title, $stub);
+        $stub = $this->strReplace('field_title', $title, $stub);
 
         return $this;
     }
@@ -1087,7 +1088,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldValidationHelper(&$stub, $helper)
     {
-        $stub = str_replace('{{fieldValidationHelper}}', $helper, $stub);
+        $stub = $this->strReplace('field_validation_helper', $helper, $stub);
 
         return $this;
     }
@@ -1102,7 +1103,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldLabel(&$stub, $fieldLabel)
     {
-        $stub = str_replace('{{fieldLabel}}', $fieldLabel, $stub);
+        $stub = $this->strReplace('field_label', $fieldLabel, $stub);
 
         return $this;
     }
@@ -1117,7 +1118,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldInput(&$stub, $fieldInput)
     {
-        $stub = str_replace('{{fieldInput}}', $fieldInput, $stub);
+        $stub = $this->strReplace('field_input', $fieldInput, $stub);
 
         return $this;
     }
@@ -1132,7 +1133,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldItems(&$stub, $items)
     {
-        $stub = str_replace('{{fieldItems}}', $items, $stub);
+        $stub = $this->strReplace('field_items', $items, $stub);
 
         return $this;
     }
@@ -1147,7 +1148,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldMultiple(&$stub, $isMultiple)
     {
-        $stub = str_replace('{{fieldMultiple}}', $this->getFieldMultiple($isMultiple), $stub);
+        $stub = $this->strReplace('field_multiple', $this->getFieldMultiple($isMultiple), $stub);
 
         return $this;
     }
@@ -1162,7 +1163,7 @@ abstract class HtmlGeneratorBase
      */
     protected function replaceFieldStep(&$stub, $step)
     {
-        $stub = str_replace('{{step}}', $step, $stub);
+        $stub = $this->strReplace('step', $step, $stub);
 
         return $this;
     }

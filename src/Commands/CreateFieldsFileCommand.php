@@ -2,13 +2,14 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
+use DB;
+use File;
+use Exception;
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\traits\CommonCommand;
-use DB;
-use File;
-use Exception;
+use CrestApps\CodeGenerator\Support\Config;
 
 class CreateFieldsFileCommand extends Command
 {
@@ -47,15 +48,18 @@ class CreateFieldsFileCommand extends Command
      */
     public function handle()
     {
-        if (File::exists($this->getDestinationFullname()) && !$this->isForce()) {
-            throw new Exception('The file ' . $this->getFilename() . ' already exists. To override it try passing the --force option to override it.');
+        $destenationFile = $this->getDestinationFullname();
+
+        if ($this->alreadyExists($destenationFile)) {
+            $this->error('The fields-file already exists! To override the existing file, use --force option.');
+
+            return false;
         }
 
-        if (!$this->createFile($this->getDestinationFullname(), $this->getFieldAsJson())) {
-            throw new Exception('Something went wrong while trying to create the fields file.');
-        }
+        $content = $this->getFieldAsJson();
 
-        $this->info('A new Fields file have been created.');
+        $this->createFile($destenationFile, $content)
+             ->info('A new Fields file have been created.');
     }
 
     /**
@@ -74,28 +78,13 @@ class CreateFieldsFileCommand extends Command
     }
 
     /**
-     * Create the destenation file.
-     *
-     * @param string $fullname
-     * @param string $content
-     *
-     * @return bool
-     */
-    protected function createFile($fullname, $content)
-    {
-        $this->createDirectory(dirname($fullname));
-
-        return File::put($fullname, $content);
-    }
-
-    /**
      * Gets the full name of the destination file.
      *
      * @return string
      */
     protected function getDestinationFullname()
     {
-        return $this->getFieldsFilePath() . $this->getFilename();
+        return base_path(Config::getFieldsFilePath()) . $this->getFilename();
     }
 
     /**

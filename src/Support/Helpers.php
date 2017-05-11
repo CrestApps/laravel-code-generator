@@ -2,12 +2,36 @@
 
 namespace CrestApps\CodeGenerator\Support;
 
+use App;
 use File;
 use Exception;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 
 class Helpers
 {
+
+    /**
+     * Evaluates the current version of the framework to see if it >= a giving version.
+     *
+     * @param $version
+     *
+     * @return bool
+     */
+    public static function isNewerThan($version = '5.3')
+    {
+        return version_compare(App::VERSION(), $version) > 0;
+    }
+
+
+    public static function strReplaceOnce($pattern, $replacment, $subject)
+    {
+        if (strpos($subject, $pattern) !== false) {
+            $occurrence = strpos($subject, $pattern);
+            return substr_replace($subject, $replacment, strpos($subject, $pattern), strlen($pattern));
+        }
+
+        return $subject;
+    }
 
     /**
      * It trims each element in a givin array and removes the empty elements.
@@ -43,7 +67,7 @@ class Helpers
      *
      * @return bool
      */
-    public static function strIs($patterns, $subject)
+    public static function strIs($patterns, $subject, &$matchedPattern = '')
     {
         if (!is_array($patterns)) {
             $patterns = (array) $patterns;
@@ -51,6 +75,7 @@ class Helpers
 
         foreach ($patterns as $pattern) {
             if (str_is($pattern, $subject)) {
+                $matchedPattern = $pattern;
                 return true;
             }
         }
@@ -70,39 +95,10 @@ class Helpers
     }
 
     /**
-     * Checks if a giving string starts with another giving string
-     *
-     * @param $haystack
-     * @param $needle
-     * @return string
-     */
-    public static function startsWith($haystack, $needle)
-    {
-        return (substr($haystack, 0, strlen($needle)) === $needle);
-    }
-
-    /**
-     * Checks if a giving string ends with another giving string
-     *
-     * @param $haystack
-     * @param $needle
-     * @return string
-     */
-    public static function endsWith($haystack, $needle)
-    {
-        $length = strlen($needle);
-        if ($length == 0) {
-            return true;
-        }
-
-        return (substr($haystack, $length * -1) === $needle);
-    }
-
-    /**
      * Replaces any non-english letters with an empty string
      *
      * @param string $str
-     * @param bool $keep 
+     * @param bool $keep
      *
      * @return string
      */
@@ -178,12 +174,14 @@ class Helpers
             throw new Exception('the file ' . $fileFullname . ' was not found!');
         }
 
-        return FieldTransformer::json(File::get($fileFullname), $langFile);
+        $file = File::get($fileFullname);
+        
+        return FieldTransformer::json($file, $langFile);
     }
 
     /**
      * Removes a string from the end of another giving string if it already ends with it.
-     * 
+     *
      * @param  string  $name
      * @param  string  $postFix
      *
@@ -191,7 +189,7 @@ class Helpers
      */
     public static function removePostFixWith($name, $postFix = '/')
     {
-        if (substr($name, strlen($postFix) * -1) === $postFix) {
+        if (ends_with($name, $postFix)) {
             return strstr($name, $postFix, true);
         }
 
@@ -200,7 +198,7 @@ class Helpers
 
     /**
      * Adds a postFix string at the end of another giving string if it does not already ends with it.
-     * 
+     *
      * @param  string  $name
      * @param  string  $postFix
      *
@@ -208,7 +206,7 @@ class Helpers
      */
     public static function postFixWith($name, $postFix = '/')
     {
-        if (substr($name, strlen($postFix) * -1) !== $postFix) {
+        if (!ends_with($name, $postFix)) {
             return $name . $postFix;
         }
 
@@ -217,7 +215,7 @@ class Helpers
 
     /**
      * Adds a preFix string at the begining of another giving string if it does not already ends with it.
-     * 
+     *
      * @param  string  $name
      * @param  string  $preFix
      *
@@ -225,7 +223,7 @@ class Helpers
      */
     public static function preFixWith($name, $preFix = '/')
     {
-        if (substr($name, 0, strlen($preFix)) !== $preFix) {
+        if (!starts_with($name, $preFix)) {
             return $preFix . $name;
         }
 
@@ -293,7 +291,7 @@ class Helpers
     }
 
     /**
-     * It splits a giving string by a giving seperator after trimming each part 
+     * It splits a giving string by a giving seperator after trimming each part
      * from whitespaces and single/double quotes. Any empty string is eliminated.
      *
      * @return array

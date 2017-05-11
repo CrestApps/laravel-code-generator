@@ -1,1 +1,1 @@
-Schema::{{connectionName}}drop('{{tableName}}');
+Schema::[% connection_name %]drop('[% table_name %]');

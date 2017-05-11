@@ -30,14 +30,13 @@ class CreateEditViewCommand extends ViewsCommand
     protected $description = 'Create an edit-views for the model.';
 
     /**
-     * Create a new command instance.
+     * Gets the name of the stub to process.
      *
-     * @return void
+     * @return string
      */
-    public function __construct()
+    protected function getStubName()
     {
-        parent::__construct();
-        $this->stubName = 'edit.blade';
+        return 'edit.blade';
     }
 
     /**
@@ -48,19 +47,20 @@ class CreateEditViewCommand extends ViewsCommand
     protected function handleCreateView()
     {
         $input = $this->getCommandInput();
-        $stub = $this->getStubContent($this->stubName);
         $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'edit');
 
         if ($this->canCreateView($destenationFile, $input->force, $fields)) {
+            $stub = $this->getStub();
+            
             $this->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
                  ->createMissingViews($input)
                  ->replaceCommonTemplates($stub, $input)
                  ->replaceFileUpload($stub, $fields)
                  ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
                  ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($fields, $input->modelName))
-                 ->createViewFile($stub, $destenationFile)
-                 ->info('Edit view view was crafted successfully.');
+                 ->createFile($destenationFile, $stub)
+                 ->info('Edit view was crafted successfully.');
         }
     }
 }

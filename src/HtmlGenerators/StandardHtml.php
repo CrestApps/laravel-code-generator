@@ -235,7 +235,7 @@ class StandardHtml extends HtmlGeneratorBase
         $valueString = 'null';
 
         if (!is_null($value)) {
-            $valueString = Helpers::startsWith($value, '$') ? sprintf("%s", $value) : sprintf("'%s'", $value);
+            $valueString = starts_with('$', $value) ? sprintf("%s", $value) : sprintf("'%s'", $value);
         }
 
         return sprintf("in_array(%s, old('%s', isset(\$%s) ? \$%s->%s : []))", $valueString, $name, $modelName, $modelName, $name);

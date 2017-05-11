@@ -1,4 +1,4 @@
-@extends('{{layoutName}}')
+@extends('[% layout_name %]')
 
 @section('content')
 
@@ -7,12 +7,12 @@
         <div class="panel-heading clearfix">
             
             <span class="pull-left">
-                Create New {{modelNameClass}}
+                Create New [% model_name_class %]
             </span>
 
             <div class="btn-group btn-group-xs pull-right" role="group">
 
-                <a href="{{ route('{{indexRouteName}}') }}" class="btn btn-primary" title="Show all {{modelNamePlural}}">
+                <a href="{{ route('[% index_route_name %]') }}" class="btn btn-primary" title="Show all [% model_name_plural %]">
                     <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                 </a>
 
@@ -31,13 +31,13 @@
             @endif
 
             {!! Form::open([
-                'route' => '{{storeRouteName}}',
+                'route' => '[% store_route_name %]',
                 'class' => 'form-horizontal',
-                {{uploadFiles}}
+                [% upload_files %]
                 ])
             !!}
 
-            @include ('{{formViewName}}')
+            @include ('[% form_view_name %]')
 
             {!! Form::close() !!}
 

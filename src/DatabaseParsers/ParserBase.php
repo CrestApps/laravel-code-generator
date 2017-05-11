@@ -9,6 +9,7 @@ use CrestApps\CodeGenerator\Models\FieldMapper;
 use CrestApps\CodeGenerator\Support\FieldsOptimizer;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\Config;
 
 abstract class ParserBase
 {
@@ -281,12 +282,19 @@ abstract class ParserBase
      *
      * @return $this
     */
-    protected function setForeignRelations(Field $field)
+    protected function setForeignRelation(Field $field)
     {
-        $relation = FieldTransformer::getPredectableForeignRelation($field->name, $this->getAppNamespace() . $this->getModelsPath());
+        if ($field->hasForeignConstraint()) {
+            $constraint = $field->getForeignConstraint();
+            $field->setForeignRelation($constraint->getForeignRelation());
+
+            return $this;
+        }
+
+        $relation = FieldTransformer::getPredectableForeignRelation($field->name, $this->getAppNamespace() . Config::getModelsPath());
 
         $field->setForeignRelation($relation);
-
+        
         return $this;
     }
 

@@ -2,15 +2,17 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use Illuminate\Console\GeneratorCommand;
+use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
 
-class CreateModelCommand extends GeneratorCommand
+class CreateModelCommand extends Command
 {
-    use CommonCommand;
+    use CommonCommand, GeneratorReplacers;
 
     /**
      * The name and signature of the console command.
@@ -48,33 +50,67 @@ class CreateModelCommand extends GeneratorCommand
     /**
      * Builds the model class with the given name.
      *
-     * @param  string  $name
-     *
      * @return string
      */
-    protected function buildClass($name)
+    public function handle()
     {
-        $stub = $this->files->get($this->getStub('model'));
+        $stub = $this->getStubContent('model');
         $input = $this->getCommandInput();
-        $fields = $this->getFields($input->fields, 'model', $input->fieldsFile);
 
+        $fields = $this->getFields($input->fields, 'model', $input->fieldsFile);
+        
         if ($input->useSoftDelete) {
             $fields = $this->upsertDeletedAt($fields);
         }
 
         $primaryKey = $this->getNewPrimaryKey($this->getPrimaryKeyName($fields, $input->primaryKey));
+        $destenationFile = $this->getDestenationFile($input->modelName);
+        
+        if ($this->alreadyExists($destenationFile)) {
+            $this->error('The model already exists! To override the existing file, use --force option.');
 
-        return $this->replaceNamespace($stub, $name)
-                    ->replaceTable($stub, $input->table)
+            return false;
+        }
+
+        $relations = $this->getRelationMethods($input->relationships, $fields);
+
+        return $this->replaceTable($stub, $input->table)
+                    ->replaceModelName($stub, $input->modelName)
+                    ->replaceNamespace($stub, $this->getNamespace($input->modelName))
                     ->replaceSoftDelete($stub, $input->useSoftDelete)
                     ->replaceTimestamps($stub, $this->getTimeStampsStub($input->useTimeStamps))
                     ->replaceFillable($stub, $this->getFillables($input->fillable, $fields))
                     ->replaceDateFields($stub, $this->getDateFields($fields))
                     ->replacePrimaryKey($stub, $primaryKey)
-                    ->replaceRelationshipPlaceholder($stub, $this->getRelationMethods($input->relationships, $fields))
+                    ->replaceRelationshipPlaceholder($stub, $relations)
                     ->replaceAccessors($stub, $this->getAccessors($fields))
                     ->replaceMutators($stub, $this->getMutators($fields))
-                    ->replaceClass($stub, $name);
+                    ->createFile($destenationFile, $stub)
+                    ->info('A model was crafted successfully.');
+    }
+
+    /**
+     * Gets the destenation file to be created.
+     *
+     * @param array $name
+     *
+     * @return string
+     */
+    protected function getDestenationFile($name)
+    {
+        return app_path() . '/' . Config::getModelsPath($name) . '.php';
+    }
+
+    /**
+     * Gets the model's namespace.
+     *
+     * @return string
+     */
+    protected function getNamespace()
+    {
+        $namespace = $this->getAppNamespace() . Config::getModelsPath();
+
+        return rtrim(Helpers::convertSlashToBackslash($namespace), '\\');
     }
 
     /**
@@ -216,8 +252,9 @@ class CreateModelCommand extends GeneratorCommand
         $fields = trim($this->option('fields'));
         $fieldsFile = trim($this->option('fields-file'));
         $template = $this->getTemplateName();
+        $modelName = ucfirst(str_singular($table));
 
-        return (object) compact('table', 'fillable', 'primaryKey', 'relationships', 'useSoftDelete', 'useTimeStamps', 'fields', 'fieldsFile', 'template');
+        return (object) compact('table', 'fillable', 'primaryKey', 'relationships', 'useSoftDelete', 'useTimeStamps', 'fields', 'fieldsFile', 'template', 'modelName');
     }
 
     /**
@@ -233,7 +270,7 @@ class CreateModelCommand extends GeneratorCommand
             $path = Helpers::getPathWithSlash(ucfirst($path));
         }
 
-        return $this->getModelsPath() . $path . Helpers::upperCaseEveyWord(trim($this->argument('model-name')));
+        return Config::getModelsPath() . $path . Helpers::upperCaseEveyWord(trim($this->argument('model-name')));
     }
 
     /**
@@ -446,7 +483,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceDateFormat(&$stub, $format)
     {
-        $stub = str_replace('{{dateFormat}}', $format, $stub);
+        $stub = $this->strReplace('date_format', $format, $stub);
 
         return $this;
     }
@@ -461,7 +498,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceFieldContent(&$stub, $content)
     {
-        $stub = str_replace('{{content}}', $content, $stub);
+        $stub = $this->strReplace('content', $content, $stub);
 
         return $this;
     }
@@ -476,7 +513,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceTable(&$stub, $table)
     {
-        $stub = str_replace('{{table}}', $table, $stub);
+        $stub = $this->strReplace('table', $table, $stub);
 
         return $this;
     }
@@ -491,7 +528,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceAccessors(&$stub, $accessors)
     {
-        $stub = str_replace('{{accessors}}', $accessors, $stub);
+        $stub = $this->strReplace('accessors', $accessors, $stub);
 
         return $this;
     }
@@ -506,7 +543,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceDateFields(&$stub, $dates)
     {
-        $stub = str_replace('{{dates}}', $dates, $stub);
+        $stub = $this->strReplace('dates', $dates, $stub);
 
         return $this;
     }
@@ -521,7 +558,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceDelimiter(&$stub, $delimiter)
     {
-        $stub = str_replace('{{delimiter}}', $delimiter, $stub);
+        $stub = $this->strReplace('delimiter', $delimiter, $stub);
 
         return $this;
     }
@@ -536,7 +573,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceMutators(&$stub, $mutators)
     {
-        $stub = str_replace('{{mutators}}', $mutators, $stub);
+        $stub = $this->strReplace('mutators', $mutators, $stub);
 
         return $this;
     }
@@ -551,8 +588,8 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceFieldName(&$stub, $name)
     {
-        $stub = str_replace('{{fieldName}}', $name, $stub);
-        $stub = str_replace('{{fieldNameCap}}', ucwords(camel_case($name)), $stub);
+        $stub = $this->strReplace('field_name', $name, $stub);
+        $stub = $this->strReplace('field_name_cap', ucwords(camel_case($name)), $stub);
 
         return $this;
     }
@@ -568,14 +605,14 @@ class CreateModelCommand extends GeneratorCommand
     protected function replaceSoftDelete(&$stub, $shouldUseSoftDelete)
     {
         if ($shouldUseSoftDelete) {
-            $stub = str_replace('{{useSoftDelete}}', PHP_EOL . 'use Illuminate\Database\Eloquent\SoftDeletes;' . PHP_EOL, $stub);
-            $stub = str_replace('{{useSoftDeleteTrait}}', PHP_EOL . '    use SoftDeletes;' . PHP_EOL, $stub);
+            $stub = $this->strReplace('use_soft_delete', PHP_EOL . 'use Illuminate\Database\Eloquent\SoftDeletes;' . PHP_EOL, $stub);
+            $stub = $this->strReplace('use_soft_delete_trait', PHP_EOL . '    use SoftDeletes;' . PHP_EOL, $stub);
 
             return $this;
         }
 
-        $stub = str_replace('{{useSoftDelete}}', null, $stub);
-        $stub = str_replace('{{useSoftDeleteTrait}}', null, $stub);
+        $stub = $this->strReplace('use_soft_delete', null, $stub);
+        $stub = $this->strReplace('use_soft_delete_trait', null, $stub);
 
         return $this;
     }
@@ -590,7 +627,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceFillable(&$stub, $fillable)
     {
-        $stub = str_replace('{{fillable}}', !empty($fillable) ? $fillable : '[]', $stub);
+        $stub = $this->strReplace('fillable', !empty($fillable) ? $fillable : '[]', $stub);
 
         return $this;
     }
@@ -605,7 +642,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replacePrimaryKey(&$stub, $primaryKey)
     {
-        $stub = str_replace('{{primaryKey}}', $primaryKey, $stub);
+        $stub = $this->strReplace('primary_key', $primaryKey, $stub);
 
         return $this;
     }
@@ -620,7 +657,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceRelationshipPlaceholder(&$stub, array $relationMethods)
     {
-        $stub = str_replace('{{relationships}}', implode("\r\n", $relationMethods), $stub);
+        $stub = $this->strReplace('relationships', implode("\r\n", $relationMethods), $stub);
 
         return $this;
     }
@@ -634,7 +671,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceRelationType(&$stub, $type)
     {
-        $stub = str_replace('{{relationType}}', $type, $stub);
+        $stub = $this->strReplace('relation_type', $type, $stub);
 
         return $this;
     }
@@ -649,7 +686,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceRelationName(&$stub, $name)
     {
-        $stub = str_replace('{{relationName}}', $name, $stub);
+        $stub = $this->strReplace('relation_name', $name, $stub);
 
         return $this;
     }
@@ -664,7 +701,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceRelationParams(&$stub, $params)
     {
-        $stub = str_replace('{{relationParams}}', $params, $stub);
+        $stub = $this->strReplace('relation_params', $params, $stub);
 
         return $this;
     }
@@ -679,7 +716,7 @@ class CreateModelCommand extends GeneratorCommand
      */
     protected function replaceTimestamps(&$stub, $timestamp)
     {
-        $stub = str_replace('{{timeStamps}}', $timestamp, $stub);
+        $stub = $this->strReplace('time_stamps', $timestamp, $stub);
         
         return $this;
     }

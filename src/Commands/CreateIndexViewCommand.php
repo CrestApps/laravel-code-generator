@@ -31,14 +31,13 @@ class CreateIndexViewCommand extends ViewsCommand
     protected $description = 'Create an index-views for the model.';
 
     /**
-     * Create a new command instance.
+     * Gets the name of the stub to process.
      *
-     * @return void
+     * @return string
      */
-    public function __construct()
+    protected function getStubName()
     {
-        parent::__construct();
-        $this->stubName = 'index.blade';
+        return 'index.blade';
     }
 
     /**
@@ -49,18 +48,19 @@ class CreateIndexViewCommand extends ViewsCommand
     protected function handleCreateView()
     {
         $input = $this->getCommandInput();
-        $stub = $this->getStubContent($this->stubName);
         $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'index');
-        $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName, $this->getTemplateName());
 
         if ($this->canCreateView($destenationFile, $input->force, $fields)) {
+            $stub = $this->getStub();
+            $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName, $this->getTemplateName());
+
             $this->replaceCommonTemplates($stub, $input)
                  ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
                  ->replaceHeaderCells($stub, $htmlCreator->getIndexHeaderCells())
                  ->replaceBodyCells($stub, $htmlCreator->getIndexBodyCells())
                  ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($fields, $input->modelName))
-                 ->createViewFile($stub, $destenationFile)
+                 ->createFile($destenationFile, $stub)
                  ->info('Index view was crafted successfully.');
         }
     }
@@ -75,7 +75,7 @@ class CreateIndexViewCommand extends ViewsCommand
      */
     protected function replaceHeaderCells(&$stub, $header)
     {
-        $stub = str_replace('{{headerCells}}', $header, $stub);
+        $stub = $this->strReplace('header_cells', $header, $stub);
 
         return $this;
     }
@@ -90,7 +90,7 @@ class CreateIndexViewCommand extends ViewsCommand
      */
     protected function replaceBodyCells(&$stub, $body)
     {
-        $stub = str_replace('{{bodyCells}}', $body, $stub);
+        $stub = $this->strReplace('body_cells', $body, $stub);
 
         return $this;
     }

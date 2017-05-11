@@ -2,38 +2,41 @@
 
 namespace CrestApps\CodeGenerator\Support;
 
-use Illuminate\Console\GeneratorCommand;
+use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
-use Illuminate\Filesystem\Filesystem;
+use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use CrestApps\CodeGenerator\Models\ViewInput;
 use CrestApps\CodeGenerator\HtmlGenerators\LaravelCollectiveHtml;
 use CrestApps\CodeGenerator\HtmlGenerators\StandardHtml;
 use Exception;
 
-abstract class ViewsCommand extends GeneratorCommand
+abstract class ViewsCommand extends Command
 {
-    use CommonCommand;
+    use CommonCommand,  GeneratorReplacers;
 
     /**
-     * The stub name
+     * Gets the name of the stub to process.
      *
-     * @var string
+     * @return string
      */
-    protected $stubName;
+    abstract protected function getStubName();
 
-    public function __construct()
-    {
-        parent::__construct(new Filesystem());
-    }
+    /**
+     * Execute the console Command
+     *
+     * @return void
+     */
+    abstract protected function handleCreateView();
 
     /**
      * Get the stub file for the generator.
      *
      * @return string
      */
-    public function getStub()
+    protected function getStub()
     {
-        return $this->getStubByName($this->stubName, $this->getTemplateName());
+        return $this->getStubContent($this->getStubName(), $this->getTemplateName());
     }
 
     /**
@@ -45,7 +48,7 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     protected function getDestinationPath($viewsDirectory)
     {
-        $path = $this->getViewsPath();
+        $path = Config::getViewsPath();
 
         if (!empty($viewsDirectory)) {
             $path .= Helpers::getPathWithSlash($viewsDirectory);
@@ -61,19 +64,8 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     public function handle()
     {
-        if (empty($this->stubName)) {
-            throw new Exception('The stub name cannot be left empty.');
-        }
-
         $this->handleCreateView();
     }
-
-    /**
-     * Execute the console Command
-     *
-     * @return void
-     */
-    abstract protected function handleCreateView();
 
     /**
      * Gets a clean user inputs.
@@ -83,23 +75,6 @@ abstract class ViewsCommand extends GeneratorCommand
     protected function getCommandInput()
     {
         return new ViewInput($this->arguments(), $this->options());
-    }
-
-    /**
-     * It created the new view. If the target path does not exists one will be created also
-     *
-     * @param string $stub
-     * @param string $viewFullname
-     *
-     * @return $this
-     */
-    protected function createViewFile($stub, $viewFullname)
-    {
-        $this->makeDirectory($viewFullname);
-
-        $this->files->put($viewFullname, $stub);
-
-        return $this;
     }
 
     /**
@@ -158,7 +133,7 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     protected function canCreateView($file, $force, array $fields = null)
     {
-        if ($this->files->exists($file) && !$force) {
+        if ($this->alreadyExists($file) && ! $force) {
             $this->error($this->getViewNameFromFile($file) . ' view already exists.');
             return false;
         }
@@ -179,13 +154,15 @@ abstract class ViewsCommand extends GeneratorCommand
     /**
      * Get the view's name of a giving file.
      *
-     * @param string $file
+     * @param string $fillname
      *
      * @return string
      */
-    protected function getViewNameFromFile($file)
+    protected function getViewNameFromFile($filename)
     {
-        return ucfirst(strstr(basename($file), '.', true));
+        $file = basename($filename);
+
+        return ucfirst(strstr($file, '.', true));
     }
 
     /**
@@ -198,7 +175,7 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     protected function replaceLayoutName(&$stub, $layout)
     {
-        $stub = str_replace('{{layoutName}}', $layout, $stub);
+        $stub = $this->strReplace('layout_name', $layout, $stub);
 
         return $this;
     }
@@ -213,9 +190,9 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     protected function replaceFileUpload(&$stub, array $fields)
     {
-        $code = $this->isContainfile($fields) ? $this->getFileUploadAttribute($this->getTemplateName()) : '';
+        $code = $this->containsfile($fields) ? $this->getFileUploadAttribute($this->getTemplateName()) : '';
 
-        $stub = str_replace('{{uploadFiles}}', $code, $stub);
+        $stub = $this->strReplace('upload_files', $code, $stub);
 
         return $this;
     }
@@ -234,21 +211,6 @@ abstract class ViewsCommand extends GeneratorCommand
         }
 
         return ' enctype="multipart/form-data"';
-    }
-
-    /**
-     * It Replaces the primary key in a giving stub
-     *
-     * @param string $stub
-     * @param string $primaryKey
-     *
-     * @return $this
-     */
-    protected function replacePrimaryKey(&$stub, $primaryKey)
-    {
-        $stub = str_replace('{{primaryKey}}', $primaryKey, $stub);
-
-        return $this;
     }
 
     /**
@@ -292,7 +254,7 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     protected function isViewExists($viewsDirectory, $routesPrefix, $viewName)
     {
-        return $this->files->exists($this->getDestinationViewFullname($viewsDirectory, $routesPrefix, $viewName));
+        return $this->alreadyExists($this->getDestinationViewFullname($viewsDirectory, $routesPrefix, $viewName));
     }
 
     /**
@@ -389,7 +351,7 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     protected function isCollectiveTemplate($template)
     {
-        return in_array($template, $this->getCollectiveTemplates());
+        return in_array($template, Config::getCollectiveTemplates());
     }
 
     /**
@@ -402,7 +364,7 @@ abstract class ViewsCommand extends GeneratorCommand
      */
     protected function replaceModelHeader(& $stub, $title)
     {
-        $stub = str_replace('{{modelHeader}}', $title, $stub);
+        $stub = $this->strReplace('model_header', $title, $stub);
 
         return $this;
     }

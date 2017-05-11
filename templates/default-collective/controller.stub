@@ -1,149 +1,131 @@
 <?php
 
-namespace DummyNamespace;
+namespace [% namespace %];
 
 use Session;
-use Illuminate\Http\Request;
-use DummyRootNamespaceHttp\Controllers\Controller;
-{{useCommandPlaceHolder}}
+use [% app_name %]\Http\Controllers\Controller;
+use [% request_fullname %];
+[% use_command_placeholder %]
 
-class DummyClass extends Controller
+class [% controller_name %] extends Controller
 {
-    
     /**
-     * Display a listing of the {{modelNamePlural}}.
+     * Display a listing of the [% model_name_plural %] .
      *
      * @return Illuminate\View\View
      */
     public function index()
     {
-        ${{modelNamePlural}} = {{modelNameClass}}::{{withRelationsForIndex}}paginate({{modelsPerPage}});
+        $[% model_name_plural %] = [% model_name_class %]::[% with_relations_for_index %]paginate([% models_per_page %]);
 
-        return view('{{indexViewName}}'{{viewVariablesForIndex}});
+        return view('[% index_view_name %]'[% view_variables_for_index %]);
     }
 
     /**
-     * Show the form for creating a new {{modelName}}.
+     * Show the form for creating a new [% model_name %].
      *
      * @return Illuminate\View\View
      */
     public function create()
     {
-        {{relationCollections}}
-        return view('{{createViewName}}'{{viewVariablesForCreate}});
+        [% relation_collections %]
+        
+        return view('[% create_view_name %]'[% view_variables_for_create %]);
     }
 
     /**
-     * Store a new {{modelName}} in the storage.
+     * Store a new [% model_name %]  in the storage.
      *
-     * @param Illuminate\Http\Request $request
+     * @param [% request_fullname %] $request
      *
-     * @return Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return Illuminate\Http\RedirectResponse | Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store([% request_name %] $request)
     {
-        $this->affirm($request);
+        [% call_affirm %]
+        [% model_name_class %]::create($this->getRequestsData($request));
+        Session::flash('success_message', '[% model_name_class %] was added!');
 
-        {{modelNameClass}}::create($this->getRequestsData($request));
-
-        Session::flash('success_message', '{{modelNameClass}} was added!');
-
-        return redirect()->route('{{indexRouteName}}');
+        return redirect()->route('[% index_route_name %]');
     }
 
     /**
-     * Display the specified {{modelName}}.
+     * Display the specified [% model_name %].
      *
-     * @param  int $id
+     * @param int $id
      *
      * @return Illuminate\View\View
      */
     public function show($id)
     {
-        ${{modelName}} = {{modelNameClass}}::{{withRelationsForShow}}findOrFail($id);
+        $[% model_name %] = [% model_name_class %]::[% with_relations_for_show %]findOrFail($id);
 
-        return view('{{showViewName}}'{{viewVariablesForShow}});
+        return view('[% show_view_name %]'[% view_variables_for_show %]);
     }
 
     /**
-     * Show the form for editing the specified {{modelName}}.
+     * Show the form for editing the specified [% model_name %].
      *
-     * @param  int $id
+     * @param int $id
      *
      * @return Illuminate\View\View
      */
     public function edit($id)
     {
-        ${{modelName}} = {{modelNameClass}}::findOrFail($id);
-        {{relationCollections}}
-        return view('{{editViewName}}'{{viewVariablesForEdit}});
+        $[% model_name %] = [% model_name_class %]::findOrFail($id);
+        [% relation_collections %]
+
+        return view('[% edit_view_name %]'[% view_variables_for_edit %]);
     }
 
     /**
-     * Update the specified {{modelName}} in the storage.
+     * Update the specified [% model_name %] in the storage.
      *
      * @param  int $id
-     * @param Illuminate\Http\Request $request
+     * @param [% request_fullname %] $request
      *
-     * @return Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return Illuminate\Http\RedirectResponse | Illuminate\Routing\Redirector
      */
-    public function update($id, Request $request)
+    public function update($id, [% request_name %] $request)
     {
-        $this->affirm($request);
-        ${{modelName}} = {{modelNameClass}}::findOrFail($id);
-        ${{modelName}}->update($this->getRequestsData($request));
+        [% call_affirm %]
+        $[% model_name %] = [% model_name_class %]::findOrFail($id);
+        $[% model_name %]->update($this->getRequestsData($request));
+        Session::flash('success_message', '[% model_name_class %] was updated!');
 
-        Session::flash('success_message', '{{modelNameClass}} was updated!');
-
-        return redirect()->route('{{indexRouteName}}');
+        return redirect()->route('[% index_route_name %]');
     }
 
     /**
-     * Remove the specified {{modelName}} from the storage.
+     * Remove the specified [% model_name %] from the storage.
      *
      * @param  int $id
      *
-     * @return Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return Illuminate\Http\RedirectResponse | Illuminate\Routing\Redirector
      */
     public function destroy($id)
     {
-        ${{modelName}} = {{modelNameClass}}::findOrFail($id);
+        $[% model_name %] = [% model_name_class %]::findOrFail($id);
+        $[% model_name %]->delete();
+        Session::flash('success_message', '[% model_name_class %] was deleted!');
 
-        ${{modelName}}->delete();
-
-        Session::flash('success_message', '{{modelNameClass}} was deleted!');
-
-        return redirect()->route('{{indexRouteName}}');
+        return redirect()->route('[% index_route_name %]');
     }
-
-    /**
-     * Validate the given request with the defined rules.
-     *
-     * @param  Illuminate\Http\Request  $request
-     *
-     * @return boolean
-     */
-    protected function affirm(Request $request)
-    {
-        return $this->validate($request, [
-    {{validationRules}}            
-        ]);
-    }
-
+[% affirm_method %]
     /**
      * Get the data from the givin request.
      *
-     * @param  Illuminate\Http\Request  $request
+     * @param [% request_fullname %] $request
      *
      * @return array
      */
-    protected function getRequestsData(Request $request)
+    protected function getRequestsData([% request_name %] $request)
     {
         $data = $request->all();
-{{fileSnippet}}
-{{booleanSnippet}}
-{{stringToNullSnippet}}
+[% file_snippet %]
+[% boolean_snippet %]
+[% string_to_null_snippet %]
         return $data;
     }
-{{uploadMethod}}
+[% upload_method %]
 }

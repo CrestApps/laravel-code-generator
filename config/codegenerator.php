@@ -28,7 +28,7 @@ return [
     | In this path, you can add more templates.
     |
     */
-    'templates_path' => base_path('resources/codegenerator-templates'),
+    'templates_path' => 'resources/codegenerator-templates',
 
     /*
     |--------------------------------------------------------------------------
@@ -60,21 +60,21 @@ return [
     | In this path, you can create json file to import the fields from.
     |
     */
-    'fields_file_path' => base_path('resources/codegenerator-files'),
+    'fields_file_path' => 'resources/codegenerator-files',
 
     /*
     |--------------------------------------------------------------------------
     | The default path of where the migrations will be generated into.
     |--------------------------------------------------------------------------
     */
-    'migrations_path' => base_path('database/migrations'),
+    'migrations_path' => 'database/migrations',
 
     /*
     |--------------------------------------------------------------------------
     | The default path of where the controllers will be generated into.
     |--------------------------------------------------------------------------
     */
-    'form_requests_path' => app_path('Http/Requests'),
+    'form_requests_path' => 'Http/Requests',
 
     /*
     |--------------------------------------------------------------------------
@@ -95,7 +95,7 @@ return [
     | The default path of where the languages will be generated into.
     |--------------------------------------------------------------------------
     */
-    'languages_path' => base_path('resources/lang'),
+    'languages_path' => 'resources/lang',
 
     /*
     |--------------------------------------------------------------------------
@@ -113,17 +113,27 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Key phrases that are will be used to determine if a field should have a relation.
+    | Patterns to use to determine "datetime" fields if date-type is not provided
     |--------------------------------------------------------------------------
     |
-    | When creating resources from existing database, the codegenerator scans
-    | the field's name for a mattching pattern. When found, these field are considred 
-    | foreign keys even if the database does not have a foreign constraints.
-    | Here you can specify patterns to help the generator understand your
-    | database naming convension.
+    | If the date-type for a field is not, the codegenerator scanns the field's name 
+    | for a matching pattern. If the name matches any of the set pattern, the the 
+    | field's type will automaticly be set to datetime.
     |
     */
-    'common_key_patterns' => ['*_id','*_by'],
+    'common_datetime_patterns' => ['*_at'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Patterns to use to determine "boolean" fields if date-type is not provided
+    |--------------------------------------------------------------------------
+    |
+    | If the date-type for a field is not, the codegenerator scanns the field's name 
+    | for a matching pattern. If the name matches any of the set pattern, the the 
+    | field's type will automaticly be set to boolean.
+    |
+    */
+    'common_boolean_patterns' => ['is_*','has_*'],
 
     /*
     |--------------------------------------------------------------------------
@@ -137,7 +147,71 @@ return [
     | database naming convension.
     |
     */
-    'common_datetime_patterns' => ['*_at'],
+    'common_key_patterns' => ['*_id','*_by'],
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Common foreign keys definitions
+    |--------------------------------------------------------------------------
+    |
+    | The code generator uses "common_key_patterns" array to scan the field name 
+    | for matching patterns to determine if a field should be considred foreign key.
+    | "common_foreign_keys" allows you to set global configuration for common foreign key.
+    | Each key in the array represents the field name. The value is an array of definitions
+    | to use. Here is description of the definition array
+    | 
+    | "name" will be used to create the relation method's name.
+    | "model" the foreign model.
+    | "field" the field on the foreign model to use as display name.
+    | "on-create" sets a value to use when this model is created. If your using an authentication
+    |             system such as laravel build in authentication. you can automaticly set 
+    |             the user Id who created the model by setting this value to 'Auth::Id();'.
+    | "on-update" sets a value to use when this model is update.
+    | "on-delete" sets a value to use when this model is soft-deleted.
+    |
+    */
+    'common_foreign_keys' => [
+        'owner_id'      => [
+            'name'      => 'owner', 
+            'model'     => 'App\\User',
+            'field'     => 'name',
+            'on-create' => null,
+            'on-update' => null,
+            'on-delete' => null
+        ],
+        'operator_id'      => [
+            'name'      => 'operator',
+            'model'     => 'App\\User',
+            'field'     => 'name',
+            'on-create' => null,
+            'on-update' => null,
+            'on-delete' => null
+        ],
+        'created_by'      => [
+            'name'      => 'creator',
+            'model'     => 'App\\User',
+            'field'     => 'name',
+            'on-create' => 'Auth::Id();',
+            'on-update' => null,
+            'on-delete' => null
+        ],
+        'updated_by'      => [
+            'name'      => 'updator',
+            'model'     => 'App\\User',
+            'field'     => 'name',
+            'on-create' => null,
+            'on-update' => 'Auth::Id();',
+            'on-delete' => null
+        ],
+        'deleted_by'      => [
+            'name'      => 'deleator',
+            'model'     => 'App\\User',
+            'field'     => 'name',
+            'on-create' => null,
+            'on-update' => null,
+            'on-delete' => 'Auth::Id();'
+        ]
+    ],
 
     /*
     |--------------------------------------------------------------------------

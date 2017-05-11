@@ -5,6 +5,7 @@ namespace CrestApps\CodeGenerator\Support;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Support\ValidationParser;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\Config;
 
 class FieldOptimizer
 {
@@ -191,7 +192,7 @@ class FieldOptimizer
     */
     protected function optimizePrimaryKey()
     {
-        if ($this->isPrimaryField($this->field)) {
+        if ($this->field->isPrimary() || in_array($this->field->name, Config::getIdPatterns())) {
             if (!$this->isNumericField()) {
                 $this->field->dataType = 'int';
             }
