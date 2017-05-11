@@ -12,6 +12,13 @@ use Illuminate\Container\Container;
 trait CommonCommand
 {
     /**
+     * Values when passed to the option, means no value.
+     *
+     * @var array
+     */
+    protected $noValues = ['empty','no_value','blank', 'none'];
+
+    /**
      * The default route actions
      *
      * @var array
@@ -90,22 +97,6 @@ trait CommonCommand
     }
 
     /**
-     * Reduceses multiple new line into one.
-     *
-     * @param string $stub
-     *
-     * @return $this
-     */
-    protected function reduceNewLines(&$stub)
-    {
-        while (strpos($stub, "\r\n\r\n") !== false) {
-            $stub = str_replace("\r\n\r\n", "\r\n", $stub);
-        }
-
-        return $this;
-    }
-
-    /**
      * Gets all command's options depending on the current framework version.
      *
      * @return string
@@ -117,6 +108,24 @@ trait CommonCommand
         }
 
         return parent::option();
+    }
+
+    /**
+     * Override Laravel's option method
+     *
+     * @return string
+     */
+    public function generatorOption($key)
+    {
+        $value = $this->option($key);
+
+        if (is_string($value)) {
+            $value = trim($value);
+
+            return in_array($value, $this->noValues) ? null : $value;
+        }
+
+        return $value;
     }
 
     /**
@@ -192,7 +201,7 @@ trait CommonCommand
 
         foreach ($actions as $action) {
             $routeName = $this->getDotNotationName($modelName, $routesPrefix, $action);
-            $routeTemplate = $this->getRouteName($action); 
+            $routeTemplate = $this->getRouteName($action);
             $stub = $this->strReplace($routeTemplate, $routeName, $stub);
         }
         

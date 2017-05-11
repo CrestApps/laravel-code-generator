@@ -268,6 +268,8 @@ abstract class HtmlGeneratorBase
             $relation = $field->getForeignRelation();
 
             $fieldAccessor = sprintf('$%s->%s->%s', $this->getModelName($this->modelName), $relation->name, $relation->getField());
+
+            $fieldAccessor = sprintf(" isset(%s) ? %s : '' ",$fieldAccessor, $fieldAccessor);
         }
 
         if ($field->isBoolean()) {

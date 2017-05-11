@@ -3,11 +3,9 @@
 namespace [% namespace %];
 
 use Session;
-use [% app_name %]\Http\Controllers\Controller;
-use [% request_fullname %];
 [% use_command_placeholder %]
 
-class [% controller_name %] extends Controller
+class [% controller_name %] [% controller_extends %]
 {
     /**
      * Display a listing of the [% model_name_plural %] .
@@ -43,7 +41,9 @@ class [% controller_name %] extends Controller
     public function store([% request_name %] $request)
     {
         [% call_affirm %]
-        [% model_name_class %]::create($this->getRequestsData($request));
+        $[% data_variable %] = $this->getRequestsData($request);
+        [% on_store_setter %]
+        [% model_name_class %]::create($[% data_variable %]);
         Session::flash('success_message', '[% model_name_class %] was added!');
 
         return redirect()->route('[% index_route_name %]');
@@ -89,8 +89,10 @@ class [% controller_name %] extends Controller
     public function update($id, [% request_name %] $request)
     {
         [% call_affirm %]
+        $[% data_variable %] = $this->getRequestsData($request);
+        [% on_update_setter %]
         $[% model_name %] = [% model_name_class %]::findOrFail($id);
-        $[% model_name %]->update($this->getRequestsData($request));
+        $[% model_name %]->update($[% data_variable %]);
         Session::flash('success_message', '[% model_name_class %] was updated!');
 
         return redirect()->route('[% index_route_name %]');

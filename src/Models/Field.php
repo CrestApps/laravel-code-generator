@@ -231,7 +231,7 @@ class Field
      *
      * @var string
      */
-    public $onCreate;
+    public $onStore;
 
     /**
      * raw php command to execute when the model is updated.
@@ -239,13 +239,6 @@ class Field
      * @var string
      */
     public $onUpdate;
-
-    /**
-     * raw php command to execute when the model is deleted.
-     *
-     * @var string
-     */
-    public $onDelete;
 
     /**
      * Creates a new field instance.
@@ -573,9 +566,8 @@ class Field
             'range' => $this->range,
             'foreign-relation' => $this->getForeignRelationToRaw(),
             'foreign-constraint' => $this->getForeignConstraintToRaw(),
-            'on-create' => $this->onCreate,
+            'on-store' => $this->onStore,
             'on-update' => $this->onUpdate,
-            'on-delete' => $this->onDelete,
         ];
     }
 

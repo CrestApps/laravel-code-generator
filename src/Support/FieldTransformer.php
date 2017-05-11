@@ -216,10 +216,11 @@ class FieldTransformer
              ->setUnsignedProperty($field, $properties)
              ->setForeignRelation($field, $properties)
              ->setRange($field, $properties)
-             ->setForeignConstraint($field, $properties)
-             ->setOnCreate($field, $properties)
-             ->setOnUpdate($field, $properties)
-             ->setOnDelete($field, $properties);
+             ->setForeignConstraint($field, $properties);
+
+        self::setOnStore($field, $properties);
+        self::setOnUpdate($field, $properties);
+        self::setOnDestroy($field, $properties);
 
         if ($this->isValidSelectRangeType($properties)) {
             $field->htmlType = 'selectRange';
@@ -302,7 +303,7 @@ class FieldTransformer
     */
     protected function setDataType(Field & $field, array $properties)
     {
-        $map = $this->dataTypeMap();
+        $map = Config::dataTypeMap();
 
         if ($this->isKeyExists($properties, 'data-type') && $this->isKeyExists($map, $properties['data-type'])) {
             $field->dataType = $map[$properties['data-type']];
@@ -344,15 +345,13 @@ class FieldTransformer
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param array $properties
      *
-     * @return $this
+     * @return void
     */
-    protected function setOnCreate(Field & $field, array $properties)
+    protected static function setOnStore(Field & $field, array $properties)
     {
-        if ($this->isKeyExists($properties, 'on-create')) {
-            $field->onCreate = $this->getOnAction($properties['on-create']);
+        if (array_key_exists('on-store', $properties)) {
+            $field->onStore = self::getOnAction($properties['on-store']);
         }
-
-        return $this;
     }
 
     /**
@@ -361,15 +360,13 @@ class FieldTransformer
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param array $properties
      *
-     * @return $this
+     * @return void
     */
-    protected function setOnUpdate(Field & $field, array $properties)
+    protected static function setOnUpdate(Field & $field, array $properties)
     {
-        if ($this->isKeyExists($properties, 'on-update')) {
-            $field->onUpdate = $this->getOnAction($properties['on-update']);
+        if (array_key_exists('on-update', $properties)) {
+            $field->onUpdate = self::getOnAction($properties['on-update']);
         }
-
-        return $this;
     }
 
     /**
@@ -378,15 +375,13 @@ class FieldTransformer
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param array $properties
      *
-     * @return $this
+     * @return void
     */
-    protected function setOnDelete(Field & $field, array $properties)
+    protected static function setOnDestroy(Field & $field, array $properties)
     {
-        if ($this->isKeyExists($properties, 'on-delete')) {
-            $field->onDelete = $this->getOnAction($properties['on-delete']);
+        if (array_key_exists('on-destroy', $properties)) {
+            $field->onDestroy = self::getOnAction($properties['on-destroy']);
         }
-
-        return $this;
     }
 
     /**
@@ -396,7 +391,7 @@ class FieldTransformer
     *
     * @return string
     */
-    protected function getOnAction($action)
+    protected static function getOnAction($action)
     {
         $action = trim($action);
 
@@ -471,12 +466,23 @@ class FieldTransformer
 
         if ($this->isKeyExists($properties, 'foreign-relation')) {
             $relation = $this->getForeignRelation((array)$properties['foreign-relation']);
-            $field->setForeignRelation($relation);
         } else {
-            $field->setForeignRelation(self::getPredectableForeignRelation($properties['name'], $this->getAppNamespace() . Config::getModelsPath()));
+            $relation = self::getPredectableForeignRelation($field, $this->getModelsPath());
         }
 
+        $field->setForeignRelation($relation);
+
         return $this;
+    }
+
+    /**
+     * Gets the model full path.
+     *
+     * @return string
+    */
+    protected function getModelsPath()
+    {
+        return $this->getAppNamespace() . Config::getModelsPath();
     }
 
     /**
@@ -506,7 +512,7 @@ class FieldTransformer
             $constraint = $properties['foreign-constraint'];
             $onUpdate = $this->isKeyExists($constraint, 'on-update') ? $constraint['on-update'] : null;
             $onDelete = $this->isKeyExists($constraint, 'on-delete') ? $constraint['on-delete'] : null;
-            $modelPath = $this->getAppNamespace() . Config::getModelsPath();
+            $modelPath = $this->getModelsPath();
             $model = $this->isKeyExists($constraint, 'references-model') ? $constraint['references-model'] : self::guessModelFullName($name, $modelPath);
 
             return new ForeignConstraint($constraint['field'], $constraint['references'], $constraint['on'], $onDelete, $onUpdate, $model);
@@ -555,25 +561,53 @@ class FieldTransformer
     /**
      * Get a predictable foreign relation using the giving field's name
      *
-     * @param string $name
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $modelPath
      *
      * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
      */
-    public static function getPredectableForeignRelation($name, $modelPath)
+    public static function getPredectableForeignRelation(Field & $field, $modelPath)
     {
         $patterns = Config::getKeyPatterns();
 
-        if (Helpers::strIs($patterns, $name)) {
-            $foreignName = camel_case(self::extractModelName($name));
-            $model = self::guessModelFullName($name, $modelPath);
-            
-            $parameters = [$model, $name];
+        if (Helpers::strIs($patterns, $field->name)) {
+            $commonRelations = Config::getForeignKeys();
 
-            return new ForeignRelationship('belongsTo', $parameters, $foreignName);
+            if(array_key_exists($field->name, $commonRelations)) {
+                return self::makeCommonForeignRelation($field, $commonRelations[$field->name]);
+            }
+
+            $relationName = camel_case(self::extractModelName($field->name));
+            $model = self::guessModelFullName($field->name, $modelPath);
+            $parameters = [$model, $field->name];
+
+            return new ForeignRelationship('belongsTo', $parameters, $relationName);
         }
 
         return null;
+    }
+
+    /**
+     * Gets a foreign relation from a giving properties.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param string $modelPath
+     *
+     * @return CrestApps\CodeGenerator\Model\ForeignRelationship
+     */
+    public static function makeCommonForeignRelation(Field & $field, array $properties)
+    {
+        $relationName = array_key_exists('name', $properties) ? $properties['name'] : camel_case(self::extractModelName($field->name));
+        $foreignField = array_key_exists('field', $properties) ? $properties['field'] : null;
+        $model = array_key_exists('model', $properties) ? $properties['model'] : self::guessModelFullName($field->name, $modelPath);
+        $type = array_key_exists('type', $properties) ? $properties['type'] : 'belongsTo';
+        $parameters = [$model, $field->name];
+
+        self::setOnStore($field, $properties);
+        self::setOnUpdate($field, $properties);
+        self::setOnDestroy($field, $properties);
+
+        return new ForeignRelationship($type, $parameters, $relationName, $foreignField);
     }
 
     /**
@@ -975,15 +1009,5 @@ class FieldTransformer
     public function convertNameToLabel($name)
     {
         return ucwords(str_replace('_', ' ', $name));
-    }
-
-    /**
-     * Gets the eloquent type to methof collection
-     *
-     * @return array
-    */
-    public function dataTypeMap()
-    {
-        return config('codegenerator.eloquent_type_to_method');
     }
 }

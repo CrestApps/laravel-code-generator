@@ -47,6 +47,16 @@ class Config
     }
 
     /**
+     * Gets the common primary ids patterns.
+     * 
+     * @return array
+    */
+    public static function getForeignKeys()
+    {
+        return config('codegenerator.common_foreign_keys', []);
+    }
+
+    /**
      * Gets the common key patterns.
      * 
      * @return array
@@ -170,5 +180,15 @@ class Config
     public static function getDefaultTemplateName()
     {
         return config('codegenerator.template', 'default');
+    }
+
+    /**
+     * Gets the eloquent type to method collection.
+     *
+     * @return array
+    */
+    public static function dataTypeMap()
+    {
+        return config('codegenerator.eloquent_type_to_method', []);
     }
 }

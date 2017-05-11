@@ -160,6 +160,7 @@ return [
     | Each key in the array represents the field name. The value is an array of definitions
     | to use. Here is description of the definition array
     | 
+    | "type" will be used to set the relation type
     | "name" will be used to create the relation method's name.
     | "model" the foreign model.
     | "field" the field on the foreign model to use as display name.
@@ -172,44 +173,44 @@ return [
     */
     'common_foreign_keys' => [
         'owner_id'      => [
+            'type'      => 'belongsTo',
             'name'      => 'owner', 
             'model'     => 'App\\User',
             'field'     => 'name',
-            'on-create' => null,
+            'on-store' => null,
             'on-update' => null,
-            'on-delete' => null
         ],
         'operator_id'      => [
+            'type'      => 'belongsTo',
             'name'      => 'operator',
             'model'     => 'App\\User',
             'field'     => 'name',
-            'on-create' => null,
+            'on-store' => null,
             'on-update' => null,
-            'on-delete' => null
         ],
         'created_by'      => [
+            'type'      => 'belongsTo',
             'name'      => 'creator',
             'model'     => 'App\\User',
             'field'     => 'name',
-            'on-create' => 'Auth::Id();',
+            'on-store' => 'Illuminate\Support\Facades\Auth::Id();',
             'on-update' => null,
-            'on-delete' => null
         ],
         'updated_by'      => [
+            'type'      => 'belongsTo',
             'name'      => 'updator',
             'model'     => 'App\\User',
             'field'     => 'name',
-            'on-create' => null,
-            'on-update' => 'Auth::Id();',
-            'on-delete' => null
+            'on-store' => null,
+            'on-update' => 'Illuminate\Support\Facades\Auth::Id();',
         ],
         'deleted_by'      => [
+            'type'      => 'belongsTo',
             'name'      => 'deleator',
             'model'     => 'App\\User',
             'field'     => 'name',
-            'on-create' => null,
+            'on-store' => null,
             'on-update' => null,
-            'on-delete' => 'Auth::Id();'
         ]
     ],
 
