@@ -579,14 +579,7 @@ class Field
     public function getForeignRelationToRaw()
     {
         if ($this->hasForeignRelation()) {
-            $relation = $this->getForeignRelation();
-
-            return [
-                        'name' => $relation->name,
-                        'type' => $relation->getType(),
-                        'params' => $relation->parameters,
-                        'field' => $relation->getField()
-                   ];
+            return $this->getForeignRelation()->toArray();
         }
 
         return null;
@@ -600,16 +593,7 @@ class Field
     public function getForeignConstraintToRaw()
     {
         if ($this->hasForeignConstraint()) {
-            $relation = $this->getForeignConstraint();
-
-            return [
-                        'field' => $relation->column,
-                        'references' => $relation->references,
-                        'on' => $relation->on,
-                        'on-delete' => $relation->onDelete,
-                        'on-update' => $relation->onUpdate,
-                        'references-model' => $relation->getReferencesModel()
-                   ];
+            return $this->getForeignConstraint()->toArray();
         }
 
         return null;

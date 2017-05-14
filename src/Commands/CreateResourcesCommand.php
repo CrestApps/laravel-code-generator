@@ -30,6 +30,7 @@ class CreateResourcesCommand extends Command
                             {--models-per-page=25 : The amount of models per page for index pages.}
                             {--lang-file-name= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
+                            {--with-auth : Generate the controller with Laravel auth middlewear. }
                             {--table-name= : The name of the table.}
                             {--fillable= : The exact string to put in the fillable property of the model.}
                             {--primary-key=id : The name of the primary key.}
@@ -226,6 +227,7 @@ class CreateResourcesCommand extends Command
                 '--lang-file-name'       => $input->languageFileName,
                 '--with-form-request'    => $input->formRequest,
                 '--force'                => $input->force,
+                '--with-auth'            => $input->withAuth,
                 '--template-name'        => $input->template
             ]);
 
@@ -298,11 +300,12 @@ class CreateResourcesCommand extends Command
         $layoutName = $this->option('layout-name') ?: 'layouts.app';
         $tableExists = $this->option('table-exists');
         $translationFor = $this->option('translation-for');
-
+        $withAuth = $this->option('with-auth');
+        
         return (object) compact('modelName', 'controllerName', 'viewsDirectory', 'prefix', 'perPage', 'fields', 'force',
                                 'languageFileName', 'fieldsFile', 'formRequest', 'modelDirectory', 'table', 'fillable', 'primaryKey',
                                 'relationships', 'withSoftDelete', 'withoutTimeStamps', 'controllerDirectory', 'withoutMigration',
                                 'migrationClass', 'connectionName', 'indexes', 'foreignKeys', 'engineName', 'layoutName', 'template',
-                                'tableExists', 'translationFor','controllerExtends');
+                                'tableExists', 'translationFor','controllerExtends','withAuth');
     }
 }

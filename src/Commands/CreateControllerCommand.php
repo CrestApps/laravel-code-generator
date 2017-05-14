@@ -30,6 +30,7 @@ class CreateControllerCommand extends Command
                             {--models-per-page=25 : The amount of models per page for index pages.}
                             {--lang-file-name= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
+                            {--with-auth : Generate the controller with Laravel auth middlewear. }
                             {--template-name= : The template name to use when generating the code.}
                             {--controller-extends=Http\Controllers\Controller : The base controller to be extend.}
                             {--force : This option will override the controller if one already exists.}';
@@ -85,7 +86,6 @@ class CreateControllerCommand extends Command
             $this->makeFormRequest($input);
         }
         
-
         $fields = $this->getFields($input->fields, $input->langFile, $input->fieldsFile);
         $viewVariablesForIndex = $this->getCompactVariablesFor($fields, $this->getModelPluralName($input->modelName), 'index');
         $viewVariablesForShow = $this->getCompactVariablesFor($fields, $this->getModelName($input->modelName), 'show');
@@ -103,7 +103,8 @@ class CreateControllerCommand extends Command
                     ->replaceUseCommandPlaceholder($stub, $namespacesToUse)
                     ->replaceRouteNames($stub, $input->modelName, $input->prefix)
                     ->replaceRequestName($stub, $requestName)
-                    ->replaceRequestFullName($stub, $requestNameSpace)
+                    ->replaceRequestFullName($stub, $requestNameSpace) 
+                    ->replaceConstructor($stub, $this->getConstructor($input->withAuth))
                     ->replaceCallAffirm($stub, $this->getCallAffirm($input->formRequest))
                     ->replaceAffirmMethod($stub, $affirmMethod)
                     ->replacePaginationNumber($stub, $input->perPage)
@@ -125,6 +126,35 @@ class CreateControllerCommand extends Command
                     ->replaceDataVariable($stub, 'data')
                     ->createFile($destenationFile, $stub)
                     ->info('A controller was crafted successfully.');
+    }
+
+    /**
+     * Gets controller's constructor.
+     *
+     * @param bool $withAuth
+     *
+     * @return string
+     */
+    protected function getConstructor($withAuth)
+    {
+        $stub = $this->getStubContent('controller-constructor');
+
+        $middleware = $withAuth ? '$this->middleware(\'auth\');' : '';
+
+        $this->replaceAuthMiddlewear($stub, $middleware);
+
+        $starts = strpos($stub, '{');
+        $ends = strrpos($stub, '}');
+
+        if($starts !== false && $ends !== false)
+        {
+            $content = trim(substr($stub, $starts +1, $ends-$starts-1));
+            if(!empty($content)) {
+                return $stub; 
+            }
+        }
+
+        return '';
     }
 
     /**
@@ -605,10 +635,11 @@ class CreateControllerCommand extends Command
         $formRequestName = $plainControllerName . 'FormRequest';
         $template = $this->getTemplateName();
         $extends = $this->generatorOption('controller-extends');
+        $withAuth = $this->option('with-auth');
 
         return (object) compact('viewDirectory', 'viewName', 'modelName', 'prefix', 'perPage', 'fileSnippet', 'modelDirectory',
                                 'langFile', 'fields', 'formRequest', 'formRequestName', 'force', 'fieldsFile', 'template',
-                                'controllerName', 'extends');
+                                'controllerName', 'extends','withAuth');
     }
 
     /**
@@ -622,6 +653,36 @@ class CreateControllerCommand extends Command
     protected function replaceOnStoreAction(&$stub, $commands)
     {
         $stub = $this->strReplace('on_store_setter', $commands, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the auth middleware
+     *
+     * @param  string  $stub
+     * @param  string  $middleware
+     *
+     * @return $this
+     */
+    protected function replaceAuthMiddlewear(&$stub, $middleware)
+    {
+        $stub = $this->strReplace('auth_middleware', $middleware, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the auth contructor
+     *
+     * @param  string  $stub
+     * @param  string  $contructor
+     *
+     * @return $this
+     */
+    protected function replaceConstructor(&$stub, $contructor)
+    {
+        $stub = $this->strReplace('constructor', $contructor, $stub);
 
         return $this;
     }

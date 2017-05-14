@@ -139,7 +139,7 @@ class FieldTransformer
      *
      * @return array Support\Field
     */
-    public static function Text($fieldsString, $localeGroup)
+    public static function text($fieldsString, $localeGroup)
     {
         $transformer = new self($fieldsString, $localeGroup);
 
@@ -154,13 +154,28 @@ class FieldTransformer
      *
      * @return array
     */
-    public static function Json($json, $localeGroup)
+    public static function json($json, $localeGroup)
     {
         if (empty($json) || ($fields = json_decode($json, true)) === null) {
             throw new Exception("The provided string is not a valid json.");
         }
 
         $transformer = new self($fields, $localeGroup);
+
+        return $transformer->transfer()->getFields();
+    }
+
+    /**
+     * It transfres a gining array to a collection of field
+     *
+     * @param array $collection
+     * @param string $localeGroup
+     *
+     * @return array
+    */
+    public static function array(array $collection, $localeGroup)
+    {
+        $transformer = new self($collection, $localeGroup);
 
         return $transformer->transfer()->getFields();
     }
@@ -220,7 +235,6 @@ class FieldTransformer
 
         self::setOnStore($field, $properties);
         self::setOnUpdate($field, $properties);
-        self::setOnDestroy($field, $properties);
 
         if ($this->isValidSelectRangeType($properties)) {
             $field->htmlType = 'selectRange';
@@ -249,6 +263,13 @@ class FieldTransformer
         );
     }
 
+    /**
+     * Validates the giving properties.
+     *
+     * @param array $properties
+     *
+     * @return void
+     */
     protected function validateFields(array $properties)
     {
         $names = array_column($properties, 'name');
@@ -259,13 +280,13 @@ class FieldTransformer
         }
     }
 
-   /**
+    /**
      * Checks if a properties contains a valid "selectRange" html-type element.
      *
      * @param array $properties
      *
      * @return bool
-    */
+     */
     protected function isValidSelectRangeType(array $properties)
     {
         return $this->isKeyExists($properties, 'html-type') && starts_with('selectRange|', $properties['html-type']);
@@ -370,21 +391,6 @@ class FieldTransformer
     }
 
     /**
-     * Sets the raw php command to execute on delete.
-     *
-     * @param CrestApps\CodeGenerator\Models\Field $field
-     * @param array $properties
-     *
-     * @return void
-    */
-    protected static function setOnDestroy(Field & $field, array $properties)
-    {
-        if (array_key_exists('on-destroy', $properties)) {
-            $field->onDestroy = self::getOnAction($properties['on-destroy']);
-        }
-    }
-
-    /**
     * Cleans up a giving action
     *
     * @param string $action
@@ -395,7 +401,7 @@ class FieldTransformer
     {
         $action = trim($action);
 
-        if(empty($action)) {
+        if (empty($action)) {
             return null;
         }
 
@@ -465,7 +471,7 @@ class FieldTransformer
         }
 
         if ($this->isKeyExists($properties, 'foreign-relation')) {
-            $relation = $this->getForeignRelation((array)$properties['foreign-relation']);
+            $relation = self::makeForeignRelation($field, (array)$properties['foreign-relation']);
         } else {
             $relation = self::getPredectableForeignRelation($field, $this->getModelsPath());
         }
@@ -506,6 +512,13 @@ class FieldTransformer
         return $this;
     }
 
+    /**
+     * Get the foreign constraints
+     *
+     * @param array $properties
+     *
+     * @return null || CrestApps\CodeGenerator\Models\ForeignConstraint
+    */
     protected function getForeignConstraint(array $properties)
     {
         if ($this->hasForeignConstraint($properties)) {
@@ -542,20 +555,20 @@ class FieldTransformer
      *
      * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
      */
-    protected function getForeignRelation(array $options)
+    protected static function getForeignRelation(array $options)
     {
-        if ($this->isKeyExists($options, 'type', 'params', 'name')) {
-            $field = $this->isKeyExists($options, 'field') ? $options['field'] : null;
-
-            return new ForeignRelationship(
-                                    $options['type'],
-                                    $options['params'],
-                                    $options['name'],
-                                    $field
-                                );
+        if (!array_key_exists('type', $options) || !array_key_exists('params', $options)|| !array_key_exists('name', $options)) {
+            return null;
         }
         
-        return null;
+        $field = array_key_exists('field', $options) ? $options['field'] : null;
+
+        return new ForeignRelationship(
+                                $options['type'],
+                                $options['params'],
+                                $options['name'],
+                                $field
+                            );
     }
 
     /**
@@ -568,15 +581,15 @@ class FieldTransformer
      */
     public static function getPredectableForeignRelation(Field & $field, $modelPath)
     {
+        $commonRelations = Config::getForeignKeys();
+
+        if (array_key_exists($field->name, $commonRelations)) {
+            return self::makeForeignRelation($field, $commonRelations[$field->name]);
+        }
+
         $patterns = Config::getKeyPatterns();
 
         if (Helpers::strIs($patterns, $field->name)) {
-            $commonRelations = Config::getForeignKeys();
-
-            if(array_key_exists($field->name, $commonRelations)) {
-                return self::makeCommonForeignRelation($field, $commonRelations[$field->name]);
-            }
-
             $relationName = camel_case(self::extractModelName($field->name));
             $model = self::guessModelFullName($field->name, $modelPath);
             $parameters = [$model, $field->name];
@@ -595,19 +608,16 @@ class FieldTransformer
      *
      * @return CrestApps\CodeGenerator\Model\ForeignRelationship
      */
-    public static function makeCommonForeignRelation(Field & $field, array $properties)
+    public static function makeForeignRelation(Field & $field, array $properties)
     {
-        $relationName = array_key_exists('name', $properties) ? $properties['name'] : camel_case(self::extractModelName($field->name));
-        $foreignField = array_key_exists('field', $properties) ? $properties['field'] : null;
-        $model = array_key_exists('model', $properties) ? $properties['model'] : self::guessModelFullName($field->name, $modelPath);
-        $type = array_key_exists('type', $properties) ? $properties['type'] : 'belongsTo';
-        $parameters = [$model, $field->name];
+        $relation = self::getForeignRelation($properties);
 
-        self::setOnStore($field, $properties);
-        self::setOnUpdate($field, $properties);
-        self::setOnDestroy($field, $properties);
+        if (!is_null($relation)) {
+            self::setOnStore($field, $properties);
+            self::setOnUpdate($field, $properties);
+        }
 
-        return new ForeignRelationship($type, $parameters, $relationName, $foreignField);
+        return $relation;
     }
 
     /**
@@ -861,7 +871,7 @@ class FieldTransformer
 
         if (!isset($labels[0]) && isset($properties['name'])) {
             //At this point we know there are no labels found, generate one use the name
-            $label = $this->convertNameToLabel($properties['name']);
+            $label = self::convertNameToLabel($properties['name']);
 
             return [
                 new Label($label, $this->localeGroup, true, $this->defaultLang)
@@ -1006,7 +1016,7 @@ class FieldTransformer
      *
      * @return string
     */
-    public function convertNameToLabel($name)
+    public static function convertNameToLabel($name)
     {
         return ucwords(str_replace('_', ' ', $name));
     }

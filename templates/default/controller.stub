@@ -7,6 +7,7 @@ use Session;
 
 class [% controller_name %] [% controller_extends %]
 {
+[% constructor %]
     /**
      * Display a listing of the [% model_name_plural %] .
      *

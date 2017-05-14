@@ -25,6 +25,7 @@ class FieldsFileCreateCommand extends Command
                             {--data-types= : A comma seperated data-type for each field.}
                             {--html-types= : A comma seperated html-type for each field.}
                             {--without-primary-key : The directory where the controller is under.}
+                            {--translation-for= : A comma seperated string of languages to create fields for.}
                             {--force : Override existing file if one exists.}';
 
     /**
@@ -50,13 +51,13 @@ class FieldsFileCreateCommand extends Command
             return false;
         }
 
-        if(empty($input->names)) {
+        if (empty($input->names)) {
             $this->error('No names were provided. Please use the --names option to pass field names.');
 
             return false;
         }
 
-        $fields = $this->getFields($input);
+        $fields = $this->getFields($input, $input->withoutPrimaryKey);
         $string = $this->getFieldAsJson($fields, JSON_PRETTY_PRINT);
 
         $this->createFile($file, $string)
@@ -71,13 +72,15 @@ class FieldsFileCreateCommand extends Command
     protected function getCommandInput()
     {
         $file = trim($this->argument('file-name'));
-        $names = array_unique(Helpers::convertStringToArray(trim($this->option('names'))));
-        $dataTypes = Helpers::convertStringToArray(trim($this->option('data-types')));
-        $htmlTypes = Helpers::convertStringToArray(trim($this->option('html-types')));
+        $names = array_unique(Helpers::convertStringToArray($this->generatorOption('names')));
+        $dataTypes = Helpers::convertStringToArray($this->generatorOption('data-types'));
+        $htmlTypes = Helpers::convertStringToArray($this->generatorOption('html-types'));
         $withoutPrimaryKey = $this->option('without-primary-key');
+        $transaltionFor = Helpers::convertStringToArray($this->generatorOption('translation-for'));
         $force = $this->option('force');
 
-        return (object) compact('file', 'names', 'dataTypes', 'htmlTypes', 'withoutPrimaryKey', 'force');
+
+        return (object) compact('file', 'names', 'dataTypes', 'htmlTypes', 'withoutPrimaryKey', 'transaltionFor', 'force');
     }
 
     /**
@@ -99,32 +102,38 @@ class FieldsFileCreateCommand extends Command
      * Get primary key properties.
      *
      * @param object $input
+     * @param bool $withoutPrimaryKey
      *
      * @return string
      */
-    protected function getFields($input)
+    public static function getFields($input, $withoutPrimaryKey)
     {
         $fields = [];
 
-        if(!$input->withoutPrimaryKey) {
-            $fields[] = $this->getPrimaryKey();
+        if (!$withoutPrimaryKey) {
+            $fields[] = self::getPrimaryKey();
         }
 
         foreach ($input->names as $key => $name) {
             $properties = ['name' => $name];
 
-            if ( isset($input->htmlTypes[$key])) {
+            if (isset($input->htmlTypes[$key])) {
                 $properties['html-type'] = $input->htmlTypes[$key];
             }
 
-            if ( isset($input->dataTypes[$key])) {
+            if (isset($input->dataTypes[$key])) {
                 $properties['data-type'] = $input->dataTypes[$key];
+            }
+
+            $label = FieldTransformer::convertNameToLabel($name);
+            foreach ($input->transaltionFor as $lang) {
+                $properties['label'][$lang] = $label;
             }
 
             $fields[] = $properties;
         }
 
-        return FieldTransformer::json(json_encode($fields), 'generic');
+        return FieldTransformer::array($fields, 'generic');
     }
 
     /**
@@ -147,7 +156,7 @@ class FieldsFileCreateCommand extends Command
      *
      * @return array
      */
-    protected function getPrimaryKey()
+    protected static function getPrimaryKey()
     {
         return [
             'name' => 'id',

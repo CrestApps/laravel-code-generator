@@ -9,6 +9,7 @@ use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
+use CrestApps\CodeGenerator\Commands\FieldsFileCreateCommand;
 
 class FieldsFileAppendCommand extends Command
 {
@@ -23,6 +24,7 @@ class FieldsFileAppendCommand extends Command
                             {file-name : The name of the file to create or write fields too.}
                             {--names= : A comma seperate field names.}
                             {--data-types= : A comma seperated data-type for each field.}
+                            {--translation-for= : A comma seperated string of languages to create fields for.}
                             {--html-types= : A comma seperated html-type for each field.}';
 
     /**
@@ -74,8 +76,8 @@ class FieldsFileAppendCommand extends Command
             return false;
         }
         $existingName = Collect($existingFields)->pluck('name')->all();
-
-        foreach($this->getFields($input) as $field) {
+        $fields = FieldsFileCreateCommand::getFields($input, true);
+        foreach($fields as $field) {
 
             if(in_array($field->name, $existingName)) {
                 $this->warn('the field "' . $field->name . '" already exists in the file.');
@@ -111,11 +113,12 @@ class FieldsFileAppendCommand extends Command
     protected function getCommandInput()
     {
         $file = trim($this->argument('file-name'));
-        $names = array_unique(Helpers::convertStringToArray(trim($this->option('names'))));
-        $dataTypes = Helpers::convertStringToArray(trim($this->option('data-types')));
-        $htmlTypes = Helpers::convertStringToArray(trim($this->option('html-types')));
+        $names = array_unique(Helpers::convertStringToArray($this->generatorOption('names')));
+        $dataTypes = Helpers::convertStringToArray($this->generatorOption('data-types'));
+        $htmlTypes = Helpers::convertStringToArray($this->generatorOption('html-types'));
+        $transaltionFor = Helpers::convertStringToArray($this->generatorOption('translation-for'));
 
-        return (object) compact('file', 'names', 'dataTypes', 'htmlTypes');
+        return (object) compact('file', 'names', 'dataTypes', 'htmlTypes','transaltionFor');
     }
 
     /**
@@ -132,33 +135,4 @@ class FieldsFileAppendCommand extends Command
 
         return $path . $name;
     }
-
-    /**
-     * Get primary key properties.
-     *
-     * @param object $input
-     *
-     * @return string
-     */
-    protected function getFields($input)
-    {
-        $fields = [];
-
-        foreach ($input->names as $key => $name) {
-            $properties = ['name' => $name];
-
-            if ( isset($input->htmlTypes[$key])) {
-                $properties['html-type'] = $input->htmlTypes[$key];
-            }
-
-            if ( isset($input->dataTypes[$key])) {
-                $properties['data-type'] = $input->dataTypes[$key];
-            }
-
-            $fields[] = $properties;
-        }
-
-        return FieldTransformer::json(json_encode($fields), 'generic');
-    }
-
 }
