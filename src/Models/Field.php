@@ -241,6 +241,13 @@ class Field
     public $onUpdate;
 
     /**
+     * Field placeholder
+     *
+     * @var string
+     */
+    public $castAs = '';
+
+    /**
      * Creates a new field instance.
      *
      * @param string $name
@@ -370,6 +377,16 @@ class Field
     public function hasForeignRelation()
     {
         return ! is_null($this->foreignRelation);
+    }
+
+    /**
+     * Checks if the field shoudl be casted.
+     *
+     * @return bool
+     */
+    public function isCastable()
+    {
+        return ! empty($this->castAs);
     }
 
     /**
@@ -561,6 +578,8 @@ class Field
             'is-auto-increment' => $this->isAutoIncrement,
             'is-inline-options' => $this->isInlineOptions,
             'is-multiple-answers' => $this->isMultipleAnswers,
+            'is-date' => $this->isDate,
+            'cast-as' => $this->castAs,
             'placeholder' => $this->placeHolder,
             'delimiter' => $this->optionsDelimiter,
             'range' => $this->range,
@@ -625,7 +644,8 @@ class Field
      */
     public function isDateTime()
     {
-        return in_array($this->dataType, ['dateTime','dateTimeTz']) || in_array($this->name, ['created_at','updated_at','deleted_at']);
+        return     in_array($this->dataType, ['dateTime','dateTimeTz'])
+                || in_array($this->name, ['created_at','updated_at','deleted_at']);
     }
 
     /**
@@ -649,16 +669,6 @@ class Field
     }
 
     /**
-     * Checks if the field's type is any valid date.
-     *
-     * @return bool
-     */
-    public function isDateOrTime()
-    {
-        return $this->isDate() || $this->isDateTime() || $this->isTime();
-    }
-
-    /**
      * Checks if the data type is time stamp.
      *
      * @return bool
@@ -666,6 +676,16 @@ class Field
     public function isTimeStamp()
     {
         return in_array($this->dataType, ['timestamp','timestampTz']);
+    }
+
+    /**
+     * Checks if the field's type is any valid date.
+     *
+     * @return bool
+     */
+    public function isDateOrTime()
+    {
+        return $this->isDate() || $this->isDateTime() || $this->isTime() || $this->isTimeStamp();
     }
 
     /**

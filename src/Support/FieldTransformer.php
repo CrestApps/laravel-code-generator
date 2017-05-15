@@ -46,28 +46,38 @@ class FieldTransformer
     */
     protected $predefinedKeyMapping =
     [
-        'html-type' => 'htmlType',
-        'html-value' => 'htmlValue',
-        'value' => ['dataValue','htmlValue'],
-        'is-on-views' => ['isOnIndexView','isOnFormView','isOnShowView'],
-        'is-on-index' => 'isOnIndexView',
-        'is-on-form' => 'isOnFormView',
-        'is-on-show' => 'isOnShowView',
-        'data-value' => 'dataValue',
-        'is-primary' => 'isPrimary',
-        'is-index' => 'isIndex',
-        'is-unique' => 'isUnique',
-        'comment' => 'comment',
-        'is-nullable' => 'isNullable',
+        'html-type'         => 'htmlType',
+        'html-value'        => 'htmlValue',
+        'value'             => [
+                                'dataValue',
+                                'htmlValue'
+                               ],
+        'is-on-views'       => [
+                                'isOnIndexView',
+                                'isOnFormView',
+                                'isOnShowView'
+                               ],
+        'is-on-index'       => 'isOnIndexView',
+        'is-on-form'        => 'isOnFormView',
+        'is-on-show'        => 'isOnShowView',
+        'data-value'        => 'dataValue',
+        'is-primary'        => 'isPrimary',
+        'is-index'          => 'isIndex',
+        'is-unique'         => 'isUnique',
+        'comment'           => 'comment',
+        'is-nullable'       => 'isNullable',
         'is-auto-increment' => 'isAutoIncrement',
         'is-inline-options' => 'isInlineOptions',
-        'placeholder' => 'placeHolder',
-        'place-holder' => 'placeHolder',
-        'delimiter' => 'optionsDelimiter',
-        'is-header' => 'isHeader',
-        'class' => 'cssClass',
-        'css-class' => 'cssClass',
-        'date-format' => 'dateFormat',
+        'placeholder'       => 'placeHolder',
+        'place-holder'      => 'placeHolder',
+        'delimiter'         => 'optionsDelimiter',
+        'is-header'         => 'isHeader',
+        'class'             => 'cssClass',
+        'css-class'         => 'cssClass',
+        'date-format'       => 'dateFormat',
+        'cast-as'           => 'castAs',
+        'cast'              => 'castAs',
+        'is-date'           => 'isDate',
     ];
 
     /**
@@ -76,19 +86,19 @@ class FieldTransformer
      * @return array
     */
     protected $validHtmlTypes = [
-        'text',
-        'password',
-        'email',
-        'file',
-        'checkbox',
-        'radio',
-        'number',
-        'date',
-        'select',
-        'multipleSelect',
-        'textarea',
-        'selectMonth',
-    ];
+                        'text',
+                        'password',
+                        'email',
+                        'file',
+                        'checkbox',
+                        'radio',
+                        'number',
+                        'date',
+                        'select',
+                        'multipleSelect',
+                        'textarea',
+                        'selectMonth',
+                    ];
 
     /**
      * List of data types that would make a field unsigned.

@@ -16,21 +16,40 @@ trait CommonCommand
      *
      * @var array
      */
-    protected $noValues = ['empty','no_value','blank', 'none'];
+    protected $noValues = [
+                        'empty',
+                        'no_value',
+                        'blank', 
+                        'none'
+                    ];
 
     /**
      * The default route actions
      *
      * @var array
      */
-    protected $actions = ['index','create','show','update','edit','destroy','store'];
+    protected $actions = [
+                    'index',
+                    'create',
+                    'show',
+                    'update',
+                    'edit',
+                    'destroy',
+                    'store'
+                ];
 
     /**
      * The default views actions
      *
      * @var array
      */
-    protected $views = ['form','index','create','show','edit'];
+    protected $views = [
+                    'form',
+                    'index',
+                    'create',
+                    'show',
+                    'edit'
+                ];
 
     /**
      * Gets the field from the input
@@ -94,6 +113,43 @@ trait CommonCommand
         }
 
         return parent::argument();
+    }
+
+    /**
+     * Gets the indentation count.
+     *
+     * @param  string  $stub
+     * @param  string  $template
+     *
+     * @return $this
+     */
+    protected function getIndent($stub, $template)
+    {
+        $lines = explode(PHP_EOL, $stub);
+
+        foreach ($lines as $line) {
+            if (($index = strpos($line, $template)) !== false) {
+                return $index;
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Gets white-spaces times the multiplier.
+     *
+     * @param int $multiplier
+     *
+     * @return string
+     */
+    protected function Indent($multiplier)
+    {
+        if ($multiplier < 1) {
+            return '';
+        }
+        
+        return str_repeat(' ', $multiplier);
     }
 
     /**
