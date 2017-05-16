@@ -183,7 +183,7 @@ class FieldTransformer
      *
      * @return array
     */
-    public static function array(array $collection, $localeGroup)
+    public static function fieldsArray(array $collection, $localeGroup)
     {
         $transformer = new self($collection, $localeGroup);
 

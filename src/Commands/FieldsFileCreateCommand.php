@@ -133,7 +133,7 @@ class FieldsFileCreateCommand extends Command
             $fields[] = $properties;
         }
 
-        return FieldTransformer::array($fields, 'generic');
+        return FieldTransformer::fieldsArray($fields, 'generic');
     }
 
     /**
