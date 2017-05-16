@@ -161,55 +161,71 @@ return [
     | to use. Here is description of the definition array
     | 
     | "name" will be used to create the relation method's name.
-    | "model" the foreign model.
+    | "type" will be used to set the relation type
+    | "params" the parameters to use for the "type" relation.
     | "field" the field on the foreign model to use as display name.
     | "on-create" sets a value to use when this model is created. If your using an authentication
     |             system such as laravel build in authentication. you can automaticly set 
     |             the user Id who created the model by setting this value to 'Auth::Id();'.
     | "on-update" sets a value to use when this model is update.
-    | "on-delete" sets a value to use when this model is soft-deleted.
     |
     */
-    'common_foreign_keys' => [
-        'owner_id'      => [
-            'name'      => 'owner', 
-            'model'     => 'App\\User',
-            'field'     => 'name',
-            'on-create' => null,
-            'on-update' => null,
-            'on-delete' => null
+
+    "common_foreign_keys" => [
+        "owner_id"      => [
+            "name"      => "owner",
+            "type"      => "belongsTo",
+            "params"    => [
+                "App\\User",
+                "owner_id"
+            ],
+            "field"     => "name",
+            "on-store"  => null,
+            "on-update" => null,
         ],
-        'operator_id'      => [
-            'name'      => 'operator',
-            'model'     => 'App\\User',
-            'field'     => 'name',
-            'on-create' => null,
-            'on-update' => null,
-            'on-delete' => null
+        "operator_id"   => [
+            "name"      => "operator",
+            "type"      => "belongsTo",
+            "params"    => [
+                "App\\User",
+                "operator_id"
+            ],
+            "field"     => "name",
+            "on-store"  => null,
+            "on-update" => null,
         ],
-        'created_by'      => [
-            'name'      => 'creator',
-            'model'     => 'App\\User',
-            'field'     => 'name',
-            'on-create' => 'Auth::Id();',
-            'on-update' => null,
-            'on-delete' => null
+        "author_id"     => [
+            "name"      => "author",
+            "type"      => "belongsTo",
+            "params"    => [
+                "App\\User",
+                "author_id"
+            ],
+            "field"     => "name",
+            "on-store"  => null,
+            "on-update" => null,
         ],
-        'updated_by'      => [
-            'name'      => 'updator',
-            'model'     => 'App\\User',
-            'field'     => 'name',
-            'on-create' => null,
-            'on-update' => 'Auth::Id();',
-            'on-delete' => null
+        "created_by"    => [
+            "name"      => "creator",
+            "type"      => "belongsTo",
+            "params"    => [
+                "App\\User",
+                "created_by"
+            ],
+            "field"     => "name",
+            "on-store"  => "Illuminate\Support\Facades\Auth::Id();",
+            "on-update" => null,
         ],
-        'deleted_by'      => [
-            'name'      => 'deleator',
-            'model'     => 'App\\User',
-            'field'     => 'name',
-            'on-create' => null,
-            'on-update' => null,
-            'on-delete' => 'Auth::Id();'
+        "updated_by"    => [
+            "name"      => "updator",
+            "type"      => "belongsTo",
+            "params"    => [
+                "App\\User",
+                "created_by"
+            ],
+            "field"     => "name",
+            "on-store" => null,
+            "on-update" => "Illuminate\Support\Facades\Auth::Id();",
         ]
     ],
 

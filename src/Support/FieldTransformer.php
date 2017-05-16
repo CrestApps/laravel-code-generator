@@ -46,28 +46,38 @@ class FieldTransformer
     */
     protected $predefinedKeyMapping =
     [
-        'html-type' => 'htmlType',
-        'html-value' => 'htmlValue',
-        'value' => ['dataValue','htmlValue'],
-        'is-on-views' => ['isOnIndexView','isOnFormView','isOnShowView'],
-        'is-on-index' => 'isOnIndexView',
-        'is-on-form' => 'isOnFormView',
-        'is-on-show' => 'isOnShowView',
-        'data-value' => 'dataValue',
-        'is-primary' => 'isPrimary',
-        'is-index' => 'isIndex',
-        'is-unique' => 'isUnique',
-        'comment' => 'comment',
-        'is-nullable' => 'isNullable',
+        'html-type'         => 'htmlType',
+        'html-value'        => 'htmlValue',
+        'value'             => [
+                                'dataValue',
+                                'htmlValue'
+                               ],
+        'is-on-views'       => [
+                                'isOnIndexView',
+                                'isOnFormView',
+                                'isOnShowView'
+                               ],
+        'is-on-index'       => 'isOnIndexView',
+        'is-on-form'        => 'isOnFormView',
+        'is-on-show'        => 'isOnShowView',
+        'data-value'        => 'dataValue',
+        'is-primary'        => 'isPrimary',
+        'is-index'          => 'isIndex',
+        'is-unique'         => 'isUnique',
+        'comment'           => 'comment',
+        'is-nullable'       => 'isNullable',
         'is-auto-increment' => 'isAutoIncrement',
         'is-inline-options' => 'isInlineOptions',
-        'placeholder' => 'placeHolder',
-        'place-holder' => 'placeHolder',
-        'delimiter' => 'optionsDelimiter',
-        'is-header' => 'isHeader',
-        'class' => 'cssClass',
-        'css-class' => 'cssClass',
-        'date-format' => 'dateFormat',
+        'placeholder'       => 'placeHolder',
+        'place-holder'      => 'placeHolder',
+        'delimiter'         => 'optionsDelimiter',
+        'is-header'         => 'isHeader',
+        'class'             => 'cssClass',
+        'css-class'         => 'cssClass',
+        'date-format'       => 'dateFormat',
+        'cast-as'           => 'castAs',
+        'cast'              => 'castAs',
+        'is-date'           => 'isDate',
     ];
 
     /**
@@ -76,19 +86,19 @@ class FieldTransformer
      * @return array
     */
     protected $validHtmlTypes = [
-        'text',
-        'password',
-        'email',
-        'file',
-        'checkbox',
-        'radio',
-        'number',
-        'date',
-        'select',
-        'multipleSelect',
-        'textarea',
-        'selectMonth',
-    ];
+                        'text',
+                        'password',
+                        'email',
+                        'file',
+                        'checkbox',
+                        'radio',
+                        'number',
+                        'date',
+                        'select',
+                        'multipleSelect',
+                        'textarea',
+                        'selectMonth',
+                    ];
 
     /**
      * List of data types that would make a field unsigned.
@@ -139,7 +149,7 @@ class FieldTransformer
      *
      * @return array Support\Field
     */
-    public static function Text($fieldsString, $localeGroup)
+    public static function text($fieldsString, $localeGroup)
     {
         $transformer = new self($fieldsString, $localeGroup);
 
@@ -154,13 +164,28 @@ class FieldTransformer
      *
      * @return array
     */
-    public static function Json($json, $localeGroup)
+    public static function json($json, $localeGroup)
     {
         if (empty($json) || ($fields = json_decode($json, true)) === null) {
             throw new Exception("The provided string is not a valid json.");
         }
 
         $transformer = new self($fields, $localeGroup);
+
+        return $transformer->transfer()->getFields();
+    }
+
+    /**
+     * It transfres a gining array to a collection of field
+     *
+     * @param array $collection
+     * @param string $localeGroup
+     *
+     * @return array
+    */
+    public static function array(array $collection, $localeGroup)
+    {
+        $transformer = new self($collection, $localeGroup);
 
         return $transformer->transfer()->getFields();
     }
@@ -216,10 +241,10 @@ class FieldTransformer
              ->setUnsignedProperty($field, $properties)
              ->setForeignRelation($field, $properties)
              ->setRange($field, $properties)
-             ->setForeignConstraint($field, $properties)
-             ->setOnCreate($field, $properties)
-             ->setOnUpdate($field, $properties)
-             ->setOnDelete($field, $properties);
+             ->setForeignConstraint($field, $properties);
+
+        self::setOnStore($field, $properties);
+        self::setOnUpdate($field, $properties);
 
         if ($this->isValidSelectRangeType($properties)) {
             $field->htmlType = 'selectRange';
@@ -248,6 +273,13 @@ class FieldTransformer
         );
     }
 
+    /**
+     * Validates the giving properties.
+     *
+     * @param array $properties
+     *
+     * @return void
+     */
     protected function validateFields(array $properties)
     {
         $names = array_column($properties, 'name');
@@ -258,13 +290,13 @@ class FieldTransformer
         }
     }
 
-   /**
+    /**
      * Checks if a properties contains a valid "selectRange" html-type element.
      *
      * @param array $properties
      *
      * @return bool
-    */
+     */
     protected function isValidSelectRangeType(array $properties)
     {
         return $this->isKeyExists($properties, 'html-type') && starts_with('selectRange|', $properties['html-type']);
@@ -302,7 +334,7 @@ class FieldTransformer
     */
     protected function setDataType(Field & $field, array $properties)
     {
-        $map = $this->dataTypeMap();
+        $map = Config::dataTypeMap();
 
         if ($this->isKeyExists($properties, 'data-type') && $this->isKeyExists($map, $properties['data-type'])) {
             $field->dataType = $map[$properties['data-type']];
@@ -344,15 +376,13 @@ class FieldTransformer
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param array $properties
      *
-     * @return $this
+     * @return void
     */
-    protected function setOnCreate(Field & $field, array $properties)
+    protected static function setOnStore(Field & $field, array $properties)
     {
-        if ($this->isKeyExists($properties, 'on-create')) {
-            $field->onCreate = $this->getOnAction($properties['on-create']);
+        if (array_key_exists('on-store', $properties)) {
+            $field->onStore = self::getOnAction($properties['on-store']);
         }
-
-        return $this;
     }
 
     /**
@@ -361,32 +391,13 @@ class FieldTransformer
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param array $properties
      *
-     * @return $this
+     * @return void
     */
-    protected function setOnUpdate(Field & $field, array $properties)
+    protected static function setOnUpdate(Field & $field, array $properties)
     {
-        if ($this->isKeyExists($properties, 'on-update')) {
-            $field->onUpdate = $this->getOnAction($properties['on-update']);
+        if (array_key_exists('on-update', $properties)) {
+            $field->onUpdate = self::getOnAction($properties['on-update']);
         }
-
-        return $this;
-    }
-
-    /**
-     * Sets the raw php command to execute on delete.
-     *
-     * @param CrestApps\CodeGenerator\Models\Field $field
-     * @param array $properties
-     *
-     * @return $this
-    */
-    protected function setOnDelete(Field & $field, array $properties)
-    {
-        if ($this->isKeyExists($properties, 'on-delete')) {
-            $field->onDelete = $this->getOnAction($properties['on-delete']);
-        }
-
-        return $this;
     }
 
     /**
@@ -396,11 +407,11 @@ class FieldTransformer
     *
     * @return string
     */
-    protected function getOnAction($action)
+    protected static function getOnAction($action)
     {
         $action = trim($action);
 
-        if(empty($action)) {
+        if (empty($action)) {
             return null;
         }
 
@@ -470,13 +481,24 @@ class FieldTransformer
         }
 
         if ($this->isKeyExists($properties, 'foreign-relation')) {
-            $relation = $this->getForeignRelation((array)$properties['foreign-relation']);
-            $field->setForeignRelation($relation);
+            $relation = self::makeForeignRelation($field, (array)$properties['foreign-relation']);
         } else {
-            $field->setForeignRelation(self::getPredectableForeignRelation($properties['name'], $this->getAppNamespace() . Config::getModelsPath()));
+            $relation = self::getPredectableForeignRelation($field, $this->getModelsPath());
         }
 
+        $field->setForeignRelation($relation);
+
         return $this;
+    }
+
+    /**
+     * Gets the model full path.
+     *
+     * @return string
+    */
+    protected function getModelsPath()
+    {
+        return $this->getAppNamespace() . Config::getModelsPath();
     }
 
     /**
@@ -500,13 +522,20 @@ class FieldTransformer
         return $this;
     }
 
+    /**
+     * Get the foreign constraints
+     *
+     * @param array $properties
+     *
+     * @return null || CrestApps\CodeGenerator\Models\ForeignConstraint
+    */
     protected function getForeignConstraint(array $properties)
     {
         if ($this->hasForeignConstraint($properties)) {
             $constraint = $properties['foreign-constraint'];
             $onUpdate = $this->isKeyExists($constraint, 'on-update') ? $constraint['on-update'] : null;
             $onDelete = $this->isKeyExists($constraint, 'on-delete') ? $constraint['on-delete'] : null;
-            $modelPath = $this->getAppNamespace() . Config::getModelsPath();
+            $modelPath = $this->getModelsPath();
             $model = $this->isKeyExists($constraint, 'references-model') ? $constraint['references-model'] : self::guessModelFullName($name, $modelPath);
 
             return new ForeignConstraint($constraint['field'], $constraint['references'], $constraint['on'], $onDelete, $onUpdate, $model);
@@ -536,44 +565,69 @@ class FieldTransformer
      *
      * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
      */
-    protected function getForeignRelation(array $options)
+    protected static function getForeignRelation(array $options)
     {
-        if ($this->isKeyExists($options, 'type', 'params', 'name')) {
-            $field = $this->isKeyExists($options, 'field') ? $options['field'] : null;
-
-            return new ForeignRelationship(
-                                    $options['type'],
-                                    $options['params'],
-                                    $options['name'],
-                                    $field
-                                );
+        if (!array_key_exists('type', $options) || !array_key_exists('params', $options)|| !array_key_exists('name', $options)) {
+            return null;
         }
         
-        return null;
+        $field = array_key_exists('field', $options) ? $options['field'] : null;
+
+        return new ForeignRelationship(
+                                $options['type'],
+                                $options['params'],
+                                $options['name'],
+                                $field
+                            );
     }
 
     /**
      * Get a predictable foreign relation using the giving field's name
      *
-     * @param string $name
+     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $modelPath
      *
      * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
      */
-    public static function getPredectableForeignRelation($name, $modelPath)
+    public static function getPredectableForeignRelation(Field & $field, $modelPath)
     {
+        $commonRelations = Config::getForeignKeys();
+
+        if (array_key_exists($field->name, $commonRelations)) {
+            return self::makeForeignRelation($field, $commonRelations[$field->name]);
+        }
+
         $patterns = Config::getKeyPatterns();
 
-        if (Helpers::strIs($patterns, $name)) {
-            $foreignName = camel_case(self::extractModelName($name));
-            $model = self::guessModelFullName($name, $modelPath);
-            
-            $parameters = [$model, $name];
+        if (Helpers::strIs($patterns, $field->name)) {
+            $relationName = camel_case(self::extractModelName($field->name));
+            $model = self::guessModelFullName($field->name, $modelPath);
+            $parameters = [$model, $field->name];
 
-            return new ForeignRelationship('belongsTo', $parameters, $foreignName);
+            return new ForeignRelationship('belongsTo', $parameters, $relationName);
         }
 
         return null;
+    }
+
+    /**
+     * Gets a foreign relation from a giving properties.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param string $modelPath
+     *
+     * @return CrestApps\CodeGenerator\Model\ForeignRelationship
+     */
+    public static function makeForeignRelation(Field & $field, array $properties)
+    {
+        $relation = self::getForeignRelation($properties);
+
+        if (!is_null($relation)) {
+            self::setOnStore($field, $properties);
+            self::setOnUpdate($field, $properties);
+        }
+
+        return $relation;
     }
 
     /**
@@ -827,7 +881,7 @@ class FieldTransformer
 
         if (!isset($labels[0]) && isset($properties['name'])) {
             //At this point we know there are no labels found, generate one use the name
-            $label = $this->convertNameToLabel($properties['name']);
+            $label = self::convertNameToLabel($properties['name']);
 
             return [
                 new Label($label, $this->localeGroup, true, $this->defaultLang)
@@ -972,18 +1026,8 @@ class FieldTransformer
      *
      * @return string
     */
-    public function convertNameToLabel($name)
+    public static function convertNameToLabel($name)
     {
         return ucwords(str_replace('_', ' ', $name));
-    }
-
-    /**
-     * Gets the eloquent type to methof collection
-     *
-     * @return array
-    */
-    public function dataTypeMap()
-    {
-        return config('codegenerator.eloquent_type_to_method');
     }
 }

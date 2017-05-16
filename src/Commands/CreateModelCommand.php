@@ -15,6 +15,13 @@ class CreateModelCommand extends Command
     use CommonCommand, GeneratorReplacers;
 
     /**
+     * Total white-spaced to eliminate when creating an array string. 
+     *
+     * @var string
+     */
+    protected $backspaceCount = 8;
+
+    /**
      * The name and signature of the console command.
      *
      * @var string
@@ -79,8 +86,9 @@ class CreateModelCommand extends Command
                     ->replaceNamespace($stub, $this->getNamespace($input->modelName))
                     ->replaceSoftDelete($stub, $input->useSoftDelete)
                     ->replaceTimestamps($stub, $this->getTimeStampsStub($input->useTimeStamps))
-                    ->replaceFillable($stub, $this->getFillables($input->fillable, $fields))
-                    ->replaceDateFields($stub, $this->getDateFields($fields))
+                    ->replaceFillable($stub, $this->getFillables($stub, $input->fillable, $fields))
+                    ->replaceDateFields($stub, $this->getDateFields($stub, $fields))
+                    ->replaceCasts($stub, $this->getCasts($stub, $fields))
                     ->replacePrimaryKey($stub, $primaryKey)
                     ->replaceRelationshipPlaceholder($stub, $relations)
                     ->replaceAccessors($stub, $this->getAccessors($fields))
@@ -172,68 +180,129 @@ class CreateModelCommand extends Command
     /**
      * Gets the formatted fillable line.
      *
-     * @param $fillables
+     * @param string $stub
+     * @param string $fillables
      * @param array $fields
      *
      * @return string
      */
-    protected function getFillables($fillables, array $fields)
+    protected function getFillables($stub, $fillables, array $fields)
     {
         if (!empty($fillables)) {
-            return $this->getFillablesFromString($fillables);
+            return $this->getFillablesFromString($stub, $fillables);
         }
 
-        return $this->getFillablefields($fields);
+        return $this->getFillablefields($stub, $fields);
     }
 
     /**
      * Gets the fillable string from a giving raw string.
+     *     
+     * @param string $stub
+     * @param string $fillablesString
      *
      * @return string
      */
-    protected function getFillablesFromString($fillablesString)
+    protected function getFillablesFromString($stub, $fillablesString)
     {
         $columns = Helpers::removeEmptyItems(explode(',', $fillablesString), function ($column) {
             return trim(Helpers::removeNonEnglishChars($column));
         });
 
-        return sprintf('[%s]', implode(',', Helpers::wrapItems($columns)));
+        $fillables = [];
+        $indentCount = $this->getIndent($stub, $this->getTemplateVariable('fillable'));
+        $indent = $this->Indent($indentCount - $this->backspaceCount);
+
+        foreach($columns as $column) {
+            $fillables[$column] = sprintf("%s'%s'", $index, $column);
+        }
+
+        return $this->makeArrayString($fillables, $indentCount - $this->backspaceCount - 4);
     }
 
     /**
      * Gets the fillable string from a giving fields array.
      *
+     * @param string $stub
+     * @param array $fields
+     *
      * @return string
      */
-    protected function getFillablefields(array $fields)
+    protected function getFillablefields($stub, array $fields)
     {
         $fillables = [];
-
+        $indentCount = $this->getIndent($stub, $this->getTemplateVariable('fillable'));
+        $indent = $this->Indent($indentCount - $this->backspaceCount);
         foreach ($fields as $field) {
             if ($field->isOnFormView) {
-                $fillables[] = sprintf("'%s'", Helpers::removeNonEnglishChars($field->name));
+                $fillables[] = sprintf("%s'%s'", $indent, $field->name);
             }
         }
 
-        return sprintf('[%s]', implode(',', $fillables));
+        return $this->makeArrayString($fillables, $indentCount - $this->backspaceCount - 4);
     }
 
     /**
      * Gets the date fields string from a giving fields array.
      *
+     * @param string $stub
+     * @param array $fields
+     *
      * @return string
      */
-    protected function getDateFields(array $fields)
+    protected function getDateFields($stub, array $fields)
     {
         $dates = [];
-
+        $indentCount = $this->getIndent($stub, $this->getTemplateVariable('dates'));
+        $indent = $this->Indent($indentCount - $this->backspaceCount);
         foreach ($fields as $field) {
             if ($field->isDate) {
-                $dates[] = sprintf("'%s'", Helpers::removeNonEnglishChars($field->name));
+                $dates[] = sprintf("%s'%s'", $indent, $field->name);
             }
         }
 
-        return sprintf('[%s]', implode(',', $dates));
+        return $this->makeArrayString($dates, $indentCount - $this->backspaceCount - 4);
+    }
+
+    /**
+     * Gets the castable fields in a string from a giving fields array.
+     *
+     * @param string $stub
+     * @param array $fields
+     *
+     * @return string
+     */
+    protected function getCasts($stub, array $fields)
+    {
+        $casts = [];
+        $indentCount = $this->getIndent($stub, $this->getTemplateVariable('casts'));
+        $indent = $this->Indent($indentCount - $this->backspaceCount);
+        foreach ($fields as $field) {
+            if ($field->isCastable()) {
+                $casts[$field->name] = sprintf("%s'%s' => '%s'", $indent, $field->name, $field->castAs);
+            }
+        }
+        
+        return $this->makeArrayString($casts, $indentCount - $this->backspaceCount - 4);
+    }
+
+    /**
+     * Gets array ready string
+     *
+     * @param array $name
+     * @param int $index
+     *
+     * @return string
+     */
+    protected function makeArrayString(array $names, $index = 0)
+    {
+        $string = implode(',' . PHP_EOL, $names);
+
+        if(!empty($string)) {
+            return sprintf('[%s%s%s%s]', PHP_EOL, $string, PHP_EOL, $this->indent($index));
+        }
+
+        return '[]';
     }
 
     /**
@@ -308,8 +377,7 @@ class CreateModelCommand extends Command
         }
 
         foreach ($fields as $field) {
-            
-            if ( $field->hasForeignRelation() ) {
+            if ($field->hasForeignRelation()) {
                 $relation = $field->getForeignRelation();
                 $methods[$relation->name] = $this->getRelationshipMethod($relation);
             }
@@ -466,8 +534,7 @@ class CreateModelCommand extends Command
      */
     protected function getTimeStampsStub($shouldUseTimeStamps)
     {
-        if($shouldUseTimeStamps)
-        {
+        if ($shouldUseTimeStamps) {
             return null;
         }
         return $this->getStubContent('model-timestamps');
@@ -544,6 +611,21 @@ class CreateModelCommand extends Command
     protected function replaceDateFields(&$stub, $dates)
     {
         $stub = $this->strReplace('dates', $dates, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the casts for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $casts
+     *
+     * @return $this
+     */
+    protected function replaceCasts(&$stub, $casts)
+    {
+        $stub = $this->strReplace('casts', $casts, $stub);
 
         return $this;
     }
@@ -627,7 +709,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceFillable(&$stub, $fillable)
     {
-        $stub = $this->strReplace('fillable', !empty($fillable) ? $fillable : '[]', $stub);
+        $stub = $this->strReplace('fillable', $fillable, $stub);
 
         return $this;
     }

@@ -231,7 +231,7 @@ class Field
      *
      * @var string
      */
-    public $onCreate;
+    public $onStore;
 
     /**
      * raw php command to execute when the model is updated.
@@ -241,11 +241,11 @@ class Field
     public $onUpdate;
 
     /**
-     * raw php command to execute when the model is deleted.
+     * Field placeholder
      *
      * @var string
      */
-    public $onDelete;
+    public $castAs = '';
 
     /**
      * Creates a new field instance.
@@ -377,6 +377,16 @@ class Field
     public function hasForeignRelation()
     {
         return ! is_null($this->foreignRelation);
+    }
+
+    /**
+     * Checks if the field shoudl be casted.
+     *
+     * @return bool
+     */
+    public function isCastable()
+    {
+        return ! empty($this->castAs);
     }
 
     /**
@@ -568,14 +578,15 @@ class Field
             'is-auto-increment' => $this->isAutoIncrement,
             'is-inline-options' => $this->isInlineOptions,
             'is-multiple-answers' => $this->isMultipleAnswers,
+            'is-date' => $this->isDate,
+            'cast-as' => $this->castAs,
             'placeholder' => $this->placeHolder,
             'delimiter' => $this->optionsDelimiter,
             'range' => $this->range,
             'foreign-relation' => $this->getForeignRelationToRaw(),
             'foreign-constraint' => $this->getForeignConstraintToRaw(),
-            'on-create' => $this->onCreate,
+            'on-store' => $this->onStore,
             'on-update' => $this->onUpdate,
-            'on-delete' => $this->onDelete,
         ];
     }
 
@@ -587,14 +598,7 @@ class Field
     public function getForeignRelationToRaw()
     {
         if ($this->hasForeignRelation()) {
-            $relation = $this->getForeignRelation();
-
-            return [
-                        'name' => $relation->name,
-                        'type' => $relation->getType(),
-                        'params' => $relation->parameters,
-                        'field' => $relation->getField()
-                   ];
+            return $this->getForeignRelation()->toArray();
         }
 
         return null;
@@ -608,16 +612,7 @@ class Field
     public function getForeignConstraintToRaw()
     {
         if ($this->hasForeignConstraint()) {
-            $relation = $this->getForeignConstraint();
-
-            return [
-                        'field' => $relation->column,
-                        'references' => $relation->references,
-                        'on' => $relation->on,
-                        'on-delete' => $relation->onDelete,
-                        'on-update' => $relation->onUpdate,
-                        'references-model' => $relation->getReferencesModel()
-                   ];
+            return $this->getForeignConstraint()->toArray();
         }
 
         return null;
@@ -649,7 +644,8 @@ class Field
      */
     public function isDateTime()
     {
-        return in_array($this->dataType, ['dateTime','dateTimeTz']) || in_array($this->name, ['created_at','updated_at','deleted_at']);
+        return     in_array($this->dataType, ['dateTime','dateTimeTz'])
+                || in_array($this->name, ['created_at','updated_at','deleted_at']);
     }
 
     /**
@@ -673,16 +669,6 @@ class Field
     }
 
     /**
-     * Checks if the field's type is any valid date.
-     *
-     * @return bool
-     */
-    public function isDateOrTime()
-    {
-        return $this->isDate() || $this->isDateTime() || $this->isTime();
-    }
-
-    /**
      * Checks if the data type is time stamp.
      *
      * @return bool
@@ -690,6 +676,16 @@ class Field
     public function isTimeStamp()
     {
         return in_array($this->dataType, ['timestamp','timestampTz']);
+    }
+
+    /**
+     * Checks if the field's type is any valid date.
+     *
+     * @return bool
+     */
+    public function isDateOrTime()
+    {
+        return $this->isDate() || $this->isDateTime() || $this->isTime() || $this->isTimeStamp();
     }
 
     /**

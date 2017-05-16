@@ -30,7 +30,9 @@ class CreateControllerCommand extends Command
                             {--models-per-page=25 : The amount of models per page for index pages.}
                             {--lang-file-name= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
+                            {--with-auth : Generate the controller with Laravel auth middlewear. }
                             {--template-name= : The template name to use when generating the code.}
+                            {--controller-extends=Http\Controllers\Controller : The base controller to be extend.}
                             {--force : This option will override the controller if one already exists.}';
 
     /**
@@ -83,22 +85,26 @@ class CreateControllerCommand extends Command
             $requestNameSpace = $this->getRequestsNamespace($requestName);
             $this->makeFormRequest($input);
         }
-
+        
         $fields = $this->getFields($input->fields, $input->langFile, $input->fieldsFile);
         $viewVariablesForIndex = $this->getCompactVariablesFor($fields, $this->getModelPluralName($input->modelName), 'index');
         $viewVariablesForShow = $this->getCompactVariablesFor($fields, $this->getModelName($input->modelName), 'show');
         $viewVariablesForEdit = $this->getCompactVariablesFor($fields, $this->getModelName($input->modelName), 'form');
         $modelFullName = $this->getModelFullName($input->modelDirectory, $input->modelName);
         $affirmMethod = $this->getAffirmMethod($input->formRequest, $fields, $requestNameSpace);
+        $classToExtendFullname = $this->getFullClassToExtend($input->extends);
+        $namespacesToUse = $this->getRequiredUseClasses($fields, [$modelFullName, $requestNameSpace, $classToExtendFullname]);
         $stub = $this->getStubContent('controller');
 
         return $this->replaceViewNames($stub, $input->viewDirectory, $input->prefix)
                     ->replaceModelName($stub, $input->modelName)
                     ->replaceNamespace($stub, $this->getControllersNamespace())
-                    ->replaceUseCommandPlaceHolder($stub, $this->getRequiredUseClasses($fields, $modelFullName))
+                    ->replaceControllerExtends($stub, $this->getControllerExtends($classToExtendFullname))
+                    ->replaceUseCommandPlaceholder($stub, $namespacesToUse)
                     ->replaceRouteNames($stub, $input->modelName, $input->prefix)
                     ->replaceRequestName($stub, $requestName)
-                    ->replaceRequestFullName($stub, $requestNameSpace)
+                    ->replaceRequestFullName($stub, $requestNameSpace) 
+                    ->replaceConstructor($stub, $this->getConstructor($input->withAuth))
                     ->replaceCallAffirm($stub, $this->getCallAffirm($input->formRequest))
                     ->replaceAffirmMethod($stub, $affirmMethod)
                     ->replacePaginationNumber($stub, $input->perPage)
@@ -113,10 +119,140 @@ class CreateControllerCommand extends Command
                     ->replaceWithRelationsForIndex($stub, $this->getWithRelationFor($fields, 'index'))
                     ->replaceWithRelationsForShow($stub, $this->getWithRelationFor($fields, 'show'))
                     ->replaceRelationCollections($stub, $this->getRequiredRelationCollections($fields))
+                    ->replaceOnStoreAction($stub, $this->getOnStoreAction($fields))
+                    ->replaceOnUpdateAction($stub, $this->getOnUpdateAction($fields))
                     ->replaceAppName($stub, $this->getAppName())
                     ->replaceControllerName($stub, $input->controllerName)
+                    ->replaceDataVariable($stub, 'data')
                     ->createFile($destenationFile, $stub)
                     ->info('A controller was crafted successfully.');
+    }
+
+    /**
+     * Gets controller's constructor.
+     *
+     * @param bool $withAuth
+     *
+     * @return string
+     */
+    protected function getConstructor($withAuth)
+    {
+        $stub = $this->getStubContent('controller-constructor');
+
+        $middleware = $withAuth ? '$this->middleware(\'auth\');' : '';
+
+        $this->replaceAuthMiddlewear($stub, $middleware);
+
+        $starts = strpos($stub, '{');
+        $ends = strrpos($stub, '}');
+
+        if($starts !== false && $ends !== false)
+        {
+            $content = trim(substr($stub, $starts +1, $ends-$starts-1));
+            if(!empty($content)) {
+                return $stub; 
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Gets the code to extend the controller.
+     *
+     * @param string $namespace
+     *
+     * @return string
+     */
+    protected function getControllerExtends($namespace)
+    {
+        $class = $this->extractClassFromString($namespace);
+        if (!empty($class)) {
+            return sprintf('extends %s', $class);
+        }
+
+        return '';
+    }
+
+    /**
+     * Gets the full class name to extend
+     *
+     * @param string $extend
+     *
+     * @return string
+     */
+    protected function getFullClassToExtend($extend)
+    {
+        if (empty($extend)) {
+            return '';
+        }
+        $appNamespace = $this->getAppNamespace();
+        
+        if (starts_with($extend, $appNamespace)) {
+            $extend = str_replace($appNamespace, '', $extend);
+        }
+
+        return $appNamespace . trim($extend, '\\');
+    }
+
+    /**
+     * Gets the setter action for the giving field on-store.
+     *
+     * @param array $fields
+     * @param string $view
+     *
+     * @return string
+     */
+    protected function getOnStoreAction(array $fields)
+    {
+        $final = [];
+
+        foreach ($fields as $field) {
+            $action = $this->extractClassFromString($field->onStore);
+            if (!empty($action)) {
+                $final[] = $this->getArrayReadyString($field->name, $action);
+            }
+        }
+
+        return implode(PHP_EOL, $final);
+    }
+
+    /**
+     * Gets the setter action for the giving field on-update.
+     *
+     * @param array $fields
+     * @param string $view
+     *
+     * @return string
+     */
+    protected function getOnUpdateAction(array $fields)
+    {
+        $final = [];
+
+        foreach ($fields as $field) {
+            $action = $this->extractClassFromString($field->onUpdate);
+            if (!empty($action)) {
+                $final[] = $this->getArrayReadyString($field->name, $action);
+            }
+        }
+
+        return implode(PHP_EOL, $final);
+    }
+
+    /**
+     * Get a string to set a giving $variable with a $key and $value pair
+     *
+     * @param string $key
+     * @param string $value
+     * @param string $variable
+     *
+     * @return string
+     */
+    protected function getArrayReadyString($key, $value, $variable = '$data')
+    {
+        $value = trim(rtrim($value, ';'));
+
+        return sprintf("%s['%s'] = %s;", $variable, $key, $value);
     }
 
     /**
@@ -169,13 +305,17 @@ class CreateControllerCommand extends Command
      * Gets the needed models to use for in the controller.
      *
      * @param array $fields
-     * @param array $model's full name
+     * @param array $additions
      *
      * @return string
      */
-    protected function getRequiredUseClasses(array $fields, $modelFullName)
+    protected function getRequiredUseClasses(array $fields, array $additions = [])
     {
-        $commands[] = $this->getUseClassCommand($modelFullName);
+        $commands = [];
+
+        foreach ($additions as $addition) {
+            $commands[] = $this->getUseClassCommand($addition);
+        }
 
         $collections = $this->getRelationCollections($fields, 'form');
 
@@ -187,9 +327,85 @@ class CreateControllerCommand extends Command
             }
         }
 
+        // Attempt to include classes that don't start with \\ with using command.
+        foreach ($fields as $field) {
+            if (! empty($field->onStore) && ! in_array($field->onStore, $commands)) {
+                $commands[] = $this->extractNamespace($field->onStore);
+            }
+
+            if (! empty($field->onUpdate) && ! in_array($field->onUpdate, $commands)) {
+                $commands[] = $this->extractNamespace($field->onUpdate);
+            }
+        }
+
+        usort($commands, function ($a, $b) {
+            return strlen($a)-strlen($b);
+        });
+
         return implode(PHP_EOL, $commands);
     }
 
+    /**
+     * Extracts a namespace from a giving string
+     *
+     * @param string $string
+     *
+     * @return string
+     */
+    protected function extractNamespace($string)
+    {
+        $string = trim($string);
+
+        if ($this->isQualifiedNamespace($string) && ($index = strrpos($string, '::')) != false) {
+            $namespace = substr($string, 0, $index);
+
+            if (! empty($namespace)) {
+                return $this->getUseClassCommand($namespace);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Extracts a namespace from a giving string
+     *
+     * @param string $string
+     *
+     * @return string
+     */
+    protected function extractClassFromString($string)
+    {
+        $string = trim($string);
+
+        if ($this->isQualifiedNamespace($string)) {
+            if (($index = strrpos($string, '::')) !== false) {
+                $subString = substr($string, 0, $index);
+
+                if (($positionOfSlash = strrpos($subString, '\\')) != false) {
+                    return substr($string, $positionOfSlash + 1);
+                }
+            }
+
+            if (($index = strrpos($string, '\\')) !== false) {
+                $string = substr($string, $index + 1);
+            }
+        }
+
+        return $string;
+    }
+
+    /**
+     * Checks if a string is a qualified namespace.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    protected function isQualifiedNamespace($name)
+    {
+        return ! empty($name) && ! starts_with($name, '\\');
+    }
 
     /**
      * Gets the relation accessor for the giving foreign renationship.
@@ -406,22 +622,114 @@ class CreateControllerCommand extends Command
     {
         $controllerName = Helpers::postFixWith(trim($this->argument('controller-name')), 'Controller');
         $plainControllerName= str_singular(Helpers::removePostFixWith($controllerName, 'Controller'));
-
-        $modelName = trim($this->option('model-name')) ?: $plainControllerName;
-        $viewDirectory = trim($this->option('views-directory'));
-        $prefix = trim($this->option('routes-prefix'));
+        $modelName = $this->option('model-name') ?: $plainControllerName;
+        $viewDirectory = $this->option('views-directory');
+        $prefix = $this->option('routes-prefix');
         $perPage = intval($this->option('models-per-page'));
-        $fields = trim($this->option('fields'));
-        $fieldsFile = trim($this->option('fields-file'));
-        $langFile = trim($this->option('lang-file-name')) ?: strtolower(str_plural($modelName));
+        $fields = $this->option('fields');
+        $fieldsFile = $this->option('fields-file');
+        $langFile = $this->option('lang-file-name') ?: strtolower(str_plural($modelName));
         $formRequest = $this->option('with-form-request');
         $force = $this->option('force');
-        $modelDirectory = trim($this->option('model-directory'));
+        $modelDirectory = $this->option('model-directory');
         $formRequestName = $plainControllerName . 'FormRequest';
         $template = $this->getTemplateName();
+        $extends = $this->generatorOption('controller-extends');
+        $withAuth = $this->option('with-auth');
 
         return (object) compact('viewDirectory', 'viewName', 'modelName', 'prefix', 'perPage', 'fileSnippet', 'modelDirectory',
-                                'langFile', 'fields', 'formRequest', 'formRequestName', 'force', 'fieldsFile', 'template', 'controllerName');
+                                'langFile', 'fields', 'formRequest', 'formRequestName', 'force', 'fieldsFile', 'template',
+                                'controllerName', 'extends','withAuth');
+    }
+
+    /**
+     * Replaces on_store_setter
+     *
+     * @param  string  $stub
+     * @param  string  $commands
+     *
+     * @return $this
+     */
+    protected function replaceOnStoreAction(&$stub, $commands)
+    {
+        $stub = $this->strReplace('on_store_setter', $commands, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the auth middleware
+     *
+     * @param  string  $stub
+     * @param  string  $middleware
+     *
+     * @return $this
+     */
+    protected function replaceAuthMiddlewear(&$stub, $middleware)
+    {
+        $stub = $this->strReplace('auth_middleware', $middleware, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the auth contructor
+     *
+     * @param  string  $stub
+     * @param  string  $contructor
+     *
+     * @return $this
+     */
+    protected function replaceConstructor(&$stub, $contructor)
+    {
+        $stub = $this->strReplace('constructor', $contructor, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces controller_extends
+     *
+     * @param  string  $stub
+     * @param  string  $commands
+     *
+     * @return $this
+     */
+    protected function replaceControllerExtends(&$stub, $commands)
+    {
+        $stub = $this->strReplace('controller_extends', $commands, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the data_variable.
+     *
+     * @param  string  $stub
+     * @param  string  $commands
+     *
+     * @return $this
+     */
+    protected function replaceDataVariable(&$stub, $commands)
+    {
+        $stub = $this->strReplace('data_variable', $commands, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces on_update_setter
+     *
+     * @param  string  $stub
+     * @param  string  $commands
+     *
+     * @return $this
+     */
+    protected function replaceOnUpdateAction(&$stub, $commands)
+    {
+        $stub = $this->strReplace('on_update_setter', $commands, $stub);
+
+        return $this;
     }
 
     /**
@@ -432,7 +740,7 @@ class CreateControllerCommand extends Command
      *
      * @return $this
      */
-    protected function replaceUseCommandPlaceHolder(&$stub, $commands)
+    protected function replaceUseCommandPlaceholder(&$stub, $commands)
     {
         $stub = $this->strReplace('use_command_placeholder', $commands, $stub);
 

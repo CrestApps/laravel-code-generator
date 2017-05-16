@@ -74,7 +74,11 @@ class ForeignConstraint
         $this->referencesModel = $model;
     }
 
-
+    /**
+     * Get the model that is being referenced.
+     *
+     * @return string
+     */
     public function getReferencesModel()
     {
         if (empty($this->referencesModel)) {
@@ -84,6 +88,11 @@ class ForeignConstraint
         return $this->referencesModel;
     }
 
+    /**
+     * Get a foreign relation.
+     *
+     * @return CrestApps\CodeGenerator\Models\ForeignRelatioship
+     */
     public function getForeignRelation()
     {
         $params = [
@@ -100,23 +109,60 @@ class ForeignConstraint
                                 );
     }
 
+    /**
+     * Get the namecpase of the foreign model.
+     *
+     * @return string
+     */
     protected function getModelNamespace()
     {
         return $this->getAppNamespace() . rtrim(Config::getModelsPath(), '/');
     }
 
+    /**
+     * Get the name of the foreign model.
+     *
+     * @return string
+     */
     protected function getForeignModelName()
     {
         return camel_case(str_singular($this->references));
     }
 
+    /**
+     * Checks if the constraint has a delete action.
+     *
+     * @return bool
+     */
     public function hasDeleteAction()
     {
         return ! empty($this->onDelete);
     }
 
+    /**
+     * Checks if the constraint has an update action.
+     *
+     * @return bool
+     */
     public function hasUpdateAction()
     {
         return ! empty($this->onUpdate);
+    }
+
+    /**
+     * Gets the constrain in an array format.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'field' => $this->column,
+            'references' => $this->references,
+            'on' => $this->on,
+            'on-delete' => $this->onDelete,
+            'on-update' => $this->onUpdate,
+            'references-model' => $this->getReferencesModel()
+       ];
     }
 }

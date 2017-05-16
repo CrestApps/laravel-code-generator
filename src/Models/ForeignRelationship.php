@@ -225,13 +225,12 @@ class ForeignRelationship
 
         $position = strrpos($model, '\\');
 
-        if($position !== false) {
+        if ($position !== false) {
             return substr($model, $position + 1);
         }
         
         return '';
     }
-
 
     /**
      * Check if a giving class is an an instance of Model
@@ -298,5 +297,20 @@ class ForeignRelationship
         } catch (Exception $e) {
             return null;
         }
+    }
+
+    /**
+     * Gets the relation in an array format.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'name'      => $this->name,
+            'type'      => $this->getType(),
+            'params'    => $this->parameters,
+            'field'     => $this->getField()
+       ];
     }
 }

@@ -291,11 +291,16 @@ abstract class ParserBase
             return $this;
         }
 
-        $relation = FieldTransformer::getPredectableForeignRelation($field->name, $this->getAppNamespace() . Config::getModelsPath());
+        $relation = FieldTransformer::getPredectableForeignRelation($field, $this->getModelNamespace());
 
         $field->setForeignRelation($relation);
         
         return $this;
+    }
+
+    protected function getModelNamespace()
+    {
+        return $this->getAppNamespace() . Config::getModelsPath();
     }
 
     /**

@@ -12,18 +12,44 @@ use Illuminate\Container\Container;
 trait CommonCommand
 {
     /**
+     * Values when passed to the option, means no value.
+     *
+     * @var array
+     */
+    protected $noValues = [
+                        'empty',
+                        'no_value',
+                        'blank', 
+                        'none'
+                    ];
+
+    /**
      * The default route actions
      *
      * @var array
      */
-    protected $actions = ['index','create','show','update','edit','destroy','store'];
+    protected $actions = [
+                    'index',
+                    'create',
+                    'show',
+                    'update',
+                    'edit',
+                    'destroy',
+                    'store'
+                ];
 
     /**
      * The default views actions
      *
      * @var array
      */
-    protected $views = ['form','index','create','show','edit'];
+    protected $views = [
+                    'form',
+                    'index',
+                    'create',
+                    'show',
+                    'edit'
+                ];
 
     /**
      * Gets the field from the input
@@ -90,19 +116,40 @@ trait CommonCommand
     }
 
     /**
-     * Reduceses multiple new line into one.
+     * Gets the indentation count.
      *
-     * @param string $stub
+     * @param  string  $stub
+     * @param  string  $template
      *
      * @return $this
      */
-    protected function reduceNewLines(&$stub)
+    protected function getIndent($stub, $template)
     {
-        while (strpos($stub, "\r\n\r\n") !== false) {
-            $stub = str_replace("\r\n\r\n", "\r\n", $stub);
+        $lines = explode(PHP_EOL, $stub);
+
+        foreach ($lines as $line) {
+            if (($index = strpos($line, $template)) !== false) {
+                return $index;
+            }
         }
 
-        return $this;
+        return 0;
+    }
+
+    /**
+     * Gets white-spaces times the multiplier.
+     *
+     * @param int $multiplier
+     *
+     * @return string
+     */
+    protected function Indent($multiplier)
+    {
+        if ($multiplier < 1) {
+            return '';
+        }
+        
+        return str_repeat(' ', $multiplier);
     }
 
     /**
@@ -117,6 +164,24 @@ trait CommonCommand
         }
 
         return parent::option();
+    }
+
+    /**
+     * Override Laravel's option method
+     *
+     * @return string
+     */
+    public function generatorOption($key)
+    {
+        $value = $this->option($key);
+
+        if (is_string($value)) {
+            $value = trim($value);
+
+            return in_array($value, $this->noValues) ? null : $value;
+        }
+
+        return $value;
     }
 
     /**
@@ -192,7 +257,7 @@ trait CommonCommand
 
         foreach ($actions as $action) {
             $routeName = $this->getDotNotationName($modelName, $routesPrefix, $action);
-            $routeTemplate = $this->getRouteName($action); 
+            $routeTemplate = $this->getRouteName($action);
             $stub = $this->strReplace($routeTemplate, $routeName, $stub);
         }
         

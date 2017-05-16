@@ -21,6 +21,7 @@ class CreateResourcesCommand extends Command
                             {model-name : The model name that this resource will represent.}
                             {--controller-name= : The name of the controler.}
                             {--controller-directory= : The directory where the controller should be created under. }
+                            {--controller-extends=Http\Controllers\Controller : The base controller to be extend.}
                             {--model-directory= : The path of the model.}
                             {--views-directory= : The name of the view path.}
                             {--fields= : Fields to use for creating the validation rules.}
@@ -29,6 +30,7 @@ class CreateResourcesCommand extends Command
                             {--models-per-page=25 : The amount of models per page for index pages.}
                             {--lang-file-name= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
+                            {--with-auth : Generate the controller with Laravel auth middlewear. }
                             {--table-name= : The name of the table.}
                             {--fillable= : The exact string to put in the fillable property of the model.}
                             {--primary-key=id : The name of the primary key.}
@@ -101,18 +103,18 @@ class CreateResourcesCommand extends Command
         if (!$input->withoutMigration) {
             $this->call('create:migration',
                 [
-                    'table-name' => $input->table,
+                    'table-name'             => $input->table,
                     '--migration-class-name' => $input->migrationClass,
-                    '--connection-name' => $input->connectionName,
-                    '--indexes' => $input->indexes,
-                    '--foreign-keys' => $input->foreignKeys,
-                    '--engine-name' => $input->engineName,
-                    '--fields' => $input->fields,
-                    '--fields-file' => $input->fieldsFile,
-                    '--force' => $input->force,
-                    '--template-name' => $input->template,
-                    '--without-timestamps' => $input->withoutTimeStamps,
-                    '--with-soft-delete' => $input->withSoftDelete,
+                    '--connection-name'      => $input->connectionName,
+                    '--indexes'              => $input->indexes,
+                    '--foreign-keys'         => $input->foreignKeys,
+                    '--engine-name'          => $input->engineName,
+                    '--fields'               => $input->fields,
+                    '--fields-file'          => $input->fieldsFile,
+                    '--force'                => $input->force,
+                    '--template-name'        => $input->template,
+                    '--without-timestamps'   => $input->withoutTimeStamps,
+                    '--with-soft-delete'     => $input->withSoftDelete,
                 ]);
         }
 
@@ -130,8 +132,8 @@ class CreateResourcesCommand extends Command
     {
         $this->callSilent('create:fields-file',
             [
-                'table-name' => $input->table,
-                '--force' => $input->force,
+                'table-name'        => $input->table,
+                '--force'           => $input->force,
                 '--translation-for' => $input->translationFor,
             ]);
 
@@ -150,9 +152,9 @@ class CreateResourcesCommand extends Command
         $this->callSilent('create:language',
             [
                 'language-file-name' => $input->languageFileName,
-                '--fields' => $input->fields,
-                '--fields-file' => $input->fieldsFile,
-                '--template-name' => $input->template
+                '--fields'           => $input->fields,
+                '--fields-file'      => $input->fieldsFile,
+                '--template-name'    => $input->template
             ]);
 
         return $this;
@@ -169,14 +171,14 @@ class CreateResourcesCommand extends Command
     {
         $this->call('create:views',
             [
-                'model-name' => $input->modelName,
-                '--fields' => $input->fields,
-                '--fields-file' => $input->fieldsFile,
+                'model-name'        => $input->modelName,
+                '--fields'          => $input->fields,
+                '--fields-file'     => $input->fieldsFile,
                 '--views-directory' => $input->viewsDirectory,
-                '--routes-prefix' => $input->prefix,
-                '--layout-name' => $input->layoutName,
-                '--force' => $input->force,
-                '--template-name' => $input->template
+                '--routes-prefix'   => $input->prefix,
+                '--layout-name'     => $input->layoutName,
+                '--force'           => $input->force,
+                '--template-name'   => $input->template
             ]);
 
         return $this;
@@ -193,10 +195,10 @@ class CreateResourcesCommand extends Command
     {
         $this->call('create:routes',
             [
-                'controller-name' => $input->controllerName,
-                '--model-name' => $input->modelName,
-                '--routes-prefix' => $input->prefix,
-                '--template-name' => $input->template,
+                'controller-name'        => $input->controllerName,
+                '--model-name'           => $input->modelName,
+                '--routes-prefix'        => $input->prefix,
+                '--template-name'        => $input->template,
                 '--controller-directory' => $input->controllerDirectory
             ]);
 
@@ -213,18 +215,20 @@ class CreateResourcesCommand extends Command
     {
         $this->call('create:controller',
             [
-                'controller-name' => $input->controllerName,
-                '--model-name' => $input->modelName,
+                'controller-name'        => $input->controllerName,
+                '--model-name'           => $input->modelName,
                 '--controller-directory' => $input->controllerDirectory,
-                '--model-directory' => $input->modelDirectory,
-                '--views-directory' => $input->viewsDirectory,
-                '--fields' => $input->fields,
-                '--fields-file' => $input->fieldsFile,
-                '--routes-prefix' => $input->prefix,
-                '--lang-file-name' => $input->languageFileName,
-                '--with-form-request' => $input->formRequest,
-                '--force' => $input->force,
-                '--template-name' => $input->template
+                '--controller-extends'   => $input->controllerExtends,
+                '--model-directory'      => $input->modelDirectory,
+                '--views-directory'      => $input->viewsDirectory,
+                '--fields'               => $input->fields,
+                '--fields-file'          => $input->fieldsFile,
+                '--routes-prefix'        => $input->prefix,
+                '--lang-file-name'       => $input->languageFileName,
+                '--with-form-request'    => $input->formRequest,
+                '--force'                => $input->force,
+                '--with-auth'            => $input->withAuth,
+                '--template-name'        => $input->template
             ]);
 
         return $this;
@@ -241,18 +245,18 @@ class CreateResourcesCommand extends Command
     {
         $this->call('create:model',
             [
-                'model-name' => $input->modelName,
-                '--table-name' => $input->table,
-                '--fillable' => $input->fillable,
-                '--relationships' => $input->relationships,
-                '--primary-key' => $input->primaryKey,
-                '--fields' => $input->fields,
-                '--fields-file' => $input->fieldsFile,
-                '--model-directory' => $input->modelDirectory,
-                '--with-soft-delete' => $input->withSoftDelete,
+                'model-name'           => $input->modelName,
+                '--table-name'         => $input->table,
+                '--fillable'           => $input->fillable,
+                '--relationships'      => $input->relationships,
+                '--primary-key'        => $input->primaryKey,
+                '--fields'             => $input->fields,
+                '--fields-file'        => $input->fieldsFile,
+                '--model-directory'    => $input->modelDirectory,
+                '--with-soft-delete'   => $input->withSoftDelete,
                 '--without-timestamps' => $input->withoutTimeStamps,
-                '--force' => $input->force,
-                '--template-name' => $input->template
+                '--force'              => $input->force,
+                '--template-name'      => $input->template
             ]);
 
         return $this;
@@ -268,38 +272,40 @@ class CreateResourcesCommand extends Command
         $modelName = trim($this->argument('model-name'));
         $modelNamePlural = strtolower(str_plural($modelName));
         $controllerName = trim($this->option('controller-name') ?: ucfirst(Helpers::postFixWith(str_plural($modelName), 'Controller')));
-        $viewsDirectory = trim($this->option('views-directory'));
-        $prefix = trim($this->option('routes-prefix'));
+        $viewsDirectory = $this->option('views-directory');
+        $prefix = $this->option('routes-prefix');
         $prefix = $prefix == 'model-name-as-plural' ? $modelNamePlural : $prefix;
         $perPage = intval($this->option('models-per-page'));
-        $fields = trim($this->option('fields'));
-        $fieldsFile = trim($this->option('fields-file'));
-        $languageFileName = trim($this->option('lang-file-name')) ?: $modelNamePlural;
+        $fields = $this->option('fields');
+        $fieldsFile = $this->option('fields-file');
+        $languageFileName = $this->option('lang-file-name') ?: $modelNamePlural;
         $formRequest = $this->option('with-form-request');
-        $controllerDirectory = trim($this->option('controller-directory'));
+        $controllerDirectory = $this->option('controller-directory');
+        $controllerExtends = $this->option('controller-extends') ?: null;
         $withoutMigration = $this->option('without-migration');
         $force = $this->option('force');
-        $modelDirectory = trim($this->option('model-directory'));
-        $table = trim($this->option('table-name')) ?: $modelNamePlural;
-        $fillable = trim($this->option('fillable'));
-        $primaryKey = trim($this->option('primary-key'));
-        $relationships = trim($this->option('relationships'));
+        $modelDirectory = $this->option('model-directory');
+        $table = $this->option('table-name') ?: $modelNamePlural;
+        $fillable = $this->option('fillable');
+        $primaryKey = $this->option('primary-key');
+        $relationships = $this->option('relationships');
         $withSoftDelete = $this->option('with-soft-delete');
         $withoutTimeStamps = $this->option('without-timestamps');
-        $migrationClass = trim($this->option('migration-class-name'));
-        $connectionName = trim($this->option('connection-name'));
-        $indexes = trim($this->option('indexes'));
-        $foreignKeys = trim($this->option('foreign-keys'));
-        $engineName = trim($this->option('engine-name'));
+        $migrationClass = $this->option('migration-class-name');
+        $connectionName = $this->option('connection-name');
+        $indexes = $this->option('indexes');
+        $foreignKeys = $this->option('foreign-keys');
+        $engineName = $this->option('engine-name');
         $template = $this->getTemplateName();
-        $layoutName = trim($this->option('layout-name')) ?: 'layouts.app';
+        $layoutName = $this->option('layout-name') ?: 'layouts.app';
         $tableExists = $this->option('table-exists');
-        $translationFor = trim($this->option('translation-for'));
-
+        $translationFor = $this->option('translation-for');
+        $withAuth = $this->option('with-auth');
+        
         return (object) compact('modelName', 'controllerName', 'viewsDirectory', 'prefix', 'perPage', 'fields', 'force',
                                 'languageFileName', 'fieldsFile', 'formRequest', 'modelDirectory', 'table', 'fillable', 'primaryKey',
                                 'relationships', 'withSoftDelete', 'withoutTimeStamps', 'controllerDirectory', 'withoutMigration',
                                 'migrationClass', 'connectionName', 'indexes', 'foreignKeys', 'engineName', 'layoutName', 'template',
-                                'tableExists', 'translationFor');
+                                'tableExists', 'translationFor','controllerExtends','withAuth');
     }
 }
