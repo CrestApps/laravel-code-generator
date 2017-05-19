@@ -217,7 +217,7 @@ class StandardHtml extends HtmlGeneratorBase
 
         $valueString = is_null($value) ? 'null' : sprintf("'%s'", $value);
 
-        return sprintf("old('%s', isset(\$%s) ? \$%s->%s : %s)", $name, $modelName, $modelName, $name, $valueString);
+        return sprintf("old('%s', isset(\$%s->%s) ? \$%s->%s : %s)", $name, $modelName, $name, $modelName, $name, $valueString);
     }
 
     /**
@@ -238,7 +238,7 @@ class StandardHtml extends HtmlGeneratorBase
             $valueString = starts_with('$', $value) ? sprintf("%s", $value) : sprintf("'%s'", $value);
         }
 
-        return sprintf("in_array(%s, old('%s', isset(\$%s) ? \$%s->%s : []))", $valueString, $name, $modelName, $modelName, $name);
+        return sprintf("in_array(%s, old('%s', isset(\$%s->%s) ? \$%s->%s : []))", $valueString, $name, $modelName, $name, $modelName, $name);
     }
 
     /**

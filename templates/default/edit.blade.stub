@@ -3,20 +3,19 @@
 @section('content')
 
     <div class="panel panel-default">
-
+  
         <div class="panel-heading clearfix">
 
-            <span class="pull-left">
-                {{ !empty([% model_header %]) ? [% model_header %] : '[% model_name %]' }}
-            </span>
-
-            <div class="btn-group btn-group-xs pull-right" role="group">
+            <div class="pull-left">
+                <h3 class="mt-2 mb-0">{{ !empty([% model_header %]) ? [% model_header %] : '[% model_name %]' }}</h3>
+            </div>
+            <div class="btn-group btn-group-sm pull-right" role="group">
 
                 <a href="{{ route('[% index_route_name %]') }}" class="btn btn-primary" title="Show all [% model_name_plural %]">
                     <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                 </a>
 
-                <a href="{{ route('[% create_route_name %]') }}" class="btn btn-primary" title="Add [% model_name_class %]">
+                <a href="{{ route('[% create_route_name %]') }}" class="btn btn-success" title="Add [% model_name_class %]">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </a>
 

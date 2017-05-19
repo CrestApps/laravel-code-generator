@@ -49,6 +49,13 @@
             padding: 0;
         }
 
+        .mt-2 {
+            margin-top: 2px !important;
+        }
+
+        .mb-0 {
+            margin-bottom: 0 !important;
+        }
     </style>
 
         <!-- JavaScripts -->

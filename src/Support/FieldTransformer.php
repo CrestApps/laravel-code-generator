@@ -149,7 +149,7 @@ class FieldTransformer
      *
      * @return array Support\Field
     */
-    public static function text($fieldsString, $localeGroup)
+    public static function fromText($fieldsString, $localeGroup)
     {
         $transformer = new self($fieldsString, $localeGroup);
 
@@ -164,7 +164,7 @@ class FieldTransformer
      *
      * @return array
     */
-    public static function json($json, $localeGroup)
+    public static function fromJson($json, $localeGroup)
     {
         if (empty($json) || ($fields = json_decode($json, true)) === null) {
             throw new Exception("The provided string is not a valid json.");
@@ -183,7 +183,7 @@ class FieldTransformer
      *
      * @return array
     */
-    public static function fieldsArray(array $collection, $localeGroup)
+    public static function fromArray(array $collection, $localeGroup)
     {
         $transformer = new self($collection, $localeGroup);
 
@@ -783,7 +783,7 @@ class FieldTransformer
             
             if (!is_array($option)) {
                 // At this point the options are plain text without locale
-                $finalOptions[] = new Label($option, $localeGroup, true, $lang);
+                $finalOptions[] = new Label($option, $localeGroup, true, $lang, null, $value);
                 continue;
             }
 

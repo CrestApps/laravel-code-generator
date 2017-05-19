@@ -1,6 +1,6 @@
 [% form_fields_html %]
 <div class="form-group">
     <div class="col-md-offset-2 col-md-10">
-        {!! Form::submit(isset($submitButtonLabel) ? $submitButtonLabel : 'Add', ['class' => 'btn btn-primary']) !!}
+        {!! Form::submit(isset($submitButtonLabel) ? $submitButtonLabel : 'Add', ['class' => 'btn btn-success']) !!}
     </div>
 </div>

@@ -709,7 +709,7 @@ class Field
             return null;
         }
 
-        $options = $this->getOptionsByLang();
+        $options = $this->getOptionsByLang($this->defaultLang);
 
         if (isset($options[1])) {
             return $options[1];
@@ -733,7 +733,7 @@ class Field
             return null;
         }
 
-        $options = $this->getOptionsByLang();
+        $options = $this->getOptionsByLang($this->defaultLang);
 
         if (isset($options[0])) {
             return $options[0];

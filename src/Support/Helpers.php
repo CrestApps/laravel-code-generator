@@ -156,7 +156,7 @@ class Helpers
      */
     public static function getFields($fieldsLine, $langFile = 'generic')
     {
-        return FieldTransformer::text($fieldsLine, $langFile);
+        return FieldTransformer::fromText($fieldsLine, $langFile);
     }
 
     /**
@@ -176,7 +176,7 @@ class Helpers
 
         $file = File::get($fileFullname);
         
-        return FieldTransformer::json($file, $langFile);
+        return FieldTransformer::fromJson($file, $langFile);
     }
 
     /**
