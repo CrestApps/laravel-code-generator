@@ -7,7 +7,7 @@
         <div class="panel-heading clearfix">
             
             <div class="pull-left">
-                <h3 class="mt-2 mb-0">Create New [% model_name_class %]</h3>
+                <h4 class="mt-5 mb-5">Create New [% model_name_class %]</h4>
             </div>
 
             <div class="btn-group btn-group-sm pull-right" role="group">

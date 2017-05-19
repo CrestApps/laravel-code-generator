@@ -19,7 +19,7 @@
         <div class="panel-heading clearfix">
 
             <div class="pull-left">
-                <h3 class="mt-2 mb-0">[% model_name_plural_cap %]</h3>
+                <h4 class="mt-5 mb-5">[% model_name_plural_cap %]</h4>
             </div>
 
             <div class="btn-group btn-group-sm pull-right" role="group">

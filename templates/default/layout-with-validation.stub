@@ -49,12 +49,12 @@
             padding: 0;
         }
 
-        .mt-2 {
-            margin-top: 2px !important;
+        .mt-5 {
+            margin-top: 5px !important;
         }
-        
-        .mb-0 {
-            margin-bottom: 0 !important;
+
+        .mb-5 {
+            margin-bottom: 5px !important;
         }
     </style>
 

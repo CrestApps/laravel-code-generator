@@ -114,7 +114,7 @@ class StandardHtml extends HtmlGeneratorBase
      *
      * @return string
      */
-    protected function getFieldItems(field $field)
+    protected function getFieldItems(Field $field)
     {
         if ($field->hasForeignRelation() && $field->isOnFormView) {
             return sprintf('$%s', $field->getForeignRelation()->getCollectionName());
@@ -187,7 +187,7 @@ class StandardHtml extends HtmlGeneratorBase
      */
     protected function getMultipleSelectedValue($name, $valueAccessor)
     {
-        return sprintf(" {{ %s ? 'selected' : '' }}", $this->getMultipleRawOptionValue($name, $valueAccessor));
+        return sprintf(" {{ %s ? 'selected' : '' }}", $name);
     }
 
     /**
@@ -200,7 +200,7 @@ class StandardHtml extends HtmlGeneratorBase
      */
     protected function getSelectedValue($name, $valueAccessor)
     {
-        return sprintf(" {{ %s == %s ? 'selected' : '' }}", $this->getRawOptionValue($name, ''), $valueAccessor);
+        return sprintf(" {{ %s == %s ? 'selected' : '' }}", $this->getRawOptionValue($name, ''), '$key');
     }
 
     /**

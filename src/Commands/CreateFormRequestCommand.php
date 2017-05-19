@@ -44,7 +44,7 @@ class CreateFormRequestCommand extends Command
 
         $stub = $this->getStubContent('form-request', $input->template);
         $fields = $this->getFields($input->fields, 'crestapps', $input->fieldsFile);
-        $destenationFile = Config::getRequestsPath() . $input->fileName . '.php';
+        $destenationFile = $this->getDestenationFile($input->fileName);
         $validations = $this->getValidationRules($fields);
 
         if ($this->alreadyExists($destenationFile)) {
@@ -58,6 +58,18 @@ class CreateFormRequestCommand extends Command
              ->replaceAppName($stub, $this->getAppName())
              ->createFile($destenationFile, $stub)
              ->info('A new form-request have been crafted!');
+    }
+
+    /**
+     * Gets the destenation's fullname
+     *
+     * @return string
+     */
+    protected function getDestenationFile($name)
+    {
+        $path = base_path($this->getAppNamespace() . Config::getRequestsPath());
+
+        return Helpers::postFixWith($path, '/') . $name . '.php';
     }
 
     /**

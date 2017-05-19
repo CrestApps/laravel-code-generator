@@ -75,7 +75,8 @@ class FieldOptimizer
              ->optimizeBoolean()
              ->optimizePrimaryKey()
              ->optimizeValidations()
-             ->optimizeHtmlType();
+             ->optimizeHtmlType()
+             ->addPlaceHolder();
 
         return $this;
     }
@@ -119,6 +120,20 @@ class FieldOptimizer
     {
         if (empty($this->field->dateFormat) && $this->field->isDateOrTime()) {
             $this->field->dateFormat = 'm/d/Y H:i A';
+        }
+
+        return $this;
+    }
+
+    /**
+     * If the field has a relation and the placeholder is missing, add generic one.
+     *
+     * @return $this
+    */
+    protected function addPlaceHolder()
+    {
+        if(empty($this->field->placeHolder) && $this->field->hasForeignRelation()) {
+            $this->field->placeHolder = 'Please select a ' . $this->field->getForeignRelation()->name;
         }
 
         return $this;

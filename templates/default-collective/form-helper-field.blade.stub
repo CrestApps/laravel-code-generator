@@ -1,1 +1,1 @@
-        {!! $errors->first('[% file_name %]', '<p class="help-block">:message</p>') !!}
+        {!! $errors->first('[% field_name %]', '<p class="help-block">:message</p>') !!}

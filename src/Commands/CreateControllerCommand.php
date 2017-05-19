@@ -428,7 +428,13 @@ class CreateControllerCommand extends Command
      */
     protected function getRelationAccessor(ForeignRelationship $collection)
     {
-        return sprintf('$%s = %s::all();', $collection->getCollectionName(), $collection->getForeignModel());
+
+        return sprintf('$%s = %s::pluck(\'%s\',\'%s\')->all();', 
+                            $collection->getCollectionName(), 
+                            $collection->getForeignModel(), 
+                            $collection->getField(),
+                            $collection->getPrimaryKeyForForeignModel()
+                     );
     }
 
     /**

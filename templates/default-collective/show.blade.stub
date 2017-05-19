@@ -6,7 +6,7 @@
     <div class="panel-heading clearfix">
 
         <div class="pull-left">
-            <h3 class="mt-2 mb-0">{{ isset([% model_header %]) ? [% model_header %] : '[% model_name %]' }}</h3>
+            <h4 class="mt-5 mb-5">{{ isset([% model_header %]) ? [% model_header %] : '[% model_name %]' }}</h4>
         </div>
 
         <div class="pull-right">
@@ -45,7 +45,7 @@
 
     <div class="panel-body">
         <dl class="dl-horizontal">
-[% table_raws %]
+[% table_rows %]
         </dl>
 
     </div>

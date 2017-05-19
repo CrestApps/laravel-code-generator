@@ -19,7 +19,7 @@
         <div class="panel-heading clearfix">
 
             <div class="pull-left">
-                <h3 class="mt-2 mb-0">[% model_name_plural_cap %]</h3>
+                <h4 class="mt-5 mb-5">[% model_name_plural_cap %]</h4>
             </div>
 
             <div class="btn-group btn-group-sm pull-right" role="group">
@@ -59,7 +59,7 @@
                                     'style'  => 'display: inline;',
                                 ]) !!}
                                     <div class="btn-group btn-group-xs pull-right" role="group">
-                                        <a href="{{ route('{{showRouteName}}', $[% model_name %]->[% primary_key %] ) }}" class="btn btn-info" title="View [% model_name_class %]">
+                                        <a href="{{ route('[% show_route_name %]', $[% model_name %]->[% primary_key %] ) }}" class="btn btn-info" title="View [% model_name_class %]">
                                             <span class="glyphicon glyphicon-open" aria-hidden="true"></span>
                                         </a>
                                         <a href="{{ route('[% edit_route_name %]', $[% model_name %]->[% primary_key %] ) }}" class="btn btn-primary" title="Edit [% model_name_class %]">

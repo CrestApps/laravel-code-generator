@@ -4,6 +4,7 @@ namespace CrestApps\CodeGenerator\HtmlGenerators;
 
 use CrestApps\CodeGenerator\HtmlGenerators\HtmlGeneratorBase;
 use CrestApps\CodeGenerator\Models\Label;
+use CrestApps\CodeGenerator\Models\Field;
 
 class LaravelCollectiveHtml extends HtmlGeneratorBase
 {
@@ -112,7 +113,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      *
      * @return string
      */
-    protected function getFieldItems(field $field)
+    protected function getFieldItems(Field $field)
     {
         if ($field->hasForeignRelation() && $field->isOnFormView) {
             return sprintf('$%s', $field->getForeignRelation()->getCollectionName());
