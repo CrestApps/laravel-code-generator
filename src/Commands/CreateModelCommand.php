@@ -15,7 +15,7 @@ class CreateModelCommand extends Command
     use CommonCommand, GeneratorReplacers;
 
     /**
-     * Total white-spaced to eliminate when creating an array string. 
+     * Total white-spaced to eliminate when creating an array string.
      *
      * @var string
      */
@@ -197,7 +197,7 @@ class CreateModelCommand extends Command
 
     /**
      * Gets the fillable string from a giving raw string.
-     *     
+     *
      * @param string $stub
      * @param string $fillablesString
      *
@@ -213,7 +213,7 @@ class CreateModelCommand extends Command
         $indentCount = $this->getIndent($stub, $this->getTemplateVariable('fillable'));
         $indent = $this->Indent($indentCount - $this->backspaceCount);
 
-        foreach($columns as $column) {
+        foreach ($columns as $column) {
             $fillables[$column] = sprintf("%s'%s'", $index, $column);
         }
 
@@ -298,7 +298,7 @@ class CreateModelCommand extends Command
     {
         $string = implode(',' . PHP_EOL, $names);
 
-        if(!empty($string)) {
+        if (!empty($string)) {
             return sprintf('[%s%s%s%s]', PHP_EOL, $string, PHP_EOL, $this->indent($index));
         }
 
@@ -439,6 +439,10 @@ class CreateModelCommand extends Command
         $mutators = [];
 
         foreach ($fields as $field) {
+            if ($field->isAutoManaged()) {
+                continue;
+            }
+            
             if ($field->isMultipleAnswers) {
                 $content = $this->getStubContent('model-mutator-multiple-answers');
                 $this->replaceFieldName($content, $field->name);

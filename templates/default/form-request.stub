@@ -27,4 +27,6 @@ class [% form_request_class %] extends FormRequest
     [% validation_rules %]
         ];
     }
+[% get_data_method %]
+[% upload_method %]
 }

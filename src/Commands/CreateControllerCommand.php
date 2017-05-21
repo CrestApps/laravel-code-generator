@@ -50,6 +50,13 @@ class CreateControllerCommand extends Command
     protected $type = 'Controller';
 
     /**
+     * The request variable to use in the controller.
+     *
+     * @var string
+     */
+    protected $requestVariable = '$request';
+
+    /**
      * Get the stub file for the generator.
      *
      * @return string
@@ -80,7 +87,7 @@ class CreateControllerCommand extends Command
         $requestName = 'Request';
         $requestNameSpace = 'Illuminate\Http\Request';
 
-        if ($input->formRequest) {
+        if ($input->withFormRequest) {
             $requestName = $input->formRequestName;
             $requestNameSpace = $this->getRequestsNamespace($requestName);
             $this->makeFormRequest($input);
@@ -91,27 +98,25 @@ class CreateControllerCommand extends Command
         $viewVariablesForShow = $this->getCompactVariablesFor($fields, $this->getModelName($input->modelName), 'show');
         $viewVariablesForEdit = $this->getCompactVariablesFor($fields, $this->getModelName($input->modelName), 'form');
         $modelFullName = $this->getModelFullName($input->modelDirectory, $input->modelName);
-        $affirmMethod = $this->getAffirmMethod($input->formRequest, $fields, $requestNameSpace);
+        $affirmMethod = $this->getAffirmMethod($input->withFormRequest, $fields, $requestNameSpace);
         $classToExtendFullname = $this->getFullClassToExtend($input->extends);
         $namespacesToUse = $this->getRequiredUseClasses($fields, [$modelFullName, $requestNameSpace, $classToExtendFullname]);
+        $dataMethod = $this->getDataMethod($fields, $requestNameSpace . '\\' . $requestName, $input->withFormRequest);
         $stub = $this->getStubContent('controller');
 
         return $this->replaceViewNames($stub, $input->viewDirectory, $input->prefix)
+                    ->replaceGetDataMethod($stub, $dataMethod)
+                    ->replaceCallDataMethod($stub, $this->getCallDataMethod($input->withFormRequest))
                     ->replaceModelName($stub, $input->modelName)
                     ->replaceNamespace($stub, $this->getControllersNamespace())
                     ->replaceControllerExtends($stub, $this->getControllerExtends($classToExtendFullname))
                     ->replaceUseCommandPlaceholder($stub, $namespacesToUse)
                     ->replaceRouteNames($stub, $input->modelName, $input->prefix)
-                    ->replaceRequestName($stub, $requestName)
-                    ->replaceRequestFullName($stub, $requestNameSpace) 
                     ->replaceConstructor($stub, $this->getConstructor($input->withAuth))
-                    ->replaceCallAffirm($stub, $this->getCallAffirm($input->formRequest))
+                    ->replaceCallAffirm($stub, $this->getCallAffirm($input->withFormRequest))
                     ->replaceAffirmMethod($stub, $affirmMethod)
                     ->replacePaginationNumber($stub, $input->perPage)
-                    ->replaceFileSnippet($stub, $this->getFileSnippet($fields))
-                    ->replaceBooleadSnippet($stub, $this->getBooleanSnippet($fields))
-                    ->replaceStringToNullSnippet($stub, $this->getStringToNullSnippet($fields))
-                    ->replaceFileMethod($stub, $this->getUploadFileMethod($fields))
+                    ->replaceFileMethod($stub, $this->getUploadFileMethod($fields, $input->withFormRequest))
                     ->replaceViewVariablesForIndex($stub, $viewVariablesForIndex)
                     ->replaceViewVariablesForShow($stub, $viewVariablesForShow)
                     ->replaceViewVariablesForCreate($stub, $this->getCompactVariablesFor($fields, null, 'form'))
@@ -124,8 +129,78 @@ class CreateControllerCommand extends Command
                     ->replaceAppName($stub, $this->getAppName())
                     ->replaceControllerName($stub, $input->controllerName)
                     ->replaceDataVariable($stub, 'data')
+                    ->replaceRequestName($stub, $requestName)
+                    ->replaceRequestFullName($stub, $requestNameSpace)
+                    ->replaceRequestVariable($stub, ' ' . $this->requestVariable)
+                    ->replaceTypeHintedRequestName($stub, $this->getTypeHintedRequestName($requestName))
                     ->createFile($destenationFile, $stub)
                     ->info('A controller was crafted successfully.');
+    }
+
+    /**
+     * Gets the signature of the getData method.
+     *
+     * @param array  $fields
+     * @param string $requestFullname
+     * @param bool   $withFormRequest
+     *
+     * @return string
+     */
+    protected function getDataMethod(array $fields, $requestFullname, $withFormRequest)
+    {
+        if ($withFormRequest) {
+            return '';
+        }
+
+        $stub = $this->getStubContent('controller-getdata-method');
+
+        $this->replaceFileSnippet($stub, $this->getFileSnippet($fields))
+             ->replaceBooleadSnippet($stub, $this->getBooleanSnippet($fields))
+             ->replaceStringToNullSnippet($stub, $this->getStringToNullSnippet($fields))
+             ->replaceRequestNameComment($stub, $this->getRequestNameComment($requestFullname))
+             ->replaceMethodVisibilityLevel($stub, 'protected');
+
+        return $stub;
+    }
+
+    /**
+     * Gets the type hinted request name
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    protected function getTypeHintedRequestName($name)
+    {
+        return sprintf('%s %s', $name, $this->requestVariable);
+    }
+
+    /**
+     * Gets the comment for the request name
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    protected function getRequestNameComment($name)
+    {
+        return sprintf('@param %s %s ', $name, $this->requestVariable);
+    }
+
+    /**
+     * Gets the method that calls the getData()
+     *
+     * @param bool $withFormRequest
+     *
+     * @return string
+     */
+    protected function getCallDataMethod($withFormRequest)
+    {
+        if ($withFormRequest) {
+            return sprintf('%s->getData()', $this->requestVariable);
+        }
+
+        return sprintf('$this->getData(%s)', $this->requestVariable);
     }
 
     /**
@@ -146,11 +221,10 @@ class CreateControllerCommand extends Command
         $starts = strpos($stub, '{');
         $ends = strrpos($stub, '}');
 
-        if($starts !== false && $ends !== false)
-        {
+        if ($starts !== false && $ends !== false) {
             $content = trim(substr($stub, $starts +1, $ends-$starts-1));
-            if(!empty($content)) {
-                return $stub; 
+            if (!empty($content)) {
+                return $stub;
             }
         }
 
@@ -428,10 +502,9 @@ class CreateControllerCommand extends Command
      */
     protected function getRelationAccessor(ForeignRelationship $collection)
     {
-
-        return sprintf('$%s = %s::pluck(\'%s\',\'%s\')->all();', 
-                            $collection->getCollectionName(), 
-                            $collection->getForeignModel(), 
+        return sprintf('$%s = %s::pluck(\'%s\',\'%s\')->all();',
+                            $collection->getCollectionName(),
+                            $collection->getForeignModel(),
                             $collection->getField(),
                             $collection->getPrimaryKeyForForeignModel()
                      );
@@ -519,12 +592,13 @@ class CreateControllerCommand extends Command
      * Gets the method's stub that handels the file uploading.
      *
      * @param array $fields
+     * @param bool $withFormRequest
      *
      * @return string
      */
-    protected function getUploadFileMethod(array $fields)
+    protected function getUploadFileMethod(array $fields, $withFormRequest)
     {
-        if ($this->containsfile($fields)) {
+        if (!$withFormRequest && $this->containsfile($fields)) {
             return $this->getStubContent('controller-upload-method', $this->getTemplateName());
         }
 
@@ -538,7 +612,7 @@ class CreateControllerCommand extends Command
      */
     protected function getDestenationFile($name)
     {
-        $path = base_path($this->getAppNamespace() . Config::getControllersPath());
+        $path = app_path(Config::getControllersPath());
 
         return Helpers::postFixWith($path, '/') . $name . '.php';
     }
@@ -635,7 +709,7 @@ class CreateControllerCommand extends Command
         $fields = $this->option('fields');
         $fieldsFile = $this->option('fields-file');
         $langFile = $this->option('lang-file-name') ?: strtolower(str_plural($modelName));
-        $formRequest = $this->option('with-form-request');
+        $withFormRequest = $this->option('with-form-request');
         $force = $this->option('force');
         $modelDirectory = $this->option('model-directory');
         $formRequestName = $plainControllerName . 'FormRequest';
@@ -644,8 +718,8 @@ class CreateControllerCommand extends Command
         $withAuth = $this->option('with-auth');
 
         return (object) compact('viewDirectory', 'viewName', 'modelName', 'prefix', 'perPage', 'fileSnippet', 'modelDirectory',
-                                'langFile', 'fields', 'formRequest', 'formRequestName', 'force', 'fieldsFile', 'template',
-                                'controllerName', 'extends','withAuth');
+                                'langFile', 'fields', 'withFormRequest', 'formRequestName', 'force', 'fieldsFile', 'template',
+                                'controllerName', 'extends', 'withAuth');
     }
 
     /**
@@ -659,6 +733,96 @@ class CreateControllerCommand extends Command
     protected function replaceOnStoreAction(&$stub, $commands)
     {
         $stub = $this->strReplace('on_store_setter', $commands, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces call_get_data
+     *
+     * @param  string  $stub
+     * @param  string  $code
+     *
+     * @return $this
+     */
+    protected function replaceCallDataMethod(&$stub, $code)
+    {
+        $stub = $this->strReplace('call_get_data', $code, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces request variable.
+     *
+     * @param  string  $stub
+     * @param  string  $variable
+     *
+     * @return $this
+     */
+    protected function replaceRequestVariable(&$stub, $variable)
+    {
+        $stub = $this->strReplace('request_variable', $variable, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the type_hinted_request_name for the given stub.
+     *
+     * @param $stub
+     * @param $code
+     *
+     * @return $this
+     */
+    protected function replaceTypeHintedRequestName(&$stub, $code)
+    {
+        $stub = $this->strReplace('type_hinted_request_name', $code, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the request_name_comment for the given stub.
+     *
+     * @param $stub
+     * @param $comment
+     *
+     * @return $this
+     */
+    protected function replaceRequestNameComment(&$stub, $comment)
+    {
+        $stub = $this->strReplace('request_name_comment', $comment, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces get_data_method template.
+     *
+     * @param  string  $stub
+     * @param  string  $code
+     *
+     * @return $this
+     */
+    protected function replaceGetDataMethod(&$stub, $code)
+    {
+        $stub = $this->strReplace('get_data_method', $code, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the visibility level of a giving stub
+     *
+     * @param  string  $stub
+     * @param  string  $level
+     *
+     * @return $this
+     */
+    protected function replaceMethodVisibilityLevel(&$stub, $level)
+    {
+        $stub = $this->strReplace('visibility_level', $level, $stub);
 
         return $this;
     }
@@ -1049,7 +1213,7 @@ EOF;
 
         foreach ($fields as $field) {
             if ($field->isBoolean() && $field->isCheckbox()) {
-                $code .= sprintf("        \$data['%s'] = \$request->has('%s');", $field->name, $field->name) . PHP_EOL;
+                $code .= sprintf("        \$data['%s'] = %s->has('%s');", $field->name, $this->requestVariable, $field->name) . PHP_EOL;
             }
         }
 
@@ -1059,7 +1223,7 @@ EOF;
     /**
      * Gets the affirm method.
      *
-     * @param bool $isFormRequest
+     * @param bool $withFormRequest
      * @param array $fields
      *
      * @return string
@@ -1081,7 +1245,7 @@ EOF;
     /**
      * Gets the affirm method call.
      *
-     * @param bool $isFormRequest
+     * @param bool $withFormRequest
      *
      * @return string
      */

@@ -75,7 +75,7 @@ class CreateMigrationCommand extends Command
         }
 
         $properites = $this->getTableProperties($fields, $input);
-        $destenationFile = Config::getMigrationsPath() . $this->makeFileName($input->tableName);
+        $destenationFile = $this->getDestenationFile($input->tableName);
 
         $this->replaceSchemaUp($stub, $this->getSchemaUpCommand($input, $properites))
              ->replaceSchemaDown($stub, $this->getSchemaDownCommand($input))
@@ -83,12 +83,26 @@ class CreateMigrationCommand extends Command
              ->createFile($destenationFile, $stub)
              ->info('A migration was crafted successfully.');
     }
-   
+
+    /**
+     * Gets the destenation file to be created.
+     *
+     * @param string  $tableName
+     *
+     * @return string
+     */
+    protected function getDestenationFile($tableName)
+    {
+        $file = $this->makeFileName($tableName);
+
+        return base_path(Config::getMigrationsPath()) . $file;
+    }
+
     /**
      * Creates the table properties.
      *
      * @param array $fields
-     * @param (onject) $input
+     * @param (object) $input
      * @return string
      */
     protected function getTableProperties(array $fields, $input)

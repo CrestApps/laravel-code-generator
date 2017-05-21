@@ -35,14 +35,14 @@ class [% controller_name %] [% controller_extends %]
     /**
      * Store a new [% model_name %]  in the storage.
      *
-     * @param [% request_fullname %] $request
+     * @param [% request_fullname %][% request_variable %]
      *
      * @return Illuminate\Http\RedirectResponse | Illuminate\Routing\Redirector
      */
-    public function store([% request_name %] $request)
+    public function store([% type_hinted_request_name %])
     {
         [% call_affirm %]
-        $[% data_variable %] = $this->getRequestsData($request);
+        $[% data_variable %] = [% call_get_data %];
         [% on_store_setter %]
         [% model_name_class %]::create($[% data_variable %]);
         Session::flash('success_message', '[% model_name_class %] was added!');
@@ -83,14 +83,14 @@ class [% controller_name %] [% controller_extends %]
      * Update the specified [% model_name %] in the storage.
      *
      * @param  int $id
-     * @param [% request_fullname %] $request
+     * @param [% request_fullname %][% request_variable %]
      *
      * @return Illuminate\Http\RedirectResponse | Illuminate\Routing\Redirector
      */
-    public function update($id, [% request_name %] $request)
+    public function update($id, [% type_hinted_request_name %])
     {
         [% call_affirm %]
-        $[% data_variable %] = $this->getRequestsData($request);
+        $[% data_variable %] = [% call_get_data %];
         [% on_update_setter %]
         $[% model_name %] = [% model_name_class %]::findOrFail($id);
         $[% model_name %]->update($[% data_variable %]);
@@ -115,20 +115,6 @@ class [% controller_name %] [% controller_extends %]
         return redirect()->route('[% index_route_name %]');
     }
 [% affirm_method %]
-    /**
-     * Get the data from the givin request.
-     *
-     * @param [% request_fullname %] $request
-     *
-     * @return array
-     */
-    protected function getRequestsData([% request_name %] $request)
-    {
-        $data = $request->all();
-[% file_snippet %]
-[% boolean_snippet %]
-[% string_to_null_snippet %]
-        return $data;
-    }
+[% get_data_method %]
 [% upload_method %]
 }

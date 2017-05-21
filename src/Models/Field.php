@@ -9,7 +9,17 @@ use App;
 
 class Field
 {
-    
+    /**
+     * Fields that are auto managed by Laravel.
+     *
+     * @var array
+     */
+    protected $autoManagedFields = [
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
+
     /**
      * The name of the field
      *
@@ -308,6 +318,12 @@ class Field
     public function getFirstLabel()
     {
         return current($this->labels);
+    }
+
+
+    public function isAutoManaged()
+    {
+        return in_array($this->name, $this->autoManagedFields);
     }
 
     /**
