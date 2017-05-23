@@ -39,6 +39,12 @@
 
             @include ('[% form_view_name %]')
 
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    {!! Form::submit('Add', ['class' => 'btn btn-primary']) !!}
+                </div>
+            </div>
+
             {!! Form::close() !!}
 
         </div>

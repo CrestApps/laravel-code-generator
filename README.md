@@ -1,6 +1,6 @@
 # An awesome code generator for laravel framework - with client-side validation
 
-For full documentation and live demo please visit <a href="https://crestapps.com/laravel-code-generator/docs/1.2" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
+For full documentation and live demo please visit <a href="https://crestapps.com/laravel-code-generator/docs/2.0" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
 
 ## Introduction
 
@@ -28,7 +28,12 @@ A clean code generator for Laravel framework that will save you time! This aweso
 * Auto handles any boolean field.
 * Auto add foreign relations to the model.
 * Auto use foreign relation in the controller and the views when needed.
+* Create a very clean and reusable code.
 * Lots of documentation.
+
+## Prolouge
+* <a href="https://crestapps.com/laravel-code-generator/docs/2.0#release-notes">Release Notes</a>
+* <a href="https://crestapps.com/laravel-code-generator/docs/2.0#upgrade-guide">Upgrade Notes</a>
 
 ## Installation
 
@@ -73,10 +78,13 @@ php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServ
 * php artisan create:form-request [class-name]
 * php artisan create:language [language-file-name]
 * php artisan create:fields-file [table-name]
+* php artisan fields-file:create [file-name]
+* php artisan fields-file:append [file-name]
+* php artisan fields-file:reduce [file-name]
 
-> Full documentation available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/docs/1.2 "Laravel Code Generator Documentation"). 
+> Full documentation available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/docs/2.0 "Laravel Code Generator Documentation"). 
 
-> Live demo is available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/demos/1.2 "Laravel Code Generator Live Demo"). 
+> Live demo is available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/demos/2.0 "Laravel Code Generator Live Demo"). 
 
 
 ## License

@@ -1,6 +1,1 @@
 [% form_fields_html %]
-<div class="form-group">
-    <div class="col-md-offset-2 col-md-10">
-        <input class="btn btn-success" type="submit" value="{{ isset($submitButtonLabel) ? $submitButtonLabel : 'Add' }}">
-    </div>
-</div>

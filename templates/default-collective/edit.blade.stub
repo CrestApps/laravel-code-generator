@@ -41,9 +41,14 @@
             ]) !!}
 
             @include ('[% form_view_name %]', [
-                                        'submitButtonLabel' => 'Update', 
                                         '[% model_name %]' => $[% model_name %],
                                       ])
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    {!! Form::submit('Update', ['class' => 'btn btn-primary']) !!}
+                </div>
+            </div>
 
             {!! Form::close() !!}
 

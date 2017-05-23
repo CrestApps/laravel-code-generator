@@ -31,6 +31,13 @@
             <form method="POST" action="{{ route('[% store_route_name %]') }}" accept-charset="UTF-8" class="form-horizontal"[% upload_files %]>
             {{ csrf_field() }}
             @include ('[% form_view_name %]')
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input class="btn btn-primary" type="submit" value="Add">
+                    </div>
+                </div>
+
             </form>
 
         </div>
