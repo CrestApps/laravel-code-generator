@@ -31,9 +31,9 @@ A clean code generator for Laravel framework that will save you time! This aweso
 * Create a very clean and reusable code.
 * Lots of documentation.
 
-## Prolouge
+## Prologue
 * <a href="https://crestapps.com/laravel-code-generator/docs/2.0#release-notes">Release Notes</a>
-* <a href="https://crestapps.com/laravel-code-generator/docs/2.0#upgrade-guide">Upgrade Notes</a>
+* <a href="https://crestapps.com/laravel-code-generator/docs/2.0#upgrade-guide">Upgrade Guide</a>
 
 ## Installation
 
