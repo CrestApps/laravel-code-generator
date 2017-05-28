@@ -575,6 +575,7 @@ class Field
             'name' => $this->name,
             'labels' => $this->labelsToRaw($this->getLabels()),
             'html-type' => $this->htmlType,
+            'css-class' => $this->cssClass,
             'options' => $this->optionsToRaw($this->getOptions()),
             'html-value' => $this->htmlValue,
             'validation' => implode('|', $this->validationRules),
