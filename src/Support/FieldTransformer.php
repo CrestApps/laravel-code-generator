@@ -299,7 +299,7 @@ class FieldTransformer
      */
     protected function isValidSelectRangeType(array $properties)
     {
-        return $this->isKeyExists($properties, 'html-type') && starts_with('selectRange|', $properties['html-type']);
+        return $this->isKeyExists($properties, 'html-type') && starts_with($properties['html-type'], 'selectRange|');
     }
 
    /**
@@ -429,10 +429,37 @@ class FieldTransformer
     protected function setDataTypeParams(Field & $field, array $properties)
     {
         if ($this->isKeyExists($properties, 'data-type-params') && is_array($properties['data-type-params'])) {
-            $field->methodParams = $properties['data-type-params'];
+            $field->methodParams = $this->getDataTypeParams($field->dataType, (array) $properties['data-type-params']);
         }
 
         return $this;
+    }
+
+    /**
+     * Gets the data type parameters for the giving type.
+     *
+     * @param string $type
+     * @param array $params
+     *
+     * @return $this
+    */
+    protected function getDataTypeParams($type, array $params)
+    {
+
+        if(in_array($type, ['char','string']) && isset($params[0]) && ($length = intval($params[0])) > 0) {
+            return [$length];
+        }
+
+        if(in_array($type, ['decimal','double','float']) && isset($params[0]) && ($length = intval($params[0])) > 0 && isset($params[1]) && ($decimal = intval($params[1])) > 0) {
+            return [$length, $decimal];
+        }
+
+        if ($type == 'enum') {
+            return $params;
+        }
+        
+
+        return [];
     }
 
     /**

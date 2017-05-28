@@ -77,7 +77,7 @@ abstract class HtmlGeneratorBase
             } elseif ($field->htmlType == 'selectRange') {
                 $htmlFields .= $this->getSelectRangeHtmlField($field);
             } elseif ($field->htmlType == 'selectMonth') {
-                $htmlFields .= $this->getSelectMontheHtmlField($field);
+                $htmlFields .= $this->getSelectMonthHtmlField($field);
             } else {
                 $htmlFields .= $this->getStandardHtmlField($field, $parser);
             }
@@ -573,7 +573,7 @@ abstract class HtmlGeneratorBase
      *
      * @return string
     */
-    public function getSelectMontheHtmlField(Field $field)
+    public function getSelectMonthHtmlField(Field $field)
     {
         $stub = $this->getStubContent('form-month-field.blade', $this->template);
 

@@ -104,7 +104,7 @@ class FieldOptimizer
     */
     protected function optimizeRequiredField()
     {
-        if ($this->parser->isNullable() || !$this->parser->isRequired() || $this->parser->isConditionalRequired()) {
+        if ( !array_key_exists('is-nullable', $this->meta) && ($this->parser->isNullable() || !$this->parser->isRequired() || $this->parser->isConditionalRequired())) {
             $this->field->isNullable = true;
         }
 
@@ -119,7 +119,7 @@ class FieldOptimizer
     protected function optimizeDateFields()
     {
         if (empty($this->field->dateFormat) && $this->field->isDateOrTime()) {
-            $this->field->dateFormat = 'm/d/Y H:i A';
+            $this->field->dateFormat = config('codegenerator.datetime_out_format', 'm/d/Y H:i A');
         }
 
         return $this;
