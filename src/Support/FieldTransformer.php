@@ -775,7 +775,7 @@ class FieldTransformer
 
         return $this->parseOptions($properties['options']);
     }
-
+    
     /**
      * Transfers options array to array on Labels
      *
@@ -795,17 +795,21 @@ class FieldTransformer
         $index = 0;
 
         foreach ($options as $value => $option) {
+
             if ($field->isBoolean()) {
                 // Since we know this field is a boolean type,
                 // we should allow only two options and it must 0 or 1
-                $value = $index;
 
                 if ($index > 1) {
                     continue;
                 }
+
+                $value = $index;
+
             } elseif (!$associative) {
                 $value = $option;
             }
+
             ++$index;
             
             if (!is_array($option)) {
@@ -814,10 +818,12 @@ class FieldTransformer
                 continue;
             }
 
+            $optionLang = $value;
+
             foreach ($option as $optionValue => $text) {
                 // At this point the options are in array which mean they need translation.
-                $lang = is_numeric($optionValue) || empty($optionValue) ? $lang : $optionValue;
-                $finalOptions[] = new Label($text, $localeGroup, false, $lang, null, $value);
+                //$lang = is_numeric($optionValue) || empty($optionValue) ? $lang : $optionValue;
+                $finalOptions[] = new Label($text, $localeGroup, false, $optionLang, null, $optionValue);
             }
         }
 
