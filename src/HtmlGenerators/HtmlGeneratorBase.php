@@ -772,6 +772,10 @@ abstract class HtmlGeneratorBase
     protected function getKeyValueStringsFromLabels(array $labels)
     {
         return array_map(function ($label) {
+            if(!$label->isPlain) {
+                return sprintf("'%s' => %s", $label->value, $this->getTranslatedTitle($label));
+            }
+
             return sprintf("'%s' => '%s'", $label->value, $label->text);
         }, $labels);
     }
@@ -786,7 +790,7 @@ abstract class HtmlGeneratorBase
      */
     protected function getTranslatedTitle(Label $label, $raw = false)
     {
-        $template = !$raw ? "trans('%s')" : "{{ trans('%s') }}" ;
+        $template = $raw === false ? "trans('%s')" : "{{ trans('%s') }}" ;
 
         return sprintf($template, $label->localeGroup);
     }
