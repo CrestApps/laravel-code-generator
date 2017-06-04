@@ -772,6 +772,25 @@ class FieldTransformer
     /**
      * It set the options property for a giving field
      *
+     * @param array $values
+     * @param string $search
+     *
+     * @return bool
+    */
+    protected function inArraySearch(array $values, $search) 
+    {
+        foreach ($values as $value) {
+            if(str_is($search . '*', $value)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    /**
+     * It set the options property for a giving field
+     *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param array $properties
      *
