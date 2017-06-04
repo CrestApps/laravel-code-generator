@@ -115,6 +115,10 @@ class FieldsFileCreateCommand extends Command
         }
 
         foreach ($input->names as $key => $name) {
+            if(!$withoutPrimaryKey && strtolower($name) == 'id') {
+                continue;
+            }
+            
             $properties = ['name' => $name];
 
             if (isset($input->htmlTypes[$key])) {

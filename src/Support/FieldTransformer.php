@@ -770,24 +770,24 @@ class FieldTransformer
     }
 
     /**
-     * It set the options property for a giving field
+     * Checks an array for the first value that starts with a giving pattern
      *
-     * @param array $values
+     * @param array $subjects
      * @param string $search
      *
      * @return bool
     */
-    protected function inArraySearch(array $values, $search) 
+    protected function inArraySearch(array $subjects, $search) 
     {
-        foreach ($values as $value) {
-            if(str_is($search . '*', $value)){
+        foreach ($subjects as $subject) {
+            if(str_is($search . '*', $subject)){
                 return true;
             }
         }
 
         return false;
     }
-    
+
     /**
      * It set the options property for a giving field
      *
