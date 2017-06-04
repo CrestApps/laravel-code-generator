@@ -596,6 +596,7 @@ class Field
             'is-inline-options' => $this->isInlineOptions,
             'is-multiple-answers' => $this->isMultipleAnswers,
             'is-date' => $this->isDate,
+            'date-format' => $this->dateFormat,
             'cast-as' => $this->castAs,
             'placeholder' => $this->placeHolder,
             'delimiter' => $this->optionsDelimiter,
@@ -705,6 +706,24 @@ class Field
         return $this->isDate() || $this->isDateTime() || $this->isTime() || $this->isTimeStamp();
     }
 
+    /**
+     * Gets date validation rule for a datetime field.
+     *
+     * @return mix (null | string)
+     */
+    public function getDateValidationRule()
+    {
+        if ($this->isDateOrTime()) {
+            if (!empty($this->dateFormat)) {
+                return sprintf('date_format:%s', $this->dateFormat);
+            }
+
+            return 'date';
+        }
+
+        return null;
+    }
+    
     /**
      * Checks if the data type contains decimal.
      *

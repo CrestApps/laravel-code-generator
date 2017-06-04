@@ -130,7 +130,7 @@ return [
     | field's type will automaticly be set to datetime.
     |
     */
-    'common_datetime_patterns' => ['*_at'],
+    'common_datetime_patterns' => ['*_at','*_date'],
 
     /*
     |--------------------------------------------------------------------------

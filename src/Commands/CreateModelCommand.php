@@ -312,7 +312,8 @@ class CreateModelCommand extends Command
      */
     protected function getCommandInput()
     {
-        $table = trim($this->option('table-name')) ?: strtolower(str_plural(trim($this->argument('model-name'))));
+        $modelName = trim($this->argument('model-name'));
+        $table = trim($this->option('table-name')) ?: $this->makeTableName($modelName);
         $fillable = trim($this->option('fillable'));
         $primaryKey = trim($this->option('primary-key'));
         $relationships = !empty(trim($this->option('relationships'))) ? explode(',', trim($this->option('relationships'))) : [];
@@ -321,7 +322,6 @@ class CreateModelCommand extends Command
         $fields = trim($this->option('fields'));
         $fieldsFile = trim($this->option('fields-file'));
         $template = $this->getTemplateName();
-        $modelName = ucfirst(str_singular($table));
 
         return (object) compact('table', 'fillable', 'primaryKey', 'relationships', 'useSoftDelete', 'useTimeStamps', 'fields', 'fieldsFile', 'template', 'modelName');
     }

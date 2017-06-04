@@ -104,7 +104,7 @@ class FieldOptimizer
     */
     protected function optimizeRequiredField()
     {
-        if ( !array_key_exists('is-nullable', $this->meta) && ($this->parser->isNullable() || !$this->parser->isRequired() || $this->parser->isConditionalRequired())) {
+        if (!array_key_exists('is-nullable', $this->meta) && ($this->parser->isNullable() || !$this->parser->isRequired() || $this->parser->isConditionalRequired())) {
             $this->field->isNullable = true;
         }
 
@@ -132,7 +132,7 @@ class FieldOptimizer
     */
     protected function addPlaceHolder()
     {
-        if(empty($this->field->placeHolder) && $this->field->hasForeignRelation()) {
+        if (empty($this->field->placeHolder) && $this->field->hasForeignRelation()) {
             $this->field->placeHolder = 'Please select a ' . $this->field->getForeignRelation()->name;
         }
 
@@ -152,6 +152,14 @@ class FieldOptimizer
             $this->field->validationRules = array_filter($this->field->validationRules, function ($rule) {
                 return $rule != 'required';
             });
+        }
+        
+        if (!$this->field->isNullable && !in_array('required', $this->field->validationRules)) {
+            $this->field->validationRules[] = 'required';
+        }
+
+        if (($rule = $this->field->getDateValidationRule()) != null && !in_array($rule, $this->field->validationRules)) {
+            $this->field->validationRules[] = $rule;
         }
 
         if (! $this->field->isOnFormView) {

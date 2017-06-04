@@ -270,22 +270,23 @@ class CreateResourcesCommand extends Command
     protected function getCommandInput()
     {
         $modelName = trim($this->argument('model-name'));
-        $modelNamePlural = strtolower(str_plural($modelName));
+        //$modelNamePlural = strtolower(str_plural($modelName));
+        $madeupTableName = $this->makeTableName($modelName);
         $controllerName = trim($this->option('controller-name') ?: ucfirst(Helpers::postFixWith(str_plural($modelName), 'Controller')));
         $viewsDirectory = $this->option('views-directory');
         $prefix = $this->option('routes-prefix');
-        $prefix = $prefix == 'model-name-as-plural' ? $modelNamePlural : $prefix;
+        $prefix = $prefix == 'model-name-as-plural' ? $madeupTableName : $prefix;
         $perPage = intval($this->option('models-per-page'));
         $fields = $this->option('fields');
         $fieldsFile = $this->option('fields-file');
-        $languageFileName = $this->option('lang-file-name') ?: $modelNamePlural;
+        $languageFileName = $this->option('lang-file-name') ?: $madeupTableName;
         $formRequest = $this->option('with-form-request');
         $controllerDirectory = $this->option('controller-directory');
         $controllerExtends = $this->option('controller-extends') ?: null;
         $withoutMigration = $this->option('without-migration');
         $force = $this->option('force');
         $modelDirectory = $this->option('model-directory');
-        $table = $this->option('table-name') ?: $modelNamePlural;
+        $table = $this->option('table-name') ?: $madeupTableName;
         $fillable = $this->option('fillable');
         $primaryKey = $this->option('primary-key');
         $relationships = $this->option('relationships');

@@ -114,6 +114,18 @@ trait CommonCommand
 
         return parent::argument();
     }
+    
+    /**
+     * Makes the table name from the giving model name.
+     *
+     * @param  string  $modelName
+     *
+     * @return string
+     */
+    protected function makeTableName($modelName)
+    {
+        return snake_case(lcfirst(str_plural($modelName)));
+    }
 
     /**
      * Gets the indentation count.
@@ -125,7 +137,7 @@ trait CommonCommand
      */
     protected function getIndent($stub, $template)
     {
-        $lines = explode(PHP_EOL, $stub);
+        $lines = explode("\n", $stub);
 
         foreach ($lines as $line) {
             if (($index = strpos($line, $template)) !== false) {

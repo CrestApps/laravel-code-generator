@@ -234,11 +234,11 @@ class FieldTransformer
         $this->setPredefindProperties($field, $properties)
              ->setDataType($field, $properties)
              ->setOptionsProperty($field, $properties)
-             ->setValidationProperty($field, $properties)
              ->setLabelsProperty($field, $properties)
              ->setDataTypeParams($field, $properties)
              ->setMultipleAnswers($field, $properties)
              ->setUnsignedProperty($field, $properties)
+             ->setValidationProperty($field, $properties)
              ->setForeignRelation($field, $properties)
              ->setRange($field, $properties)
              ->setForeignConstraint($field, $properties);
@@ -729,6 +729,41 @@ class FieldTransformer
     {
         if ($this->isKeyExists($properties, 'validation')) {
             $field->validationRules = is_array($properties['validation']) ? $properties['validation'] : Helpers::removeEmptyItems(explode('|', $properties['validation']));
+        }
+
+        if (Helpers::isNewerThan('5.2') && $field->isNullable) {
+            $field->validationRules[] = 'nullable';
+        }
+
+        $params = [];
+
+        if ($this->isKeyExists($properties, 'data-type-params')) {
+            $params = $this->getDataTypeParams($field->dataType, (array) $properties['data-type-params']);
+        }
+
+        if (in_array($field->dataType, ['char','string']) 
+            && isset($params[0]) && ($length = intval($params[0])) > 0) {
+
+            if(!$this->inArraySearch($field->validationRules, 'digits_between')) {
+                $min = $field->isRequired() ? 1 : 0;
+                $field->validationRules[] = sprintf('digits_between:%s,%s', $min, $length);
+            }
+        }
+
+        if (in_array($field->dataType, ['decimal','double','float'])
+            && isset($params[0]) && ($length = intval($params[0])) > 0 && isset($params[1]) && ($decimal = intval($params[1])) > 0) {
+
+            if(!in_array('numeric', $field->validationRules)) {
+                $field->validationRules[] = 'numeric';
+            }
+
+            if(!$this->inArraySearch($field->validationRules, 'min')) {
+                $field->validationRules[] = sprintf('min:%s', $field->getMinValue());
+            }
+
+            if(!$this->inArraySearch($field->validationRules, 'max')) {
+                $field->validationRules[] = sprintf('max:%s', $field->getMaxValue());
+            }        
         }
 
         return $this;
