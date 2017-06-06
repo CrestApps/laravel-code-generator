@@ -8,13 +8,13 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you change the stub templates to use when generating code.
-    | You can duplicate the "default" template folder
-    | and call it what ever template your like "ex. skyblue".
+    | You can duplicate the 'default' template folder
+    | and call it what ever template your like 'ex. skyblue'.
     | Now, you can change the stubs to have your own templates generated.
     |
-    |        
+    |
     | IMPORTANT: It is not recomended to modify the default template, rather create a new template.
-    | If you modify the default template and then executed "php artisan vendor:publish" command,
+    | If you modify the default template and then executed 'php artisan vendor:publish' command,
     | it will override the default template causing you to lose your modification.
     |
     */
@@ -36,7 +36,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | If you want to generate code by using laravel-collective, you must first
-    | install the package. Then add the tamplate name that should be using 
+    | install the package. Then add the tamplate name that should be using
     | Laravel-Collective extensions when generating code.
     */
     'laravel_collective_templates' => [
@@ -54,7 +54,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The default format for the datetime output
+    | The default output format for datetime fields.
     |--------------------------------------------------------------------------
     |
     |
@@ -63,7 +63,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The default path of where the field json files are located
+    | The default path of where the field json files are located.
     |--------------------------------------------------------------------------
     |
     | In this path, you can create json file to import the fields from.
@@ -115,126 +115,172 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Key phrases that are will be used to determine if a field should be a primary key.
-    |--------------------------------------------------------------------------
-    */
-    'common_id_patterns' => ['id'],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Patterns to use to determine "datetime" fields if date-type is not provided
-    |--------------------------------------------------------------------------
-    |
-    | If the date-type for a field is not, the codegenerator scanns the field's name 
-    | for a matching pattern. If the name matches any of the set pattern, the the 
-    | field's type will automaticly be set to datetime.
-    |
-    */
-    'common_datetime_patterns' => ['*_at','*_date'],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Patterns to use to determine "boolean" fields if date-type is not provided
-    |--------------------------------------------------------------------------
-    |
-    | If the date-type for a field is not, the codegenerator scanns the field's name 
-    | for a matching pattern. If the name matches any of the set pattern, the the 
-    | field's type will automaticly be set to boolean.
-    |
-    */
-    'common_boolean_patterns' => ['is_*','has_*'],
-
-    /*
-    |--------------------------------------------------------------------------
     | Key phrases that are will be used to determine if a field should have a relation.
     |--------------------------------------------------------------------------
     |
     | When creating resources from existing database, the codegenerator scans
-    | the field's name for a mattching pattern. When found, these field are considred 
+    | the field's name for a mattching pattern. When found, these field are considred
     | foreign keys even if the database does not have a foreign constraints.
     | Here you can specify patterns to help the generator understand your
     | database naming convension.
     |
     */
     'common_key_patterns' => ['*_id','*_by'],
-    
+
     /*
     |--------------------------------------------------------------------------
-    | Common foreign keys definitions
+    | Patterns to use to pre-set field's properties.
     |--------------------------------------------------------------------------
     |
-    | The code generator uses "common_key_patterns" array to scan the field name 
-    | for matching patterns to determine if a field should be considred foreign key.
-    | "common_foreign_keys" allows you to set global configuration for common foreign key.
-    | Each key in the array represents the field name. The value is an array of definitions
-    | to use. Here is description of the definition array
-    | 
-    | "name" will be used to create the relation method's name.
-    | "type" will be used to set the relation type
-    | "params" the parameters to use for the "type" relation.
-    | "field" the field on the foreign model to use as display name.
-    | "on-create" sets a value to use when this model is created. If your using an authentication
-    |             system such as laravel build in authentication. you can automaticly set 
-    |             the user Id who created the model by setting this value to 'Auth::Id();'.
-    | "on-update" sets a value to use when this model is update.
+    | To make constructing fields easy, the codegenerator scans the field's name
+    | for a matching pattern. If the name matches any of the set pattern, the the
+    | field's properties will be preset. defining pattern will save you from having
+    | to re-define the properties for common fields.
     |
     */
-
-    "common_foreign_keys" => [
-        "owner_id"      => [
-            "name"      => "owner",
-            "type"      => "belongsTo",
-            "params"    => [
-                "App\\User",
-                "owner_id"
-            ],
-            "field"     => "name",
-            "on-store"  => null,
-            "on-update" => null,
+    'common_definitions' => [
+        [
+            'match'   => 'id',
+            'set' => [
+                'is-on-form'  => false,
+                'is-on-index' => false,
+                'is-on-show'  => false,
+                'html-type'   => 'hidden',
+                'data-type'   => 'integer',
+                'is-primary'  => true,
+                'is-auto-increment' => true,
+                'is-nullable' => false,
+                'is-unsigned' => true,
+            ]
         ],
-        "operator_id"   => [
-            "name"      => "operator",
-            "type"      => "belongsTo",
-            "params"    => [
-                "App\\User",
-                "operator_id"
-            ],
-            "field"     => "name",
-            "on-store"  => null,
-            "on-update" => null,
+        [
+            'match'   => ['*_id','*_by'],
+            'set' => [
+                'data-type'   => 'integer',
+                'html-type'   => 'select',
+                'is-nullable' => false,
+                'is-unsigned' => true,
+            ]
         ],
-        "author_id"     => [
-            "name"      => "author",
-            "type"      => "belongsTo",
-            "params"    => [
-                "App\\User",
-                "author_id"
-            ],
-            "field"     => "name",
-            "on-store"  => null,
-            "on-update" => null,
+        [
+            'match'   => ['*_at'],
+            'set' => [
+                'data-type' => 'dateTime'
+            ]
         ],
-        "created_by"    => [
-            "name"      => "creator",
-            "type"      => "belongsTo",
-            "params"    => [
-                "App\\User",
-                "created_by"
-            ],
-            "field"     => "name",
-            "on-store"  => "Illuminate\Support\Facades\Auth::Id();",
-            "on-update" => null,
+        [
+            'match'   => ['created_at','updated_at','deleted_at'],
+            'set' => [
+                'data-type'    => 'dateTime',
+                'is-on-form'   => false,
+                'is-on-index'  => false,
+                'is-on-show'   => true,
+            ]
         ],
-        "updated_by"    => [
-            "name"      => "updator",
-            "type"      => "belongsTo",
-            "params"    => [
-                "App\\User",
-                "created_by"
-            ],
-            "field"     => "name",
-            "on-store" => null,
-            "on-update" => "Illuminate\Support\Facades\Auth::Id();",
+        [
+            'match'   => ['*_date'],
+            'set' => [
+                'data-type'   => 'date',
+                'date-format' => 'm/d/Y'
+            ]
+        ],
+        [
+            'match'   => ['is_*','has_*'],
+            'set' => [
+                'data-type'   => 'boolean',
+                'html-type'   => 'checkbox',
+                'is-nullable' => false
+            ]
+        ],
+        [
+            'match'   => 'owner_id',
+            'set' => [
+                'title'     => 'Owner',
+                'data-type' => 'integer',
+                'foreign-relation' => [
+                    'name'   => 'owner',
+                    'type'   => 'belongsTo',
+                    'params' => [
+                        'App\\User',
+                        'owner_id'
+                    ],
+                    'field'  => 'name'
+                ],
+                'on-store'   => null,
+                'on-update'  => null
+            ]
+        ],
+        [
+            'match'   => 'operator_id',
+            'set' => [
+                'title'     => 'Operator',
+                'data-type' => 'integer',
+                'foreign-relation' => [
+                    'name'   => 'operator',
+                    'type'   => 'belongsTo',
+                    'params' => [
+                        'App\\User',
+                        'operator_id'
+                    ],
+                    'field'  => 'name'
+                ],
+                'on-store'   => null,
+                'on-update'  => null
+            ]
+        ],
+        [
+            'match'   => 'author_id',
+            'set' => [
+                'title'     => 'Author',
+                'data-type' => 'integer',
+                'foreign-relation' => [
+                    'name'   => 'author',
+                    'type'   => 'belongsTo',
+                    'params' => [
+                        'App\\User',
+                        'author_id'
+                    ],
+                    'field'  => 'name'
+                ],
+                'on-store'   => null,
+                'on-update'  => null
+            ]
+        ],
+        [
+            'match'   => 'created_by',
+            'set' => [
+                'title'     => 'Creator',
+                'data-type' => 'integer',
+                'foreign-relation' => [
+                    'name'   => 'creator',
+                    'type'   => 'belongsTo',
+                    'params' => [
+                        'App\\User',
+                        'created_by'
+                    ],
+                    'field'  => 'name'
+                ],
+                'on-store'   => 'Illuminate\Support\Facades\Auth::Id();',
+                'on-update'  => null
+            ]
+        ],
+        [
+            'match'   => ['updated_by','modified_by'],
+            'set' => [
+                'title'     => 'Updater',
+                'data-type' => 'integer',
+                'foreign-relation' => [
+                    'name'   => 'updater',
+                    'type'   => 'belongsTo',
+                    'params' => [
+                        'App\\User',
+                        'updated_by'
+                    ],
+                    'field'  => 'name'
+                ],
+                'on-store'   => null,
+                'on-update'  => 'Illuminate\Support\Facades\Auth::Id();'
+            ]
         ]
     ],
 
@@ -300,7 +346,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Eloquent method to html-type mapping
+    | Eloquent method to html-type mapping.
     |--------------------------------------------------------------------------
     |
     | This is the mapping used to convert database-column into html field

@@ -782,7 +782,7 @@ class CreateMigrationCommand extends Command
     protected function addSoftDelete(& $property, $withSoftDelete)
     {
         if ($withSoftDelete) {
-            $property .= sprintf("%s()", $this->getPropertyBase('softDelete'));
+            $property .= sprintf("%s()", $this->getPropertyBase('softDeletes'));
             $this->addFieldPropertyClousure($property);
         }
     

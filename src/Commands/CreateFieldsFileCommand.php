@@ -74,7 +74,7 @@ class CreateFieldsFileCommand extends Command
             return $field->toArray();
         }, $this->getFields());
 
-        return json_encode($fields, JSON_PRETTY_PRINT);
+        return json_encode($fields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
     /**

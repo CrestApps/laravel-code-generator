@@ -59,7 +59,7 @@ class FieldsFileAppendCommand extends Command
         }
 
         $existingFields = $this->mergeFields($file, $input);
-        $string = json_encode($existingFields, JSON_PRETTY_PRINT);
+        $string = json_encode($existingFields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         $this->putContentInFile($file, $string)
              ->info('New fields where appended to the file.');

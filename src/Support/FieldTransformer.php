@@ -225,11 +225,9 @@ class FieldTransformer
             throw new Exception("The field 'name' was not provided!");
         }
 
-        if (!$this->isValidHtmlType($properties)) {
-            unset($properties['html-type']);
-        }
-
         $field = new Field(Helpers::removeNonEnglishChars($properties['name']));
+
+        $properties = $this->getProperties($properties);
 
         $this->setPredefindProperties($field, $properties)
              ->setDataType($field, $properties)
@@ -251,10 +249,41 @@ class FieldTransformer
         }
 
         if ($field->dataType == 'enum' && empty($field->getOptions())) {
-            throw new Exception('To construct an enum data-type field, options must be set');
+            throw new Exception('To construct an enum data-type field, options must be set. ' . $field->name);
         }
 
         return new FieldMapper($field, $properties);
+    }
+
+   /**
+     * Get the properties after applying the predefined keys.
+     *
+     * @param array $properties
+     *
+     * @return array
+    */
+    protected function getProperties(array $properties)
+    {
+        if (!$this->isValidHtmlType($properties)) {
+            unset($properties['html-type']);
+        }
+
+        $definitions = (array) config('codegenerator.common_definitions', []);
+
+        foreach ($definitions as $definition) {
+            $patterns = $this->isKeyExists($definition, 'match') ? (array) $definition['match'] : [];
+            $config = $this->isKeyExists($definition, 'set') ? (array) $definition['set'] : [];
+
+            if (count($config) > 0 && Helpers::strIs($patterns, $properties['name'])) {
+                if (isset($config['name'])) {
+                    unset($config['name']);
+                }
+                
+                $properties = array_merge($properties, $config);
+            }
+        }
+
+        return $properties;
     }
 
    /**
@@ -338,16 +367,6 @@ class FieldTransformer
 
         if ($this->isKeyExists($properties, 'data-type') && $this->isKeyExists($map, $properties['data-type'])) {
             $field->dataType = $map[$properties['data-type']];
-        }
-
-        if (! $this->isKeyExists($properties, 'data-type')) {
-            if (Helpers::strIs(Config::getDateTimePatterns(), $field->name)) {
-                $field->dataType = 'datetime';
-            } elseif (Helpers::strIs(Config::getBooleanPatterns(), $field->name)) {
-                $field->dataType = 'boolean';
-            } elseif (Helpers::strIs(Config::getKeyPatterns(), $field->name)) {
-                $field->dataType = 'integer';
-            }
         }
 
         return $this;
@@ -445,12 +464,11 @@ class FieldTransformer
     */
     protected function getDataTypeParams($type, array $params)
     {
-
-        if(in_array($type, ['char','string']) && isset($params[0]) && ($length = intval($params[0])) > 0) {
+        if (in_array($type, ['char','string']) && isset($params[0]) && ($length = intval($params[0])) > 0) {
             return [$length];
         }
 
-        if(in_array($type, ['decimal','double','float']) && isset($params[0]) && ($length = intval($params[0])) > 0 && isset($params[1]) && ($decimal = intval($params[1])) > 0) {
+        if (in_array($type, ['decimal','double','float']) && isset($params[0]) && ($length = intval($params[0])) > 0 && isset($params[1]) && ($decimal = intval($params[1])) > 0) {
             return [$length, $decimal];
         }
 
@@ -618,12 +636,6 @@ class FieldTransformer
      */
     public static function getPredectableForeignRelation(Field & $field, $modelPath)
     {
-        $commonRelations = Config::getForeignKeys();
-
-        if (array_key_exists($field->name, $commonRelations)) {
-            return self::makeForeignRelation($field, $commonRelations[$field->name]);
-        }
-
         $patterns = Config::getKeyPatterns();
 
         if (Helpers::strIs($patterns, $field->name)) {
@@ -735,16 +747,19 @@ class FieldTransformer
             $field->validationRules[] = 'nullable';
         }
 
+        if ($field->isBoolean() && !in_array('boolean', $field->validationRules)) {
+            $field->validationRules[] = 'boolean';
+        }
+
         $params = [];
 
         if ($this->isKeyExists($properties, 'data-type-params')) {
             $params = $this->getDataTypeParams($field->dataType, (array) $properties['data-type-params']);
         }
 
-        if (in_array($field->dataType, ['char','string']) 
+        if (in_array($field->dataType, ['char','string'])
             && isset($params[0]) && ($length = intval($params[0])) > 0) {
-
-            if(!$this->inArraySearch($field->validationRules, 'digits_between')) {
+            if (!$this->inArraySearch($field->validationRules, 'digits_between')) {
                 $min = $field->isRequired() ? 1 : 0;
                 $field->validationRules[] = sprintf('digits_between:%s,%s', $min, $length);
             }
@@ -752,18 +767,17 @@ class FieldTransformer
 
         if (in_array($field->dataType, ['decimal','double','float'])
             && isset($params[0]) && ($length = intval($params[0])) > 0 && isset($params[1]) && ($decimal = intval($params[1])) > 0) {
-
-            if(!in_array('numeric', $field->validationRules)) {
+            if (!in_array('numeric', $field->validationRules)) {
                 $field->validationRules[] = 'numeric';
             }
 
-            if(!$this->inArraySearch($field->validationRules, 'min')) {
+            if (!$this->inArraySearch($field->validationRules, 'min')) {
                 $field->validationRules[] = sprintf('min:%s', $field->getMinValue());
             }
 
-            if(!$this->inArraySearch($field->validationRules, 'max')) {
+            if (!$this->inArraySearch($field->validationRules, 'max')) {
                 $field->validationRules[] = sprintf('max:%s', $field->getMaxValue());
-            }        
+            }
         }
 
         return $this;
@@ -777,10 +791,10 @@ class FieldTransformer
      *
      * @return bool
     */
-    protected function inArraySearch(array $subjects, $search) 
+    protected function inArraySearch(array $subjects, $search)
     {
         foreach ($subjects as $subject) {
-            if(str_is($search . '*', $subject)){
+            if (str_is($search . '*', $subject)) {
                 return true;
             }
         }
@@ -849,7 +863,6 @@ class FieldTransformer
         $index = 0;
 
         foreach ($options as $value => $option) {
-
             if ($field->isBoolean()) {
                 // Since we know this field is a boolean type,
                 // we should allow only two options and it must 0 or 1
@@ -859,7 +872,6 @@ class FieldTransformer
                 }
 
                 $value = $index;
-
             } elseif (!$associative) {
                 $value = $option;
             }
@@ -1084,7 +1096,7 @@ class FieldTransformer
         
             if ($totalParts == 2) {
                 $configs[$config[0]] = $this->isProperyBool($config[0]) ? Helpers::stringToBool($config[1]): $config[1];
-            } elseif ($totalParts == 1 && $this->isProperyBool($config[0])) {
+            } elseif ($totalParts == 1) {
                 $configs[$config[0]] = true;
             }
         }
@@ -1099,12 +1111,14 @@ class FieldTransformer
      *
      * @return bool
     */
+    /*
     protected function isProperyBool($str)
     {
         $patterns = Config::getBooleanPatterns();
-        
+
         return Helpers::strIs($patterns, $str);
     }
+    */
 
     /**
      * Gets a label from a giving name

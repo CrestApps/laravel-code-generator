@@ -17,46 +17,6 @@ class Config
     }
 
     /**
-     * Gets the common boolean patterns.
-     * 
-     * @return array
-    */
-    public static function getBooleanPatterns()
-    {
-        return config('codegenerator.common_boolean_patterns', []);
-    }
-
-    /**
-     * Gets the common datetime patterns.
-     * 
-     * @return array
-    */
-    public static function getDateTimePatterns()
-    {
-        return config('codegenerator.common_datetime_patterns', []);
-    }
-
-    /**
-     * Gets the common primary ids patterns.
-     * 
-     * @return array
-    */
-    public static function getIdPatterns()
-    {
-        return config('codegenerator.common_id_patterns', []);
-    }
-
-    /**
-     * Gets the common primary ids patterns.
-     * 
-     * @return array
-    */
-    public static function getForeignKeys()
-    {
-        return config('codegenerator.common_foreign_keys', []);
-    }
-
-    /**
      * Gets the common key patterns.
      * 
      * @return array
@@ -65,7 +25,7 @@ class Config
     {
         return config('codegenerator.common_key_patterns', []);
     }
-
+    
     /**
      * Gets the path to requests
      *
@@ -88,6 +48,16 @@ class Config
         $path = config('codegenerator.templates_path', 'resources/codegenerator-templates');
         
         return Helpers::getPathWithSlash($path);
+    }
+
+   /**
+     * Gets the eloquent's method to html
+     *
+     * @return array
+    */
+    public static function getEloquentToHtmlMap()
+    {
+        return config('codegenerator.eloquent_type_to_html_type', []);
     }
 
     /**

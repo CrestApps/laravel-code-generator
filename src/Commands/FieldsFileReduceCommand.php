@@ -62,7 +62,7 @@ class FieldsFileReduceCommand extends Command
             return false;
         }
 
-        $string = json_encode($reducedFields, JSON_PRETTY_PRINT);
+        $string = json_encode($reducedFields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         $this->putContentInFile($file, $string)
              ->info('Fields where removed from exising file');

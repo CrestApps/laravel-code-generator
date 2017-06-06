@@ -146,16 +146,8 @@ class FieldOptimizer
     */
     protected function optimizeValidations()
     {
-        if ($this->field->isCheckBox() && $this->field->isBoolean()) {
-            // At this point we know the field is a check book and is a boolean type
-            // remove the required validation rule.
-            $this->field->validationRules = array_filter($this->field->validationRules, function ($rule) {
-                return $rule != 'required';
-            });
-        }
-        
         if (!$this->field->isNullable && !in_array('required', $this->field->validationRules)) {
-            $this->field->validationRules[] = 'required';
+            array_unshift($this->field->validationRules, 'required');
         }
 
         if (($rule = $this->field->getDateValidationRule()) != null && !in_array($rule, $this->field->validationRules)) {
@@ -166,6 +158,14 @@ class FieldOptimizer
             // At this point we know the field is not going to be on any request form
             // remove all validation rules if any exists.
             $this->field->validationRules = [];
+        }
+
+        if ($this->field->isCheckBox() && $this->field->isBoolean()) {
+            // At this point we know the field is a checkbox and is a boolean type
+            // remove the required validation rule.
+            $this->field->validationRules = array_filter($this->field->validationRules, function ($rule) {
+                return $rule != 'required';
+            });
         }
 
         return $this;
@@ -215,11 +215,7 @@ class FieldOptimizer
     */
     protected function optimizePrimaryKey()
     {
-        if ($this->field->isPrimary() || in_array($this->field->name, Config::getIdPatterns())) {
-            if (!$this->isNumericField()) {
-                $this->field->dataType = 'int';
-            }
-
+        if ($this->field->isPrimary()) {
             if ($this->meta == null) {
                 $this->field->isOnFormView = false;
                 $this->field->isOnIndexView = false;

@@ -904,11 +904,11 @@ class Field
                 if ($label->isPlain) {
                     $collections[$label->value] = $label->text;
                 } else {
-                    $collections[$label->value][$label->lang] = $label->text;
+                    $collections[$label->lang][$label->value] = $label->text;
                 }
             }
         }
-
+        
         $finals = [];
 
         foreach ($collections as $value => $collection) {

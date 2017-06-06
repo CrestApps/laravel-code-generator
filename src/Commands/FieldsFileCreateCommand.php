@@ -58,7 +58,7 @@ class FieldsFileCreateCommand extends Command
         }
 
         $fields = $this->getFields($input, $input->withoutPrimaryKey);
-        $string = $this->getFieldAsJson($fields, JSON_PRETTY_PRINT);
+        $string = $this->getFieldAsJson($fields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         $this->createFile($file, $string)
              ->info('New fields-file was crafted!');
@@ -152,7 +152,7 @@ class FieldsFileCreateCommand extends Command
             return $field->toArray();
         }, $fields);
 
-        return json_encode($rarField, JSON_PRETTY_PRINT);
+        return json_encode($rarField, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
     /**

@@ -7,6 +7,7 @@ use CrestApps\CodeGenerator\DatabaseParsers\ParserBase;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\ForeignConstraint;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
+use CrestApps\CodeGenerator\Support\Config;
 
 class MysqlParser extends ParserBase
 {
@@ -27,11 +28,11 @@ class MysqlParser extends ParserBase
         return DB::select('SELECT
 		                   COLUMN_NAME
 		                  ,COLUMN_DEFAULT
-		                  ,IS_NULLABLE
-		                  ,CASE WHEN COLUMN_TYPE = \'tinyint(1)\' THEN \'boolean\' ELSE DATA_TYPE END AS DATA_TYPE
+		                  ,UPPER(IS_NULLABLE)  AS IS_NULLABLE
+		                  ,LOWER(DATA_TYPE) AS DATA_TYPE
 		                  ,CHARACTER_MAXIMUM_LENGTH
-		                  ,COLUMN_KEY
-		                  ,EXTRA
+		                  ,UPPER(COLUMN_KEY) AS COLUMN_KEY
+		                  ,UPPER(EXTRA) AS EXTRA
 		                  ,COLUMN_COMMENT
 		                  ,COLUMN_TYPE
 		                  FROM INFORMATION_SCHEMA.COLUMNS
@@ -90,76 +91,131 @@ class MysqlParser extends ParserBase
      */
     protected function getTransfredFields(array $columns)
     {
-        $fields = [];
+        $collection = [];
 
         foreach ($columns as $column) {
-            $field = new Field($column->COLUMN_NAME);
+            $properties['name'] = $column->COLUMN_NAME;
+            $properties['labels'] = $this->getLabel($column->COLUMN_NAME);
+            $properties['is-nullable'] = ($column->IS_NULLABLE == 'YES');
+            $properties['data-value'] = $column->COLUMN_DEFAULT;
+            $properties['data-type'] = $this->getDataType($column->DATA_TYPE);
+            $properties['data-type-params'] = $this->getPrecision($column->CHARACTER_MAXIMUM_LENGTH, $column->DATA_TYPE, $column->COLUMN_TYPE);
+            $properties['is-primary'] = ($column->COLUMN_KEY == 'PRIMARY KEY');
+            $properties['is-index'] = ($column->COLUMN_KEY == 'MUL');
+            $properties['is-unique'] = ($column->COLUMN_KEY == 'UNI');
+            $properties['is-auto-increment'] = ($column->EXTRA == 'AUTO_INCREMENT');
+            $properties['comment'] = $column->COLUMN_COMMENT ?: null;
+            $properties['options'] = $this->getHtmlOptions($column->DATA_TYPE, $column->COLUMN_TYPE);
+            $properties['is-unsigned'] = (strpos($column->COLUMN_TYPE, 'unsigned') !== false);
+            $properties['html-type'] = $this->getHtmlType($column->DATA_TYPE);
+            $properties['foreign-constraint'] = $this->getForeignConstraint($column->COLUMN_NAME);
 
-            $this->setIsNullable($field, $column->IS_NULLABLE)
-                 ->setMaxLength($field, $column->CHARACTER_MAXIMUM_LENGTH)
-                 ->setDefault($field, $column->COLUMN_DEFAULT)
-                 ->setDataType($field, $column->DATA_TYPE)
-                 ->setKey($field, $column->COLUMN_KEY, $column->EXTRA)
-                 ->setLabel($field, $this->getLabelName($column->COLUMN_NAME))
-                 ->setComment($field, $column->COLUMN_COMMENT)
-                 ->setOptions($field, $column)
-                 ->setUnsigned($field, $column->COLUMN_TYPE)
-                 ->setHtmlType($field, $column->DATA_TYPE)
-                 ->setIsOnViews($field)
-                 ->setForeignConstraint($field)
-                 ->setForeignRelation($field);
+            if (intval($column->CHARACTER_MAXIMUM_LENGTH) > 255
+                || in_array($column->DATA_TYPE, ['varbinary','blob','mediumblob','longblob','text','mediumtext','longtext'])) {
+                $properties['is-on-index'] = false;
+            }
 
-            $fields[] = $field;
+
+            $collection[] = $properties;
         }
+
+        $fields = FieldTransformer::fromArray($collection, str_plural(strtolower($this->tableName)));
 
         return $fields;
     }
 
     /**
-     * Set the foreign constrain for the giving field.
+     * Gets the type params
+     *
+     * @param string $length
+     * @param string $dataType
+     * @param string $columnType
+     *
+     * @return $this
+    */
+    protected function getPrecision($length, $dataType, $columnType)
+    {
+        if (in_array($dataType, ['decimal','double','float','real'])) {
+            $match = [];
+
+            preg_match('#\((.*?)\)#', $columnType, $match);
+
+            if (!isset($match[1])) {
+                return null;
+            }
+
+            return explode(',', $match[1]);
+        }
+
+        if (intval($length) > 0) {
+            return [$length];
+        }
+
+        return [];
+    }
+
+    /**
+     * Gets the data type for a giving field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param string $type
+     *
+     * @return $this
+    */
+    protected function getDataType($type)
+    {
+        $map = Config::dataTypeMap();
+
+        if (!array_key_exists($type, $map)) {
+            throw new Exception("The type " . $type . " is not mapped in the 'eloquent_type_to_method' key in the config file.");
+        }
+
+        return $map[$type];
+    }
+
+    /**
+     * Gets the foreign constrain for the giving field.
+     *
+     * @param string $name
      *
      * @return $this
      */
-    protected function setForeignConstraint(Field & $field)
+    protected function getForeignConstraint($name)
     {
-        $raw = $this->getConstraint($field->name);
+        $raw = $this->getConstraint($name);
 
-        if (!is_null($raw)) {
-            $constraint = new ForeignConstraint(
-                                strtolower($raw->foreign),
-                                strtolower($raw->references),
-                                strtolower($raw->on),
-                                strtolower($raw->onDelete),
-                                strtolower($raw->onUpdate)
-                            );
-            
-            $field->setForeignConstraint($constraint);
+        if (is_null($raw)) {
+            return null;
         }
 
-        return $this;
+        return [
+            'field'      => strtolower($raw->foreign),
+            'references' => strtolower($raw->references),
+            'on'         => strtolower($raw->on),
+            'on-delete'  => strtolower($raw->onDelete),
+            'on-update'  => strtolower($raw->onUpdate)
+        ];
     }
 
     /**
      * Set the options for a giving field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
-     * @param object $column
+     * @param string $type
      *
-     * @return $this
+     * @return array
      */
-    protected function setOptions(Field & $field, $column)
+    protected function getHtmlOptions($dataType, $columnType)
     {
-        if ($column->DATA_TYPE == 'boolean') {
-            return $this->addOptions($field, $this->getBooleanOptions());
+        if ($dataType == 'tinyint(1)') {
+            return $this->getBooleanOptions();
         }
 
-        if (($options = $this->getOptions($column->COLUMN_TYPE)) !== null) {
-            return $this->addOptions($field, $options);
+        if (($options = $this->getEnumOptions($columnType)) !== null) {
+            return $options;
         }
 
-        return $this;
+        return [];
     }
 
     /**
@@ -184,68 +240,13 @@ class MysqlParser extends ParserBase
     }
 
     /**
-     * Checks if the request requires languages.
-     *
-     * @return bool
-    */
-    protected function hasLanguages()
-    {
-        return ! empty($this->languages);
-    }
-
-    /**
-     * Adds the options for a giving field.
-     *
-     * @param CrestApps\CodeGenerator\Models\Field $field
-     * @param array $options
-     *
-     * @return $this
-    */
-    protected function addOptions(Field & $field, array $options)
-    {
-        if (! $this->hasLanguages()) {
-            return $this->addOptionsFor($field, $options, true, $this->locale);
-        }
-
-        foreach ($this->languages as $language) {
-            $labels = FieldTransformer::transferOptionsToLabels($field, $options, $language, $this->tableName);
-            foreach ($labels as $label) {
-                $labelTitle = $this->getLabelName($label->text);
-                $field->addOption($labelTitle, $this->tableName, $label->isPlain, $label->lang, $label->value);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Adds options for a giving field.
-     *
-     * @param CrestApps\CodeGenerator\Models\Field $field
-     * @param array $options
-     * @param bool $isPlain
-     * @param string $locale
-     *
-     * @return $this
-    */
-    protected function addOptionsFor(Field & $field, array $options, $isPlain, $locale)
-    {
-        foreach ($options as $value => $option) {
-            $name = is_array($option) ? current($option) : $option;
-            $field->addOption($this->getLabelName($name), $this->tableName, $isPlain, $locale, $value);
-        }
-
-        return $this;
-    }
-
-    /**
      * Parses out the options from a giving type
      *
      * @param string $type
      *
      * @return mix (null|array)
     */
-    protected function getOptions($type)
+    protected function getEnumOptions($type)
     {
         $match = [];
 
@@ -264,7 +265,7 @@ class MysqlParser extends ParserBase
         foreach ($options as $option) {
             if ($this->hasLanguages()) {
                 foreach ($this->languages as $language) {
-                    $finals[$option][$language] = $option;
+                    $finals[$language][$option] = $option;
                 }
                 continue;
             }

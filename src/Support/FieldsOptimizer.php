@@ -90,7 +90,7 @@ class FieldsOptimizer
                 continue;
             }
 
-            if ($mapper->field->isPrimary() || in_array($mapper->field->name, Config::getIdPatterns())) {
+            if ($mapper->field->isPrimary()) {
                 $mapper->field->isPrimary = true;
                 $foundPrimary = true;
             }
