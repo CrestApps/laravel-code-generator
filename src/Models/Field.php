@@ -2,10 +2,11 @@
 
 namespace CrestApps\CodeGenerator\Models;
 
+use App;
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\ForeignRelationhip;
-use App;
+use CrestApps\CodeGenerator\Support\Config;
 
 class Field
 {
@@ -571,6 +572,7 @@ class Field
      */
     public function toArray()
     {
+
         return [
             'name' => $this->name,
             'labels' => $this->labelsToRaw($this->getLabels()),
@@ -582,7 +584,7 @@ class Field
             'is-on-index' => $this->isOnIndexView,
             'is-on-show' => $this->isOnShowView,
             'is-on-form' => $this->isOnFormView,
-            'data-type' => $this->dataType,
+            'data-type' => $this->getRawDataType(),
             'data-type-params' => $this->methodParams,
             'data-value' => $this->dataValue,
             'is-index' => $this->isIndex,
@@ -606,6 +608,18 @@ class Field
             'on-store' => $this->onStore,
             'on-update' => $this->onUpdate,
         ];
+    }
+
+    /**
+     * Gets the data type in a raw format.
+     *
+     * @return string
+     */
+    protected function getRawDataType()
+    {
+        $type = array_search($this->dataType, Config::dataTypeMap());
+
+        return $type !== false ? $type : $this->dataType;
     }
 
     /**

@@ -74,21 +74,84 @@ class CreateResourcesCommand extends Command
             $this->createFieldsFile($input);
         }
 
-        $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
 
-        if (empty($fields) || !isset($fields[0])) {
-            throw new Exception('You must provide at least one field to generate the views!');
+        if(starts_with($input->modelName, 'mapping-file=')) {
+            $filename = str_replace('mapping-file=', '', $input->modelName);
+
+            $objects = json_decode(Helpers::jsonFileContent($filename));
+
+            if(!is_array($objects)) {
+                throw new Exception('The mapping-file does not contain a valid array. The fields file must be in the following format model-name => fields-file-name');
+            }
+
+            $validInputs = [];
+            foreach($objects as $object)
+            {
+                $input->modelName = $object->{'model-name'};
+                $input->fieldsFile = $object->{'fields-file'};
+                $input->fields = null;
+                $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
+
+                $this->validateField($fields);
+                $validInputs[] = $input;
+             }
+
+            
+            foreach($validInputs as $validInput) {
+                $this->printInfo('Scaffolding resources for ' . $validInput->modelName . '...')
+                     ->createModel($validInput)
+                     ->createController($validInput)
+                     ->createRoutes($validInput)
+                     ->createViews($validInput)
+                     ->createLanguage($validInput)
+                     ->createMigration($validInput)
+                     ->info('---------------------------------');
+            }
+
+            return $this->printInfo('All Done!');
         }
 
-        $this->info('Scaffolding...');
+        $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
 
-        $this->createModel($input)
+        $this->validateField($fields)
+             ->printInfo('Scaffolding...')
+             ->createModel($input)
              ->createController($input)
              ->createRoutes($input)
              ->createViews($input)
              ->createLanguage($input)
              ->createMigration($input)
              ->info('All Done!');
+    }
+
+    /**
+     * Prints a message
+     * 
+     * @param string $message
+     *
+     * @return $this
+     */
+    protected function printInfo($message)
+    {
+        $this->info($message);
+
+        return $this;
+    }
+
+    /**
+     * Ensured fields contains at least one field.
+     * 
+     * @param array $fields
+     *
+     * @return $this
+     */
+    protected function validateField($fields)
+    {
+        if (empty($fields) || !isset($fields[0])) {
+            throw new Exception('You must provide at least one field to generate the views!');
+        }
+
+        return $this;
     }
 
     /**

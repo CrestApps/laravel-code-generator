@@ -17,6 +17,20 @@ class Config
     }
 
     /**
+     * Gets the path to the field files.
+     * 
+     * @param string $file = '';
+     *
+     * @return string
+    */
+    public static function pathToFieldFiles($file = '')
+    {
+        $path = config('codegenerator.fields_file_path', '');
+        
+        return Helpers::getPathWithSlash($path) . $file;
+    }
+
+    /**
      * Gets the common key patterns.
      * 
      * @return array

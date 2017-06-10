@@ -165,13 +165,13 @@ return [
         [
             'match'   => ['*_at'],
             'set' => [
-                'data-type' => 'dateTime'
+                'data-type' => 'datetime'
             ]
         ],
         [
             'match'   => ['created_at','updated_at','deleted_at'],
             'set' => [
-                'data-type'    => 'dateTime',
+                'data-type'    => 'datetime',
                 'is-on-form'   => false,
                 'is-on-index'  => false,
                 'is-on-show'   => true,

@@ -6,6 +6,7 @@ use App;
 use File;
 use Exception;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
+use CrestApps\CodeGenerator\Support\Config;
 
 class Helpers
 {
@@ -162,21 +163,34 @@ class Helpers
     /**
      * Converts a string of field to an array
      *
-     * @param $fieldsLine
+     * @param string $filename
+     * @param string $langFile
      *
      * @return array
      */
-    public static function getFieldsFromFile($fileName, $langFile = 'generic')
+    public static function getFieldsFromFile($filename, $langFile = 'generic')
     {
-        $fileFullname = self::getPathWithSlash(config('codegenerator.fields_file_path')) . $fileName;
+        $content = self::jsonFileContent($filename);
+        
+        return FieldTransformer::fromJson($content, $langFile);
+    }
+
+    /**
+     * Gets the content of a json file.
+     *
+     * @param $filename
+     *
+     * @return string
+     */
+    public static function jsonFileContent($filename)
+    {
+        $fileFullname = Config::pathToFieldFiles($filename);
 
         if (!File::exists($fileFullname)) {
-            throw new Exception('the file ' . $fileFullname . ' was not found!');
+            throw new Exception('The file ' . $fileFullname . ' was not found!');
         }
 
-        $file = File::get($fileFullname);
-        
-        return FieldTransformer::fromJson($file, $langFile);
+        return File::get($fileFullname);
     }
 
     /**
