@@ -13,6 +13,13 @@ class CreateResourcesCommand extends Command
     use CommonCommand;
     
     /**
+     * The prefix string to identify a mapping file to create multiple resource
+     *
+     * @var string
+     */
+    protected $mapperPrefix = 'mapping-file=';
+
+    /**
      * The name and signature of the console command.
      *
      * @var string
@@ -75,8 +82,8 @@ class CreateResourcesCommand extends Command
         }
 
 
-        if(starts_with($input->modelName, 'mapping-file=')) {
-            $filename = str_replace('mapping-file=', '', $input->modelName);
+        if(starts_with($input->modelName, $this->mapperPrefix)) {
+            $filename = str_replace($this->mapperPrefix, '', $input->modelName);
 
             $objects = json_decode(Helpers::jsonFileContent($filename));
 
@@ -94,9 +101,8 @@ class CreateResourcesCommand extends Command
 
                 $this->validateField($fields);
                 $validInputs[] = $input;
-             }
+            }
 
-            
             foreach($validInputs as $validInput) {
                 $this->printInfo('Scaffolding resources for ' . $validInput->modelName . '...')
                      ->createModel($validInput)
@@ -333,8 +339,8 @@ class CreateResourcesCommand extends Command
     protected function getCommandInput()
     {
         $modelName = trim($this->argument('model-name'));
-        //$modelNamePlural = strtolower(str_plural($modelName));
-        $madeupTableName = $this->makeTableName($modelName);
+        
+        $madeupTableName = $this->makeTableName(str_replace($this->mapperPrefix, '', $modelName));
         $controllerName = trim($this->option('controller-name') ?: ucfirst(Helpers::postFixWith(str_plural($modelName), 'Controller')));
         $viewsDirectory = $this->option('views-directory');
         $prefix = $this->option('routes-prefix');
