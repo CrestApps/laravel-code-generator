@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Models\ResourceInput;
 
 class CreateResourcesCommand extends Command
 {
@@ -81,29 +82,18 @@ class CreateResourcesCommand extends Command
             $this->createFieldsFile($input);
         }
 
-
-        if(starts_with($input->modelName, $this->mapperPrefix)) {
+        if (starts_with($input->modelName, $this->mapperPrefix)) {
             $filename = str_replace($this->mapperPrefix, '', $input->modelName);
 
             $objects = json_decode(Helpers::jsonFileContent($filename));
 
-            if(!is_array($objects)) {
-                throw new Exception('The mapping-file does not contain a valid array. The fields file must be in the following format model-name => fields-file-name');
+            if (!is_array($objects)) {
+                throw new Exception('The mapping-file does not contain a valid array.');
             }
 
-            $validInputs = [];
-            foreach($objects as $object)
-            {
-                $input->modelName = $object->{'model-name'};
-                $input->fieldsFile = $object->{'fields-file'};
-                $input->fields = null;
-                $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
+            $validInputs = $this->getValidInputs($objects, $input);
 
-                $this->validateField($fields);
-                $validInputs[] = $input;
-            }
-
-            foreach($validInputs as $validInput) {
+            foreach ($validInputs as $validInput) {
                 $this->printInfo('Scaffolding resources for ' . $validInput->modelName . '...')
                      ->createModel($validInput)
                      ->createController($validInput)
@@ -131,8 +121,87 @@ class CreateResourcesCommand extends Command
     }
 
     /**
+     * Gets valid input collection
+     *
+     * @param array $object
+     * @param CrestApps\CodeGenerator\Models\ResourceInput $input
+     *
+     * @return array of CrestApps\CodeGenerator\Models\ResourceInput
+     */
+    protected function getValidInputs(array $objects, ResourceInput $originalInput)
+    {
+        $validInputs = [];
+        
+        foreach ($objects as $object) {
+            $input = clone $originalInput;
+            if(!isset($object->{'model-name'}) || !isset($object->{'fields-file'})) {
+                throw new Exception('Each entry in the mapping file must a have value for model-name and fields-file');
+            }
+
+            $madeupTableName = $this->makeTableName($object->{'model-name'});
+            $controllerName = ucfirst(Helpers::postFixWith(str_plural($object->{'model-name'}), 'Controller'));
+            $input->modelName = $object->{'model-name'};
+            $input->fieldsFile = $object->{'fields-file'};
+            $input->table = $this->getValue($object, 'table-name', $madeupTableName);
+            $input->fields = null;
+            $input->prefix = $this->getValue($object, 'routes-prefix', $madeupTableName);
+            $input->controllerName = $this->getValue($object, 'controller-name', $controllerName);
+            $input->languageFileName = $this->getValue($object, 'lang-file-name', $madeupTableName);
+            $input->table = $this->getValue($object, 'table-name', $madeupTableName);
+            $input->viewsDirectory = $this->getValue($object, 'views-directory', $input->viewsDirectory);
+            $input->perPage = $this->getValue($object, 'models-per-page', $input->perPage);
+            $input->formRequest = $this->getValue($object, 'with-form-request', $input->formRequest);
+            $input->controllerDirectory = $this->getValue($object, 'controller-directory', $input->controllerDirectory);
+            $input->controllerExtends = $this->getValue($object, 'controller-extends', $input->controllerExtends);
+            $input->withoutMigration = $this->getValue($object, 'without-migration', $input->withoutMigration);
+            $input->force = $this->getValue($object, 'force', $input->force);
+            $input->modelDirectory = $this->getValue($object, 'model-directory', $input->modelDirectory);
+            $input->fillable = $this->getValue($object, 'fillable', $input->fillable);
+            $input->primaryKey = $this->getValue($object, 'primary-key', $input->primaryKey);
+            $input->relationships = $this->getValue($object, 'relationships', $input->relationships);
+            $input->withSoftDelete = $this->getValue($object, 'with-soft-delete', $input->withSoftDelete);
+            $input->withoutTimeStamps = $this->getValue($object, 'without-timestamps', $input->withoutTimeStamps);
+            $input->migrationClass = $this->getValue($object, 'migration-class-name', $input->migrationClass);
+            $input->connectionName = $this->getValue($object, 'connection-name', $input->connectionName);
+            $input->indexes = $this->getValue($object, 'indexes', $input->indexes);
+            $input->foreignKeys = $this->getValue($object, 'foreign-keys', $input->foreignKeys);
+            $input->engineName = $this->getValue($object, 'engine-name', $input->engineName);
+            $input->template = $this->getValue($object, 'template-name', $input->template);
+            $input->layoutName = $this->getValue($object, 'layout-name', $input->layoutName);
+            $input->tableExists = $this->getValue($object, 'table-exists', $input->layoutName);
+            $input->translationFor = $this->getValue($object, 'translation-for', $input->translationFor);
+            $input->withAuth = $this->getValue($object, 'with-auth', $input->withAuth);
+
+            $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
+
+            $this->validateField($fields);
+            $validInputs[] = $input;
+        }
+
+        return $validInputs;
+    }
+
+    /**
+     * Gets the value of a property of a givig object if exists.
+     *
+     * @param object $object
+     * @param string $name
+     * @param mix $default
+     *
+     * @return mix
+     */
+    protected function getValue($object, $name, $default = null)
+    {
+        if (isset($object->{$name})) {
+            return $object->{$name};
+        }
+
+        return $default;
+    }
+
+    /**
      * Prints a message
-     * 
+     *
      * @param string $message
      *
      * @return $this
@@ -146,7 +215,7 @@ class CreateResourcesCommand extends Command
 
     /**
      * Ensured fields contains at least one field.
-     * 
+     *
      * @param array $fields
      *
      * @return $this
@@ -162,7 +231,7 @@ class CreateResourcesCommand extends Command
 
     /**
      * Executes the command that generates a migration.
-     * 
+     *
      * @param object $input
      *
      * @return $this
@@ -192,7 +261,7 @@ class CreateResourcesCommand extends Command
 
     /**
      * Executes the command that generate fields' file.
-     * 
+     *
      * @param object $input
      *
      * @return $this
@@ -211,7 +280,7 @@ class CreateResourcesCommand extends Command
 
     /**
      * Executes the command that generates a language files.
-     * 
+     *
      * @param object $input
      *
      * @return $this
@@ -231,7 +300,7 @@ class CreateResourcesCommand extends Command
 
     /**
      * Executes the command that generates all the views.
-     * 
+     *
      * @param object $input
      *
      * @return $this
@@ -255,7 +324,7 @@ class CreateResourcesCommand extends Command
 
     /**
      * Executes the command that generates the routes.
-     * 
+     *
      * @param object $input
      *
      * @return $this
@@ -276,7 +345,7 @@ class CreateResourcesCommand extends Command
 
     /**
      * Executes the command that generates the controller.
-     * 
+     *
      * @param object $input
      * @return $this
      */
@@ -305,7 +374,7 @@ class CreateResourcesCommand extends Command
 
     /**
      * Executes the command that generates a model.
-     * 
+     *
      * @param object $input
      *
      * @return $this
@@ -338,44 +407,41 @@ class CreateResourcesCommand extends Command
      */
     protected function getCommandInput()
     {
-        $modelName = trim($this->argument('model-name'));
+        $input = new ResourceInput(trim($this->argument('model-name')));
         
-        $madeupTableName = $this->makeTableName(str_replace($this->mapperPrefix, '', $modelName));
-        $controllerName = trim($this->option('controller-name') ?: ucfirst(Helpers::postFixWith(str_plural($modelName), 'Controller')));
-        $viewsDirectory = $this->option('views-directory');
         $prefix = $this->option('routes-prefix');
-        $prefix = $prefix == 'model-name-as-plural' ? $madeupTableName : $prefix;
-        $perPage = intval($this->option('models-per-page'));
-        $fields = $this->option('fields');
-        $fieldsFile = $this->option('fields-file');
-        $languageFileName = $this->option('lang-file-name') ?: $madeupTableName;
-        $formRequest = $this->option('with-form-request');
-        $controllerDirectory = $this->option('controller-directory');
-        $controllerExtends = $this->option('controller-extends') ?: null;
-        $withoutMigration = $this->option('without-migration');
-        $force = $this->option('force');
-        $modelDirectory = $this->option('model-directory');
-        $table = $this->option('table-name') ?: $madeupTableName;
-        $fillable = $this->option('fillable');
-        $primaryKey = $this->option('primary-key');
-        $relationships = $this->option('relationships');
-        $withSoftDelete = $this->option('with-soft-delete');
-        $withoutTimeStamps = $this->option('without-timestamps');
-        $migrationClass = $this->option('migration-class-name');
-        $connectionName = $this->option('connection-name');
-        $indexes = $this->option('indexes');
-        $foreignKeys = $this->option('foreign-keys');
-        $engineName = $this->option('engine-name');
-        $template = $this->getTemplateName();
-        $layoutName = $this->option('layout-name') ?: 'layouts.app';
-        $tableExists = $this->option('table-exists');
-        $translationFor = $this->option('translation-for');
-        $withAuth = $this->option('with-auth');
+        $madeupTableName = $this->makeTableName($input->modelName);
+        $input->prefix = ($prefix == 'model-name-as-plural') ? $madeupTableName : $prefix;
+        $input->languageFileName = $this->option('lang-file-name') ?: $madeupTableName;
+        $input->table = $this->option('table-name') ?: $madeupTableName;
+        $input->viewsDirectory = $this->option('views-directory');
+        $madeupControllerName = ucfirst(Helpers::postFixWith(str_plural($input->modelName), 'Controller'));
+        $input->controllerName = trim($this->option('controller-name')) ?: $madeupControllerName;
+        $input->perPage = intval($this->option('models-per-page'));
+        $input->fields = $this->option('fields');
+        $input->fieldsFile = $this->option('fields-file');
+        $input->formRequest = $this->option('with-form-request');
+        $input->controllerDirectory = $this->option('controller-directory');
+        $input->controllerExtends = $this->option('controller-extends') ?: null;
+        $input->withoutMigration = $this->option('without-migration');
+        $input->force = $this->option('force');
+        $input->modelDirectory = $this->option('model-directory');
+        $input->fillable = $this->option('fillable');
+        $input->primaryKey = $this->option('primary-key');
+        $input->relationships = $this->option('relationships');
+        $input->withSoftDelete = $this->option('with-soft-delete');
+        $input->withoutTimeStamps = $this->option('without-timestamps');
+        $input->migrationClass = $this->option('migration-class-name');
+        $input->connectionName = $this->option('connection-name');
+        $input->indexes = $this->option('indexes');
+        $input->foreignKeys = $this->option('foreign-keys');
+        $input->engineName = $this->option('engine-name');
+        $input->template = $this->getTemplateName();
+        $input->layoutName = $this->option('layout-name') ?: 'layouts.app';
+        $input->tableExists = $this->option('table-exists');
+        $input->translationFor = $this->option('translation-for');
+        $input->withAuth = $this->option('with-auth');
         
-        return (object) compact('modelName', 'controllerName', 'viewsDirectory', 'prefix', 'perPage', 'fields', 'force',
-                                'languageFileName', 'fieldsFile', 'formRequest', 'modelDirectory', 'table', 'fillable', 'primaryKey',
-                                'relationships', 'withSoftDelete', 'withoutTimeStamps', 'controllerDirectory', 'withoutMigration',
-                                'migrationClass', 'connectionName', 'indexes', 'foreignKeys', 'engineName', 'layoutName', 'template',
-                                'tableExists', 'translationFor','controllerExtends','withAuth');
+        return $input;
     }
 }

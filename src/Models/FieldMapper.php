@@ -20,6 +20,14 @@ class FieldMapper
      */
     public $meta;
 
+    /**
+     * Creates a new field instance.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $meta
+     *
+     * @return void
+     */
     public function __construct(Field $field, array $meta = [])
     {
         $this->field = $field;

@@ -34,5 +34,12 @@
         "post-update-cmd": [
             "composer dump-autoload"
         ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "CrestApps\\CodeGenerator\\CodeGeneratorServiceProvider"
+            ]
+        }
     }
 }
