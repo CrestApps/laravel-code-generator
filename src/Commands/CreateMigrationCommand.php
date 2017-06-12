@@ -821,7 +821,7 @@ class CreateMigrationCommand extends Command
     protected function getCommandInput()
     {
         $tableName = trim($this->argument('table-name'));
-        $className = trim($this->option('migration-class-name')) ?: sprintf('Create%sTable', ucfirst($tableName));
+        $className = trim($this->option('migration-class-name')) ?: sprintf('Create%sTable', studly_case($tableName));
         $connection =  trim($this->option('connection-name'));
         $engine =  trim($this->option('engine-name'));
         $fields = trim($this->option('fields'));
