@@ -66,6 +66,7 @@ trait GeneratorReplacers
 
         return $this;
     }
+    
     /**
      * Replace the app_name fo the given stub.
      *
@@ -138,18 +139,40 @@ trait GeneratorReplacers
         return ucwords($name);
     }
 
+    /**
+     * Gets a model name.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
     protected function getModelName($name)
     {
         return snake_case($name);
     }
 
+    /**
+     * Gets a model name in a plural formal.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
     protected function getModelPluralName($name)
     {
         return str_plural(strtolower($name));
     }
 
+    /**
+     * Gets a model name in a plural formal "Caps".
+     *
+     * @param string $name
+     *
+     * @return string
+     */
     protected function getModelNamePluralCap($name)
     {
         return ucwords($this->getModelPluralName($name));
     }
+    
 }
