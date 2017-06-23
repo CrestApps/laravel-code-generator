@@ -20,7 +20,8 @@ class CreateFormRequestCommand extends Command
      * @var string
      */
     protected $signature = 'create:form-request
-                            {class-name : The name of the form-request class.}
+                            {model-name : The model name.}
+                            {--class-name= : The name of the form-request class.}
                             {--fields= : The fields to create the validation rules from.}
                             {--fields-file= : File name to import fields from.}
                             {--template-name= : The template name to use when generating the code.}
@@ -184,13 +185,14 @@ EOF;
      */
     protected function getCommandInput()
     {
-        $fileName = trim($this->argument('class-name'));
-        $fields =  trim($this->option('fields'));
-        $fieldsFile = trim($this->option('fields-file'));
+        $modelName = trim($this->argument('model-name'));
+        $fileName = trim($this->option('class-name')) ?: $modelName . 'FormRequest';
+        $fields = trim($this->option('fields'));
+        $fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($modelName);
         $force = $this->option('force');
         $template = $this->option('template-name');
 
-        return (object) compact('fileName', 'fields', 'fieldsFile', 'force', 'template');
+        return (object) compact('modelName','fileName', 'fields', 'fieldsFile', 'force', 'template');
     }
 
     /**

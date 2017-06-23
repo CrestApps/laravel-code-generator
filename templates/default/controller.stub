@@ -2,20 +2,19 @@
 
 namespace [% namespace %];
 
-use Session;
 [% use_command_placeholder %]
 
 class [% controller_name %] [% controller_extends %]
 {
 [% constructor %]
     /**
-     * Display a listing of the [% model_name_plural %] .
+     * Display a listing of the [% model_name_plural %].
      *
      * @return Illuminate\View\View
      */
     public function index()
     {
-        $[% model_name_plural %] = [% model_name_class %]::[% with_relations_for_index %]paginate([% models_per_page %]);
+        $[% model_name_plural_variable %] = [% model_name_class %]::[% with_relations_for_index %]paginate([% models_per_page %]);
 
         return view('[% index_view_name %]'[% view_variables_for_index %]);
     }
@@ -33,7 +32,7 @@ class [% controller_name %] [% controller_extends %]
     }
 
     /**
-     * Store a new [% model_name %]  in the storage.
+     * Store a new [% model_name %] in the storage.
      *
      * @param [% request_fullname %][% request_variable %]
      *
@@ -41,13 +40,20 @@ class [% controller_name %] [% controller_extends %]
      */
     public function store([% type_hinted_request_name %])
     {
-        [% call_affirm %]
-        $[% data_variable %] = [% call_get_data %];
-        [% on_store_setter %]
-        [% model_name_class %]::create($[% data_variable %]);
-        Session::flash('success_message', '[% model_name_class %] was added!');
+        try {
+            [% call_affirm %]
+            $[% data_variable %] = [% call_get_data %];
+            [% on_store_setter %]
+            [% model_name_class %]::create($[% data_variable %]);
 
-        return redirect()->route('[% index_route_name %]');
+            return redirect()->route('[% index_route_name %]')
+                             ->with('success_message', [% model_was_added %]);
+
+        } catch (Exception $exception) {
+
+            return back()->withInput()
+                         ->withErrors(['unexpected_error' => [% unexpected_error %]]);
+        }
     }
 
     /**
@@ -59,7 +65,7 @@ class [% controller_name %] [% controller_extends %]
      */
     public function show($id)
     {
-        $[% model_name %] = [% model_name_class %]::[% with_relations_for_show %]findOrFail($id);
+        $[% model_name_singular_variable %] = [% model_name_class %]::[% with_relations_for_show %]findOrFail($id);
 
         return view('[% show_view_name %]'[% view_variables_for_show %]);
     }
@@ -73,7 +79,7 @@ class [% controller_name %] [% controller_extends %]
      */
     public function edit($id)
     {
-        $[% model_name %] = [% model_name_class %]::findOrFail($id);
+        $[% model_name_singular_variable %] = [% model_name_class %]::findOrFail($id);
         [% relation_collections %]
 
         return view('[% edit_view_name %]'[% view_variables_for_edit %]);
@@ -89,14 +95,21 @@ class [% controller_name %] [% controller_extends %]
      */
     public function update($id, [% type_hinted_request_name %])
     {
-        [% call_affirm %]
-        $[% data_variable %] = [% call_get_data %];
-        [% on_update_setter %]
-        $[% model_name %] = [% model_name_class %]::findOrFail($id);
-        $[% model_name %]->update($[% data_variable %]);
-        Session::flash('success_message', '[% model_name_class %] was updated!');
+        try {
+            [% call_affirm %]
+            $[% data_variable %] = [% call_get_data %];
+            [% on_update_setter %]
+            $[% model_name_singular_variable %] = [% model_name_class %]::findOrFail($id);
+            $[% model_name_singular_variable %]->update($[% data_variable %]);
 
-        return redirect()->route('[% index_route_name %]');
+            return redirect()->route('[% index_route_name %]')
+                             ->with('success_message', [% model_was_updated %]);
+
+        } catch (Exception $exception) {
+
+            return back()->withInput()
+                         ->withErrors(['unexpected_error' => [% unexpected_error %]]);
+        }        
     }
 
     /**
@@ -108,11 +121,18 @@ class [% controller_name %] [% controller_extends %]
      */
     public function destroy($id)
     {
-        $[% model_name %] = [% model_name_class %]::findOrFail($id);
-        $[% model_name %]->delete();
-        Session::flash('success_message', '[% model_name_class %] was deleted!');
+        try {
+            $[% model_name_singular_variable %] = [% model_name_class %]::findOrFail($id);
+            $[% model_name_singular_variable %]->delete();
 
-        return redirect()->route('[% index_route_name %]');
+            return redirect()->route('[% index_route_name %]')
+                             ->with('success_message', [% model_was_deleted %]);
+
+        } catch (Exception $exception) {
+
+            return back()->withInput()
+                         ->withErrors(['unexpected_error' => [% unexpected_error %]]);
+        }
     }
 [% affirm_method %]
 [% get_data_method %]

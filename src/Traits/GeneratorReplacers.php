@@ -14,11 +14,25 @@ trait GeneratorReplacers
      */
     protected function replaceModelName(&$stub, $modelName)
     {
-        $stub = $this->strReplace('model_name', $this->getModelName($modelName), $stub);
-        $stub = $this->strReplace('model_name_cap', $this->getModelCapName($modelName), $stub);
-        $stub = $this->strReplace('model_name_class', $this->getModelCapName($modelName), $stub);
-        $stub = $this->strReplace('model_name_plural', $this->getModelPluralName($modelName), $stub);
-        $stub = $this->strReplace('model_name_plural_cap', $this->getModelNamePluralCap($modelName), $stub);
+        $snake = snake_case($modelName);
+        $englishSingle = str_replace('_', ' ', $snake);
+        $plural = str_plural($englishSingle);
+
+        $stub = $this->strReplace('model_name', $englishSingle, $stub);
+        $stub = $this->strReplace('model_name_flat', strtolower($modelName), $stub);   
+        $stub = $this->strReplace('model_name_sentence', ucfirst($englishSingle), $stub);
+        $stub = $this->strReplace('model_name_plural', $plural, $stub);
+        $stub = $this->strReplace('model_name_plural_title', title_case($plural), $stub);
+        $stub = $this->strReplace('model_name_snake', $snake, $stub);
+        $stub = $this->strReplace('model_name_studly', studly_case($modelName), $stub);
+        $stub = $this->strReplace('model_name_slug', str_slug($englishSingle), $stub);
+        $stub = $this->strReplace('model_name_kebab', kebab_case($modelName), $stub);
+        $stub = $this->strReplace('model_name_title', title_case($englishSingle), $stub);
+        $stub = $this->strReplace('model_name_title_lower', strtolower($englishSingle), $stub);
+        $stub = $this->strReplace('model_name_title_upper', strtoupper($englishSingle), $stub);
+        $stub = $this->strReplace('model_name_class', $modelName, $stub);       
+        $stub = $this->strReplace('model_name_plural_variable', $this->getPluralVariable($modelName), $stub);
+        $stub = $this->strReplace('model_name_singular_variable', $this->getSingularVariable($modelName), $stub);
 
         return $this;
     }
@@ -126,7 +140,7 @@ trait GeneratorReplacers
 
     protected function getModelName($name)
     {
-        return strtolower($name);
+        return snake_case($name);
     }
 
     protected function getModelPluralName($name)

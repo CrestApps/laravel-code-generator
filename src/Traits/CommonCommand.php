@@ -54,15 +54,19 @@ trait CommonCommand
     /**
      * Gets the field from the input
      *
+     * @param string $fields
+     * @param string $langFile
+     * @param string $fieldsFile
+     *
      * @return Field array
      */
-    protected function getFields($fields, $langFile, $fieldsFile = null)
+    protected function getFields($fields, $langFile, $fieldsFile)
     {
-        if (!empty($fieldsFile)) {
-            return Helpers::getFieldsFromFile($fieldsFile, $langFile);
+        if (!empty($fields)) {
+            return Helpers::getFields($fields, $langFile);
         }
 
-        return Helpers::getFields($fields, $langFile);
+        return Helpers::getFieldsFromFile($fieldsFile, $langFile);
     }
 
     /**
@@ -114,7 +118,31 @@ trait CommonCommand
 
         return parent::argument();
     }
+
+    /**
+     * Gets plural variable instance of a giving model.
+     *
+     * @param  string  $modelName
+     *
+     * @return string
+     */
+    public function getPluralVariable($modelName)
+    {
+        return camel_case(str_plural(snake_case($modelName)));
+    }
     
+    /**
+     * Gets singular variable instance of a giving model.
+     *
+     * @param  string  $modelName
+     *
+     * @return string
+     */
+    public function getSingularVariable($modelName)
+    {
+        return lcfirst($modelName);
+    }
+
     /**
      * Makes the table name from the giving model name.
      *
@@ -124,7 +152,7 @@ trait CommonCommand
      */
     protected function makeTableName($modelName)
     {
-        return snake_case(lcfirst(str_plural($modelName)));
+        return str_plural(snake_case($modelName));
     }
 
     /**
@@ -526,6 +554,18 @@ trait CommonCommand
         }
 
         return $path;
+    }
+
+    /**
+     * Checks the giving template if it is a Laravel-Collective template or not.
+     *
+     * @param string $template
+     *
+     * @return bool
+     */
+    protected function isCollectiveTemplate($template = null)
+    {
+        return in_array($template ?: $this->getTemplateName(), Config::getCollectiveTemplates());
     }
 
     /**

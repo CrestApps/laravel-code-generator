@@ -1,1 +1,1 @@
-$this->attributes['[% field_name %]'] = date($this->dateFormat, strtotime($value));
+$this->attributes['[% field_name %]'] = date($this->getDateFormat(), strtotime($value));

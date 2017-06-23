@@ -18,6 +18,7 @@ class CreateEditViewCommand extends ViewsCommand
                             {--fields-file= : File name to import fields from.}
                             {--views-directory= : The name of the directory to create the views under.}
                             {--routes-prefix= : The routes prefix.}
+                            {--lang-file-name= : The name of the language file.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
                             {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the view if one already exists.}';
@@ -52,10 +53,10 @@ class CreateEditViewCommand extends ViewsCommand
 
         if ($this->canCreateView($destenationFile, $input->force, $fields)) {
             $stub = $this->getStub();
-            
-            $this->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
+
+            $this->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile, $input->modelName)
                  ->createMissingViews($input)
-                 ->replaceCommonTemplates($stub, $input)
+                 ->replaceCommonTemplates($stub, $input, $fields)
                  ->replaceFileUpload($stub, $fields)
                  ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
                  ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($fields, $input->modelName))

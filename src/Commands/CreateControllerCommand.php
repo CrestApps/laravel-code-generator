@@ -4,10 +4,11 @@ namespace CrestApps\CodeGenerator\Commands;
 
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
-use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
+use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 
 class CreateControllerCommand extends Command
 {
@@ -19,8 +20,8 @@ class CreateControllerCommand extends Command
      * @var string
      */
     protected $signature = 'create:controller
-                            {controller-name : The name of the controler.}
-                            {--model-name= : The model name that this controller will represent.}
+                            {model-name : The model name that this controller will represent.}
+                            {--controller-name= : The name of the controler.}
                             {--controller-directory= : The directory where the controller should be created under.}
                             {--model-directory= : The path where the model should be created under.}
                             {--views-directory= : The path where the views should be created under.}
@@ -92,17 +93,20 @@ class CreateControllerCommand extends Command
             $requestNameSpace = $this->getRequestsNamespace($requestName);
             $this->makeFormRequest($input);
         }
-        
+
         $fields = $this->getFields($input->fields, $input->langFile, $input->fieldsFile);
-        $viewVariablesForIndex = $this->getCompactVariablesFor($fields, $this->getModelPluralName($input->modelName), 'index');
-        $viewVariablesForShow = $this->getCompactVariablesFor($fields, $this->getModelName($input->modelName), 'show');
-        $viewVariablesForEdit = $this->getCompactVariablesFor($fields, $this->getModelName($input->modelName), 'form');
+        $viewVariablesForIndex = $this->getCompactVariablesFor($fields, $this->getPluralVariable($input->modelName), 'index');
+        $viewVariablesForShow = $this->getCompactVariablesFor($fields, $this->getSingularVariable($input->modelName), 'show');
+        $viewVariablesForEdit = $this->getCompactVariablesFor($fields, $this->getSingularVariable($input->modelName), 'form');
         $modelFullName = $this->getModelFullName($input->modelDirectory, $input->modelName);
         $affirmMethod = $this->getAffirmMethod($input->withFormRequest, $fields, $requestNameSpace);
         $classToExtendFullname = $this->getFullClassToExtend($input->extends);
         $namespacesToUse = $this->getRequiredUseClasses($fields, [$modelFullName, $requestNameSpace, $classToExtendFullname]);
         $dataMethod = $this->getDataMethod($fields, $requestNameSpace . '\\' . $requestName, $input->withFormRequest);
         $stub = $this->getStubContent('controller');
+        $languages = array_keys(Helpers::getLanguageItems($fields));
+        $viewLabels = new ViewLabelsGenerator($input->modelName, $this->isCollectiveTemplate());
+        $standardLabels = $viewLabels->getLabels($languages);
 
         return $this->replaceViewNames($stub, $input->viewDirectory, $input->prefix)
                     ->replaceGetDataMethod($stub, $dataMethod)
@@ -111,7 +115,7 @@ class CreateControllerCommand extends Command
                     ->replaceNamespace($stub, $this->getControllersNamespace())
                     ->replaceControllerExtends($stub, $this->getControllerExtends($classToExtendFullname))
                     ->replaceUseCommandPlaceholder($stub, $namespacesToUse)
-                    ->replaceRouteNames($stub, $input->modelName, $input->prefix)
+                    ->replaceRouteNames($stub, $this->getModelName($input->modelName), $input->prefix)
                     ->replaceConstructor($stub, $this->getConstructor($input->withAuth))
                     ->replaceCallAffirm($stub, $this->getCallAffirm($input->withFormRequest))
                     ->replaceAffirmMethod($stub, $affirmMethod)
@@ -133,6 +137,7 @@ class CreateControllerCommand extends Command
                     ->replaceRequestFullName($stub, $requestNameSpace)
                     ->replaceRequestVariable($stub, ' ' . $this->requestVariable)
                     ->replaceTypeHintedRequestName($stub, $this->getTypeHintedRequestName($requestName))
+                    ->replaceStandardLabels($stub, $standardLabels)
                     ->createFile($destenationFile, $stub)
                     ->info('A controller was crafted successfully.');
     }
@@ -666,9 +671,11 @@ class CreateControllerCommand extends Command
      */
     protected function makeFormRequest($input)
     {
+
         $this->callSilent('create:form-request',
         [
-            'class-name' => $input->formRequestName,
+            'model-name' => $input->modelName,
+            '--class-name' => $input->formRequestName,
             '--fields' => $input->fields,
             '--force' => $input->force,
             '--fields-file' => $input->fieldsFile,
@@ -700,19 +707,19 @@ class CreateControllerCommand extends Command
      */
     protected function getCommandInput()
     {
-        $controllerName = Helpers::postFixWith(trim($this->argument('controller-name')), 'Controller');
-        $plainControllerName= str_singular(Helpers::removePostFixWith($controllerName, 'Controller'));
-        $modelName = $this->option('model-name') ?: $plainControllerName;
+        $modelName = trim($this->argument('model-name'));
+        $cName = trim($this->option('controller-name'));
+        $controllerName = $cName ? str_finish($cName, 'Controller') : Helpers::makeControllerName($modelName);;
         $viewDirectory = $this->option('views-directory');
         $prefix = $this->option('routes-prefix');
         $perPage = intval($this->option('models-per-page'));
-        $fields = $this->option('fields');
-        $fieldsFile = $this->option('fields-file');
-        $langFile = $this->option('lang-file-name') ?: strtolower(str_plural($modelName));
+        $fields = trim($this->option('fields'));
+        $fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($modelName);
+        $langFile = $this->option('lang-file-name') ?: Helpers::makeLocaleGroup($modelName);
         $withFormRequest = $this->option('with-form-request');
         $force = $this->option('force');
         $modelDirectory = $this->option('model-directory');
-        $formRequestName = $plainControllerName . 'FormRequest';
+        $formRequestName = '';
         $template = $this->getTemplateName();
         $extends = $this->generatorOption('controller-extends');
         $withAuth = $this->option('with-auth');
@@ -720,6 +727,26 @@ class CreateControllerCommand extends Command
         return (object) compact('viewDirectory', 'viewName', 'modelName', 'prefix', 'perPage', 'fileSnippet', 'modelDirectory',
                                 'langFile', 'fields', 'withFormRequest', 'formRequestName', 'force', 'fieldsFile', 'template',
                                 'controllerName', 'extends', 'withAuth');
+    }
+
+    /**
+     * It Replaces the templates of the givin $labels
+     *
+     * @param string $stub
+     * @param array $items
+     *
+     * @return $this
+     */
+    protected function replaceStandardLabels(&$stub, array $items)
+    {
+        foreach ($items as $labels) {
+            foreach ($labels as $label) {
+                $text = $label->isPlain ? sprintf("'%s'", $label->text) : sprintf("trans('%s')", $label->localeGroup);
+                $stub = $this->strReplace($label->template, $text, $stub);
+            }
+        }
+
+        return $this;
     }
 
     /**

@@ -98,8 +98,8 @@ class CreateResourcesCommand extends Command
                      ->createModel($validInput)
                      ->createController($validInput)
                      ->createRoutes($validInput)
-                     ->createViews($validInput)
                      ->createLanguage($validInput)
+                     ->createViews($validInput)
                      ->createMigration($validInput)
                      ->info('---------------------------------');
             }
@@ -107,15 +107,15 @@ class CreateResourcesCommand extends Command
             return $this->printInfo('All Done!');
         }
 
-        $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
+        $fields = $this->getFields($input->fields, $input->languageFileName ?: 'generic', $input->fieldsFile);
 
         $this->validateField($fields)
              ->printInfo('Scaffolding...')
              ->createModel($input)
              ->createController($input)
              ->createRoutes($input)
-             ->createViews($input)
              ->createLanguage($input)
+             ->createViews($input)
              ->createMigration($input)
              ->info('All Done!');
     }
@@ -134,14 +134,14 @@ class CreateResourcesCommand extends Command
         
         foreach ($objects as $object) {
             $input = clone $originalInput;
-            if(!isset($object->{'model-name'}) || !isset($object->{'fields-file'})) {
-                throw new Exception('Each entry in the mapping file must a have value for model-name and fields-file');
+            if(!isset($object->{'model-name'})) {
+                throw new Exception('Each entry in the mapping file must a have value for model-name');
             }
 
             $madeupTableName = $this->makeTableName($object->{'model-name'});
             $controllerName = ucfirst(Helpers::postFixWith(str_plural($object->{'model-name'}), 'Controller'));
             $input->modelName = $object->{'model-name'};
-            $input->fieldsFile = $object->{'fields-file'};
+            $input->fieldsFile = $this->getValue($object, 'fields-file', Helpers::makeJsonFileName($modelName));
             $input->table = $this->getValue($object, 'table-name', $madeupTableName);
             $input->fields = null;
             $input->prefix = $this->getValue($object, 'routes-prefix', $madeupTableName);
@@ -232,7 +232,7 @@ class CreateResourcesCommand extends Command
     /**
      * Executes the command that generates a migration.
      *
-     * @param object $input
+     * @param CrestApps\CodeGenerator\Models\ResourceInput $input
      *
      * @return $this
      */
@@ -241,7 +241,8 @@ class CreateResourcesCommand extends Command
         if (!$input->withoutMigration) {
             $this->call('create:migration',
                 [
-                    'table-name'             => $input->table,
+                    'model-name'             => $input->modelName,
+                    '--table-name'           => $input->table,
                     '--migration-class-name' => $input->migrationClass,
                     '--connection-name'      => $input->connectionName,
                     '--indexes'              => $input->indexes,
@@ -262,7 +263,7 @@ class CreateResourcesCommand extends Command
     /**
      * Executes the command that generate fields' file.
      *
-     * @param object $input
+     * @param CrestApps\CodeGenerator\Models\ResourceInput $input
      *
      * @return $this
      */
@@ -281,7 +282,7 @@ class CreateResourcesCommand extends Command
     /**
      * Executes the command that generates a language files.
      *
-     * @param object $input
+     * @param CrestApps\CodeGenerator\Models\ResourceInput $input
      *
      * @return $this
      */
@@ -289,10 +290,11 @@ class CreateResourcesCommand extends Command
     {
         $this->callSilent('create:language',
             [
-                'language-file-name' => $input->languageFileName,
-                '--fields'           => $input->fields,
-                '--fields-file'      => $input->fieldsFile,
-                '--template-name'    => $input->template
+                'model-name'           => $input->modelName,
+                '--language-file-name' => $input->languageFileName,
+                '--fields'             => $input->fields,
+                '--fields-file'        => $input->fieldsFile,
+                '--template-name'      => $input->template
             ]);
 
         return $this;
@@ -301,7 +303,7 @@ class CreateResourcesCommand extends Command
     /**
      * Executes the command that generates all the views.
      *
-     * @param object $input
+     * @param CrestApps\CodeGenerator\Models\ResourceInput $input
      *
      * @return $this
      */
@@ -325,7 +327,7 @@ class CreateResourcesCommand extends Command
     /**
      * Executes the command that generates the routes.
      *
-     * @param object $input
+     * @param CrestApps\CodeGenerator\Models\ResourceInput $input
      *
      * @return $this
      */
@@ -333,11 +335,11 @@ class CreateResourcesCommand extends Command
     {
         $this->call('create:routes',
             [
-                'controller-name'        => $input->controllerName,
-                '--model-name'           => $input->modelName,
-                '--routes-prefix'        => $input->prefix,
-                '--template-name'        => $input->template,
-                '--controller-directory' => $input->controllerDirectory
+                'model-name'               => $input->modelName,
+                '--controller-name'        => $input->controllerName,
+                '--routes-prefix'          => $input->prefix,
+                '--template-name'          => $input->template,
+                '--controller-directory'   => $input->controllerDirectory
             ]);
 
         return $this;
@@ -346,27 +348,27 @@ class CreateResourcesCommand extends Command
     /**
      * Executes the command that generates the controller.
      *
-     * @param object $input
+     * @param CrestApps\CodeGenerator\Models\ResourceInput $input
      * @return $this
      */
     protected function createController($input)
     {
         $this->call('create:controller',
             [
-                'controller-name'        => $input->controllerName,
-                '--model-name'           => $input->modelName,
-                '--controller-directory' => $input->controllerDirectory,
-                '--controller-extends'   => $input->controllerExtends,
-                '--model-directory'      => $input->modelDirectory,
-                '--views-directory'      => $input->viewsDirectory,
-                '--fields'               => $input->fields,
-                '--fields-file'          => $input->fieldsFile,
-                '--routes-prefix'        => $input->prefix,
-                '--lang-file-name'       => $input->languageFileName,
-                '--with-form-request'    => $input->formRequest,
-                '--force'                => $input->force,
-                '--with-auth'            => $input->withAuth,
-                '--template-name'        => $input->template
+                'model-name'               => $input->modelName,
+                '--controller-name'        => $input->controllerName,
+                '--controller-directory'   => $input->controllerDirectory,
+                '--controller-extends'     => $input->controllerExtends,
+                '--model-directory'        => $input->modelDirectory,
+                '--views-directory'        => $input->viewsDirectory,
+                '--fields'                 => $input->fields,
+                '--fields-file'            => $input->fieldsFile,
+                '--routes-prefix'          => $input->prefix,
+                '--lang-file-name'         => $input->languageFileName,
+                '--with-form-request'      => $input->formRequest,
+                '--force'                  => $input->force,
+                '--with-auth'              => $input->withAuth,
+                '--template-name'          => $input->template
             ]);
 
         return $this;
@@ -375,7 +377,7 @@ class CreateResourcesCommand extends Command
     /**
      * Executes the command that generates a model.
      *
-     * @param object $input
+     * @param CrestApps\CodeGenerator\Models\ResourceInput $input
      *
      * @return $this
      */
@@ -403,23 +405,20 @@ class CreateResourcesCommand extends Command
     /**
      * Gets a clean user inputs.
      *
-     * @return object
+     * @return CrestApps\CodeGenerator\Models\ResourceInput
      */
     protected function getCommandInput()
     {
         $input = new ResourceInput(trim($this->argument('model-name')));
-        
         $prefix = $this->option('routes-prefix');
-        $madeupTableName = $this->makeTableName($input->modelName);
-        $input->prefix = ($prefix == 'model-name-as-plural') ? $madeupTableName : $prefix;
-        $input->languageFileName = $this->option('lang-file-name') ?: $madeupTableName;
-        $input->table = $this->option('table-name') ?: $madeupTableName;
-        $input->viewsDirectory = $this->option('views-directory');
-        $madeupControllerName = ucfirst(Helpers::postFixWith(str_plural($input->modelName), 'Controller'));
-        $input->controllerName = trim($this->option('controller-name')) ?: $madeupControllerName;
+        $input->prefix = ($prefix == 'model-name-as-plural') ? $this->makeTableName($input->modelName) : $prefix;
+        $input->languageFileName = trim($this->option('lang-file-name'));
+        $input->table = trim($this->option('table-name'));
+        $input->viewsDirectory = trim($this->option('views-directory'));
+        $input->controllerName = trim($this->option('controller-name')) ?: Helpers::makeControllerName($input->modelName);
         $input->perPage = intval($this->option('models-per-page'));
         $input->fields = $this->option('fields');
-        $input->fieldsFile = $this->option('fields-file');
+        $input->fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($input->modelName);
         $input->formRequest = $this->option('with-form-request');
         $input->controllerDirectory = $this->option('controller-directory');
         $input->controllerExtends = $this->option('controller-extends') ?: null;
@@ -441,7 +440,7 @@ class CreateResourcesCommand extends Command
         $input->tableExists = $this->option('table-exists');
         $input->translationFor = $this->option('translation-for');
         $input->withAuth = $this->option('with-auth');
-        
+
         return $input;
     }
 }

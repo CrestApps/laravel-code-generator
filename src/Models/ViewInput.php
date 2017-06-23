@@ -2,6 +2,8 @@
 
 namespace CrestApps\CodeGenerator\Models;
 
+use CrestApps\CodeGenerator\Support\Helpers;
+
 class ViewInput
 {
     /**
@@ -69,11 +71,11 @@ class ViewInput
     {
         $this->modelName = trim($arguments['model-name']);
         $this->fields = trim($options['fields']);
-        $this->fieldsFile = trim($options['fields-file']);
+        $this->fieldsFile = trim($options['fields-file']) ?: Helpers::makeJsonFileName($this->modelName);
         $this->viewsDirectory = trim($options['views-directory']);
         $this->prefix = trim($options['routes-prefix']);
         $this->force = $options['force'];
-        $this->languageFileName = strtolower(str_plural($this->modelName));
+        $this->languageFileName = trim($options['lang-file-name']) ?: Helpers::makeLocaleGroup($this->modelName);
         $this->layout = trim($options['layout-name']);
         $this->template = trim($options['template-name']);
     }
@@ -86,14 +88,15 @@ class ViewInput
     public function getArrguments()
     {
         return [
-            'model-name' => $this->modelName,
-            '--fields' => $this->fields,
-            '--fields-file' => $this->fieldsFile,
+            'model-name'        => $this->modelName,
+            '--fields'          => $this->fields,
+            '--fields-file'     => $this->fieldsFile,
             '--views-directory' => $this->viewsDirectory,
-            '--routes-prefix' => $this->prefix,
-            '--force' => $this->force,
-            '--layout-name' => $this->layout,
-            '--template-name' => $this->template
+            '--routes-prefix'   => $this->prefix,
+            '--force'           => $this->force,
+            '--lang-file-name'  => $this->languageFileName,
+            '--layout-name'     => $this->layout,
+            '--template-name'   => $this->template
         ];
     }
 }

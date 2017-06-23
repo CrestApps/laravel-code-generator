@@ -73,26 +73,34 @@ class StandardHtml extends HtmlGeneratorBase
     /**
      * Get the placeholder attribute.
      *
-     * @param string $placeholder
+     * @param CrestApps\CodeGenerator\Models\Label $placeholder
      *
      * @return string
      */
-    protected function getFieldPlaceHolder($placeholder)
+    protected function getFieldPlaceHolder(Label $placeholder = null)
     {
-        return empty($placeholder) ? '' : sprintf(' placeholder="%s"', $placeholder);
+        if(is_null($placeholder)) {
+            return '';
+        }
+
+        return empty($placeholder) ? '' : sprintf(' placeholder="%s"', $this->getTitle($placeholder, true) );
     }
 
     /**
      * Get the placeholder attribute for a menu.
      *
-     * @param string $placeholder
+     * @param CrestApps\CodeGenerator\Models\Label $placeholder
      * @param string $name
      *
      * @return string
      */
-    protected function getFieldPlaceHolderForMenu($placeholder, $name)
+    protected function getFieldPlaceHolderForMenu(Label $placeholder = null, $name = '')
     {
-        return empty($placeholder) ? '' : sprintf('<option value="" style="display: none;" {{ %s == \'\' ? \'selected\' : \'\' }} disabled selected>%s</option>', $this->getRawOptionValue($name, ''), $placeholder);
+        if(is_null($placeholder)) {
+            return '';
+        }
+
+        return sprintf('<option value="" style="display: none;" {{ %s == \'\' ? \'selected\' : \'\' }} disabled selected>%s</option>', $this->getRawOptionValue($name, ''), $this->getTitle($placeholder, true));
     }
 
     /**
@@ -213,11 +221,11 @@ class StandardHtml extends HtmlGeneratorBase
      */
     protected function getRawOptionValue($name, $value)
     {
-        $modelName = strtolower($this->modelName);
+        $modelVariable = $this->getSingularVariable($this->modelName);
 
         $valueString = is_null($value) ? 'null' : sprintf("'%s'", $value);
 
-        return sprintf("old('%s', isset(\$%s->%s) ? \$%s->%s : %s)", $name, $modelName, $name, $modelName, $name, $valueString);
+        return sprintf("old('%s', isset(\$%s->%s) ? \$%s->%s : %s)", $name, $modelVariable, $name, $modelVariable, $name, $valueString);
     }
 
     /**
@@ -230,15 +238,14 @@ class StandardHtml extends HtmlGeneratorBase
      */
     protected function getMultipleRawOptionValue($name, $value)
     {
-        $modelName = strtolower($this->modelName);
-
+        $modelVariable = $this->getSingularVariable($this->modelName);
         $valueString = 'null';
 
         if (!is_null($value)) {
             $valueString = starts_with('$', $value) ? sprintf("%s", $value) : sprintf("'%s'", $value);
         }
 
-        return sprintf("in_array(%s, old('%s', isset(\$%s->%s) ? \$%s->%s : []))", $valueString, $name, $modelName, $name, $modelName, $name);
+        return sprintf("in_array(%s, old('%s', isset(\$%s->%s) ? \$%s->%s : []))", $valueString, $name, $modelVariable, $name, $modelVariable, $name);
     }
 
     /**

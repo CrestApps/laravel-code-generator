@@ -20,8 +20,8 @@ class CreateRoutesCommand extends Command
      * @var string
      */
     protected $signature = 'create:routes
-                            {controller-name : The name of the controller where the route should be routing to.}
-                            {--model-name= : The model name.}
+                            {model-name : The model name.}
+                            {--controller-name= : The name of the controller where the route should be routing to.}
                             {--routes-prefix= : The routes prefix.}
                             {--controller-directory= : The directory where the controller is under.}
                             {--template-name= : The template name to use when generating the code.}';
@@ -42,7 +42,7 @@ class CreateRoutesCommand extends Command
     {
         $input = $this->getCommandInput();
 
-        if ($this->isRouteNameExists($this->getDotNotationName($input->modelName, $input->prefix, 'index'))) {
+        if ($this->isRouteNameExists($this->getDotNotationName($this->getModelName($input->modelName), $input->prefix, 'index'))) {
             $this->warn("The route is already registred!");
             return;
         }
@@ -59,7 +59,7 @@ class CreateRoutesCommand extends Command
 
         $this->replaceModelName($stub, $input->modelName)
              ->replaceControllerName($stub, $controllnerName)
-             ->replaceRouteNames($stub, $input->modelName, $input->prefix)
+             ->replaceRouteNames($stub, $this->getModelName($input->modelName), $input->prefix)
              ->processRoutesGroup($stub, $input->prefix, $input->controllerDirectory, $input->template)
              ->appendToRoutesFile($stub, $routesFile)
              ->info('The routes were added successfully.');
@@ -72,9 +72,8 @@ class CreateRoutesCommand extends Command
      */
     protected function getCommandInput()
     {
-        $name = trim($this->argument('controller-name'));
-        $controllerName = Helpers::postFixWith($name, 'Controller');
-        $modelName = trim($this->option('model-name')) ?: str_singular($name);
+        $modelName = trim($this->argument('model-name'));
+        $controllerName = trim($this->option('controller-name')) ?: Helpers::postFixWith($modelName, 'Controller');
         $prefix = trim($this->option('routes-prefix'));
         $template = $this->getTemplateName();
         $controllerDirectory = trim($this->option('controller-directory'));

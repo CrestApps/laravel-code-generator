@@ -7,6 +7,26 @@ use CrestApps\CodeGenerator\Support\Helpers;
 class Config
 {
     /**
+     * Gets the default datetime output format
+     * 
+     * @return array
+    */
+    public static function getDateTimeFormat()
+    {
+        return config('codegenerator.datetime_out_format', 'm/d/Y H:i A');
+    }
+
+    /**
+     * Gets the default placeholders by type
+     * 
+     * @return array
+    */
+    public static function getPlaceholderByHtmlType()
+    {
+        return config('codegenerator.placeholder_by_html_type', []);
+    }
+
+    /**
      * Gets the common name patterns to use for headers.
      * 
      * @return array

@@ -7,15 +7,15 @@
         <div class="panel-heading clearfix">
 
             <div class="pull-left">
-                <h4 class="mt-5 mb-5">{{ !empty([% model_header %]) ? [% model_header %] : '[% model_name %]' }}</h4>
+                <h4 class="mt-5 mb-5">{{ !empty([% model_header %]) ? [% model_header %] : '[% model_name_title %]' }}</h4>
             </div>
             <div class="btn-group btn-group-sm pull-right" role="group">
 
-                <a href="{{ route('[% index_route_name %]') }}" class="btn btn-primary" title="Show all [% model_name_plural %]">
+                <a href="{{ route('[% index_route_name %]') }}" class="btn btn-primary" title="[% show_all_models %]">
                     <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                 </a>
 
-                <a href="{{ route('[% create_route_name %]') }}" class="btn btn-success" title="Add [% model_name_class %]">
+                <a href="{{ route('[% create_route_name %]') }}" class="btn btn-success" title="[% create_model %]">
                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </a>
 
@@ -32,16 +32,16 @@
                 </ul>
             @endif
 
-            <form method="POST" action="{{ route('[% update_route_name %]', $[% model_name %]->[% primary_key %]) }}" accept-charset="UTF-8" class="form-horizontal"[% upload_files %]>
+            <form method="POST" action="{{ route('[% update_route_name %]', $[% model_name_singular_variable %]->[% primary_key %]) }}" accept-charset="UTF-8" class="form-horizontal"[% upload_files %]>
             {{ csrf_field() }}
             <input name="_method" type="hidden" value="PUT">
             @include ('[% form_view_name %]', [
-                                        '[% model_name %]' => $[% model_name %],
+                                        '[% model_name_singular_variable %]' => $[% model_name_singular_variable %],
                                       ])
 
                 <div class="form-group">
                     <div class="col-md-offset-2 col-md-10">
-                        <input class="btn btn-primary" type="submit" value="Update">
+                        <input class="btn btn-primary" type="submit" value="[% update %]">
                     </div>
                 </div>
             </form>

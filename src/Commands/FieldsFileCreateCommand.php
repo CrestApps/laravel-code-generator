@@ -20,7 +20,8 @@ class FieldsFileCreateCommand extends Command
      * @var string
      */
     protected $signature = 'fields-file:create
-                            {file-name : The name of the file to create or write fields too.}
+                            {model-name : The model name that these files represent.}
+                            {--fields-filename= : The destination file name to create.}
                             {--names= : A comma seperate field names.}
                             {--data-types= : A comma seperated data-type for each field.}
                             {--html-types= : A comma seperated html-type for each field.}
@@ -71,7 +72,9 @@ class FieldsFileCreateCommand extends Command
      */
     protected function getCommandInput()
     {
-        $file = trim($this->argument('file-name'));
+        $modelName = trim($this->argument('model-name'));
+        $filename = trim($this->option('fields-filename'));
+        $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
         $names = array_unique(Helpers::convertStringToArray($this->generatorOption('names')));
         $dataTypes = Helpers::convertStringToArray($this->generatorOption('data-types'));
         $htmlTypes = Helpers::convertStringToArray($this->generatorOption('html-types'));
@@ -80,7 +83,7 @@ class FieldsFileCreateCommand extends Command
         $force = $this->option('force');
 
 
-        return (object) compact('file', 'names', 'dataTypes', 'htmlTypes', 'withoutPrimaryKey', 'transaltionFor', 'force');
+        return (object) compact('modelName','file', 'names', 'dataTypes', 'htmlTypes', 'withoutPrimaryKey', 'transaltionFor', 'force');
     }
 
     /**
@@ -93,7 +96,6 @@ class FieldsFileCreateCommand extends Command
     protected function getFilename($name)
     {
         $path = base_path(Config::getFieldsFilePath());
-        $name = Helpers::postFixWith($name, '.json');
 
         return $path . $name;
     }
@@ -164,7 +166,7 @@ class FieldsFileCreateCommand extends Command
     {
         return [
             'name' => 'id',
-            'type' => 'Integer',
+            'type' => 'integer',
             'is-primary' => true,
             'is-auto-increment' => true
         ];

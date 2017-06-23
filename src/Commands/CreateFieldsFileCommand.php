@@ -21,7 +21,8 @@ class CreateFieldsFileCommand extends Command
      * @var string
      */
     protected $signature = 'create:fields-file
-                            {table-name : The dtabase table name to fetch the field from.}
+                            {model-name : The model name that these files represent.}
+                            {--table-name= : The database table name to fetch the field from.}
                             {--database-name= : The database name the table is stored in.}
                             {--fields-filename= : The destination file name to create.}
                             {--translation-for= : A comma seperated string of languages to create fields for.}
@@ -124,7 +125,19 @@ class CreateFieldsFileCommand extends Command
      */
     protected function getFilename()
     {
-        return Helpers::postFixWith(trim($this->option('fields-filename')) ?: $this->getTableName(), '.json');
+        $filename = trim($this->option('fields-filename')) ?: Helpers::makeJsonFileName($this->getModelName());
+
+        return str_finish($filename, '.json');
+    }
+
+    /**
+     * Gets the model name.
+     *
+     * @return string
+     */
+    protected function getModelName()
+    {
+        return trim($this->argument('model-name'));
     }
 
     /**
@@ -144,7 +157,7 @@ class CreateFieldsFileCommand extends Command
      */
     protected function getTableName()
     {
-        return trim($this->argument('table-name'));
+        return trim($this->option('table-name')) ?: $this->makeTableName($this->getModelName());
     }
 
     /**

@@ -19,6 +19,7 @@ class CreateViewsCommand extends ViewsCommand
                             {--fields-file= : File name to import fields from.}
                             {--views-directory= : The name of the directory to create the views under.}
                             {--routes-prefix= : The routes prefix.}
+                            {--lang-file-name= : The name of the language file.}
                             {--only-views=form,create,edit,show,index : The only views to be created.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
                             {--template-name= : The template name to use when generating the code.}

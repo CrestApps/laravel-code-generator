@@ -72,24 +72,24 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     /**
      * Get the placeholder attribute.
      *
-     * @param string $placeholder
+     * @param CrestApps\CodeGenerator\Models\Label $placeholder
      *
      * @return string
      */
-    protected function getFieldPlaceHolder($placeholder)
+    protected function getFieldPlaceHolder(Label $placeholder = null)
     {
-        return empty($placeholder) ? '' : sprintf(" 'placeholder' => '%s',", $placeholder);
+        return is_null($placeholder) ? '' : sprintf(" 'placeholder' => %s,", $this->getTitle($placeholder));
     }
 
     /**
      * Get the placeholder attribute for a menu.
      *
-     * @param string $placeholder
+     * @param CrestApps\CodeGenerator\Models\Label $placeholder
      * @param string $name
      *
      * @return string
      */
-    protected function getFieldPlaceHolderForMenu($placeholder, $name)
+    protected function getFieldPlaceHolderForMenu(Label $placeholder = null, $name = '')
     {
         return $this->getFieldPlaceHolder($placeholder);
     }
@@ -149,8 +149,9 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     protected function getFieldValue($value, $name)
     {
         if (!is_null($value)) {
-            $modelName = strtolower($this->modelName);
-            return sprintf(" isset(\$%s) ? \$%s->%s : '%s' ", $modelName, $modelName, $name, $value);
+            $modelVariable = $this->getSingularVariable($this->modelName);
+
+            return sprintf(" isset(\$%s->%s) ? \$%s->%s : '%s' ", $modelVariable, $name, $modelVariable, $name, $value);
         }
 
         return 'null';

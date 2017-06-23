@@ -164,6 +164,8 @@ class CreateModelCommand extends Command
     {
         $field = new Field('deleted_at');
         $field->isDate = true;
+        $field->dataType = 'datetime';
+        $field->dateFormat = Config::getDateTimeFormat();
 
         return $field;
     }
@@ -320,7 +322,7 @@ class CreateModelCommand extends Command
         $useSoftDelete = $this->option('with-soft-delete');
         $useTimeStamps = !$this->option('without-timestamps');
         $fields = trim($this->option('fields'));
-        $fieldsFile = trim($this->option('fields-file'));
+        $fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($modelName);
         $template = $this->getTemplateName();
 
         return (object) compact('table', 'fillable', 'primaryKey', 'relationships', 'useSoftDelete', 'useTimeStamps', 'fields', 'fieldsFile', 'template', 'modelName');

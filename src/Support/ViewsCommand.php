@@ -2,6 +2,7 @@
 
 namespace CrestApps\CodeGenerator\Support;
 
+use Exception;
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Config;
@@ -9,7 +10,7 @@ use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use CrestApps\CodeGenerator\Models\ViewInput;
 use CrestApps\CodeGenerator\HtmlGenerators\LaravelCollectiveHtml;
 use CrestApps\CodeGenerator\HtmlGenerators\StandardHtml;
-use Exception;
+use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 
 abstract class ViewsCommand extends Command
 {
@@ -108,16 +109,23 @@ abstract class ViewsCommand extends Command
      * It Replaces the primaryKey, modelNames, routeNames in a giving stub
      *
      * @param string $stub
-     * @param ViewInput $input
+     * @param CrestApps\CodeGenerator\Models\ViewInput $input
      *
      * @return $this
      */
-    protected function replaceCommonTemplates(&$stub, ViewInput $input)
+    protected function replaceCommonTemplates(&$stub, ViewInput $input, array $fields)
     {
+        $viewLabels = new ViewLabelsGenerator($input->modelName, $this->isCollectiveTemplate());
+
+        $languages = array_keys(Helpers::getLanguageItems($fields));
+
+        $standardLabels = $viewLabels->getLabels($languages);
+
         $this->replaceModelName($stub, $input->modelName)
-             ->replaceRouteNames($stub, $input->modelName, $input->prefix)
+             ->replaceRouteNames($stub, $this->getModelName($input->modelName), $input->prefix)
              ->replaceViewNames($stub, $input->viewsDirectory, $input->prefix)
-             ->replaceLayoutName($stub, $input->layout);
+             ->replaceLayoutName($stub, $input->layout)
+             ->replaceStandardLabels($stub, $standardLabels);
 
         return $this;
     }
@@ -163,6 +171,32 @@ abstract class ViewsCommand extends Command
         $file = basename($filename);
 
         return ucfirst(strstr($file, '.', true));
+    }
+
+    /**
+     * It Replaces the templates of the givin $labels
+     *
+     * @param string $stub
+     * @param array $items
+     *
+     * @return $this
+     */
+    protected function replaceStandardLabels(&$stub, array $items)
+    {
+        foreach ($items as $labels) {
+            foreach ($labels as $label) {
+
+                $text = $label->isPlain ? $label->text : sprintf("{{ trans('%s') }}", $label->localeGroup);
+                
+                if ($label->isInFunction) {
+                    $text = $label->isPlain ? sprintf("'%s'", $label->text) : sprintf("trans('%s')", $label->localeGroup);
+                }
+
+                $stub = $this->strReplace($label->template, $text, $stub);
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -262,17 +296,20 @@ abstract class ViewsCommand extends Command
      *
      * @param string $langFile
      * @param string $fields
+     * @param string $fieldsFile
+     * @param string $modelName
      *
      * @return $this
      */
-    protected function createLanguageFile($langFile, $fields, $fieldsFile)
+    protected function createLanguageFile($langFile, $fields, $fieldsFile, $modelName)
     {
         $this->callSilent('create:language', [
-                                    'language-file-name' => $langFile,
-                                    '--fields' => $fields,
-                                    '--fields-file' => $fieldsFile,
-                                    '--template-name' => $this->getTemplateName()
-                                   ]);
+                                'model-name'           => $modelName,
+                                '--language-file-name' => $langFile,
+                                '--fields'             => $fields,
+                                '--fields-file'        => $fieldsFile,
+                                '--template-name'      => $this->getTemplateName()
+                           ]);
         return $this;
     }
 
@@ -321,7 +358,7 @@ abstract class ViewsCommand extends Command
     {
         $field = $this->getHeaderField($fields);
 
-        return ! is_null($field) ? sprintf('$%s->%s', strtolower($modelName), $field->name) : '$title';
+        return ! is_null($field) ? sprintf('$%s->%s', $this->getSingularVariable($modelName), $field->name) : '$title';
     }
 
     /**
@@ -340,18 +377,6 @@ abstract class ViewsCommand extends Command
         }
 
         return new StandardHtml($fields, $modelName, $template);
-    }
-
-    /**
-     * Checks the giving template if it is a Laravel-Collective template or not.
-     *
-     * @param string $template
-     *
-     * @return bool
-     */
-    protected function isCollectiveTemplate($template)
-    {
-        return in_array($template, Config::getCollectiveTemplates());
     }
 
     /**

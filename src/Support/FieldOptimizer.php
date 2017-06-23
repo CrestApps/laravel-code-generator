@@ -119,7 +119,7 @@ class FieldOptimizer
     protected function optimizeDateFields()
     {
         if (empty($this->field->dateFormat) && $this->field->isDateOrTime()) {
-            $this->field->dateFormat = config('codegenerator.datetime_out_format', 'm/d/Y H:i A');
+            $this->field->dateFormat = Config::getDateTimeFormat();
         }
 
         return $this;

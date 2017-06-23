@@ -48,6 +48,22 @@ class Label
     public $id;
 
     /**
+     * The template to use for replacment.
+     *
+     * @var string
+     */
+    public $template;
+
+    /**
+     * When a label is inside a function we need to ignore adding {{ }} 
+     * when translating. All when displaying plain text, the text must
+     * be wrapped with a single quote. This flag tell us to do that.
+     *
+     * @var bool
+     */
+    public $isInFunction = false;
+    
+    /**
      * Create a new label instance.
      *
      * @param string $name

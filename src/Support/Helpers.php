@@ -10,6 +10,79 @@ use CrestApps\CodeGenerator\Support\Config;
 
 class Helpers
 {
+    /**
+     * Makes a controller name from a giving model name
+     *
+     * @param string $modelName
+     *
+     * @return string
+     */
+    public static function makeControllerName($modelName)
+    {
+        $plural = ucfirst(camel_case(str_plural(snake_case($modelName))));
+        
+        return str_finish($plural, 'Controller');
+    }
+
+    /**
+     * Creates a colection of messages out of a giving fields collection.
+     *
+     * @param array $fields
+     *
+     * @return array
+     */
+    public static function getLanguageItems(array $fields)
+    {
+        $items = [];
+
+        foreach ($fields as $field) {
+            foreach ($field->getLabels() as $label) {
+                if (!$label->isPlain) {
+                    $items[$label->lang][] = $label;
+                }
+            }
+
+            foreach ($field->getPlaceholders() as $label) {
+                if (!$label->isPlain) {
+                    $items[$label->lang][] = $label;
+                }
+            }
+
+            foreach ($field->getOptions() as $lang => $labels) {
+                foreach ($labels as $label) {
+                    if (!$label->isPlain) {
+                        $items[$label->lang][] = $label;
+                    }
+                }
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * Makes the locale groups name
+     *
+     * @param string $modelName
+     *
+     * @return string
+     */
+    public static function makeLocaleGroup($modelName)
+    {
+        return str_plural(snake_case($modelName));
+    }
+
+    /**
+     * Makes the json file name
+     *
+     * @param string $modelName
+     *
+     * @return string
+     */
+    public static function makeJsonFileName($modelName)
+    {
+        return self::makeLocaleGroup($modelName) . '.json';
+    }
 
     /**
      * Evaluates the current version of the framework to see if it >= a giving version.

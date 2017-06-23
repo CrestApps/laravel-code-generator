@@ -68,8 +68,6 @@ class FieldTransformer
         'is-nullable'       => 'isNullable',
         'is-auto-increment' => 'isAutoIncrement',
         'is-inline-options' => 'isInlineOptions',
-        'placeholder'       => 'placeHolder',
-        'place-holder'      => 'placeHolder',
         'delimiter'         => 'optionsDelimiter',
         'is-header'         => 'isHeader',
         'class'             => 'cssClass',
@@ -238,6 +236,7 @@ class FieldTransformer
              ->setUnsignedProperty($field, $properties)
              ->setValidationProperty($field, $properties)
              ->setForeignRelation($field, $properties)
+             ->setPlaceholder($field, $properties) // this must come after setForeignRelation
              ->setRange($field, $properties)
              ->setForeignConstraint($field, $properties);
 
@@ -784,6 +783,25 @@ class FieldTransformer
     }
 
     /**
+     * It set the placeholder property for a giving field
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
+     *
+     * @return $this
+    */
+    protected function setPlaceholder(Field & $field, array $properties)
+    {
+        $labels = $this->getPlaceholder($field, $properties);
+
+        foreach ($labels as $label) {
+            $field->addPlaceholder($label->text, $this->localeGroup, $label->isPlain, $label->lang);
+        }
+
+        return $this;
+    }
+
+    /**
      * Checks an array for the first value that starts with a giving pattern
      *
      * @param array $subjects
@@ -952,6 +970,56 @@ class FieldTransformer
     }
 
     /**
+     * It will get the provided labels for the placeholder
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
+     *
+     * @return array
+    */
+    protected function getPlaceholder(Field $field, array $properties)
+    {
+        if (isset($properties['placeholder']) && !empty($properties['placeholder'])) {
+
+            if (is_array($properties['placeholder'])) {
+                //At this point we know this the label
+                return $this->getLabelsFromArray($properties['placeholder']);
+            }
+
+            return [
+                new Label($properties['placeholder'], $this->localeGroup, true, $this->defaultLang)
+            ];
+        }
+
+        $labels = [];
+
+        if(!isset($properties['placeholder'])) {
+            $templates = Config::getPlaceholderByHtmlType();
+
+            foreach($templates as $type => $title) {
+                if($field->htmlType == $type) {
+
+                    $fieldName = $field->hasForeignRelation() ? $field->getForeignRelation()->name : $field->name;
+                    $this->replaceFieldNamePatterns($title, $fieldName);
+                    $langs = $field->getAvailableLanguages();
+
+                    if(count($langs) == 0) {
+                        return [
+                            new Label($title, $this->localeGroup, true, $this->defaultLang)
+                        ];
+                    }
+
+                    foreach($langs as $lang) {
+                        $labels[] = new Label($title, $this->localeGroup, false, $lang);
+                    }
+                }
+            }
+        }
+
+        return $labels;
+    }
+
+    /**
      * It will get the provided labels from with the $properties's 'label' or 'labels' property
      *
      * @param array $properties
@@ -1105,22 +1173,6 @@ class FieldTransformer
     }
 
     /**
-     * Checks if a string starts with the word "is"
-     *
-     * @param string $str
-     *
-     * @return bool
-    */
-    /*
-    protected function isProperyBool($str)
-    {
-        $patterns = Config::getBooleanPatterns();
-
-        return Helpers::strIs($patterns, $str);
-    }
-    */
-
-    /**
      * Gets a label from a giving name
      *
      * @param string $name
@@ -1130,5 +1182,38 @@ class FieldTransformer
     public static function convertNameToLabel($name)
     {
         return ucwords(str_replace('_', ' ', $name));
+    }
+
+    /**
+     * Replaces the field name pattern of the givin stub.
+     *
+     * @param string $stub
+     * @param string $name
+     *
+     * @return $this
+    */
+    protected function replaceFieldNamePatterns(&$stub, $name)
+    {
+        $snake = snake_case($name);
+        $englishSingle = str_replace('_', ' ', $snake);
+        $plural = str_plural($englishSingle);
+
+        $stub = $this->strReplace('field_name', $englishSingle, $stub);
+        $stub = $this->strReplace('field_name_flat', strtolower($name), $stub);   
+        $stub = $this->strReplace('field_name_sentence', ucfirst($englishSingle), $stub);
+        $stub = $this->strReplace('field_name_plural', $plural, $stub);
+        $stub = $this->strReplace('field_name_plural_title', title_case($plural), $stub);
+        $stub = $this->strReplace('field_name_snake', $snake, $stub);
+        $stub = $this->strReplace('field_name_studly', studly_case($name), $stub);
+        $stub = $this->strReplace('field_name_slug', str_slug($englishSingle), $stub);
+        $stub = $this->strReplace('field_name_kebab', kebab_case($name), $stub);
+        $stub = $this->strReplace('field_name_title', title_case($englishSingle), $stub);
+        $stub = $this->strReplace('field_name_title_lower', strtolower($englishSingle), $stub);
+        $stub = $this->strReplace('field_name_title_upper', strtoupper($englishSingle), $stub);
+        $stub = $this->strReplace('field_name_class', $name, $stub);       
+        $stub = $this->strReplace('field_name_plural_variable', $this->getPluralVariable($name), $stub);
+        $stub = $this->strReplace('field_name_singular_variable', $this->getSingularVariable($name), $stub);
+
+        return $this;
     }
 }

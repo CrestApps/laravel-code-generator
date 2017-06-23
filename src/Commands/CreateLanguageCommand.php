@@ -8,6 +8,7 @@ use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\CrestAppsTranslator;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 
 class CreateLanguageCommand extends Command
 {
@@ -19,7 +20,8 @@ class CreateLanguageCommand extends Command
      * @var string
      */
     protected $signature = 'create:language
-                            {language-file-name : The name of the file to save the messages in.}
+                            {model-name : The model name.}
+                            {--language-file-name= : The name of the file to save the messages in.}
                             {--fields= : The fields for the form.}
                             {--fields-file= : File name to import fields from.}
                             {--template-name= : The template name to use when generating the code.}';
@@ -40,7 +42,15 @@ class CreateLanguageCommand extends Command
     {
         $input = $this->getCommandInput();
         $fields = $this->getFields($input->fields, $input->fileName, $input->fieldsFile);
-        $languages = $this->getLanguageItems($fields);
+        $languages = Helpers::getLanguageItems($fields);
+        $viewLabels = new ViewLabelsGenerator($input->modelName, $this->isCollectiveTemplate() );
+
+        $standardLabels = $viewLabels->getTranslatedLabels(array_keys($languages));
+
+        //Merge the standard labels to the fields label
+        foreach($standardLabels as $lang => $standardLabel) {
+            $languages[$lang] = array_merge($languages[$lang], $standardLabel);
+        }
 
         foreach ($languages as $language => $labels) {
 
@@ -50,7 +60,6 @@ class CreateLanguageCommand extends Command
 
             $this->addMessagesToFile($file, $phrases, $language)
                  ->registerMessages($messagesToRegister, $language);
-            
         }
     }
 
@@ -196,36 +205,6 @@ class CreateLanguageCommand extends Command
     }
 
     /**
-     * Creates a colection of messages out of a giving fields collection.
-     *
-     * @param array $fields
-     *
-     * @return array
-     */
-    protected function getLanguageItems(array $fields)
-    {
-        $items = [];
-
-        foreach ($fields as $field) {
-            foreach ($field->getLabels() as $label) {
-                if (!$label->isPlain) {
-                    $items[$label->lang][] = $label;
-                }
-            }
-
-            foreach ($field->getOptions() as $lang => $labels) {
-                foreach ($labels as $label) {
-                    if (!$label->isPlain) {
-                        $items[$label->lang][] = $label;
-                    }
-                }
-            }
-        }
-
-        return $items;
-    }
-
-    /**
      * Gets the full path of a giving language
      *
      * @param string $language
@@ -244,12 +223,13 @@ class CreateLanguageCommand extends Command
      */
     protected function getCommandInput()
     {
-        $fileName = strtolower(trim($this->argument('language-file-name')));
-        $fields =  trim($this->option('fields'));
-        $fieldsFile =  trim($this->option('fields-file'));
+        $modelName = trim($this->argument('model-name'));
+        $fileName = trim($this->option('language-file-name')) ?: Helpers::makeLocaleGroup($modelName);
+        $fields = trim($this->option('fields'));
+        $fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($modelName);
         $template = trim($this->option('template-name'));
 
-        return (object) compact('fileName', 'fields', 'fieldsFile', 'template');
+        return (object) compact('modelName', 'fileName', 'fields', 'fieldsFile', 'template');
     }
 
     /**
@@ -266,6 +246,7 @@ class CreateLanguageCommand extends Command
 
         foreach ($labels as $label) {
             if (! $this->isMessageExists($label->localeGroup, $label->lang)) {
+
                 $messages[] = $this->getMessage($label);
                 $messagesToRegister[$label->localeGroup] = $label->text;
             }

@@ -141,6 +141,7 @@ abstract class HtmlGeneratorBase
         $rows = '';
 
         foreach ($fields as $field) {
+
             if ($field->isOnIndexView) {
                 $row = $stub;
                 $this->replaceFieldTitle($row, $this->getTitle($field->getLabel(), true))
@@ -262,12 +263,12 @@ abstract class HtmlGeneratorBase
     */
     protected function getFieldAccessorValue(Field $field, $view)
     {
-        $fieldAccessor = sprintf('$%s->%s', $this->getModelName($this->modelName), $field->name);
+        $fieldAccessor = sprintf('$%s->%s', $this->getSingularVariable($this->modelName), $field->name);
 
         if ($field->hasForeignRelation() && $field->isOnView($view)) {
             $relation = $field->getForeignRelation();
 
-            $fieldAccessor = sprintf('$%s->%s->%s', $this->getModelName($this->modelName), $relation->name, $relation->getField());
+            $fieldAccessor = sprintf('$%s->%s->%s', $this->getSingularVariable($this->modelName), $relation->name, $relation->getField());
 
             $fieldAccessor = sprintf(" isset(%s) ? %s : '' ",$fieldAccessor, $fieldAccessor);
         }
@@ -324,7 +325,7 @@ abstract class HtmlGeneratorBase
              ->replaceFieldMinLengthName($stub, $parser->getMinLength())
              ->replaceFieldMaxLengthName($stub, $parser->getMaxLength())
              ->replaceFieldRequired($stub, $parser->isRequired())
-             ->replaceFieldPlaceHolder($stub, $this->getFieldPlaceHolder($field->placeHolder))
+             ->replaceFieldPlaceHolder($stub, $this->getFieldPlaceHolder($field->getPlaceholder()))
              ->replaceCssClass($stub, $field->cssClass)
              ->wrapField($stub, $field);
 
@@ -402,7 +403,8 @@ abstract class HtmlGeneratorBase
     */
     protected function getPickItemsHtmlField(Field $field, Label $option, ValidationParser $parser)
     {
-        $stub = $this->getStubContent(sprintf('form-pickitems%s-field.blade', $field->isInlineOptions ? '-inline' : ''), $this->template);
+        $filename = sprintf('form-pickitems%s-field.blade', $field->isInlineOptions ? '-inline' : '');
+        $stub = $this->getStubContent($filename, $this->template);
         $fieldName = ($field->isMultipleAnswers) ? $this->getFieldNameAsArray($field->name) : $field->name;
 
         $this->replaceFieldType($stub, $field->htmlType)
@@ -453,7 +455,7 @@ abstract class HtmlGeneratorBase
              ->replaceFieldItemAccessor($stub, $this->getFieldItemAccessor($field))
              ->replaceFieldValueAccessor($stub, $this->getFieldValueAccessor($field))
              ->replaceFieldRequired($stub, $parser->isRequired())
-             ->replaceFieldPlaceHolder($stub, $this->getFieldPlaceHolderForMenu($field->placeHolder, $field->name))
+             ->replaceFieldPlaceHolder($stub, $this->getFieldPlaceHolderForMenu($field->getPlaceholder(), $field->name))
              ->replaceCssClass($stub, $field->cssClass)
              ->wrapField($stub, $field);
 
@@ -560,7 +562,7 @@ abstract class HtmlGeneratorBase
              ->replaceFieldMinValue($stub, isset($field->range[0]) ? $field->range[0] : 1)
              ->replaceFieldMaxValue($stub, isset($field->range[1]) ? $field->range[1] : 10)
              ->replaceSelectedValue($stub, $this->getSelectedValueForMenu($field))
-             ->replaceFieldPlaceHolder($stub, $this->getFieldPlaceHolderForMenu($field->placeHolder, $field->name))
+             ->replaceFieldPlaceHolder($stub, $this->getFieldPlaceHolderForMenu($field->getPlaceholder(), $field->name))
              ->wrapField($stub, $field);
         
         return $stub;
@@ -580,7 +582,7 @@ abstract class HtmlGeneratorBase
         $this->replaceFieldName($stub, $field->name)
              ->replaceCssClass($stub, $field->cssClass)
              ->replaceSelectedValue($stub, $this->getSelectedValue($field->name, '$value'))
-             ->replaceFieldPlaceHolder($stub, $this->getFieldPlaceHolderForMenu($field->placeHolder, $field->name))
+             ->replaceFieldPlaceHolder($stub, $this->getFieldPlaceHolderForMenu($field->getPlaceholder(), $field->name))
              ->wrapField($stub, $field);
         
         return $stub;
@@ -610,7 +612,7 @@ abstract class HtmlGeneratorBase
              ->replaceFieldMinLengthName($stub, $parser->getMinLength())
              ->replaceFieldMaxLengthName($stub, $parser->getMaxLength())
              ->replaceFieldRequired($stub, $parser->isRequired())
-             ->replaceFieldPlaceHolder($stub, $this->getFieldPlaceHolder($field->placeHolder))
+             ->replaceFieldPlaceHolder($stub, $this->getFieldPlaceHolder($field->getPlaceholder()))
              ->wrapField($stub, $field);
         
         return $stub;
@@ -640,7 +642,7 @@ abstract class HtmlGeneratorBase
              ->replaceFieldMinLengthName($stub, $parser->getMinLength())
              ->replaceFieldMaxLengthName($stub, $parser->getMaxLength())
              ->replaceFieldRequired($stub, $parser->isRequired())
-             ->replaceFieldPlaceHolder($stub, $this->getFieldPlaceHolder($field->placeHolder))
+             ->replaceFieldPlaceHolder($stub, $this->getFieldPlaceHolder($field->getPlaceholder()))
              ->replaceFieldStep($stub, $this->getStepsValue($field->getDecimalPointLength()))
              ->wrapField($stub, $field);
 
@@ -1231,21 +1233,21 @@ abstract class HtmlGeneratorBase
     /**
      * Get the placeholder attribute.
      *
-     * @param string $placeholder
+     * @param CrestApps\CodeGenerator\Models\Label $placeholder
      *
      * @return string
      */
-    abstract protected function getFieldPlaceHolder($placeholder);
+    abstract protected function getFieldPlaceHolder(Label $placeholder = null);
 
     /**
      * Get the placeholder attribute for a menu.
      *
-     * @param string $placeholder
+     * @param CrestApps\CodeGenerator\Models\Label $placeholder
      * @param string $name
      *
      * @return string
      */
-    abstract protected function getFieldPlaceHolderForMenu($placeholder, $name);
+    abstract protected function getFieldPlaceHolderForMenu(Label $placeholder = null, $name = '');
 
     /**
      * Get the multiple attribute.

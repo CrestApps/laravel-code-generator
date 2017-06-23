@@ -7,11 +7,11 @@
         <div class="panel-heading clearfix">
             
             <span class="pull-left">
-                <h4 class="mt-5 mb-5">Create New [% model_name_class %]</h4>
+                <h4 class="mt-5 mb-5">[% create_model %]</h4>
             </span>
 
             <div class="btn-group btn-group-sm pull-right" role="group">
-                <a href="{{ route('[% index_route_name %]') }}" class="btn btn-primary" title="Show all [% model_name_plural %]">
+                <a href="{{ route('[% index_route_name %]') }}" class="btn btn-primary" title="[% show_all_models %]">
                     <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                 </a>
             </div>
@@ -34,7 +34,7 @@
 
                 <div class="form-group">
                     <div class="col-md-offset-2 col-md-10">
-                        <input class="btn btn-primary" type="submit" value="Add">
+                        <input class="btn btn-primary" type="submit" value="[% add %]">
                     </div>
                 </div>
 

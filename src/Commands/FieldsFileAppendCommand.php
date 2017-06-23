@@ -21,7 +21,8 @@ class FieldsFileAppendCommand extends Command
      * @var string
      */
     protected $signature = 'fields-file:append
-                            {file-name : The name of the file to create or write fields too.}
+                            {model-name : The model name that these files represent.}
+                            {--fields-filename= : The destination file name to create.}
                             {--names= : A comma seperate field names.}
                             {--data-types= : A comma seperated data-type for each field.}
                             {--translation-for= : A comma seperated string of languages to create fields for.}
@@ -98,10 +99,11 @@ class FieldsFileAppendCommand extends Command
     protected function getCommandOptions($input)
     {
         return [
-            'file-name' => $input->file,
-            '--names' => implode(',', $input->names),
-            '--data-types' => implode(',', $input->dataTypes),
-            '--html-types' => implode(',', $input->htmlTypes)
+            'model-name'        => $input->modelName,
+            '--fields-filename' => $input->file,
+            '--names'           => implode(',', $input->names),
+            '--data-types'      => implode(',', $input->dataTypes),
+            '--html-types'      => implode(',', $input->htmlTypes)
         ];
     }
 
@@ -112,13 +114,15 @@ class FieldsFileAppendCommand extends Command
      */
     protected function getCommandInput()
     {
-        $file = trim($this->argument('file-name'));
+        $modelName = trim($this->argument('model-name'));
+        $filename = trim($this->option('fields-filename'));
+        $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
         $names = array_unique(Helpers::convertStringToArray($this->generatorOption('names')));
         $dataTypes = Helpers::convertStringToArray($this->generatorOption('data-types'));
         $htmlTypes = Helpers::convertStringToArray($this->generatorOption('html-types'));
         $transaltionFor = Helpers::convertStringToArray($this->generatorOption('translation-for'));
 
-        return (object) compact('file', 'names', 'dataTypes', 'htmlTypes','transaltionFor');
+        return (object) compact('modelName','file', 'names', 'dataTypes', 'htmlTypes','transaltionFor');
     }
 
     /**

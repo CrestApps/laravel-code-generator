@@ -175,14 +175,14 @@ class Field
     public $isHeader = false;
 
     /**
-     * Field placeholder
+     * The placeholders for the fields.
      *
-     * @var string
+     * @var array
      */
-    public $placeHolder = '';
+    private $placeholders = [];
 
     /**
-     * Field placeholder
+     * Field options delimiter.
      *
      * @var string
      */
@@ -272,7 +272,7 @@ class Field
     }
 
     /**
-     * Gets the field labels
+     * Gets the field labels.
      *
      * @return array
      */
@@ -280,7 +280,43 @@ class Field
     {
         return $this->labels;
     }
+
+    /**
+     * Gets the field placeholders.
+     *
+     * @return array
+     */
+    public function getPlaceholders()
+    {
+        return $this->placeholders;
+    }
     
+    /**
+     * Gets the languages available in the labels.
+     *
+     * @return array
+     */
+    public function getAvailableLanguages()
+    {
+        $langs = [];
+
+        foreach($this->getLabels() as $label){
+            if(!$label->isPlain) {
+                $langs[] = $label->lang;
+            }
+        }
+
+        foreach($this->getOptions() as $labels){
+            foreach($labels as $label) {
+                if(!$label->isPlain) {
+                    $langs[] = $label->lang;
+                }
+            }
+        }
+
+        return array_unique($langs);
+    }
+
     /**
      * Gets a label by a giving language
      *
@@ -300,6 +336,24 @@ class Field
     }
 
     /**
+     * Gets a label by a giving language
+     *
+     * @param string $lang
+     *
+     * @return CrestApps\CodeGenerator\Models\Label
+     */
+    public function getPlaceholder($lang = null)
+    {
+        $lang = empty($lang) ? $this->getDefaultLanguage() : $lang;
+
+        if (!isset($this->placeholders[$lang])) {
+            return $this->getFirstPlaceholder();
+        }
+
+        return $this->placeholders[$lang];
+    }
+
+    /**
      * Gets the app's default language.
      *
      * @return string
@@ -312,8 +366,6 @@ class Field
     /**
      * Gets the first available label if any.
      *
-     * @param string $lang
-     *
      * @return CrestApps\CodeGenerator\Models\Label
      */
     public function getFirstLabel()
@@ -321,7 +373,23 @@ class Field
         return current($this->labels);
     }
 
+    /**
+     * Gets the first available placeholder if any.
+     *
+     * @return CrestApps\CodeGenerator\Models\Label | null
+     */
+    public function getFirstPlaceholder()
+    {
+        $first = current($this->placeholders);
 
+        return ($first !== false) ? $first : null;
+    }
+
+    /**
+     * Checks if this field is auto managed by eloquent.
+     *
+     * @return bool
+     */
     public function isAutoManaged()
     {
         return in_array($this->name, $this->autoManagedFields);
@@ -330,16 +398,34 @@ class Field
     /**
      * Adds a label to the labels collection
      *
-     * @param string $value
+     * @param string $text
      * @param string $localeGroup
      * @param bool $isPlain
      * @param string $lang
      *
-     * @return object
+     * @return void
      */
     public function addLabel($text, $localeGroup, $isPlain = true, $lang = 'en')
     {
         $this->labels[$lang] = new Label($text, $this->getLocaleKey($localeGroup), $isPlain, $lang, $this->name);
+    }
+
+    /**
+     * Adds a label to the placeholders collection
+     *
+     * @param string $text
+     * @param string $localeGroup
+     * @param bool $isPlain
+     * @param string $lang
+     *
+     * @return void
+     */
+    public function addPlaceholder($text, $localeGroup, $isPlain = true, $lang = 'en')
+    {
+        $value = '__placeholder';
+        $localKey = $this->getLocaleKey($localeGroup, '_placeholder');
+
+        $this->placeholders[$lang] = new Label($text, $localKey, $isPlain, $lang, $this->name . $value);
     }
 
     /**
@@ -600,7 +686,7 @@ class Field
             'is-date' => $this->isDate,
             'date-format' => $this->dateFormat,
             'cast-as' => $this->castAs,
-            'placeholder' => $this->placeHolder,
+            'placeholder' => $this->labelsToRaw($this->getPlaceholders()),
             'delimiter' => $this->optionsDelimiter,
             'range' => $this->range,
             'foreign-relation' => $this->getForeignRelationToRaw(),
@@ -769,7 +855,9 @@ class Field
             return $options[0];
         }
 
-        return new Label('Yes', $this->getLocaleKey(''), true, 'en', $this->name, $this->getFieldId(1), 1);
+        $label = new Label('Yes', $this->getLocaleKey(''), true, $this->defaultLang, $this->getFieldId(1), 1);
+
+        return $label;
     }
 
     /**
@@ -789,7 +877,7 @@ class Field
             return $options[0];
         }
 
-        return new Label('No', $this->getLocaleKey(''), true, 'en', $this->name, $this->getFieldId(0), 0);
+        return new Label('No', $this->getLocaleKey(''), true, 'en', $this->getFieldId(0), 0);
     }
 
     /**

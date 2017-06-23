@@ -22,7 +22,8 @@ class CreateMigrationCommand extends Command
      * @var string
      */
     protected $signature = 'create:migration
-                            {table-name : The name of the table that the migration will create.}
+                            {model-name : The name of the model.}
+                            {--table-name= : The name of the table that the migration will create.}
                             {--migration-class-name= : The name of the migration class.}
                             {--connection-name= : A specific connection name.}
                             {--indexes= : A list of indexes to be add.}
@@ -820,12 +821,14 @@ class CreateMigrationCommand extends Command
      */
     protected function getCommandInput()
     {
-        $tableName = trim($this->argument('table-name'));
-        $className = trim($this->option('migration-class-name')) ?: sprintf('Create%sTable', studly_case($tableName));
+        $modelName = trim($this->argument('model-name'));
+        $madeUpTableName = $this->makeTableName($modelName);
+        $tableName = trim($this->option('table-name')) ?: $madeUpTableName;
+        $className = trim($this->option('migration-class-name')) ?: sprintf('Create%sTable', $madeUpTableName);
         $connection =  trim($this->option('connection-name'));
         $engine =  trim($this->option('engine-name'));
         $fields = trim($this->option('fields'));
-        $fieldsFile = trim($this->option('fields-file'));
+        $fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($modelName);
         $indexes = $this->getIndexColelction(trim($this->option('indexes')));
         $force = $this->option('force');
         $constraints = $this->getForeignConstraints(trim($this->option('foreign-keys')));
@@ -833,7 +836,7 @@ class CreateMigrationCommand extends Command
         $withoutTimestamps = $this->option('without-timestamps');
         $withSoftDelete = $this->option('with-soft-delete');
 
-        return (object) compact('tableName', 'className', 'connection', 'engine',
+        return (object) compact('modelName','tableName', 'className', 'connection', 'engine',
                                 'fields', 'fieldsFile', 'force', 'indexes', 'constraints', 'template', 'withoutTimestamps', 'withSoftDelete');
     }
 

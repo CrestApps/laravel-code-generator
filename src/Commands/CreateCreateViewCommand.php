@@ -18,6 +18,7 @@ class CreateCreateViewCommand extends ViewsCommand
                             {--fields-file= : File name to import fields from.}
                             {--views-directory= : The name of the directory to create the views under.}
                             {--routes-prefix= : The routes prefix.}
+                            {--lang-file-name= : The name of the language file.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
                             {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the view if one already exists.}';
@@ -54,9 +55,9 @@ class CreateCreateViewCommand extends ViewsCommand
             $stub = $this->getStub();
             $headers = $this->getHeaderFieldAccessor($fields, $input->modelName);
 
-            $this->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile)
+            $this->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile, $input->modelName)
                  ->createMissingViews($input)
-                 ->replaceCommonTemplates($stub, $input)
+                 ->replaceCommonTemplates($stub, $input, $fields)
                  ->replaceFileUpload($stub, $fields)
                  ->replaceModelHeader($stub, $headers)
                  ->createFile($destenationFile, $stub)

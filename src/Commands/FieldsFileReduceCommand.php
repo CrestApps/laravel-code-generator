@@ -20,7 +20,8 @@ class FieldsFileReduceCommand extends Command
      * @var string
      */
     protected $signature = 'fields-file:reduce
-                            {file-name : The name of the file to create or write fields too.}
+                            {model-name : The model name that these files represent.}
+                            {--fields-filename= : The destination file name to create.}
                             {--names= : A comma seperate field names.}';
 
     /**
@@ -57,7 +58,7 @@ class FieldsFileReduceCommand extends Command
         if(empty($reducedFields))
         {
             $this->deleteFile($file);
-            $this->info('No more fields left in the file. The field was deleted!');
+            $this->info('No more fields left in the file. The file (' . $file . ') was deleted!');
 
             return false;
         }
@@ -98,10 +99,12 @@ class FieldsFileReduceCommand extends Command
      */
     protected function getCommandInput()
     {
-        $file = trim($this->argument('file-name'));
-        $names = array_unique(Helpers::convertStringToArray(trim($this->option('names'))));
+        $modelName = trim($this->argument('model-name'));
+        $filename = trim($this->option('fields-filename'));
+        $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
+        $names = array_unique(Helpers::convertStringToArray($this->generatorOption('names')));
 
-        return (object) compact('file', 'names');
+        return (object) compact('modelName','file', 'names');
     }
 
     /**

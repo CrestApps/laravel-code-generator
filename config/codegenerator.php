@@ -115,6 +115,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Patterns to use to generate the html placeholders.
+    |--------------------------------------------------------------------------
+    |
+    | When creating the fields, the code generator follows a pattern to generate
+    | placeholders for the html code. Here you can define which html-types should
+    | the generator create placeholder for. Also, you can define how would you like
+    | the text to read when no placeholder is assigned.
+    */
+    'placeholder_by_html_type' => 
+    [
+        'text'      => 'Enter [% field_name %] here...',
+        'number'    => 'Enter [% field_name %] here...',
+        'select'    => 'Select [% field_name %]',
+    ],
+    
+    /*
+    |--------------------------------------------------------------------------
     | Key phrases that are will be used to determine if a field should have a relation.
     |--------------------------------------------------------------------------
     |
@@ -140,148 +157,192 @@ return [
     */
     'common_definitions' => [
         [
-            'match'   => 'id',
-            'set' => [
-                'is-on-form'  => false,
-                'is-on-index' => false,
-                'is-on-show'  => false,
-                'html-type'   => 'hidden',
-                'data-type'   => 'integer',
-                'is-primary'  => true,
+            'match' => 'id',
+            'set'   => [
+                'is-on-form'        => false,
+                'is-on-index'       => false,
+                'is-on-show'        => false,
+                'html-type'         => 'hidden',
+                'data-type'         => 'integer',
+                'is-primary'        => true,
                 'is-auto-increment' => true,
-                'is-nullable' => false,
-                'is-unsigned' => true,
+                'is-nullable'       => false,
+                'is-unsigned'       => true,
             ]
         ],
         [
-            'match'   => ['*_id','*_by'],
-            'set' => [
+            'match' => ['title','name','label','header'],
+            'set'   => [
+                'is-nullable'      => false,
+                'data-type'        => 'string',
+                'data-type-params' => [255],
+            ]
+        ],
+        [
+            'match' => ['description*','detail*','note*','message*'],
+            'set'   => [
+                'is-on-index'      => false,
+                'html-type'        => 'textarea',
+                'data-type-params' => [1000],
+            ]
+        ],
+        [
+            'match' => ['picture','file'],
+            'set'   => [
+                'is-on-index' => false,
+                'html-type'   => 'file',
+            ]
+        ],
+        [
+            'match' => ['*_id','*_by'],
+            'set'   => [
                 'data-type'   => 'integer',
                 'html-type'   => 'select',
                 'is-nullable' => false,
                 'is-unsigned' => true,
+                'is-index'    => true,
             ]
         ],
         [
-            'match'   => ['*_at'],
-            'set' => [
-                'data-type' => 'datetime'
+            'match' => ['*_at'],
+            'set'   => [
+                'data-type'   => 'datetime',
             ]
         ],
         [
-            'match'   => ['created_at','updated_at','deleted_at'],
-            'set' => [
-                'data-type'    => 'datetime',
-                'is-on-form'   => false,
-                'is-on-index'  => false,
-                'is-on-show'   => true,
+            'match' => ['created_at','updated_at','deleted_at'],
+            'set'   => [
+                'data-type'   => 'datetime',
+                'is-on-form'  => false,
+                'is-on-index' => false,
+                'is-on-show'  => true,
             ]
         ],
         [
-            'match'   => ['*_date'],
-            'set' => [
+            'match' => ['*_date'],
+            'set'   => [
                 'data-type'   => 'date',
-                'date-format' => 'm/d/Y'
+                'date-format' => 'm/d/Y',
             ]
         ],
         [
-            'match'   => ['is_*','has_*'],
-            'set' => [
+            'match' => ['is_*','has_*'],
+            'set'   => [
                 'data-type'   => 'boolean',
                 'html-type'   => 'checkbox',
-                'is-nullable' => false
+                'is-nullable' => false,
             ]
         ],
         [
-            'match'   => 'owner_id',
-            'set' => [
-                'title'     => 'Owner',
-                'data-type' => 'integer',
-                'foreign-relation' => [
-                    'name'   => 'owner',
-                    'type'   => 'belongsTo',
-                    'params' => [
-                        'App\\User',
-                        'owner_id'
-                    ],
-                    'field'  => 'name'
-                ],
-                'on-store'   => null,
-                'on-update'  => null
-            ]
-        ],
-        [
-            'match'   => 'operator_id',
-            'set' => [
-                'title'     => 'Operator',
-                'data-type' => 'integer',
-                'foreign-relation' => [
-                    'name'   => 'operator',
-                    'type'   => 'belongsTo',
-                    'params' => [
-                        'App\\User',
-                        'operator_id'
-                    ],
-                    'field'  => 'name'
-                ],
-                'on-store'   => null,
-                'on-update'  => null
-            ]
-        ],
-        [
-            'match'   => 'author_id',
-            'set' => [
-                'title'     => 'Author',
-                'data-type' => 'integer',
-                'foreign-relation' => [
-                    'name'   => 'author',
-                    'type'   => 'belongsTo',
-                    'params' => [
-                        'App\\User',
-                        'author_id'
-                    ],
-                    'field'  => 'name'
-                ],
-                'on-store'   => null,
-                'on-update'  => null
-            ]
-        ],
-        [
-            'match'   => 'created_by',
-            'set' => [
-                'title'     => 'Creator',
-                'data-type' => 'integer',
+            'match' => 'created_by',
+            'set'   => [
+                'title'            => 'Creator',
+                'data-type'        => 'integer',
                 'foreign-relation' => [
                     'name'   => 'creator',
                     'type'   => 'belongsTo',
                     'params' => [
                         'App\\User',
-                        'created_by'
+                        'created_by',
                     ],
-                    'field'  => 'name'
+                    'field'  => 'name',
                 ],
                 'on-store'   => 'Illuminate\Support\Facades\Auth::Id();',
-                'on-update'  => null
             ]
         ],
         [
-            'match'   => ['updated_by','modified_by'],
-            'set' => [
-                'title'     => 'Updater',
-                'data-type' => 'integer',
+            'match' => ['updated_by','modified_by'],
+            'set'   => [
+                'title'            => 'Updater',
+                'data-type'        => 'integer',
                 'foreign-relation' => [
                     'name'   => 'updater',
                     'type'   => 'belongsTo',
                     'params' => [
                         'App\\User',
-                        'updated_by'
+                        'updated_by',
                     ],
-                    'field'  => 'name'
+                    'field'  => 'name',
                 ],
-                'on-store'   => null,
-                'on-update'  => 'Illuminate\Support\Facades\Auth::Id();'
+                'on-update'  => 'Illuminate\Support\Facades\Auth::Id();',
             ]
         ]
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Non-Field base labels to be replaced in the views.
+    |--------------------------------------------------------------------------
+    |
+    | List of generic non-field labels to be replaced in the views.
+    | The "key" of the array is the value to be used in the locale files.
+    | The "text" key of the sub array, is the string to display in the view or add to the locale files.
+    | The "template" key of the sub array, is the string to be use in the view for replacement.
+    | The "in-function-with-collective" key of the sub array, tell the generator that,
+    | this string would be used in a function or not.
+    |
+    */
+    'generic_view_labels' =>    [
+        'create' => [
+            'text'     => 'Create New [% model_name_title %]',
+            'template' => 'create_model',
+        ],
+        'delete' => [
+            'text'     => 'Delete [% model_name_title %]',
+            'template' => 'delete_model',
+            'in-function-with-collective' => true,
+        ],
+        'edit'   => [
+            'text'     => 'Edit [% model_name_title %]',
+            'template' => 'edit_model',
+        ],
+        'show'   => [
+            'text'     => 'Show [% model_name_title %]',
+            'template' => 'show_model',
+        ],
+        'show_all' => [
+            'text'     => 'Show All [% model_name_title %]',
+            'template' => 'show_all_models',
+        ],
+        'add' => [
+            'text'     => 'Add',
+            'template' => 'add',
+            'in-function-with-collective' => true,
+        ],
+        'update' => [
+            'text'     => 'Update',
+            'template' => 'update',
+            'in-function-with-collective' => true,
+        ],
+        'confirm_delete' => [
+            'text'     => 'Delete [% model_name_title %]?',
+            'template' => 'confirm_delete',
+            'in-function-with-collective' => true,
+        ],
+        'none_available' => [
+            'text'     => 'No [% model_name_plural_title %] Available!',
+            'template' => 'no_models_available',
+        ],
+        'model_plural' => [
+            'text'     => '[% model_name_plural_title %]',
+            'template' => 'model_plural',
+        ],
+        'model_was_added' => [
+            'text'     => '[% model_name_title %] was successfully added!',
+            'template' => 'model_was_added',
+        ],
+        'model_was_updated' => [
+            'text'     => '[% model_name_title %] was successfully updated!',
+            'template' => 'model_was_updated',
+        ],
+        'model_was_deleted' => [
+            'text'     => '[% model_name_title %] was successfully deleted!',
+            'template' => 'model_was_deleted',
+        ],
+        'unexpected_error' => [
+            'text'     => 'Unexpected error occurred while trying to process your request',
+            'template' => 'unexpected_error',
+        ],
     ],
 
     /*
@@ -296,52 +357,52 @@ return [
     */
     'eloquent_type_to_method' =>
     [
-        'char' => 'char',
-        'date' => 'date',
-        'datetime' => 'dateTime',
-        'datetimetz' => 'dateTimeTz',
-        'biginteger' => 'bigIncrements',
-        'bigint' => 'bigIncrements',
-        'blob' => 'binary',
-        'binary' => 'binary',
-        'bool' => 'boolean',
-        'boolean' => 'boolean',
-        'decimal' => 'decimal',
-        'double' => 'double',
-        'enum' => 'enum',
-        'list' => 'enum',
-        'float' => 'float',
-        'int' => 'integer',
-        'integer' => 'integer',
-        'ipaddress' => 'ipAddress',
-        'json' => 'json',
-        'jsonb' => 'jsonb',
-        'longtext' => 'longText',
-        'macaddress' => 'macAddress',
-        'mediuminteger' => 'mediumInteger',
-        'mediumint' => 'mediumInteger',
-        'mediumtext' => 'mediumText',
-        'morphs' => 'morphs',
-        'string' => 'string',
-        'varchar' => 'string',
-        'nvarchar' => 'string',
-        'text' => 'text',
-        'time' => 'time',
-        'timetz' => 'timeTz',
-        'tinyinteger' => 'tinyInteger',
-        'tinyint' => 'tinyInteger',
-        'timestamp' => 'timestamp',
-        'timestamptz' => 'timestampTz',
-        'unsignedbiginteger' => 'unsignedBigInteger',
-        'unsignedbigint' => 'unsignedBigInteger',
-        'unsignedInteger' => 'unsignedInteger',
-        'unsignedint' => 'unsignedInteger',
+        'char'                  => 'char',
+        'date'                  => 'date',
+        'datetime'              => 'dateTime',
+        'datetimetz'            => 'dateTimeTz',
+        'biginteger'            => 'bigIncrements',
+        'bigint'                => 'bigIncrements',
+        'blob'                  => 'binary',
+        'binary'                => 'binary',
+        'bool'                  => 'boolean',
+        'boolean'               => 'boolean',
+        'decimal'               => 'decimal',
+        'double'                => 'double',
+        'enum'                  => 'enum',
+        'list'                  => 'enum',
+        'float'                 => 'float',
+        'int'                   => 'integer',
+        'integer'               => 'integer',
+        'ipaddress'             => 'ipAddress',
+        'json'                  => 'json',
+        'jsonb'                 => 'jsonb',
+        'longtext'              => 'longText',
+        'macaddress'            => 'macAddress',
+        'mediuminteger'         => 'mediumInteger',
+        'mediumint'             => 'mediumInteger',
+        'mediumtext'            => 'mediumText',
+        'morphs'                => 'morphs',
+        'string'                => 'string',
+        'varchar'               => 'string',
+        'nvarchar'              => 'string',
+        'text'                  => 'text',
+        'time'                  => 'time',
+        'timetz'                => 'timeTz',
+        'tinyinteger'           => 'tinyInteger',
+        'tinyint'               => 'tinyInteger',
+        'timestamp'             => 'timestamp',
+        'timestamptz'           => 'timestampTz',
+        'unsignedbiginteger'    => 'unsignedBigInteger',
+        'unsignedbigint'        => 'unsignedBigInteger',
+        'unsignedInteger'       => 'unsignedInteger',
+        'unsignedint'           => 'unsignedInteger',
         'unsignedmediuminteger' => 'unsignedMediumInteger',
-        'unsignedmediumint' => 'unsignedMediumInteger',
-        'unsignedsmallinteger' => 'unsignedSmallInteger',
-        'unsignedsmallint' => 'unsignedSmallInteger',
-        'unsignedtinyinteger' => 'unsignedTinyInteger',
-        'uuid' => 'uuid'
+        'unsignedmediumint'     => 'unsignedMediumInteger',
+        'unsignedsmallinteger'  => 'unsignedSmallInteger',
+        'unsignedsmallint'      => 'unsignedSmallInteger',
+        'unsignedtinyinteger'   => 'unsignedTinyInteger',
+        'uuid'                  => 'uuid',
     ],
 
     /*
@@ -353,44 +414,44 @@ return [
     */
     'eloquent_type_to_html_type' =>
     [
-        'char' => 'text',
-        'date' => 'text',
-        'dateTime' => 'text',
-        'dateTimeTz' => 'text',
-        'bigIncrements' => 'number',
-        'bigIncrements' => 'number',
-        'binary' => 'textarea',
-        'boolean' => 'checkbox',
-        'decimal' => 'number',
-        'double' => 'number',
-        'enum' => 'select',
-        'float' => 'number',
-        'integer' => 'number',
-        'integer' => 'number',
-        'ipAddress' => 'text',
-        'json' => 'checkbox',
-        'jsonb' => 'checkbox',
-        'longText' => 'textarea',
-        'macAddress' => 'text',
-        'mediumInteger' => 'number',
-        'mediumText' => 'textarea',
-        'string' => 'text',
-        'text' => 'textarea',
-        'time' => 'text',
-        'timeTz' => 'text',
-        'tinyInteger' => 'number',
-        'tinyInteger' => 'number',
-        'timestamp' => 'text',
-        'timestampTz' => 'text',
-        'unsignedBigInteger' => 'number',
-        'unsignedBigInteger' => 'number',
-        'unsignedInteger' => 'number',
-        'unsignedInteger' => 'number',
+        'char'                  => 'text',
+        'date'                  => 'text',
+        'dateTime'              => 'text',
+        'dateTimeTz'            => 'text',
+        'bigIncrements'         => 'number',
+        'bigIncrements'         => 'number',
+        'binary'                => 'textarea',
+        'boolean'               => 'checkbox',
+        'decimal'               => 'number',
+        'double'                => 'number',
+        'enum'                  => 'select',
+        'float'                 => 'number',
+        'integer'               => 'number',
+        'integer'               => 'number',
+        'ipAddress'             => 'text',
+        'json'                  => 'checkbox',
+        'jsonb'                 => 'checkbox',
+        'longText'              => 'textarea',
+        'macAddress'            => 'text',
+        'mediumInteger'         => 'number',
+        'mediumText'            => 'textarea',
+        'string'                => 'text',
+        'text'                  => 'textarea',
+        'time'                  => 'text',
+        'timeTz'                => 'text',
+        'tinyInteger'           => 'number',
+        'tinyInteger'           => 'number',
+        'timestamp'             => 'text',
+        'timestampTz'           => 'text',
+        'unsignedBigInteger'    => 'number',
+        'unsignedBigInteger'    => 'number',
+        'unsignedInteger'       => 'number',
+        'unsignedInteger'       => 'number',
         'unsignedMediumInteger' => 'number',
         'unsignedMediumInteger' => 'number',
-        'unsignedSmallInteger' => 'number',
-        'unsignedSmallInteger' => 'number',
-        'unsignedTinyInteger' => 'number',
-        'uuid' => 'text',
+        'unsignedSmallInteger'  => 'number',
+        'unsignedSmallInteger'  => 'number',
+        'unsignedTinyInteger'   => 'number',
+        'uuid'                  => 'text',
     ]
 ];

@@ -19,6 +19,7 @@ class CreateIndexViewCommand extends ViewsCommand
                             {--fields-file= : File name to import fields from.}
                             {--views-directory= : The name of the directory to create the views under.}
                             {--routes-prefix= : The routes prefix.}
+                            {--lang-file-name= : The name of the language file.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
                             {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the view if one already exists.}';
@@ -55,7 +56,7 @@ class CreateIndexViewCommand extends ViewsCommand
             $stub = $this->getStub();
             $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName, $this->getTemplateName());
 
-            $this->replaceCommonTemplates($stub, $input)
+            $this->replaceCommonTemplates($stub, $input, $fields)
                  ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
                  ->replaceHeaderCells($stub, $htmlCreator->getIndexHeaderCells())
                  ->replaceBodyCells($stub, $htmlCreator->getIndexBodyCells())
