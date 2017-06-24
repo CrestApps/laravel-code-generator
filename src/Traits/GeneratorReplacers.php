@@ -14,8 +14,7 @@ trait GeneratorReplacers
      */
     protected function replaceModelName(&$stub, $modelName)
     {
-        $snake = snake_case($modelName);
-        $englishSingle = str_replace('_', ' ', $snake);
+        $englishSingle = $this->modelNamePlainEnglish($modelName);
         $plural = str_plural($englishSingle);
 
         $stub = $this->strReplace('model_name', $englishSingle, $stub);
@@ -23,7 +22,7 @@ trait GeneratorReplacers
         $stub = $this->strReplace('model_name_sentence', ucfirst($englishSingle), $stub);
         $stub = $this->strReplace('model_name_plural', $plural, $stub);
         $stub = $this->strReplace('model_name_plural_title', title_case($plural), $stub);
-        $stub = $this->strReplace('model_name_snake', $snake, $stub);
+        $stub = $this->strReplace('model_name_snake', snake_case($modelName), $stub);
         $stub = $this->strReplace('model_name_studly', studly_case($modelName), $stub);
         $stub = $this->strReplace('model_name_slug', str_slug($englishSingle), $stub);
         $stub = $this->strReplace('model_name_kebab', kebab_case($modelName), $stub);
@@ -35,6 +34,18 @@ trait GeneratorReplacers
         $stub = $this->strReplace('model_name_singular_variable', $this->getSingularVariable($modelName), $stub);
 
         return $this;
+    }
+
+    /**
+     * Gets the
+     *
+     * @param string $modelName
+     *
+     * @return string
+     */
+    protected function modelNamePlainEnglish($modelName)
+    {
+        return str_replace('_', ' ', snake_case($modelName));
     }
 
     /**

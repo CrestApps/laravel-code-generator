@@ -22,7 +22,7 @@ class FieldsFileAppendCommand extends Command
      */
     protected $signature = 'fields-file:append
                             {model-name : The model name that these files represent.}
-                            {--fields-filename= : The destination file name to create.}
+                            {--fields-filename= : The destination file name to append too.}
                             {--names= : A comma seperate field names.}
                             {--data-types= : A comma seperated data-type for each field.}
                             {--translation-for= : A comma seperated string of languages to create fields for.}
@@ -66,6 +66,14 @@ class FieldsFileAppendCommand extends Command
              ->info('New fields where appended to the file.');
     }
 
+    /**
+     * Merges the giving file's content to the new fields.
+     *
+     * @param string $file
+     * @param (object) $input
+     *
+     * @return array
+     */
     protected function mergeFields($file, $input)
     {
         $content = $this->getFileContent($file);
@@ -76,6 +84,7 @@ class FieldsFileAppendCommand extends Command
             $this->error('The existing file contains invalid json string. Please fix the file then try again');
             return false;
         }
+        
         $existingName = Collect($existingFields)->pluck('name')->all();
         $fields = FieldsFileCreateCommand::getFields($input, true);
         foreach($fields as $field) {
@@ -91,6 +100,7 @@ class FieldsFileAppendCommand extends Command
 
         return $existingFields;
     }
+
     /**
      * Converts the current command's argument and options into an array.
      *

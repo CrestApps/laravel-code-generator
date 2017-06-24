@@ -17,6 +17,26 @@ class Config
     }
 
     /**
+     * Gets the default resources mapper file
+     * 
+     * @return string
+    */
+    public static function getDefaultMapperFileName()
+    {
+        return config('codegenerator.default_mapper_file_name', 'resources_map.json');
+    }
+
+    /**
+     * Check if the resource mapper should be auto managed.
+     * 
+     * @return bool
+    */
+    public static function autoManageResourceMapper()
+    {
+        return config('codegenerator.auto_manage_resource_mapper', true);
+    }
+
+    /**
      * Gets the default placeholders by type
      * 
      * @return array
@@ -157,13 +177,15 @@ class Config
     /**
      * Gets the field's file path.
      *
+     * @param string $filename
+     *
      * @return string
      */
-    public static function getFieldsFilePath()
+    public static function getFieldsFilePath($filename = '')
     {
         $path = config('codegenerator.fields_file_path', 'resources/codegenerator-files');
 
-        return Helpers::getPathWithSlash($path);
+        return Helpers::getPathWithSlash($path) . $filename;
     }
 
     /**

@@ -58,8 +58,13 @@ class FieldsFileCreateCommand extends Command
             return false;
         }
 
+
+        if(Config::autoManageResourceMapper()) {
+            $this->appendMapper($input->modelName, $input->file);
+        }
+
         $fields = $this->getFields($input, $input->withoutPrimaryKey);
-        $string = $this->getFieldAsJson($fields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        $string = $this->getFieldAsJson($fields);
 
         $this->createFile($file, $string)
              ->info('New fields-file was crafted!');
@@ -140,6 +145,44 @@ class FieldsFileCreateCommand extends Command
         }
 
         return FieldTransformer::fromArray($fields, 'generic');
+    }
+
+    /**
+     * Removes mapping entry from the default mapping file.
+     *
+     * @param string $modelName
+     * @param string $fieldsFileName
+     *
+     * @return void
+     */
+    protected function appendMapper($modelName, $fieldsFileName)
+    {
+        $file = $path = base_path(Config::getFieldsFilePath(Config::getDefaultMapperFileName()));
+
+        $fields = [];
+
+        if($this->isFileExists($file)){
+            $content = $this->getFileContent($file);
+
+            $existingFields = json_decode($content);
+
+            if(is_null($existingFields)) {
+                $this->error('The existing mapping file contains invalid json string. Please fix the file then try again');
+                return false;
+            }
+            
+            $existingFields = Collect($existingFields)->filter(function($resource) use($modelName) {
+                return isset($resource->{'model-name'}) && $resource->{'model-name'} != $modelName;
+            });
+
+            $fields = Collect($existingFields)->push(
+                    [
+                        'model-name'  => $modelName,
+                        'fields-file' => $fieldsFileName,
+                    ]);
+        }
+
+        $this->putContentInFile($file, json_encode($fields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
 
     /**
