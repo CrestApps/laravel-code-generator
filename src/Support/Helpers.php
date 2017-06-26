@@ -25,6 +25,18 @@ class Helpers
     }
 
     /**
+     * Makes a form request class name of the givin model's name
+     *
+     * @param string $modelName
+     *
+     * @return string
+     */
+    public static function makeFormRequestName($modelName)
+    {        
+        return str_finish($modelName, 'FormRequest');
+    }
+
+    /**
      * Creates a colection of messages out of a giving fields collection.
      *
      * @param array $fields

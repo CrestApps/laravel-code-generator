@@ -186,7 +186,7 @@ EOF;
     protected function getCommandInput()
     {
         $modelName = trim($this->argument('model-name'));
-        $fileName = trim($this->option('class-name')) ?: $modelName . 'FormRequest';
+        $fileName = trim($this->option('class-name')) ?: Helpers::makeFormRequestName($modelName);
         $fields = trim($this->option('fields'));
         $fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($modelName);
         $force = $this->option('force');

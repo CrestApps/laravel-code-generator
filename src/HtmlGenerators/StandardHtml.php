@@ -208,7 +208,7 @@ class StandardHtml extends HtmlGeneratorBase
      */
     protected function getSelectedValue($name, $valueAccessor)
     {
-        return sprintf(" {{ %s == %s ? 'selected' : '' }}", $this->getRawOptionValue($name, ''), '$key');
+        return sprintf(" {{ %s == %s ? 'selected' : '' }}", $this->getRawOptionValue($name, ''), $valueAccessor);
     }
 
     /**

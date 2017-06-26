@@ -719,7 +719,7 @@ class CreateControllerCommand extends Command
         $withFormRequest = $this->option('with-form-request');
         $force = $this->option('force');
         $modelDirectory = $this->option('model-directory');
-        $formRequestName = '';
+        $formRequestName = Helpers::makeFormRequestName($modelName);
         $template = $this->getTemplateName();
         $extends = $this->generatorOption('controller-extends');
         $withAuth = $this->option('with-auth');

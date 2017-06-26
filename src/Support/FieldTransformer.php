@@ -96,6 +96,7 @@ class FieldTransformer
                         'multipleSelect',
                         'textarea',
                         'selectMonth',
+                        'selectRange',
                     ];
 
     /**
@@ -385,6 +386,10 @@ class FieldTransformer
             $field->range = explode(':', substr($properties['html-type'], 12));
         }
 
+        if($this->isKeyExists($properties, 'range') && is_array($properties['range'])) {
+            $field->range = $properties['range'];
+        }
+        
         return $this;
     }
 
@@ -758,14 +763,16 @@ class FieldTransformer
 
         if (in_array($field->dataType, ['char','string'])
             && isset($params[0]) && ($length = intval($params[0])) > 0) {
-            if (!$this->inArraySearch($field->validationRules, 'digits_between')) {
+            if (!$this->inArraySearch($field->validationRules, 'between')) {
                 $min = $field->isRequired() ? 1 : 0;
-                $field->validationRules[] = sprintf('digits_between:%s,%s', $min, $length);
+                $field->validationRules[] = sprintf('between:%s,%s', $min, $length);
             }
         }
 
-        if (in_array($field->dataType, ['decimal','double','float'])
-            && isset($params[0]) && ($length = intval($params[0])) > 0 && isset($params[1]) && ($decimal = intval($params[1])) > 0) {
+        if ( $field->htmlType == 'number' || (in_array($field->dataType, ['decimal','double','float'])
+            && isset($params[0]) && ($length = intval($params[0])) > 0 
+            && isset($params[1]) && ($decimal = intval($params[1])) > 0) )
+        {
             if (!in_array('numeric', $field->validationRules)) {
                 $field->validationRules[] = 'numeric';
             }

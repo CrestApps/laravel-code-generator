@@ -491,7 +491,7 @@ abstract class HtmlGeneratorBase
             return sprintf('$%s->%s', $relation->getSingleName(), $relation->getPrimaryKeyForForeignModel());
         }
 
-        return '$value';
+        return in_array($field->htmlType, ['selectRange','selectMonth']) ? '$value' : '$key';
     }
 
     /**
@@ -511,9 +511,7 @@ abstract class HtmlGeneratorBase
     /**
      * Gets the selected value for a menu.
      *
-     * @param string $value
-     * @param string $name
-     * @param bool $isMultiple
+     * @param CrestApps\CodeGenerator\Models\Field $field
      *
      * @return string
     */
