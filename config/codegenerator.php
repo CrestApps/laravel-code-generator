@@ -9,13 +9,13 @@ return [
     |
     | Here you change the stub templates to use when generating code.
     | You can duplicate the 'default' template folder
-    | and call it what ever template your like 'ex. skyblue'.
+    | and call it what ever template name you like 'ex. skyblue'.
     | Now, you can change the stubs to have your own templates generated.
     |
     |
     | IMPORTANT: It is not recomended to modify the default template, rather create a new template.
     | If you modify the default template and then executed 'php artisan vendor:publish' command,
-    | it will override the default template causing you to lose your modification.
+    | will override your changes!
     |
     */
     'template' => 'default',
@@ -38,6 +38,8 @@ return [
     | If you want to generate code by using laravel-collective, you must first
     | install the package. Then add the tamplate name that should be using
     | Laravel-Collective extensions when generating code.
+    |
+    |
     */
     'laravel_collective_templates' => [
         'default-collective'
@@ -57,13 +59,15 @@ return [
     | The default output format for datetime fields.
     |--------------------------------------------------------------------------
     |
+    | This output format can also be changed at the field level using the 
+    | "date-format" property of the field.
     |
     */
     'datetime_out_format' => 'm/d/Y H:i A',
 
     /*
     |--------------------------------------------------------------------------
-    | The default path of where the field json files are located.
+    | The default path of where the json field files are located.
     |--------------------------------------------------------------------------
     |
     | In this path, you can create json file to import the fields from.
@@ -108,7 +112,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The name of the default resource mapper.
+    | The name of the default resources map file.
     |--------------------------------------------------------------------------
     */
     'default_mapper_file_name' => 'resources_map.json',
@@ -136,11 +140,27 @@ return [
     | placeholders for the html code. Here you can define which html-types should
     | the generator create placeholder for. Also, you can define how would you like
     | the text to read when no placeholder is assigned.
+    |
+    | The follwowing templates can be used to. assuming the field name is owner_name
+    | [% field_name %]                   <=> "owner name"
+    | [% field_name_sentence %]          <=> "Owner name"
+    | [% field_name_plural %]            <=> "owner names"
+    | [% field_name_plural_title %]      <=> "Owner Names"
+    | [% field_name_snake %]             <=> "owner_name"
+    | [% field_name_studly %]            <=> "OwnerName"
+    | [% field_name_slug %]              <=> "owner-name"
+    | [% field_name_kebab %]             <=> "owner-name"
+    | [% field_name_title %]             <=> "Owner Name"
+    | [% field_name_title_upper %]       <=> "OWNER NAME"
+    | [% field_name_plural_variable %]   <=> "ownerNames"
+    | [% field_name_singular_variable %] <=> "ownerName"
     */
     'placeholder_by_html_type' => 
     [
         'text'      => 'Enter [% field_name %] here...',
         'number'    => 'Enter [% field_name %] here...',
+        'password'  => 'Enter [% field_name %] here...',
+        'email'     => 'Enter [% field_name %] here...',
         'select'    => 'Select [% field_name %]',
     ],
     
@@ -151,7 +171,7 @@ return [
     |
     | When creating resources from existing database, the codegenerator scans
     | the field's name for a mattching pattern. When found, these field are considred
-    | foreign keys even if the database does not have a foreign constraints.
+    | foreign keys even when the database does not have a foreign constraints.
     | Here you can specify patterns to help the generator understand your
     | database naming convension.
     |
@@ -163,10 +183,10 @@ return [
     | Patterns to use to pre-set field's properties.
     |--------------------------------------------------------------------------
     |
-    | To make constructing fields easy, the codegenerator scans the field's name
-    | for a matching pattern. If the name matches any of the set pattern, the the
-    | field's properties will be preset. defining pattern will save you from having
-    | to re-define the properties for common fields.
+    | To make constructing fields easy, the code-generator scans the field's name
+    | for a matching pattern. If the name matches any of these patterns, the
+    | field's properties will be set accordingly. Defining pattern will save 
+    | you from having to re-define the properties for common fields.
     |
     */
     'common_definitions' => [
@@ -201,10 +221,22 @@ return [
             ]
         ],
         [
-            'match' => ['picture','file'],
+            'match' => ['picture','file','photo'],
             'set'   => [
                 'is-on-index' => false,
                 'html-type'   => 'file',
+            ]
+        ],
+        [
+            'match' => ['*password*'],
+            'set'   => [
+                'html-type'   => 'password'
+            ]
+        ],
+        [
+            'match' => ['*email*'],
+            'set'   => [
+                'html-type'   => 'email'
             ]
         ],
         [
@@ -294,6 +326,32 @@ return [
     | The "template" key of the sub array, is the string to be use in the view for replacement.
     | The "in-function-with-collective" key of the sub array, tell the generator that,
     | this string would be used in a function or not.
+    |
+    | The follwowing templates can be used. Assuming the model name is AssetCategory
+    | [% model_name %]                   <=> "asset category"
+    | [% model_name_sentence %]          <=> "Asset category"
+    | [% model_name_plural %]            <=> "asset categories"
+    | [% model_name_plural_title %]      <=> "Asset Category"
+    | [% model_name_snake %]             <=> "asset_category"
+    | [% model_name_studly %]            <=> "AssetCategory"
+    | [% model_name_slug %]              <=> "asset-category"
+    | [% model_name_kebab %]             <=> "asset-category"
+    | [% model_name_title %]             <=> "Asset Category"
+    | [% model_name_title_upper %]       <=> "ASSET CATEGORY"
+    | [% model_name_plural_variable %]   <=> "assetCategories"
+    | [% model_name_singular_variable %] <=> "assetCategory"
+    |
+    | ~Example
+    | Lets say we need to add a new template in our views that reads the following
+    | "Creating resources for ... was a breeze!"
+    | The following entry can be added to the below array
+    |   
+    |    'custom_template_1' => [
+    |        'text'     => 'Creating resources for [% model_name %] was a breeze!',
+    |        'template' => 'custom_template_example',
+    |    ],
+    | Finally, add [% custom_template_example %] in the view where you want it to appear!
+    |
     |
     */
     'generic_view_labels' =>    [

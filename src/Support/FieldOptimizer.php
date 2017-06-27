@@ -48,7 +48,14 @@ class FieldOptimizer
         'uuid'
     ];
 
-
+    /**
+     * Create a new optemizer instance.
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $meta
+     *
+     * @return void
+     */
     public function __construct(Field $field, array $meta = null)
     {
         $this->field = $field;

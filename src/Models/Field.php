@@ -682,7 +682,6 @@ class Field
             'is-unsigned' => $this->isUnsigned,
             'is-auto-increment' => $this->isAutoIncrement,
             'is-inline-options' => $this->isInlineOptions,
-            'is-multiple-answers' => $this->isMultipleAnswers,
             'is-date' => $this->isDate,
             'date-format' => $this->dateFormat,
             'cast-as' => $this->castAs,
@@ -787,6 +786,26 @@ class Field
     }
 
     /**
+     * Checks if the data type is numeric.
+     *
+     * @return bool
+     */
+    public function isNumeric()
+    {
+        return $this->isDecimal() || in_array($this->dataType, ['bigIncrements','bigInteger','increments','integer','mediumIncrements','mediumInteger','smallIncrements','smallInteger','tinyInteger','unsignedBigInteger','unsignedInteger','unsignedMediumInteger','unsignedSmallInteger','unsignedTinyInteger']);
+    }
+
+    /**
+     * Checks if the data type string
+     *
+     * @return bool
+     */
+    public function isString()
+    {
+        return in_array($this->dataType, ['char','string']);
+    }
+
+    /**
      * Checks if the data type is time stamp.
      *
      * @return bool
@@ -881,16 +900,6 @@ class Field
     }
 
     /**
-     * Checks if the data type is numeric.
-     *
-     * @return bool
-     */
-    public function isNumeric()
-    {
-        return $this->isDecimal() || in_array($this->dataType, ['bigIncrements','bigInteger','increments','integer','mediumIncrements','mediumInteger','smallIncrements','smallInteger','tinyInteger','unsignedBigInteger','unsignedInteger','unsignedMediumInteger','unsignedSmallInteger','unsignedTinyInteger']);
-    }
-
-    /**
      * Get the total decimal point
      *
      * @return int
@@ -902,6 +911,39 @@ class Field
         }
 
         return 0;
+    }
+
+    /**
+     * Gets the Min length a field.
+     *
+     * @return int|null
+     */
+    public function getMinLength()
+    {
+        if($this->isString() && isset($this->methodParams[0])) {
+            return intval($this->methodParams[0]);
+        }
+
+        return 0;
+    }
+
+    /**
+     * Gets the Min length a field.
+     *
+     * @return int|null
+     */
+    public function getMaxLength()
+    {
+        if($this->isString() && isset($this->methodParams[0]) ) {
+
+            if(isset($this->methodParams[1])) {
+                return intval($this->methodParams[1]);
+            }
+
+            return intval($this->methodParams[0]);
+        }
+
+        return null;
     }
 
     /**

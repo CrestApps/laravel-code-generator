@@ -24,6 +24,13 @@ class FieldsOptimizer
      */
     protected $fields = [];
 
+    /**
+     * Create a new optemizer instance.
+     *
+     * @param array $mappers
+     *
+     * @return void
+     */
     public function __construct(array $mappers)
     {
         $this->mappers = $mappers;

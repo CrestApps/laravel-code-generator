@@ -91,7 +91,7 @@ class FieldTransformer
                         'checkbox',
                         'radio',
                         'number',
-                        'date',
+                        //'date',
                         'select',
                         'multipleSelect',
                         'textarea',
@@ -747,7 +747,7 @@ class FieldTransformer
             $field->validationRules = is_array($properties['validation']) ? $properties['validation'] : Helpers::removeEmptyItems(explode('|', $properties['validation']));
         }
 
-        if (Helpers::isNewerThan('5.2') && $field->isNullable) {
+        if (Helpers::isNewerThan('5.2') && $field->isNullable && !in_array('nullable', $field->validationRules)) {
             $field->validationRules[] = 'nullable';
         }
 
@@ -755,18 +755,31 @@ class FieldTransformer
             $field->validationRules[] = 'boolean';
         }
 
+        if ($field->isFile() && !in_array('file', $field->validationRules)) {
+            $field->validationRules[] = 'file';
+        }
+        if ($field->isMultipleAnswers && !in_array('array', $field->validationRules)) {
+            $field->validationRules[] = 'array';
+        }
+
+        if (in_array($field->dataType, ['char','string']) && in_array($field->htmlType, ['text','textarea']) ) {
+            if (!in_array('string', $field->validationRules)) {
+                $field->validationRules[] = 'string';
+            }
+
+            if (!$this->inArraySearch($field->validationRules, 'min')) {
+                $field->validationRules[] = sprintf('min:%s', $field->getMinLength());
+            }
+
+            if (!$this->inArraySearch($field->validationRules, 'max') && !is_null($field->getMaxLength()) ) {
+                $field->validationRules[] = sprintf('max:%s', $field->getMaxLength());
+            }
+        }
+
         $params = [];
 
         if ($this->isKeyExists($properties, 'data-type-params')) {
             $params = $this->getDataTypeParams($field->dataType, (array) $properties['data-type-params']);
-        }
-
-        if (in_array($field->dataType, ['char','string'])
-            && isset($params[0]) && ($length = intval($params[0])) > 0) {
-            if (!$this->inArraySearch($field->validationRules, 'between')) {
-                $min = $field->isRequired() ? 1 : 0;
-                $field->validationRules[] = sprintf('between:%s,%s', $min, $length);
-            }
         }
 
         if ( $field->htmlType == 'number' || (in_array($field->dataType, ['decimal','double','float'])
