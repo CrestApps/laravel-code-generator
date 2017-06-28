@@ -213,6 +213,12 @@ return [
             ]
         ],
         [
+            'match' => ['*count*','total*','*number*','*age*'],
+            'set'   => [
+                'html-type'   => 'number'
+            ]
+        ],
+        [
             'match' => ['description*','detail*','note*','message*'],
             'set'   => [
                 'is-on-index'      => false,

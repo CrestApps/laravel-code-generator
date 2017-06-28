@@ -3,7 +3,7 @@
 namespace [% app_name %]\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+[% use_auth_namespace %]
 class [% form_request_class %] extends FormRequest
 {
     /**
@@ -13,7 +13,7 @@ class [% form_request_class %] extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return [% autherized_boolean %];
     }
 
     /**

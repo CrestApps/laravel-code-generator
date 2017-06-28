@@ -7,7 +7,6 @@ use CrestApps\CodeGenerator\Support\GenerateFormViews;
 
 class CreateShowViewCommand extends ViewsCommand
 {
-
     /**
      * The name and signature of the console command.
      *

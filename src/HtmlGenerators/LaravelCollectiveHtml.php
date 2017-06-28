@@ -2,13 +2,13 @@
 
 namespace CrestApps\CodeGenerator\HtmlGenerators;
 
-use CrestApps\CodeGenerator\HtmlGenerators\HtmlGeneratorBase;
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\HtmlGenerators\HtmlGeneratorBase;
 
 class LaravelCollectiveHtml extends HtmlGeneratorBase
 {
-
     /**
      * Gets the min value attribute.
      *
@@ -151,7 +151,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
         if (!is_null($value)) {
             $modelVariable = $this->getSingularVariable($this->modelName);
 
-            return sprintf(" isset(\$%s->%s) ? \$%s->%s : '%s' ", $modelVariable, $name, $modelVariable, $name, $value);
+            return sprintf("(!isset(\$%s->%s) ? '%s' : null)", $modelVariable, $name, $value);
         }
 
         return 'null';
@@ -162,12 +162,15 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      *
      * @param string $value
      * @param string $name
+     * @param string $defaultValue
      *
      * @return string
      */
-    protected function getCheckedItem($value, $name)
+    protected function getCheckedItem($value, $name, $defaultValue)
     {
-        return '';
+        return sprintf(" (%s == '%s' ? true : null) ", 
+                        $this->getRawOptionValue($name, $defaultValue), 
+                        $value);
     }
 
     /**
@@ -175,12 +178,13 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      *
      * @param string $name
      * @param string $valueAccessor
+     * @param string $defaultValue
      *
      * @return string
      */
-    protected function getSelectedValue($name, $valueAccessor)
+    protected function getSelectedValue($name, $valueAccessor, $defaultValue)
     {
-        return '';
+        return sprintf(" (%s == %s ? true : null) ", $this->getRawOptionValue($name, $defaultValue), $valueAccessor);
     }
 
     /**
@@ -188,12 +192,59 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      *
      * @param string $value
      * @param string $name
+     * @param string $defaultValue
      *
      * @return string
      */
-    protected function getMultipleCheckedItem($value, $name)
+    protected function getMultipleCheckedItem($value, $name, $defaultValue)
     {
-        return '';
+        return sprintf(" (%s ? true : null) ", $this->getMultipleRawOptionValue($name, $value, $defaultValue));
+    }
+
+    /**
+     * Gets a raw value for a giving field's name.
+     *
+     * @param string $name
+     * @param string $value
+     *
+     * @return string
+     */
+    protected function getRawOptionValue($name, $value)
+    {
+
+        $modelVariable = $this->getSingularVariable($this->modelName);
+
+        $valueString = is_null($value) ? 'null' : sprintf("'%s'", $value);
+
+        return sprintf("old('%s', isset(\$%s->%s) ? \$%s->%s : %s)", $name, $modelVariable, $name, $modelVariable, $name, $valueString);
+    }
+
+    /**
+     * Gets a raw value for a giving field's name.
+     *
+     * @param string $name
+     * @param string $value
+     * @param string $defaultValue
+     *
+     * @return string
+     */
+    protected function getMultipleRawOptionValue($name, $value, $defaultValue)
+    {
+        $modelVariable = $this->getSingularVariable($this->modelName);
+        $valueString = 'null';
+
+        if (!is_null($value)) {
+            $valueString = starts_with('$', $value) ? sprintf("%s", $value) : sprintf("'%s'", $value);
+        }
+
+        $defaultValueString = '[]';
+
+        if(!empty($defaultValue)) {
+            $joinedValues = implode(',', Helpers::wrapItems((array)$defaultValue) );
+            $defaultValueString = sprintf('[%s]', $joinedValues);
+        }
+
+        return sprintf("in_array(%s, old('%s', isset(\$%s->%s) ? \$%s->%s : %s))", $valueString, $name, $modelVariable, $name, $modelVariable, $name, $defaultValueString);
     }
 
     /**
@@ -201,12 +252,13 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      *
      * @param string $name
      * @param string $valueAccessor
+     * @param string $defaultValue
      *
      * @return string
      */
-    protected function getMultipleSelectedValue($name, $valueAccessor)
+    protected function getMultipleSelectedValue($name, $valueAccessor, $defaultValue)
     {
-        return '';
+        return sprintf(" (%s ? true : null) ", $name);
     }
 
     /**

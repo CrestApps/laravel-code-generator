@@ -11,14 +11,22 @@ use CrestApps\CodeGenerator\Support\Config;
 class Field
 {
     /**
-     * Fields that are auto managed by Laravel.
+     * Fields that are auto managed by Laravel on update.
      *
      * @var array
      */
-    protected $autoManagedFields = [
+    protected $autoManagedFieldsOnUpdate = [
         'created_at',
         'updated_at',
-        'deleted_at'
+    ];
+
+    /**
+     * Fields that are auto managed by Laravel on delete.
+     *
+     * @var array
+     */
+    protected $autoManagedFieldsOnDelete = [
+        'deleted_at',
     ];
 
     /**
@@ -392,7 +400,27 @@ class Field
      */
     public function isAutoManaged()
     {
-        return in_array($this->name, $this->autoManagedFields);
+        return $this->isAutoManagedOnUpdate() || $this->isAutoManagedOnDelete();
+    }
+
+    /**
+     * Checks if this field is auto managed by eloquent on update event.
+     *
+     * @return bool
+     */
+    public function isAutoManagedOnUpdate()
+    {
+        return in_array($this->name, $this->autoManagedFieldsOnUpdate);
+    }
+
+    /**
+     * Checks if this field is auto managed by eloquent on delete event.
+     *
+     * @return bool
+     */
+    public function isAutoManagedOnDelete()
+    {
+        return in_array($this->name, $this->autoManagedFieldsOnDelete);
     }
 
     /**
@@ -920,8 +948,8 @@ class Field
      */
     public function getMinLength()
     {
-        if($this->isString() && isset($this->methodParams[0])) {
-            return intval($this->methodParams[0]);
+        if($this->isRequired() || !$this->isNullable) {
+            return 1;
         }
 
         return 0;
@@ -934,12 +962,7 @@ class Field
      */
     public function getMaxLength()
     {
-        if($this->isString() && isset($this->methodParams[0]) ) {
-
-            if(isset($this->methodParams[1])) {
-                return intval($this->methodParams[1]);
-            }
-
+        if($this->isString() && isset($this->methodParams[0])) {
             return intval($this->methodParams[0]);
         }
 

@@ -58,8 +58,7 @@ class FieldsFileCreateCommand extends Command
             return false;
         }
 
-
-        if(Config::autoManageResourceMapper()) {
+        if (Config::autoManageResourceMapper()) {
             $this->appendMapper($input->modelName, $input->file);
         }
 
@@ -87,8 +86,7 @@ class FieldsFileCreateCommand extends Command
         $transaltionFor = Helpers::convertStringToArray($this->generatorOption('translation-for'));
         $force = $this->option('force');
 
-
-        return (object) compact('modelName','file', 'names', 'dataTypes', 'htmlTypes', 'withoutPrimaryKey', 'transaltionFor', 'force');
+        return (object) compact('modelName', 'file', 'names', 'dataTypes', 'htmlTypes', 'withoutPrimaryKey', 'transaltionFor', 'force');
     }
 
     /**
@@ -122,7 +120,7 @@ class FieldsFileCreateCommand extends Command
         }
 
         foreach ($input->names as $key => $name) {
-            if(!$withoutPrimaryKey && strtolower($name) == 'id') {
+            if (!$withoutPrimaryKey && strtolower($name) == 'id') {
                 continue;
             }
             
@@ -161,17 +159,17 @@ class FieldsFileCreateCommand extends Command
 
         $fields = [];
 
-        if($this->isFileExists($file)){
+        if ($this->isFileExists($file)) {
             $content = $this->getFileContent($file);
 
             $existingFields = json_decode($content);
 
-            if(is_null($existingFields)) {
+            if (is_null($existingFields)) {
                 $this->error('The existing mapping file contains invalid json string. Please fix the file then try again');
                 return false;
             }
             
-            $existingFields = Collect($existingFields)->filter(function($resource) use($modelName) {
+            $existingFields = Collect($existingFields)->filter(function ($resource) use ($modelName) {
                 return isset($resource->{'model-name'}) && $resource->{'model-name'} != $modelName;
             });
 

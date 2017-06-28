@@ -25,6 +25,7 @@ class CreateFormRequestCommand extends Command
                             {--fields= : The fields to create the validation rules from.}
                             {--fields-file= : File name to import fields from.}
                             {--template-name= : The template name to use when generating the code.}
+                            {--with-auth : Generate the form-request with Laravel auth middlewear. }
                             {--force : This option will override the form-request if one already exists.}';
 
     /**
@@ -59,6 +60,8 @@ class CreateFormRequestCommand extends Command
              ->replaceAppName($stub, $this->getAppName())
              ->replaceGetDataMethod($stub, $this->getDataMethod($fields))
              ->replaceRequestVariable($stub, '$this')
+             ->replaceAuthBoolean($stub, $this->getAuthBool($input->withAuth))
+             ->replaceAuthNamespace($stub, $this->getAuthNamespace($input->withAuth))
              ->replaceTypeHintedRequestName($stub, '')
              ->replaceFileMethod($stub, $this->getUploadFileMethod($fields))
              ->createFile($destenationFile, $stub)
@@ -83,6 +86,30 @@ class CreateFormRequestCommand extends Command
              ->replaceMethodVisibilityLevel($stub, 'public');
 
         return $stub;
+    }
+
+    /**
+     * Gets the boolean value that the autherize() method will return.
+     *
+     * @param array $fields
+     *
+     * @return string
+     */
+    protected function getAuthBool($withAuth)
+    {
+        return $withAuth ? 'Auth::check()' : 'false';
+    }
+
+    /**
+     * Gets the using statement for Auth.
+     *
+     * @param array $fields
+     *
+     * @return string
+     */
+    protected function getAuthNamespace($withAuth)
+    {
+        return $withAuth ? 'use Auth;' : '';
     }
 
     /**
@@ -190,9 +217,10 @@ EOF;
         $fields = trim($this->option('fields'));
         $fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($modelName);
         $force = $this->option('force');
+        $withAuth = $this->option('with-auth');
         $template = $this->option('template-name');
 
-        return (object) compact('modelName','fileName', 'fields', 'fieldsFile', 'force', 'template');
+        return (object) compact('withAuth','modelName', 'fileName', 'fields', 'fieldsFile', 'force', 'template');
     }
 
     /**
@@ -221,6 +249,36 @@ EOF;
     protected function replaceTypeHintedRequestName(&$stub, $code)
     {
         $stub = $this->strReplace('type_hinted_request_name', $code, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the autherized_boolean for the given stub.
+     *
+     * @param $stub
+     * @param $code
+     *
+     * @return $this
+     */
+    protected function replaceAuthBoolean(&$stub, $code)
+    {
+        $stub = $this->strReplace('autherized_boolean', $code, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the autherized_boolean for the given stub.
+     *
+     * @param $stub
+     * @param $code
+     *
+     * @return $this
+     */
+    protected function replaceAuthNamespace(&$stub, $code)
+    {
+        $stub = $this->strReplace('use_auth_namespace', $code, $stub);
 
         return $this;
     }

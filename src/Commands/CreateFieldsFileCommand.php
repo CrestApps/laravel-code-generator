@@ -60,7 +60,7 @@ class CreateFieldsFileCommand extends Command
         $content = $this->getFieldsAsJson();
 
 
-        if(Config::autoManageResourceMapper()) {
+        if (Config::autoManageResourceMapper()) {
             $this->appendMapper($this->getModelName(), $this->getFilename());
         }
 
@@ -82,17 +82,17 @@ class CreateFieldsFileCommand extends Command
 
         $fields = [];
 
-        if($this->isFileExists($file)){
+        if ($this->isFileExists($file)) {
             $content = $this->getFileContent($file);
 
             $existingFields = json_decode($content);
 
-            if(is_null($existingFields)) {
+            if (is_null($existingFields)) {
                 $this->error('The existing mapping file contains invalid json string. Please fix the file then try again');
                 return false;
             }
             
-            $existingFields = Collect($existingFields)->filter(function($resource) use($modelName) {
+            $existingFields = Collect($existingFields)->filter(function ($resource) use ($modelName) {
                 return isset($resource->{'model-name'}) && $resource->{'model-name'} != $modelName;
             });
 
@@ -100,6 +100,7 @@ class CreateFieldsFileCommand extends Command
                     [
                         'model-name'  => $modelName,
                         'fields-file' => $fieldsFileName,
+                        'table-name'  => $this->getTableName(),
                     ]);
         }
 

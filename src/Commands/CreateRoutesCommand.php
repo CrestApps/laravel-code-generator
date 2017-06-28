@@ -106,13 +106,13 @@ class CreateRoutesCommand extends Command
      */
     protected function getControllerName($name, $namespace)
     {
-        if(empty($namespace)) {
+        if (empty($namespace)) {
             return $name;
         }
 
         $path = Helpers::postFixWith($namespace, '\\');
 
-        return Helpers::convertSlashToBackslash( $path . $name);
+        return Helpers::convertSlashToBackslash($path . $name);
     }
 
     /**

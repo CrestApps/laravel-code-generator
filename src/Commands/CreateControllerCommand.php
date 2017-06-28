@@ -671,14 +671,14 @@ class CreateControllerCommand extends Command
      */
     protected function makeFormRequest($input)
     {
-
         $this->callSilent('create:form-request',
         [
-            'model-name' => $input->modelName,
-            '--class-name' => $input->formRequestName,
-            '--fields' => $input->fields,
-            '--force' => $input->force,
-            '--fields-file' => $input->fieldsFile,
+            'model-name'      => $input->modelName,
+            '--class-name'    => $input->formRequestName,
+            '--fields'        => $input->fields,
+            '--force'         => $input->force,
+            '--with-auth'     => $input->withAuth,
+            '--fields-file'   => $input->fieldsFile,
             '--template-name' => $input->template
         ]);
 
@@ -709,7 +709,8 @@ class CreateControllerCommand extends Command
     {
         $modelName = trim($this->argument('model-name'));
         $cName = trim($this->option('controller-name'));
-        $controllerName = $cName ? str_finish($cName, 'Controller') : Helpers::makeControllerName($modelName);;
+        $controllerName = $cName ? str_finish($cName, 'Controller') : Helpers::makeControllerName($modelName);
+        ;
         $viewDirectory = $this->option('views-directory');
         $prefix = $this->option('routes-prefix');
         $perPage = intval($this->option('models-per-page'));

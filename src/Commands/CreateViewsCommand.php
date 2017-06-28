@@ -7,7 +7,6 @@ use CrestApps\CodeGenerator\Support\Helpers;
 
 class CreateViewsCommand extends ViewsCommand
 {
-
     /**
      * The name and signature of the console command.
      *
@@ -56,10 +55,8 @@ class CreateViewsCommand extends ViewsCommand
             $this->info('Crafting views...');
 
             foreach ($this->getOnlyViews() as $view) {
-
                 $this->call($this->getViewCommand($view), $input->getArrguments());
             }
-
         }
     }
 

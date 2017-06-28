@@ -45,7 +45,7 @@ class FieldsFileAppendCommand extends Command
         $input = $this->getCommandInput();
         $file = $this->getFilename($input->file);
 
-        if(empty($input->names)) {
+        if (empty($input->names)) {
             $this->error('No names were provided. Please use the --names option to pass field names.');
 
             return false;
@@ -80,16 +80,15 @@ class FieldsFileAppendCommand extends Command
 
         $existingFields = json_decode($content);
 
-        if(is_null($existingFields)) {
+        if (is_null($existingFields)) {
             $this->error('The existing file contains invalid json string. Please fix the file then try again');
             return false;
         }
         
         $existingName = Collect($existingFields)->pluck('name')->all();
         $fields = FieldsFileCreateCommand::getFields($input, true);
-        foreach($fields as $field) {
-
-            if(in_array($field->name, $existingName)) {
+        foreach ($fields as $field) {
+            if (in_array($field->name, $existingName)) {
                 $this->warn('the field "' . $field->name . '" already exists in the file.');
                 continue;
             }
@@ -132,7 +131,7 @@ class FieldsFileAppendCommand extends Command
         $htmlTypes = Helpers::convertStringToArray($this->generatorOption('html-types'));
         $transaltionFor = Helpers::convertStringToArray($this->generatorOption('translation-for'));
 
-        return (object) compact('modelName','file', 'names', 'dataTypes', 'htmlTypes','transaltionFor');
+        return (object) compact('modelName', 'file', 'names', 'dataTypes', 'htmlTypes', 'transaltionFor');
     }
 
     /**

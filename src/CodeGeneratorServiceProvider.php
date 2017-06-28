@@ -30,7 +30,7 @@ class CodeGeneratorServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__ . '/../templates/default-collective' => base_path('resources/codegenerator-templates/default-collective'),
-        ], 'collective-template');
+        ], 'default-collective');
 
         $this->createDirectory(base_path('resources/codegenerator-files'));
     }

@@ -116,7 +116,7 @@ class CreateMigrationCommand extends Command
              ->addPrimaryField($properties, $this->getPrimaryField($fields))
              ->addTimestamps($properties, $input->withoutTimestamps)
              ->addSoftDelete($properties, $input->withSoftDelete)
-             ->addFieldProperties($properties, $fields)
+             ->addFieldProperties($properties, $fields, $input->withoutTimestamps, $input->withSoftDelete)
              ->addIndexes($properties, $input->indexes)
              ->addForeignConstraints($properties, $constraints);
 
@@ -156,10 +156,8 @@ class CreateMigrationCommand extends Command
     {
         $constraints = [];
 
-        foreach($fields as $field)
-        {
-            if($field->hasForeignConstraint())
-            {
+        foreach ($fields as $field) {
+            if ($field->hasForeignConstraint()) {
                 $constraints[] = $field->getForeignConstraint();
             }
         }
@@ -304,7 +302,7 @@ class CreateMigrationCommand extends Command
      *
      * @return array
      */
-    protected function getIndexColelction($indexesString)
+    protected function getIndexCollection($indexesString)
     {
         $finalIndexes = [];
         $indexes = explode('#', $indexesString);
@@ -362,15 +360,24 @@ class CreateMigrationCommand extends Command
      *
      * @param string $properties
      * @param array $fields
+     * @param bool $withoutTimestamps
+     * @param bool $withSoftDelete
      *
      * @return $this
      */
-    protected function addFieldProperties(& $properties, array $fields)
+    protected function addFieldProperties(& $properties, array $fields, $withoutTimestamps, $withSoftDelete)
     {
         $primaryField = $this->getPrimaryField($fields);
 
         foreach ($fields as $field) {
             if ($field instanceof Field && $field != $primaryField && !is_null($primaryField)) {
+                if (!$withoutTimestamps && $field->isAutoManagedOnUpdate()) {
+                    continue;
+                }
+                if ($withSoftDelete && $field->isAutoManagedOnDelete()) {
+                    continue;
+                }
+
                 $this->addFieldType($properties, $field)
                      ->addFieldComment($properties, $field)
                      ->addFieldUnsigned($properties, $field)
@@ -829,14 +836,14 @@ class CreateMigrationCommand extends Command
         $engine =  trim($this->option('engine-name'));
         $fields = trim($this->option('fields'));
         $fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($modelName);
-        $indexes = $this->getIndexColelction(trim($this->option('indexes')));
+        $indexes = $this->getIndexCollection(trim($this->option('indexes')));
         $force = $this->option('force');
         $constraints = $this->getForeignConstraints(trim($this->option('foreign-keys')));
         $template = $this->getTemplateName();
         $withoutTimestamps = $this->option('without-timestamps');
         $withSoftDelete = $this->option('with-soft-delete');
 
-        return (object) compact('modelName','tableName', 'className', 'connection', 'engine',
+        return (object) compact('modelName', 'tableName', 'className', 'connection', 'engine',
                                 'fields', 'fieldsFile', 'force', 'indexes', 'constraints', 'template', 'withoutTimestamps', 'withSoftDelete');
     }
 

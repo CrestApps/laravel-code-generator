@@ -6,7 +6,6 @@ use CrestApps\CodeGenerator\Support\ViewsCommand;
 
 class CreateEditViewCommand extends ViewsCommand
 {
-
     /**
      * The name and signature of the console command.
      *

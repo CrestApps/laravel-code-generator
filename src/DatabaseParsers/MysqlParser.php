@@ -115,11 +115,10 @@ class MysqlParser extends ParserBase
                 $properties['is-on-index'] = false;
             }
 
-
             $collection[] = $properties;
         }
-
-        $fields = FieldTransformer::fromArray($collection, str_plural(strtolower($this->tableName)));
+        $localeGroup = str_plural(strtolower($this->tableName));
+        $fields = FieldTransformer::fromArray($collection, $localeGroup);
 
         return $fields;
     }
@@ -157,7 +156,6 @@ class MysqlParser extends ParserBase
     /**
      * Gets the data type for a giving field.
      *
-     * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
      *
      * @return $this

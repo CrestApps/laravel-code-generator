@@ -6,7 +6,6 @@ use CrestApps\CodeGenerator\Support\ViewsCommand;
 
 class CreateCreateViewCommand extends ViewsCommand
 {
-
     /**
      * The name and signature of the console command.
      *

@@ -103,7 +103,7 @@ class CreateResourcesCommand extends Command
     }
 
     /**
-     * Gets the
+     * Gets the model name in plain english from a giving model name.
      *
      * @param string $modelName
      *

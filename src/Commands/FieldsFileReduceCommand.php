@@ -47,7 +47,7 @@ class FieldsFileReduceCommand extends Command
             return false;
         }
         
-        if(empty($input->names)) {
+        if (empty($input->names)) {
             $this->error('No names were provided. Please use the --names option to pass field names to remove.');
 
             return false;
@@ -55,8 +55,7 @@ class FieldsFileReduceCommand extends Command
 
         $reducedFields = $this->reduceFields($file, $input);
         
-        if(empty($reducedFields))
-        {
+        if (empty($reducedFields)) {
             $this->callSilent('fields-file:delete',
                 [
                     'model-name'        => $input->modelName,
@@ -74,22 +73,27 @@ class FieldsFileReduceCommand extends Command
              ->info('Fields where removed from exising file');
     }
 
+    /**
+     * Reduces the fields from a giving file
+     *
+     * @param string $file
+     * @param object $input
+     *
+     * @return mixed
+     */
     protected function reduceFields($file, $input)
     {
-        $content = $this->getFileContent($file);
+        $fields = json_decode($this->getFileContent($file));
 
-        $existingFields = json_decode($content);
-
-        if(is_null($existingFields)) {
+        if (is_null($fields)) {
             $this->error('The existing file contains invalid json string. Please fix the file then try again');
             return false;
         }
 
         $keep = [];
-
-        foreach($existingFields as $field) {
-
-            if(!in_array($field->name, $input->names)) {
+        
+        foreach ($fields as $field) {
+            if (!in_array($field->name, $input->names)) {
                 $keep[] = $field;
             }
         }
@@ -109,7 +113,7 @@ class FieldsFileReduceCommand extends Command
         $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
         $names = array_unique(Helpers::convertStringToArray($this->generatorOption('names')));
 
-        return (object) compact('modelName','file', 'names');
+        return (object) compact('modelName', 'file', 'names');
     }
 
     /**

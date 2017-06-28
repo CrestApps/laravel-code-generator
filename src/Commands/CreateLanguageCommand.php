@@ -43,17 +43,16 @@ class CreateLanguageCommand extends Command
         $input = $this->getCommandInput();
         $fields = $this->getFields($input->fields, $input->fileName, $input->fieldsFile);
         $languages = Helpers::getLanguageItems($fields);
-        $viewLabels = new ViewLabelsGenerator($input->modelName, $this->isCollectiveTemplate() );
+        $viewLabels = new ViewLabelsGenerator($input->modelName, $this->isCollectiveTemplate());
 
         $standardLabels = $viewLabels->getTranslatedLabels(array_keys($languages));
 
         //Merge the standard labels to the fields label
-        foreach($standardLabels as $lang => $standardLabel) {
+        foreach ($standardLabels as $lang => $standardLabel) {
             $languages[$lang] = array_merge($languages[$lang], $standardLabel);
         }
 
         foreach ($languages as $language => $labels) {
-
             $file = $this->getDestenationFile($language, $input->fileName);
             $messagesToRegister = [];
             $phrases = $this->getLangPhrases($labels, $messagesToRegister);
@@ -246,7 +245,6 @@ class CreateLanguageCommand extends Command
 
         foreach ($labels as $label) {
             if (! $this->isMessageExists($label->localeGroup, $label->lang)) {
-
                 $messages[] = $this->getMessage($label);
                 $messagesToRegister[$label->localeGroup] = $label->text;
             }

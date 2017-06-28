@@ -7,7 +7,6 @@ use CrestApps\CodeGenerator\Support\GenerateFormViews;
 
 class CreateIndexViewCommand extends ViewsCommand
 {
-
     /**
      * The name and signature of the console command.
      *

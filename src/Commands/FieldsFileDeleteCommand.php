@@ -40,7 +40,7 @@ class FieldsFileDeleteCommand extends Command
         $input = $this->getCommandInput();
         $file = $this->getFilename($input->file);
 
-        if(Config::autoManageResourceMapper()) {
+        if (Config::autoManageResourceMapper()) {
             $this->reduceMapper($input->modelName);
         }
 
@@ -67,17 +67,17 @@ class FieldsFileDeleteCommand extends Command
 
         $fields = [];
 
-        if($this->isFileExists($file)){
+        if ($this->isFileExists($file)) {
             $content = $this->getFileContent($file);
 
             $existingFields = json_decode($content);
 
-            if(is_null($existingFields)) {
+            if (is_null($existingFields)) {
                 $this->error('The existing mapping file contains invalid json string. Please fix the file then try again');
                 return false;
             }
             
-            $fields = Collect($existingFields)->filter(function($resource) use($modelName) {
+            $fields = Collect($existingFields)->filter(function ($resource) use ($modelName) {
                 return isset($resource->{'model-name'}) && $resource->{'model-name'} != $modelName;
             });
         }
@@ -96,7 +96,7 @@ class FieldsFileDeleteCommand extends Command
         $filename = trim($this->option('fields-filename'));
         $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
 
-        return (object) compact('modelName','file');
+        return (object) compact('modelName', 'file');
     }
 
     /**

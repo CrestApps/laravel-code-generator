@@ -9,7 +9,6 @@ use CrestApps\CodeGenerator\Support\Helpers;
 
 class StandardHtml extends HtmlGeneratorBase
 {
-
     /**
      * Gets the min value attribute.
      *
@@ -164,12 +163,15 @@ class StandardHtml extends HtmlGeneratorBase
      *
      * @param string $value
      * @param string $name
+     * @param string $defaultValue
      *
      * @return string
      */
-    protected function getCheckedItem($value, $name)
+    protected function getCheckedItem($value, $name, $defaultValue)
     {
-        return sprintf(" {{ %s == '%s' ? 'checked' : '' }}", $this->getRawOptionValue($name, ''), $value);
+        return sprintf(" {{ %s == '%s' ? 'checked' : '' }}", 
+                        $this->getRawOptionValue($name, $defaultValue), 
+                        $value);
     }
 
     /**
@@ -177,12 +179,13 @@ class StandardHtml extends HtmlGeneratorBase
      *
      * @param string $value
      * @param string $name
+     * @param string $defaultValue
      *
      * @return string
      */
-    protected function getMultipleCheckedItem($value, $name)
+    protected function getMultipleCheckedItem($value, $name, $defaultValue)
     {
-        return sprintf(" {{ %s ? 'checked' : '' }}", $this->getMultipleRawOptionValue($name, $value));
+        return sprintf(" {{ %s ? 'checked' : '' }}", $this->getMultipleRawOptionValue($name, $value, $defaultValue));
     }
 
     /**
@@ -190,10 +193,11 @@ class StandardHtml extends HtmlGeneratorBase
      *
      * @param string $name
      * @param string $valueAccessor
+     * @param string $defaultValue
      *
      * @return string
      */
-    protected function getMultipleSelectedValue($name, $valueAccessor)
+    protected function getMultipleSelectedValue($name, $valueAccessor, $defaultValue)
     {
         return sprintf(" {{ %s ? 'selected' : '' }}", $name);
     }
@@ -203,12 +207,13 @@ class StandardHtml extends HtmlGeneratorBase
      *
      * @param string $name
      * @param string $valueAccessor
+     * @param string $defaultValue
      *
      * @return string
      */
-    protected function getSelectedValue($name, $valueAccessor)
+    protected function getSelectedValue($name, $valueAccessor, $defaultValue)
     {
-        return sprintf(" {{ %s == %s ? 'selected' : '' }}", $this->getRawOptionValue($name, ''), $valueAccessor);
+        return sprintf(" {{ %s == %s ? 'selected' : '' }}", $this->getRawOptionValue($name, $defaultValue), $valueAccessor);
     }
 
     /**
@@ -233,10 +238,11 @@ class StandardHtml extends HtmlGeneratorBase
      *
      * @param string $name
      * @param string $value
+     * @param string $defaultValue
      *
      * @return string
      */
-    protected function getMultipleRawOptionValue($name, $value)
+    protected function getMultipleRawOptionValue($name, $value, $defaultValue)
     {
         $modelVariable = $this->getSingularVariable($this->modelName);
         $valueString = 'null';
@@ -245,7 +251,14 @@ class StandardHtml extends HtmlGeneratorBase
             $valueString = starts_with('$', $value) ? sprintf("%s", $value) : sprintf("'%s'", $value);
         }
 
-        return sprintf("in_array(%s, old('%s', isset(\$%s->%s) ? \$%s->%s : []))", $valueString, $name, $modelVariable, $name, $modelVariable, $name);
+        $defaultValueString = '[]';
+
+        if(!empty($defaultValue)) {
+            $joinedValues = implode(',', Helpers::wrapItems((array)$defaultValue) );
+            $defaultValueString = sprintf('[%s]', $joinedValues);
+        }
+
+        return sprintf("in_array(%s, old('%s', isset(\$%s->%s) ? \$%s->%s : %s))", $valueString, $name, $modelVariable, $name, $modelVariable, $name, $defaultValueString);
     }
 
     /**

@@ -165,7 +165,6 @@ abstract class ParserBase
     */
     protected function getLabel($name)
     {
-
         if (!$this->hasLanguages()) {
             return $this->getLabelName($name);
         }

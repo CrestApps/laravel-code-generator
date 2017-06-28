@@ -120,9 +120,6 @@ class SqlServerParser extends ParserBase
                  ->setDataType($field, $column->DATA_TYPE)
                  ->setKey($field, $column->COLUMN_KEY, $column->EXTRA)
                  ->setLabel($field, $column->COLUMN_NAME)
-                 //->setComment($field, $column->COLUMN_COMMENT)
-                 //->setOptions($field, $column->COLUMN_TYPE)
-                 //->setUnsigned($field, $column->COLUMN_TYPE)
                  ->setHtmlType($field, $column->DATA_TYPE);
 
             $optimizer = new FieldOptimizer($field);

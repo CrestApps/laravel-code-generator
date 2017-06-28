@@ -39,7 +39,6 @@ class CreateMappedResourcesCommand extends Command
                             {--mapping-filename= : The name of the resource mapping file.}
                             {--force : This option will override the controller if one already exists.}';
 
-
     /**
      * The console command description.
      *
@@ -55,7 +54,6 @@ class CreateMappedResourcesCommand extends Command
     public function handle()
     {
         $content = $this->getFileContent($this->getMappingFile());
-
         $objects = json_decode($content);
 
         if (!is_array($objects)) {
@@ -65,8 +63,7 @@ class CreateMappedResourcesCommand extends Command
         $validInputs = $this->getValidInputs($objects, $this->getCommandInput());
 
         foreach ($validInputs as $validInput) {
-
-            $this->call('create:resources', 
+            $this->call('create:resources',
                 [
                     'model-name'             => $validInput->modelName,
                     '--controller-name'      => $validInput->controllerName,
@@ -104,7 +101,6 @@ class CreateMappedResourcesCommand extends Command
         }
 
         return $this->printInfo('All Done!');
-
     }
 
     /**
@@ -121,7 +117,7 @@ class CreateMappedResourcesCommand extends Command
         
         foreach ($objects as $object) {
             $input = clone $originalInput;
-            if(!isset($object->{'model-name'})) {
+            if (!isset($object->{'model-name'})) {
                 throw new Exception('Each entry in the mapping file must a have value for model-name');
             }
 
@@ -236,30 +232,18 @@ class CreateMappedResourcesCommand extends Command
     protected function getCommandInput()
     {
         $input = new ResourceInput(Config::getDefaultMapperFileName());
-        //$prefix = $this->option('routes-prefix');
-        //$input->prefix = ($prefix == 'model-name-as-plural') ? $this->makeTableName($input->modelName) : $prefix;
-        //$input->languageFileName = trim($this->option('lang-file-name'));
-        //$input->table = trim($this->option('table-name'));
         $input->viewsDirectory = trim($this->option('views-directory'));
-        //$input->controllerName = trim($this->option('controller-name')) ?: Helpers::makeControllerName($input->modelName);
         $input->perPage = intval($this->option('models-per-page'));
-        //$input->fields = $this->option('fields');
-        //$input->fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($input->modelName);
         $input->formRequest = $this->option('with-form-request');
         $input->controllerDirectory = $this->option('controller-directory');
         $input->controllerExtends = $this->option('controller-extends') ?: null;
         $input->withoutMigration = $this->option('without-migration');
         $input->force = $this->option('force');
         $input->modelDirectory = $this->option('model-directory');
-        //$input->fillable = $this->option('fillable');
         $input->primaryKey = $this->option('primary-key');
-        //$input->relationships = $this->option('relationships');
         $input->withSoftDelete = $this->option('with-soft-delete');
         $input->withoutTimeStamps = $this->option('without-timestamps');
-        //$input->migrationClass = $this->option('migration-class-name');
         $input->connectionName = $this->option('connection-name');
-        //$input->indexes = $this->option('indexes');
-        //$input->foreignKeys = $this->option('foreign-keys');
         $input->engineName = $this->option('engine-name');
         $input->template = $this->getTemplateName();
         $input->layoutName = $this->option('layout-name') ?: 'layouts.app';

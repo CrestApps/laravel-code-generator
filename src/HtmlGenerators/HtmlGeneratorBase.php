@@ -2,6 +2,7 @@
 
 namespace CrestApps\CodeGenerator\HtmlGenerators;
 
+use Exception;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use CrestApps\CodeGenerator\Support\Config;
@@ -382,6 +383,11 @@ abstract class HtmlGeneratorBase
             // At this point we know this is a boolean field, we only need one option
             $fields .= $this->getPickItemsHtmlField($field, $field->getTrueBooleanOption(), $parser) . PHP_EOL;
         } else {
+
+            if(is_null($field->getOptionsByLang())){
+                throw new Exception('The field "' . $field->name . '" has no options!');
+            }
+
             foreach ($field->getOptionsByLang() as $index => $option) {
                 $fields .= $this->getPickItemsHtmlField($field, $option, $parser) . PHP_EOL;
             }
@@ -393,7 +399,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets creates an checkbox/radio button html field for a giving field.
+     * Gets creates a checkbox or radio button html field for a giving field.
      *
      * @param CrestApps\CodeGeneraotor\Support\Field $field
      * @param CrestApps\CodeGeneraotor\Support\Label $option
@@ -410,7 +416,7 @@ abstract class HtmlGeneratorBase
         $this->replaceFieldType($stub, $field->htmlType)
              ->replaceFieldName($stub, $fieldName)
              ->replaceOptionValue($stub, $option->value)
-             ->replaceCheckedItem($stub, $this->getCheckedItemForPickItem($option->value, $field->name, $field->isMultipleAnswers))
+             ->replaceCheckedItem($stub, $this->getCheckedItemForPickItem($option->value, $field->name, $field->isMultipleAnswers, $field->htmlValue))
              ->replaceItemId($stub, $option->id)
              ->replaceFieldRequired($stub, ($field->htmlType == 'checkbox') ? false : $parser->isRequired())
              ->replaceCssClass($stub, $field->cssClass)
@@ -500,12 +506,13 @@ abstract class HtmlGeneratorBase
      * @param string $value
      * @param string $name
      * @param bool $isMultiple
+     * @param string $defaultValue
      *
      * @return string
     */
-    protected function getCheckedItemForPickItem($value, $name, $isMultiple)
+    protected function getCheckedItemForPickItem($value, $name, $isMultiple, $defaultValue)
     {
-        return $isMultiple ? $this->getMultipleCheckedItem($value, $name) : $this->getCheckedItem($value, $name);
+        return $isMultiple ? $this->getMultipleCheckedItem($value, $name, $defaultValue) : $this->getCheckedItem($value, $name, $defaultValue);
     }
 
     /**
@@ -520,10 +527,10 @@ abstract class HtmlGeneratorBase
         $valueAccessor = $this->getFieldValueAccessor($field);
 
         if ($field->isMultipleAnswers) {
-            return $this->getMultipleSelectedValue($field->name, $valueAccessor);
+            return $this->getMultipleSelectedValue($field->name, $valueAccessor, $field->htmlValue);
         }
 
-        return $this->getSelectedValue($field->name, $valueAccessor);
+        return $this->getSelectedValue($field->name, $valueAccessor, $field->htmlValue);
     }
 
     /**
@@ -579,7 +586,7 @@ abstract class HtmlGeneratorBase
 
         $this->replaceFieldName($stub, $field->name)
              ->replaceCssClass($stub, $field->cssClass)
-             ->replaceSelectedValue($stub, $this->getSelectedValue($field->name, '$value'))
+             ->replaceSelectedValue($stub, $this->getSelectedValue($field->name, '$value', $field->htmlValue))
              ->replaceFieldPlaceHolder($stub, $this->getFieldPlaceHolderForMenu($field->getPlaceholder(), $field->name))
              ->wrapField($stub, $field);
         
@@ -1282,40 +1289,44 @@ abstract class HtmlGeneratorBase
      *
      * @param string $value
      * @param string $name
+     * @param string $defaultValue
      *
      * @return string
      */
-    abstract protected function getCheckedItem($value, $name);
+    abstract protected function getCheckedItem($value, $name, $defaultValue);
 
     /**
      * Gets selected value attribute.
      *
      * @param string $name
      * @param string $valueAccessor
+     * @param string $defaultValue
      *
      * @return string
      */
-    abstract protected function getSelectedValue($name, $valueAccessor);
+    abstract protected function getSelectedValue($name, $valueAccessor, $defaultValue);
 
         /**
      * Gets checked item attribute.
      *
      * @param string $value
      * @param string $name
+     * @param string $defaultValue
      *
      * @return string
      */
-    abstract protected function getMultipleCheckedItem($value, $name);
+    abstract protected function getMultipleCheckedItem($value, $name, $defaultValue);
 
     /**
      * Gets selected value attribute.
      *
      * @param string $name
      * @param string $valueAccessor
+     * @param string $defaultValue
      *
      * @return string
      */
-    abstract protected function getMultipleSelectedValue($name, $valueAccessor);
+    abstract protected function getMultipleSelectedValue($name, $valueAccessor, $defaultValue);
 
     /**
      * Gets the html steps attribute.
