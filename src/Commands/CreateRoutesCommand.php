@@ -74,7 +74,7 @@ class CreateRoutesCommand extends Command
     {
         $modelName = trim($this->argument('model-name'));
         $controllerName = trim($this->option('controller-name')) ?: Helpers::postFixWith($modelName, 'Controller');
-        $prefix = trim($this->option('routes-prefix'));
+        $prefix = str_replace('\\', '/', trim($this->option('routes-prefix')));
         $template = $this->getTemplateName();
         $controllerDirectory = trim($this->option('controller-directory'));
 

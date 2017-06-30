@@ -262,6 +262,7 @@ trait CommonCommand
         }
 
         if (!empty($routesPrefix)) {
+            $routesPrefix = str_replace('.', '-', $routesPrefix);
             $name = Helpers::getWithDotPostFix(Helpers::convertToDotNotation($routesPrefix)) . $name;
         }
 

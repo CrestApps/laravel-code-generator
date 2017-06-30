@@ -26,6 +26,7 @@ class CreateFormRequestCommand extends Command
                             {--fields-file= : File name to import fields from.}
                             {--template-name= : The template name to use when generating the code.}
                             {--with-auth : Generate the form-request with Laravel auth middlewear. }
+                            {--form-request-directory= : The directory of the form-request.}
                             {--force : This option will override the form-request if one already exists.}';
 
     /**
@@ -46,8 +47,9 @@ class CreateFormRequestCommand extends Command
 
         $stub = $this->getStubContent('form-request', $input->template);
         $fields = $this->getFields($input->fields, 'crestapps', $input->fieldsFile);
-        $destenationFile = $this->getDestenationFile($input->fileName);
-        $validations = $this->getValidationRules($fields);
+        $destenationFile = $this->getDestenationFile($input->fileName, $input->formRequestDirectory);
+
+        $validations = $this->getValidationRules($fields, $input->modelName, $input->formRequestDirectory);
 
         if ($this->alreadyExists($destenationFile)) {
             $this->error('The form-request already exists! To override the existing file, use --force option.');
@@ -57,7 +59,7 @@ class CreateFormRequestCommand extends Command
 
         $this->replaceFormRequestClass($stub, $input->fileName)
              ->replaceValidationRules($stub, $validations)
-             ->replaceAppName($stub, $this->getAppName())
+             ->replaceNamespace($stub, $this->getRequestsNamespace($input->formRequestDirectory))
              ->replaceGetDataMethod($stub, $this->getDataMethod($fields))
              ->replaceRequestVariable($stub, '$this')
              ->replaceAuthBoolean($stub, $this->getAuthBool($input->withAuth))
@@ -196,13 +198,30 @@ EOF;
     /**
      * Gets the destenation's fullname
      *
+     * @param string $name
+     * @param string $path
+     *
      * @return string
      */
-    protected function getDestenationFile($name)
+    protected function getDestenationFile($name, $path)
     {
-        $path = app_path(Config::getRequestsPath());
+        return str_finish(app_path(Config::getRequestsPath($path)), '/') . $name . '.php';
+    }
 
-        return Helpers::postFixWith($path, '/') . $name . '.php';
+    /**
+     * Gets the Requests namespace
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    protected function getRequestsNamespace($path)
+    {
+        $path = str_finish($path, '\\');
+
+        $path = $this->getAppNamespace() . Config::getRequestsPath($path);
+
+        return rtrim(Helpers::convertSlashToBackslash($path), '\\');
     }
 
     /**
@@ -214,13 +233,15 @@ EOF;
     {
         $modelName = trim($this->argument('model-name'));
         $fileName = trim($this->option('class-name')) ?: Helpers::makeFormRequestName($modelName);
+
         $fields = trim($this->option('fields'));
         $fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($modelName);
         $force = $this->option('force');
         $withAuth = $this->option('with-auth');
         $template = $this->option('template-name');
+        $formRequestDirectory = trim($this->option('form-request-directory'));
 
-        return (object) compact('withAuth','modelName', 'fileName', 'fields', 'fieldsFile', 'force', 'template');
+        return (object) compact('formRequestDirectory','withAuth','modelName', 'fileName', 'fields', 'fieldsFile', 'force', 'template');
     }
 
     /**
@@ -234,6 +255,21 @@ EOF;
     protected function replaceFileSnippet(&$stub, $snippet)
     {
         $stub = $this->strReplace('file_snippet', $snippet, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the class name space
+     *
+     * @param $stub
+     * @param $snippet
+     *
+     * @return $this
+     */
+    protected function replaceNamespace(&$stub, $snippet)
+    {
+        $stub = $this->strReplace('class_namespace', $snippet, $stub);
 
         return $this;
     }

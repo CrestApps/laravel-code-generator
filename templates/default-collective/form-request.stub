@@ -1,6 +1,6 @@
 <?php
 
-namespace [% app_name %]\Http\Requests;
+namespace [% class_namespace %];
 
 use Illuminate\Foundation\Http\FormRequest;
 [% use_auth_namespace %]

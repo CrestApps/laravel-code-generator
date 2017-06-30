@@ -215,6 +215,13 @@ class ResourceInput
     public $withAuth;
 
     /**
+     * The form-request directory
+     *
+     * @var string
+     */
+    public $formRequestDirectory;
+
+    /**
      * Creates a new field instance.
      *
      * @param string $name

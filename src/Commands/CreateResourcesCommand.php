@@ -25,6 +25,7 @@ class CreateResourcesCommand extends Command
                             {--controller-extends=Http\Controllers\Controller : The base controller to be extend.}
                             {--model-directory= : The path of the model.}
                             {--views-directory= : The name of the view path.}
+                            {--form-request-directory= : The directory of the form-request.}
                             {--fields= : Fields to use for creating the validation rules.}
                             {--fields-file= : File name to import fields from.}
                             {--routes-prefix=model-name-as-plural : Prefix of the route group.}
@@ -265,9 +266,11 @@ class CreateResourcesCommand extends Command
                 '--views-directory'        => $input->viewsDirectory,
                 '--fields'                 => $input->fields,
                 '--fields-file'            => $input->fieldsFile,
+                '--models-per-page'        => $input->perPage,
                 '--routes-prefix'          => $input->prefix,
                 '--lang-file-name'         => $input->languageFileName,
                 '--with-form-request'      => $input->formRequest,
+                '--form-request-directory' => $input->formRequestDirectory,
                 '--force'                  => $input->force,
                 '--with-auth'              => $input->withAuth,
                 '--template-name'          => $input->template
@@ -342,6 +345,7 @@ class CreateResourcesCommand extends Command
         $input->tableExists = $this->option('table-exists');
         $input->translationFor = $this->option('translation-for');
         $input->withAuth = $this->option('with-auth');
+        $input->formRequestDirectory = $this->option('form-request-directory');
 
         return $input;
     }

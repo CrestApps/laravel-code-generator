@@ -71,7 +71,7 @@ class CreateModelCommand extends Command
         }
 
         $primaryKey = $this->getNewPrimaryKey($this->getPrimaryKeyName($fields, $input->primaryKey));
-        $destenationFile = $this->getDestenationFile($input->modelName);
+        $destenationFile = $this->getDestenationFile($input->modelName, $input->modelDirectory);
         
         if ($this->alreadyExists($destenationFile)) {
             $this->error('The model already exists! To override the existing file, use --force option.');
@@ -83,7 +83,7 @@ class CreateModelCommand extends Command
 
         return $this->replaceTable($stub, $input->table)
                     ->replaceModelName($stub, $input->modelName)
-                    ->replaceNamespace($stub, $this->getNamespace($input->modelName))
+                    ->replaceNamespace($stub, $this->getNamespace($input->modelName, $input->modelDirectory))
                     ->replaceSoftDelete($stub, $input->useSoftDelete)
                     ->replaceTimestamps($stub, $this->getTimeStampsStub($input->useTimeStamps))
                     ->replaceFillable($stub, $this->getFillables($stub, $input->fillable, $fields))
@@ -100,23 +100,32 @@ class CreateModelCommand extends Command
     /**
      * Gets the destenation file to be created.
      *
-     * @param array $name
+     * @param string $name
+     * @param string $path
      *
      * @return string
      */
-    protected function getDestenationFile($name)
+    protected function getDestenationFile($name, $path)
     {
-        return app_path() . '/' . Config::getModelsPath($name) . '.php';
+
+        if (!empty($path)) {
+            $path = Helpers::getPathWithSlash(ucfirst($path));
+        }
+
+        return app_path(Config::getModelsPath($path. $name . '.php'));
     }
 
     /**
      * Gets the model's namespace.
      *
+     * @param string $modelName
+     * @param string $modelDirectory
+     *
      * @return string
      */
-    protected function getNamespace()
+    protected function getNamespace($modelName, $modelDirectory)
     {
-        $namespace = $this->getAppNamespace() . Config::getModelsPath();
+        $namespace = $this->getAppNamespace() . Config::getModelsPath($modelDirectory);
 
         return rtrim(Helpers::convertSlashToBackslash($namespace), '\\');
     }
@@ -169,16 +178,7 @@ class CreateModelCommand extends Command
 
         return $field;
     }
-    /**
-     * Gets the stub file.
-     *
-     * @return string
-     */
-    protected function getStub()
-    {
-        return $this->getStubByName('model', $this->getTemplateName());
-    }
-
+    
     /**
      * Gets the formatted fillable line.
      *
@@ -322,36 +322,12 @@ class CreateModelCommand extends Command
         $useSoftDelete = $this->option('with-soft-delete');
         $useTimeStamps = !$this->option('without-timestamps');
         $fields = trim($this->option('fields'));
+
+        $modelDirectory = trim($this->option('model-directory'));
         $fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($modelName);
         $template = $this->getTemplateName();
 
-        return (object) compact('table', 'fillable', 'primaryKey', 'relationships', 'useSoftDelete', 'useTimeStamps', 'fields', 'fieldsFile', 'template', 'modelName');
-    }
-
-    /**
-     * Gets the desired class name from the input.
-     *
-     * @return string
-     */
-    protected function getNameInput()
-    {
-        $path = trim($this->option('model-directory'));
-
-        if (!empty($path)) {
-            $path = Helpers::getPathWithSlash(ucfirst($path));
-        }
-
-        return Config::getModelsPath() . $path . Helpers::upperCaseEveyWord(trim($this->argument('model-name')));
-    }
-
-    /**
-     * Gets the desired class name from a path.
-     *
-     * @return string
-     */
-    protected function getClassNameFromPath($path)
-    {
-        return strrpos($path, '\\') === false ?: substr($path, $nameStartIndex + 1);
+        return (object) compact('table', 'fillable', 'primaryKey', 'relationships', 'useSoftDelete', 'useTimeStamps', 'fields', 'fieldsFile', 'template', 'modelName','modelDirectory');
     }
 
     /**

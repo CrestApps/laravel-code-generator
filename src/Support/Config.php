@@ -83,13 +83,15 @@ class Config
     /**
      * Gets the path to requests
      *
+     * @param string $file
+     *
      * @return string
      */
-    public static function getRequestsPath()
+    public static function getRequestsPath($file = '')
     {
         $path = config('codegenerator.form_requests_path');
 
-        return Helpers::getPathWithSlash($path);
+        return Helpers::getPathWithSlash($path) . $file;
     }
 
     /**
@@ -129,13 +131,15 @@ class Config
     /**
      * Gets the path to controllers
      *
+     * @param string $file
+     *
      * @return string
      */
-    public static function getControllersPath()
+    public static function getControllersPath($file = '')
     {
         $path = config('codegenerator.controllers_path');
 
-        return Helpers::getPathWithSlash($path);
+        return Helpers::getPathWithSlash($path) . $file;
     }
 
     /**

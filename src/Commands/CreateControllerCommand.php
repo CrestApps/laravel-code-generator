@@ -33,6 +33,7 @@ class CreateControllerCommand extends Command
                             {--with-form-request : This will extract the validation into a request form class.}
                             {--with-auth : Generate the controller with Laravel auth middlewear. }
                             {--template-name= : The template name to use when generating the code.}
+                            {--form-request-directory= : The directory of the form-request.}
                             {--controller-extends=Http\Controllers\Controller : The base controller to be extend.}
                             {--force : This option will override the controller if one already exists.}';
 
@@ -58,16 +59,6 @@ class CreateControllerCommand extends Command
     protected $requestVariable = '$request';
 
     /**
-     * Get the stub file for the generator.
-     *
-     * @return string
-     */
-    protected function getStub()
-    {
-        return $this->getStubByName('controller', $this->getTemplateName());
-    }
-
-    /**
      * Build the model class with the given name.
      *
      * @param  string  $name
@@ -77,7 +68,7 @@ class CreateControllerCommand extends Command
     public function handle()
     {
         $input = $this->getCommandInput();
-        $destenationFile = $this->getDestenationFile($input->controllerName);
+        $destenationFile = $this->getDestenationFile($input->controllerName, $input->controllerDirectory);
 
         if ($this->alreadyExists($destenationFile)) {
             $this->error('The controller already exists!');
@@ -90,7 +81,7 @@ class CreateControllerCommand extends Command
 
         if ($input->withFormRequest) {
             $requestName = $input->formRequestName;
-            $requestNameSpace = $this->getRequestsNamespace($requestName);
+            $requestNameSpace = $this->getRequestsNamespace($requestName, $input->formRequestDirectory);
             $this->makeFormRequest($input);
         }
 
@@ -98,10 +89,10 @@ class CreateControllerCommand extends Command
         $viewVariablesForIndex = $this->getCompactVariablesFor($fields, $this->getPluralVariable($input->modelName), 'index');
         $viewVariablesForShow = $this->getCompactVariablesFor($fields, $this->getSingularVariable($input->modelName), 'show');
         $viewVariablesForEdit = $this->getCompactVariablesFor($fields, $this->getSingularVariable($input->modelName), 'form');
-        $modelFullName = $this->getModelFullName($input->modelDirectory, $input->modelName);
+        $modelNamespace = $this->getModelNamespace($input->modelName, $input->modelDirectory);
         $affirmMethod = $this->getAffirmMethod($input->withFormRequest, $fields, $requestNameSpace);
         $classToExtendFullname = $this->getFullClassToExtend($input->extends);
-        $namespacesToUse = $this->getRequiredUseClasses($fields, [$modelFullName, $requestNameSpace, $classToExtendFullname]);
+        $namespacesToUse = $this->getRequiredUseClasses($fields, [$modelNamespace, $requestNameSpace, $classToExtendFullname]);
         $dataMethod = $this->getDataMethod($fields, $requestNameSpace . '\\' . $requestName, $input->withFormRequest);
         $stub = $this->getStubContent('controller');
         $languages = array_keys(Helpers::getLanguageItems($fields));
@@ -112,7 +103,7 @@ class CreateControllerCommand extends Command
                     ->replaceGetDataMethod($stub, $dataMethod)
                     ->replaceCallDataMethod($stub, $this->getCallDataMethod($input->withFormRequest))
                     ->replaceModelName($stub, $input->modelName)
-                    ->replaceNamespace($stub, $this->getControllersNamespace())
+                    ->replaceNamespace($stub, $this->getControllersNamespace($input->controllerDirectory))
                     ->replaceControllerExtends($stub, $this->getControllerExtends($classToExtendFullname))
                     ->replaceUseCommandPlaceholder($stub, $namespacesToUse)
                     ->replaceRouteNames($stub, $this->getModelName($input->modelName), $input->prefix)
@@ -611,25 +602,36 @@ class CreateControllerCommand extends Command
     }
 
     /**
-     * Gets the controller's fullname
+     * Gets the destenation file to be created.
+     *
+     * @param string $name
+     * @param string $path
      *
      * @return string
      */
-    protected function getDestenationFile($name)
+    protected function getDestenationFile($name, $path)
     {
-        $path = app_path(Config::getControllersPath());
 
-        return Helpers::postFixWith($path, '/') . $name . '.php';
+        if (!empty($path)) {
+            $path = Helpers::getPathWithSlash(ucfirst($path));
+        }
+
+        return app_path(Config::getControllersPath($path. $name . '.php'));
     }
 
     /**
      * Gets the Requests namespace
      *
+     * @param string $name
+     * @param string $path
+     *
      * @return string
      */
-    protected function getRequestsNamespace($name)
+    protected function getRequestsNamespace($name, $path)
     {
-        $path = $this->getAppNamespace() . Config::getRequestsPath();
+        $path = str_finish($path, '\\');
+
+        $path = $this->getAppNamespace() . Config::getRequestsPath($path);
 
         return Helpers::convertSlashToBackslash($path) . $name;
     }
@@ -637,11 +639,13 @@ class CreateControllerCommand extends Command
     /**
      * Gets the controllers namespace
      *
+     * @param string $path
+     *
      * @return string
      */
-    protected function getControllersNamespace()
+    protected function getControllersNamespace($path)
     {
-        $path = $this->getAppNamespace() . Config::getControllersPath();
+        $path = $this->getAppNamespace() . Config::getControllersPath($path);
 
         return rtrim(Helpers::convertSlashToBackslash($path), '\\');
     }
@@ -673,31 +677,34 @@ class CreateControllerCommand extends Command
     {
         $this->callSilent('create:form-request',
         [
-            'model-name'      => $input->modelName,
-            '--class-name'    => $input->formRequestName,
-            '--fields'        => $input->fields,
-            '--force'         => $input->force,
-            '--with-auth'     => $input->withAuth,
-            '--fields-file'   => $input->fieldsFile,
-            '--template-name' => $input->template
+            'model-name'               => $input->modelName,
+            '--class-name'             => $input->formRequestName,
+            '--fields'                 => $input->fields,
+            '--force'                  => $input->force,
+            '--with-auth'              => $input->withAuth,
+            '--fields-file'            => $input->fieldsFile,
+            '--template-name'          => $input->template,
+            '--form-request-directory' => $input->formRequestDirectory
         ]);
 
         return $this;
     }
 
     /**
-     * Gets the full model name
+     * Gets the namespace of the model
      *
-     * @param  string $directory
-     * @param  string $name
+     * @param  string $modelName
+     * @param  string $modelDirectory
      *
      * @return string
      */
-    protected function getModelFullName($directory, $name)
+    protected function getModelNamespace($modelName, $modelDirectory)
     {
-        $final = !empty($directory) ? Config::getModelsPath() . Helpers::getPathWithSlash($directory) : Config::getModelsPath();
+        $modelDirectory = str_finish($modelDirectory, '\\');
 
-        return Helpers::convertSlashToBackslash($this->getAppNamespace() . $final . $name);
+        $namespace = $this->getAppNamespace() . Config::getModelsPath($modelDirectory . $modelName);
+
+        return rtrim(Helpers::convertSlashToBackslash($namespace), '\\');
     }
 
     /**
@@ -710,7 +717,6 @@ class CreateControllerCommand extends Command
         $modelName = trim($this->argument('model-name'));
         $cName = trim($this->option('controller-name'));
         $controllerName = $cName ? str_finish($cName, 'Controller') : Helpers::makeControllerName($modelName);
-        ;
         $viewDirectory = $this->option('views-directory');
         $prefix = $this->option('routes-prefix');
         $perPage = intval($this->option('models-per-page'));
@@ -720,14 +726,16 @@ class CreateControllerCommand extends Command
         $withFormRequest = $this->option('with-form-request');
         $force = $this->option('force');
         $modelDirectory = $this->option('model-directory');
+        $controllerDirectory = trim($this->option('controller-directory'));
         $formRequestName = Helpers::makeFormRequestName($modelName);
         $template = $this->getTemplateName();
+        $formRequestDirectory = trim($this->option('form-request-directory'));
         $extends = $this->generatorOption('controller-extends');
         $withAuth = $this->option('with-auth');
 
-        return (object) compact('viewDirectory', 'viewName', 'modelName', 'prefix', 'perPage', 'fileSnippet', 'modelDirectory',
+        return (object) compact('formRequestDirectory','viewDirectory', 'viewName', 'modelName', 'prefix', 'perPage', 'fileSnippet', 'modelDirectory',
                                 'langFile', 'fields', 'withFormRequest', 'formRequestName', 'force', 'fieldsFile', 'template',
-                                'controllerName', 'extends', 'withAuth');
+                                'controllerName', 'extends', 'withAuth','controllerDirectory');
     }
 
     /**

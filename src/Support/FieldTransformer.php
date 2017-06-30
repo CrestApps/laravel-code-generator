@@ -790,12 +790,12 @@ class FieldTransformer
                 $field->validationRules[] = 'numeric';
             }
 
-            if (!$this->inArraySearch($field->validationRules, 'min')) {
-                $field->validationRules[] = sprintf('min:%s', $field->getMinValue());
+            if (!$this->inArraySearch($field->validationRules, 'min') && !is_null($minValue = $field->getMinValue()) ) {
+                $field->validationRules[] = sprintf('min:%s', $minValue);
             }
 
-            if (!$this->inArraySearch($field->validationRules, 'max')) {
-                $field->validationRules[] = sprintf('max:%s', $field->getMaxValue());
+            if (!$this->inArraySearch($field->validationRules, 'max') && !is_null($maxValue = $field->getMaxValue()) ) {
+                $field->validationRules[] = sprintf('max:%s', $maxValue);
             }
         }
 
@@ -1226,8 +1226,8 @@ class FieldTransformer
         $stub = $this->strReplace('field_name_snake', $snake, $stub);
         $stub = $this->strReplace('field_name_studly', studly_case($name), $stub);
         $stub = $this->strReplace('field_name_slug', str_slug($englishSingle), $stub);
-        $stub = $this->strReplace('field_name_kebab', kebab_case($name), $stub);
-        $stub = $this->strReplace('field_name_title', title_case($englishSingle), $stub);
+        $stub = $this->strReplace('field_name_kebab', Helpers::kebabCase($name), $stub);
+        $stub = $this->strReplace('field_name_title', Helpers::titleCase($englishSingle), $stub);
         $stub = $this->strReplace('field_name_title_lower', strtolower($englishSingle), $stub);
         $stub = $this->strReplace('field_name_title_upper', strtoupper($englishSingle), $stub);
         $stub = $this->strReplace('field_name_class', $name, $stub);       

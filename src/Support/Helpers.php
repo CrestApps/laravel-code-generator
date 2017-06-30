@@ -73,6 +73,38 @@ class Helpers
     }
 
     /**
+     * Converts the give value into a title case.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public static function titleCase($value)
+    {
+        if (function_exists('title_case')) {
+            return title_case($value);
+        }
+        
+        return Str::title($value);
+    }
+
+    /**
+     * Converts the give value into a title case.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public static function kebabCase($value)
+    {
+        if (function_exists('kebab_case')) {
+            return kebab_case($value);
+        }
+        
+        return str_replace('_', '-', snake_case($value));
+    }
+
+    /**
      * Makes the locale groups name
      *
      * @param string $modelName

@@ -323,7 +323,7 @@ abstract class ViewsCommand extends Command
      */
     protected function getFullViewsPath($viewsDirectory, $routesPrefix)
     {
-        $path = !empty($routesPrefix) ? Helpers::getPathWithSlash($routesPrefix) : '';
+        $path = !empty($routesPrefix) ? Helpers::getPathWithSlash(str_replace('.','-', $routesPrefix)) : '';
 
         if (!empty($viewsDirectory)) {
             $path .= Helpers::getPathWithSlash($viewsDirectory);

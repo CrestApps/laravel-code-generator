@@ -1,6 +1,7 @@
 <?php
 
 namespace CrestApps\CodeGenerator\Traits;
+use CrestApps\CodeGenerator\Support\Helpers;
 
 trait GeneratorReplacers
 {
@@ -21,12 +22,12 @@ trait GeneratorReplacers
         $stub = $this->strReplace('model_name_flat', strtolower($modelName), $stub);   
         $stub = $this->strReplace('model_name_sentence', ucfirst($englishSingle), $stub);
         $stub = $this->strReplace('model_name_plural', $plural, $stub);
-        $stub = $this->strReplace('model_name_plural_title', title_case($plural), $stub);
+        $stub = $this->strReplace('model_name_plural_title', Helpers::titleCase($plural), $stub);
         $stub = $this->strReplace('model_name_snake', snake_case($modelName), $stub);
         $stub = $this->strReplace('model_name_studly', studly_case($modelName), $stub);
         $stub = $this->strReplace('model_name_slug', str_slug($englishSingle), $stub);
-        $stub = $this->strReplace('model_name_kebab', kebab_case($modelName), $stub);
-        $stub = $this->strReplace('model_name_title', title_case($englishSingle), $stub);
+        $stub = $this->strReplace('model_name_kebab', Helpers::kebabCase($modelName), $stub);
+        $stub = $this->strReplace('model_name_title', Helpers::titleCase($englishSingle), $stub);
         $stub = $this->strReplace('model_name_title_lower', strtolower($englishSingle), $stub);
         $stub = $this->strReplace('model_name_title_upper', strtoupper($englishSingle), $stub);
         $stub = $this->strReplace('model_name_class', $modelName, $stub);       
