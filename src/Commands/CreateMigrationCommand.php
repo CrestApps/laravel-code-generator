@@ -831,7 +831,7 @@ class CreateMigrationCommand extends Command
         $modelName = trim($this->argument('model-name'));
         $madeUpTableName = $this->makeTableName($modelName);
         $tableName = trim($this->option('table-name')) ?: $madeUpTableName;
-        $className = trim($this->option('migration-class-name')) ?: sprintf('Create%sTable', $madeUpTableName);
+        $className = trim($this->option('migration-class-name')) ?: sprintf('Create%sTable', studly_case($madeUpTableName));
         $connection =  trim($this->option('connection-name'));
         $engine =  trim($this->option('engine-name'));
         $fields = trim($this->option('fields'));

@@ -36,6 +36,7 @@ class CreateMappedResourcesCommand extends Command
                             {--table-exists : This option will attempt to fetch the field from existing database table.}
                             {--primary-key=id : The name of the primary key.}
                             {--translation-for= : A comma seperated string of languages to create fields for.}
+                            {--form-request-directory= : The directory of the form-request.}
                             {--mapping-filename= : The name of the resource mapping file.}
                             {--force : This option will override the controller if one already exists.}';
 

@@ -611,7 +611,6 @@ class CreateControllerCommand extends Command
      */
     protected function getDestenationFile($name, $path)
     {
-
         if (!empty($path)) {
             $path = Helpers::getPathWithSlash(ucfirst($path));
         }
@@ -629,7 +628,9 @@ class CreateControllerCommand extends Command
      */
     protected function getRequestsNamespace($name, $path)
     {
-        $path = str_finish($path, '\\');
+        if (!empty($path)) {
+            $path = str_finish($path, '\\');
+        }
 
         $path = $this->getAppNamespace() . Config::getRequestsPath($path);
 
@@ -700,8 +701,10 @@ class CreateControllerCommand extends Command
      */
     protected function getModelNamespace($modelName, $modelDirectory)
     {
-        $modelDirectory = str_finish($modelDirectory, '\\');
-
+        if (!empty($modelDirectory)) {
+            $modelDirectory = str_finish($modelDirectory, '\\');
+        }
+        
         $namespace = $this->getAppNamespace() . Config::getModelsPath($modelDirectory . $modelName);
 
         return rtrim(Helpers::convertSlashToBackslash($namespace), '\\');
@@ -733,9 +736,9 @@ class CreateControllerCommand extends Command
         $extends = $this->generatorOption('controller-extends');
         $withAuth = $this->option('with-auth');
 
-        return (object) compact('formRequestDirectory','viewDirectory', 'viewName', 'modelName', 'prefix', 'perPage', 'fileSnippet', 'modelDirectory',
+        return (object) compact('formRequestDirectory', 'viewDirectory', 'viewName', 'modelName', 'prefix', 'perPage', 'fileSnippet', 'modelDirectory',
                                 'langFile', 'fields', 'withFormRequest', 'formRequestName', 'force', 'fieldsFile', 'template',
-                                'controllerName', 'extends', 'withAuth','controllerDirectory');
+                                'controllerName', 'extends', 'withAuth', 'controllerDirectory');
     }
 
     /**
