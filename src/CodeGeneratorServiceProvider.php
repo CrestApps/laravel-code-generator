@@ -7,29 +7,21 @@ use Illuminate\Support\ServiceProvider;
 class CodeGeneratorServiceProvider extends ServiceProvider
 {
     /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = false;
-
-    /**
      * Perform post-registration booting of services.
      *
      * @return void
      */
     public function boot()
     {
+        $dir = __DIR__ . '/../';
+
         $this->publishes([
-            __DIR__ . '/../config/codegenerator.php' => config_path('codegenerator.php'),
+            $dir . 'config/codegenerator.php' => config_path('codegenerator.php'),
+            $dir . 'templates/default' => base_path('resources/codegenerator-templates/default'),
         ], 'default');
 
         $this->publishes([
-            __DIR__ . '/../templates/default' => base_path('resources/codegenerator-templates/default'),
-        ], 'default');
-
-        $this->publishes([
-            __DIR__ . '/../templates/default-collective' => base_path('resources/codegenerator-templates/default-collective'),
+            $dir . 'templates/default-collective' => base_path('resources/codegenerator-templates/default-collective'),
         ], 'default-collective');
 
         $this->createDirectory(base_path('resources/codegenerator-files'));

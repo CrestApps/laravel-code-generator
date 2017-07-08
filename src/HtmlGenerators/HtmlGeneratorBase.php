@@ -412,11 +412,11 @@ abstract class HtmlGeneratorBase
         $filename = sprintf('form-pickitems%s-field.blade', $field->isInlineOptions ? '-inline' : '');
         $stub = $this->getStubContent($filename, $this->template);
         $fieldName = ($field->isMultipleAnswers) ? $this->getFieldNameAsArray($field->name) : $field->name;
-
+        $checkedItem = $this->getCheckedItemForPickItem($option->value, $field->name, $field->isMultipleAnswers, $field->htmlValue);
         $this->replaceFieldType($stub, $field->htmlType)
              ->replaceFieldName($stub, $fieldName)
              ->replaceOptionValue($stub, $option->value)
-             ->replaceCheckedItem($stub, $this->getCheckedItemForPickItem($option->value, $field->name, $field->isMultipleAnswers, $field->htmlValue))
+             ->replaceCheckedItem($stub, $checkedItem)
              ->replaceItemId($stub, $option->id)
              ->replaceFieldRequired($stub, ($field->htmlType == 'checkbox') ? false : $parser->isRequired())
              ->replaceCssClass($stub, $field->cssClass)
@@ -468,6 +468,13 @@ abstract class HtmlGeneratorBase
         return $stub;
     }
 
+    /**
+     * Gets the fields accessor
+     *
+     * @param CrestApps\CodeGeneraotor\Support\Field $field
+     *
+     * @return string
+    */
     protected function getFieldItem(Field $field)
     {
         if ($field->hasForeignRelation()) {
@@ -479,6 +486,13 @@ abstract class HtmlGeneratorBase
         return '$text';
     }
 
+    /**
+     * Gets the fields item accessor
+     *
+     * @param CrestApps\CodeGeneraotor\Support\Field $field
+     *
+     * @return string
+    */
     protected function getFieldItemAccessor(Field $field)
     {
         if ($field->hasForeignRelation()) {
@@ -489,14 +503,15 @@ abstract class HtmlGeneratorBase
         return '$text';
     }
 
+    /**
+     * Gets the field value accesor.
+     *
+     * @param CrestApps\CodeGeneraotor\Support\Field $field
+     *
+     * @return string
+    */
     protected function getFieldValueAccessor(Field $field)
     {
-        if ($field->hasForeignRelation()) {
-            $relation = $field->getForeignRelation();
-
-            return sprintf('$%s->%s', $relation->getSingleName(), $relation->getPrimaryKeyForForeignModel());
-        }
-
         return in_array($field->htmlType, ['selectRange','selectMonth']) ? '$value' : '$key';
     }
 

@@ -271,7 +271,7 @@ return [
             ]
         ],
         [
-            'match' => ['*_date'],
+            'match' => ['*_date','date_*'],
             'set'   => [
                 'data-type'   => 'date',
                 'date-format' => 'm/d/Y',
