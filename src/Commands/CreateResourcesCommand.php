@@ -70,7 +70,6 @@ class CreateResourcesCommand extends Command
 
         if ($input->tableExists) {
             $input->fields = null;
-            $input->fieldsFile = $input->table . '.json';
             $input->withoutMigration = true;
 
             $this->createFieldsFile($input);
