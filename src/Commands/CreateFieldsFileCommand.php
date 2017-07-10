@@ -85,7 +85,7 @@ class CreateFieldsFileCommand extends Command
         if ($this->isFileExists($file)) {
             $content = $this->getFileContent($file);
 
-            $existingFields = json_decode($content);
+            $existingFields = json_decode($content, true);
 
             if (is_null($existingFields)) {
                 $this->error('The existing mapping file contains invalid json string. Please fix the file then try again');
@@ -96,12 +96,15 @@ class CreateFieldsFileCommand extends Command
                 return isset($resource->{'model-name'}) && $resource->{'model-name'} != $modelName;
             });
 
-            $fields = Collect($existingFields)->push(
-                    [
-                        'model-name'  => $modelName,
-                        'fields-file' => $fieldsFileName,
-                        'table-name'  => $this->getTableName(),
-                    ]);
+            $existingFields->push([
+                'model-name'  => $modelName,
+                'fields-file' => $fieldsFileName,
+                'table-name'  => $this->getTableName(),
+            ]);
+
+            foreach ($existingFields as $existingField) {
+                $fields[] = (object) $existingField;
+            }
         }
 
         $this->putContentInFile($file, json_encode($fields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));

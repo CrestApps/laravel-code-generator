@@ -55,7 +55,7 @@ class CreateMappedResourcesCommand extends Command
     public function handle()
     {
         $content = $this->getFileContent($this->getMappingFile());
-        $objects = json_decode($content);
+        $objects = json_decode($content, true);
 
         if (!is_array($objects)) {
             throw new Exception('The mapping-file does not contain a valid array.');
@@ -119,6 +119,8 @@ class CreateMappedResourcesCommand extends Command
         
         foreach ($objects as $object) {
             $input = clone $originalInput;
+            $object = (object) $object;
+            
             if (!isset($object->{'model-name'})) {
                 throw new Exception('Each entry in the mapping file must a have value for model-name');
             }
