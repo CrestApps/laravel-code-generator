@@ -11,6 +11,16 @@ class Config
      * 
      * @return array
     */
+    public static function getCommonDefinitions()
+    {
+        return config('codegenerator.common_definitions', []);
+    }
+
+    /**
+     * Gets the default datetime output format
+     * 
+     * @return array
+    */
     public static function getDateTimeFormat()
     {
         return config('codegenerator.datetime_out_format', 'm/d/Y H:i A');

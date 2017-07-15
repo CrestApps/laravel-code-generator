@@ -33,22 +33,6 @@ class FieldOptimizer
     protected $meta;
 
     /**
-     * Array of the valid primary key data-types
-     *
-     * @return array
-    */
-    protected $validPrimaryDataTypes =
-    [
-        'int',
-        'integer',
-        'bigint',
-        'biginteger',
-        'mediumint',
-        'mediuminteger',
-        'uuid'
-    ];
-
-    /**
      * Create a new optemizer instance.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
@@ -73,7 +57,11 @@ class FieldOptimizer
         return $this->field;
     }
 
-
+    /**
+     * Optimizes the field.
+     *
+     * @return $this
+    */
     public function optimize()
     {
         $this->optimizeStringField()
@@ -247,15 +235,5 @@ class FieldOptimizer
         }
 
         return $this;
-    }
-
-    /**
-     * It checks if the field is numeric type
-     *
-     * @return bool
-    */
-    protected function isNumericField()
-    {
-        return in_array($this->field->dataType, $this->validPrimaryDataTypes);
     }
 }

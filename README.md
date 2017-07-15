@@ -9,13 +9,13 @@ A clean code generator for Laravel framework that will save you time! This aweso
 ## Features
 
 * Create very clean code to build on.
-* Create full resources using a single command with/without <strong>migration</strong> or from <strong>existing database</strong>.
+* Create full resources using a single command with/without **migration** or from **existing database**.
 * Create standard CRUD controllers with simple or form-request validation.
 * Create model with relations.
 * Create named routes.
 * Create standard CRUD views.
 * Very flexible and rich with configurable options.
-* (Beta) Client-side validation.
+* Client-side validation.
 * File uploading handling.
 * Auto multiple-response storing in the database.
 * Create form-request for complex validation.
@@ -33,21 +33,23 @@ A clean code generator for Laravel framework that will save you time! This aweso
 
 ## Installation
 
- To download this package into your laravel project, use the command-line to execute the following command
-  
+1. To download this package into your laravel project, use the command-line to execute the following command
+
 ```
 composer require crestapps/laravel-code-generator --dev
 ```
  
-**(Skip this step when using Laravl >= 5.5)** To bootstrap the packages into your project, open the `config/app.php` file in your project. Then, look for the providers array.
+2. **(Skip this step when using Laravel >= 5.5)** To bootstrap the packages into your project while using command-line only, open the app/Providers/AppServiceProvider.php file in your project. Then, add the following code to the register() method.
 
 Add the following line to bootstrap laravel-code-generator to the framework.
 
 ```
-CrestApps\CodeGenerator\CodeGeneratorServiceProvider::class,
+if ($this->app->runningInConsole()) {
+    $this->app->register('CrestApps\CodeGenerator\CodeGeneratorServiceProvider');
+}
 ```
 
-Finally, execute the following command from the command-line to publish the package's config and the default template to start generating awesome code.
+3. Execute the following command from the command-line to publish the package's config and the default template to start generating awesome code.
 ```
 php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServiceProvider" --tag=default
 ```

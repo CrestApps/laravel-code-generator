@@ -49,13 +49,13 @@ class FieldTransformer
         'html-type'         => 'htmlType',
         'html-value'        => 'htmlValue',
         'value'             => [
-                                'dataValue',
-                                'htmlValue'
+                                    'dataValue',
+                                    'htmlValue'
                                ],
         'is-on-views'       => [
-                                'isOnIndexView',
-                                'isOnFormView',
-                                'isOnShowView'
+                                    'isOnIndexView',
+                                    'isOnFormView',
+                                    'isOnShowView'
                                ],
         'is-on-index'       => 'isOnIndexView',
         'is-on-form'        => 'isOnFormView',
@@ -268,18 +268,19 @@ class FieldTransformer
             unset($properties['html-type']);
         }
 
-        $definitions = (array) config('codegenerator.common_definitions', []);
+        $definitions = Config::getCommonDefinitions();
 
         foreach ($definitions as $definition) {
             $patterns = $this->isKeyExists($definition, 'match') ? (array) $definition['match'] : [];
-            $config = $this->isKeyExists($definition, 'set') ? (array) $definition['set'] : [];
+            $configs = $this->isKeyExists($definition, 'set') ? (array) $definition['set'] : [];
 
-            if (count($config) > 0 && Helpers::strIs($patterns, $properties['name'])) {
-                if (isset($config['name'])) {
-                    unset($config['name']);
+            if (Helpers::strIs($patterns, $properties['name'])) {
+                //auto add any config from the master config
+                foreach ($configs as $key => $config) {
+                    if (!$this->isKeyExists($properties, $key)) {
+                        $properties[$key] = $config;
+                    }
                 }
-                
-                $properties = array_merge($properties, $config);
             }
         }
 
@@ -386,7 +387,7 @@ class FieldTransformer
             $field->range = explode(':', substr($properties['html-type'], 12));
         }
 
-        if($this->isKeyExists($properties, 'range') && is_array($properties['range'])) {
+        if ($this->isKeyExists($properties, 'range') && is_array($properties['range'])) {
             $field->range = $properties['range'];
         }
         
@@ -585,7 +586,8 @@ class FieldTransformer
             $onUpdate = $this->isKeyExists($constraint, 'on-update') ? $constraint['on-update'] : null;
             $onDelete = $this->isKeyExists($constraint, 'on-delete') ? $constraint['on-delete'] : null;
             $modelPath = $this->getModelsPath();
-            $model = $this->isKeyExists($constraint, 'references-model') ? $constraint['references-model'] : self::guessModelFullName($name, $modelPath);
+            $model = $this->isKeyExists($constraint, 'references-model') ? $constraint['references-model'] :
+            self::guessModelFullName($properties['name'], $modelPath);
 
             return new ForeignConstraint($constraint['field'], $constraint['references'], $constraint['on'], $onDelete, $onUpdate, $model);
         }
@@ -762,7 +764,7 @@ class FieldTransformer
             $field->validationRules[] = 'array';
         }
 
-        if (in_array($field->dataType, ['char','string']) && in_array($field->htmlType, ['text','textarea']) ) {
+        if (in_array($field->dataType, ['char','string']) && in_array($field->htmlType, ['text','textarea'])) {
             if (!in_array('string', $field->validationRules)) {
                 $field->validationRules[] = 'string';
             }
@@ -771,7 +773,7 @@ class FieldTransformer
                 $field->validationRules[] = sprintf('min:%s', $field->getMinLength());
             }
 
-            if (!$this->inArraySearch($field->validationRules, 'max') && !is_null($field->getMaxLength()) ) {
+            if (!$this->inArraySearch($field->validationRules, 'max') && !is_null($field->getMaxLength())) {
                 $field->validationRules[] = sprintf('max:%s', $field->getMaxLength());
             }
         }
@@ -782,19 +784,18 @@ class FieldTransformer
             $params = $this->getDataTypeParams($field->dataType, (array) $properties['data-type-params']);
         }
 
-        if ( $field->htmlType == 'number' || (in_array($field->dataType, ['decimal','double','float'])
-            && isset($params[0]) && ($length = intval($params[0])) > 0 
-            && isset($params[1]) && ($decimal = intval($params[1])) > 0) )
-        {
+        if ($field->htmlType == 'number' || (in_array($field->dataType, ['decimal','double','float'])
+            && isset($params[0]) && ($length = intval($params[0])) > 0
+            && isset($params[1]) && ($decimal = intval($params[1])) > 0)) {
             if (!in_array('numeric', $field->validationRules)) {
                 $field->validationRules[] = 'numeric';
             }
 
-            if (!$this->inArraySearch($field->validationRules, 'min') && !is_null($minValue = $field->getMinValue()) ) {
+            if (!$this->inArraySearch($field->validationRules, 'min') && !is_null($minValue = $field->getMinValue())) {
                 $field->validationRules[] = sprintf('min:%s', $minValue);
             }
 
-            if (!$this->inArraySearch($field->validationRules, 'max') && !is_null($maxValue = $field->getMaxValue()) ) {
+            if (!$this->inArraySearch($field->validationRules, 'max') && !is_null($maxValue = $field->getMaxValue())) {
                 $field->validationRules[] = sprintf('max:%s', $maxValue);
             }
         }
@@ -1000,7 +1001,6 @@ class FieldTransformer
     protected function getPlaceholder(Field $field, array $properties)
     {
         if (isset($properties['placeholder']) && !empty($properties['placeholder'])) {
-
             if (is_array($properties['placeholder'])) {
                 //At this point we know this the label
                 return $this->getLabelsFromArray($properties['placeholder']);
@@ -1013,23 +1013,22 @@ class FieldTransformer
 
         $labels = [];
 
-        if(!isset($properties['placeholder'])) {
+        if (!isset($properties['placeholder'])) {
             $templates = Config::getPlaceholderByHtmlType();
 
-            foreach($templates as $type => $title) {
-                if($field->htmlType == $type) {
-
+            foreach ($templates as $type => $title) {
+                if ($field->htmlType == $type) {
                     $fieldName = $field->hasForeignRelation() ? $field->getForeignRelation()->name : $field->name;
                     $this->replaceFieldNamePatterns($title, $fieldName);
                     $langs = $field->getAvailableLanguages();
 
-                    if(count($langs) == 0) {
+                    if (count($langs) == 0) {
                         return [
                             new Label($title, $this->localeGroup, true, $this->defaultLang)
                         ];
                     }
 
-                    foreach($langs as $lang) {
+                    foreach ($langs as $lang) {
                         $labels[] = new Label($title, $this->localeGroup, false, $lang);
                     }
                 }
@@ -1219,7 +1218,7 @@ class FieldTransformer
         $plural = str_plural($englishSingle);
 
         $stub = $this->strReplace('field_name', $englishSingle, $stub);
-        $stub = $this->strReplace('field_name_flat', strtolower($name), $stub);   
+        $stub = $this->strReplace('field_name_flat', strtolower($name), $stub);
         $stub = $this->strReplace('field_name_sentence', ucfirst($englishSingle), $stub);
         $stub = $this->strReplace('field_name_plural', $plural, $stub);
         $stub = $this->strReplace('field_name_plural_title', title_case($plural), $stub);
@@ -1230,7 +1229,7 @@ class FieldTransformer
         $stub = $this->strReplace('field_name_title', Helpers::titleCase($englishSingle), $stub);
         $stub = $this->strReplace('field_name_title_lower', strtolower($englishSingle), $stub);
         $stub = $this->strReplace('field_name_title_upper', strtoupper($englishSingle), $stub);
-        $stub = $this->strReplace('field_name_class', $name, $stub);       
+        $stub = $this->strReplace('field_name_class', $name, $stub);
         $stub = $this->strReplace('field_name_plural_variable', $this->getPluralVariable($name), $stub);
         $stub = $this->strReplace('field_name_singular_variable', $this->getSingularVariable($name), $stub);
 
