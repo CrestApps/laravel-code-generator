@@ -4,6 +4,7 @@ namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Support\ViewsCommand;
 use CrestApps\CodeGenerator\Support\GenerateFormViews;
+use CrestApps\CodeGenerator\Support\ResourceTransformer;
 
 class CreateFormViewCommand extends ViewsCommand
 {
@@ -14,8 +15,7 @@ class CreateFormViewCommand extends ViewsCommand
      */
     protected $signature = 'create:form-view
                             {model-name : The model name that this view will represent.}
-                            {--fields= : The fields to define the model.}
-                            {--fields-file= : File name to import fields from.}
+                            {--resource-file= : The name of the resource-file to import from.}
                             {--views-directory= : The name of the directory to create the views under.}
                             {--routes-prefix= : The routes prefix.}
                             {--lang-file-name= : The name of the language file.}
@@ -48,16 +48,16 @@ class CreateFormViewCommand extends ViewsCommand
     protected function handleCreateView()
     {
         $input = $this->getCommandInput();
-        $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
+        $resources = ResourceTransformer::fromFile($input->resourceFile, $input->languageFileName);
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'form');
 
-        if ($this->canCreateView($destenationFile, $input->force, $fields)) {
+        if ($this->canCreateView($destenationFile, $input->force, $resources->fields)) {
             $stub = $this->getStub();
-            $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName, $this->getTemplateName());
-            $headers = $this->getHeaderFieldAccessor($fields, $input->modelName);
+            $htmlCreator = $this->getHtmlGenerator($resources->fields, $input->modelName, $this->getTemplateName());
+            $headers = $this->getHeaderFieldAccessor($resources->fields, $input->modelName);
 
-            $this->createLanguageFile($input->languageFileName, $input->fields, $input->fieldsFile, $input->modelName)
-                 ->replaceCommonTemplates($stub, $input, $fields)
+            $this->createLanguageFile($input->languageFileName, $input->resourceFile, $input->modelName)
+                 ->replaceCommonTemplates($stub, $input, $resources->fields)
                  ->replaceFields($stub, $htmlCreator->getHtmlFields())
                  ->replaceModelHeader($stub, $headers)
                  ->createFile($destenationFile, $stub)

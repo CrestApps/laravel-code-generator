@@ -14,18 +14,11 @@ class ViewInput
     public $modelName;
 
     /**
-     * The provided fields
-     *
-     * @var string
-     */
-    public $fields;
-
-    /**
      * The provided field's file name
      *
      * @var string
      */
-    public $fieldsFile;
+    public $resourceFile;
 
     /**
      * The provided views directory name
@@ -70,8 +63,7 @@ class ViewInput
     public function __construct(array $arguments, array $options = [])
     {
         $this->modelName = trim($arguments['model-name']);
-        $this->fields = trim($options['fields']);
-        $this->fieldsFile = trim($options['fields-file']) ?: Helpers::makeJsonFileName($this->modelName);
+        $this->resourceFile = trim($options['resource-file']) ?: Helpers::makeJsonFileName($this->modelName);
         $this->viewsDirectory = trim($options['views-directory']);
         $this->prefix = trim($options['routes-prefix']);
         $this->force = $options['force'];
@@ -88,15 +80,14 @@ class ViewInput
     public function getArrguments()
     {
         return [
-            'model-name'        => $this->modelName,
-            '--fields'          => $this->fields,
-            '--fields-file'     => $this->fieldsFile,
-            '--views-directory' => $this->viewsDirectory,
-            '--routes-prefix'   => $this->prefix,
-            '--force'           => $this->force,
-            '--lang-file-name'  => $this->languageFileName,
-            '--layout-name'     => $this->layout,
-            '--template-name'   => $this->template
+            'model-name'          => $this->modelName,
+            '--resource-file'     => $this->resourceFile,
+            '--views-directory'   => $this->viewsDirectory,
+            '--routes-prefix'     => $this->prefix,
+            '--lang-file-name'    => $this->languageFileName,
+            '--layout-name'       => $this->layout,
+            '--template-name'     => $this->template,
+            '--force'             => $this->force,
         ];
     }
 }

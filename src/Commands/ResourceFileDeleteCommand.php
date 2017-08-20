@@ -10,7 +10,7 @@ use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 
-class FieldsFileDeleteCommand extends Command
+class ResourceFileDeleteCommand extends Command
 {
     use CommonCommand;
 
@@ -19,16 +19,16 @@ class FieldsFileDeleteCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'fields-file:delete
+    protected $signature = 'resource-file:delete
                             {model-name : The model name that these files represent.}
-                            {--fields-filename= : The destination file name to delete.}';
+                            {--resource-filename= : The destination file name to delete.}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create a new fields file.';
+    protected $description = 'Delete existing resource-file.';
 
     /**
      * Executes the console command.
@@ -45,7 +45,7 @@ class FieldsFileDeleteCommand extends Command
         }
 
         if (! $this->isFileExists($file)) {
-            $this->error('The fields-file does not exists.');
+            $this->error('The resource-file does not exists.');
 
             return false;
         }
@@ -82,7 +82,9 @@ class FieldsFileDeleteCommand extends Command
             });
         }
 
-        $this->putContentInFile($file, json_encode($fields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        $content = json_encode($fields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+        $this->putContentInFile($file, $content);
     }
 
     /**
@@ -93,7 +95,7 @@ class FieldsFileDeleteCommand extends Command
     protected function getCommandInput()
     {
         $modelName = trim($this->argument('model-name'));
-        $filename = trim($this->option('fields-filename'));
+        $filename = trim($this->option('resource-filename'));
         $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
 
         return (object) compact('modelName', 'file');

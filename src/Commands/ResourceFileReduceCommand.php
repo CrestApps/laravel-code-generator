@@ -10,7 +10,7 @@ use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 
-class FieldsFileReduceCommand extends Command
+class ResourceFileReduceCommand extends Command
 {
     use CommonCommand;
 
@@ -19,9 +19,9 @@ class FieldsFileReduceCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'fields-file:reduce
+    protected $signature = 'resource-file:reduce
                             {model-name : The model name that these files represent.}
-                            {--fields-filename= : The destination file name to reduce.}
+                            {--resource-filename= : The destination file name to reduce.}
                             {--names= : A comma seperate field names.}';
 
     /**
@@ -29,7 +29,7 @@ class FieldsFileReduceCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create a new fields file.';
+    protected $description = 'Reduce field(s) from existing resource-file.';
 
     /**
      * Executes the console command.
@@ -42,7 +42,7 @@ class FieldsFileReduceCommand extends Command
         $file = $this->getFilename($input->file);
 
         if (! $this->isFileExists($file)) {
-            $this->error('The fields-file does not exists.');
+            $this->error('The resource-file does not exists.');
 
             return false;
         }
@@ -56,10 +56,10 @@ class FieldsFileReduceCommand extends Command
         $reducedFields = $this->reduceFields($file, $input);
         
         if (empty($reducedFields)) {
-            $this->callSilent('fields-file:delete',
+            $this->callSilent('resource-file:delete',
                 [
                     'model-name'        => $input->modelName,
-                    '--fields-filename' => $file
+                    '--resource-filename' => $file
                 ]);
 
             $this->info('No more fields left in the file. The file (' . $file . ') was deleted!');
@@ -109,7 +109,7 @@ class FieldsFileReduceCommand extends Command
     protected function getCommandInput()
     {
         $modelName = trim($this->argument('model-name'));
-        $filename = trim($this->option('fields-filename'));
+        $filename = trim($this->option('resource-filename'));
         $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
         $names = array_unique(Helpers::convertStringToArray($this->generatorOption('names')));
 

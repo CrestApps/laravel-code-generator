@@ -15,7 +15,7 @@ class ForeignRelationship
      *
      * @var array
      */
-    private $allowedTypes =
+    public static $allowedTypes =
     [
         'hasOne',
         'belongsTo',
@@ -103,11 +103,23 @@ class ForeignRelationship
      */
     public function setType($type)
     {
-        if (!in_array($type, $this->allowedTypes)) {
+        if (!self::isValidType($type)) {
             throw new OutOfRangeException();
         }
 
         $this->type = $type;
+    }
+
+    /**
+     * Check if the relation's type is valid.
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
+    public static function isValidType($type)
+    {
+        return in_array($type, self::$allowedTypes);
     }
 
     /**
@@ -297,6 +309,29 @@ class ForeignRelationship
         } catch (Exception $e) {
             return null;
         }
+    }
+
+    /**
+     * Get a foreign relationship from giving array
+     *
+     * @param array $options
+     *
+     * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
+     */
+    public static function get(array $options)
+    {
+        if (!array_key_exists('type', $options) || !array_key_exists('params', $options)|| !array_key_exists('name', $options)) {
+            return null;
+        }
+        
+        $field = array_key_exists('field', $options) ? $options['field'] : null;
+
+        return new ForeignRelationship(
+                                $options['type'],
+                                $options['params'],
+                                $options['name'],
+                                $field
+                            );
     }
 
     /**

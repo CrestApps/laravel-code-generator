@@ -4,9 +4,10 @@ namespace CrestApps\CodeGenerator\Commands;
 
 use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\ResourceTransformer;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
 
@@ -32,8 +33,8 @@ class CreateModelCommand extends Command
                             {--fillable= : The exact string to put in the fillable property of the model.}
                             {--relationships= : The relationships for the model.}
                             {--primary-key=id : The name of the primary key.}
-                            {--fields= : Fields to use for creating the validation rules.}
-                            {--fields-file= : File name to import fields from.}
+                            {--resource-file= : The name of the resource-file to import from.}
+                            {--lang-file-name= : The languages file name to put the labels in.}
                             {--model-directory= : The directory where the model should be created.}
                             {--with-soft-delete : Enables softdelete future should be enable in the model.}
                             {--without-timestamps : Prevent Eloquent from maintaining both created_at and the updated_at properties.}
@@ -64,8 +65,8 @@ class CreateModelCommand extends Command
         $stub = $this->getStubContent('model');
         $input = $this->getCommandInput();
 
-        $fields = $this->getFields($input->fields, 'model', $input->fieldsFile);
-        
+        $resources = ResourceTransformer::fromFile($input->resourceFile, $input->languageFileName);
+        $fields = $resources->fields;
         if ($input->useSoftDelete) {
             $fields = $this->upsertDeletedAt($fields);
         }
@@ -79,7 +80,7 @@ class CreateModelCommand extends Command
             return false;
         }
 
-        $relations = $this->getRelationMethods($input->relationships, $fields);
+        $relations = $this->getRelationMethods($resources->relations, $fields);
 
         return $this->replaceTable($stub, $input->table)
                     ->replaceModelName($stub, $input->modelName)
@@ -321,13 +322,14 @@ class CreateModelCommand extends Command
         $relationships = !empty(trim($this->option('relationships'))) ? explode(',', trim($this->option('relationships'))) : [];
         $useSoftDelete = $this->option('with-soft-delete');
         $useTimeStamps = !$this->option('without-timestamps');
-        $fields = trim($this->option('fields'));
 
         $modelDirectory = trim($this->option('model-directory'));
-        $fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($modelName);
+        $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
+        $languageFileName = $this->option('lang-file-name') ?: Helpers::makeLocaleGroup($modelName);
         $template = $this->getTemplateName();
 
-        return (object) compact('table', 'fillable', 'primaryKey', 'relationships', 'useSoftDelete', 'useTimeStamps', 'fields', 'fieldsFile', 'template', 'modelName','modelDirectory');
+        return (object) compact('table','fillable','primaryKey','relationships','useSoftDelete','useTimeStamps',
+                                'resourceFile','template','modelName','modelDirectory','languageFileName');
     }
 
     /**
@@ -338,27 +340,19 @@ class CreateModelCommand extends Command
      *
      * @return array
      */
-    protected function getRelationMethods(array $relationships, array $fields)
+    protected function getRelationMethods(array $relations, array $fields)
     {
         $methods = [];
-
-        foreach ($relationships as $relationship) {
-            $relationshipParts = explode('#', $relationship);
-
-            if (count($relationshipParts) != 3) {
-                throw new Exception("One or more of the provided relations are not formatted correctly. Make sure your input adheres to the following pattern 'posts#hasMany#App\Post|id|post_id'");
-            }
-
-            $methodArguments = explode('|', trim($relationshipParts[2]));
-            $relation = new ForeignRelationship(trim($relationshipParts[1]), $methodArguments, trim($relationshipParts[0]));
-            $methods[$name] = $this->getRelationshipMethod($relation);
-        }
 
         foreach ($fields as $field) {
             if ($field->hasForeignRelation()) {
                 $relation = $field->getForeignRelation();
                 $methods[$relation->name] = $this->getRelationshipMethod($relation);
             }
+        }
+
+        foreach($relations as $relation) {
+            $methods[$relation->name] = $this->getRelationshipMethod($relation);
         }
 
         return $methods;

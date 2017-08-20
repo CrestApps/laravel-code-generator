@@ -272,11 +272,12 @@ class Helpers
      *
      * @return array
      */
+    /*
     public static function getFields($fieldsLine, $langFile = 'generic')
     {
         return FieldTransformer::fromText($fieldsLine, $langFile);
     }
-
+    */
     /**
      * Converts a string of field to an array
      *
@@ -285,13 +286,14 @@ class Helpers
      *
      * @return array
      */
+    /*
     public static function getFieldsFromFile($filename, $langFile = 'generic')
     {
         $content = self::jsonFileContent($filename);
         
         return FieldTransformer::fromJson($content, $langFile);
     }
-
+    */
     /**
      * Gets the content of a json file.
      *
@@ -299,6 +301,7 @@ class Helpers
      *
      * @return string
      */
+    /*
     public static function jsonFileContent($filename)
     {
         $fileFullname = Config::pathToFieldFiles($filename);
@@ -309,6 +312,7 @@ class Helpers
 
         return File::get($fileFullname);
     }
+    */
 
     /**
      * Removes a string from the end of another giving string if it already ends with it.

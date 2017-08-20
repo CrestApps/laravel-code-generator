@@ -3,12 +3,13 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use Illuminate\Console\Command;
-use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Support\CrestAppsTranslator;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
+use CrestApps\CodeGenerator\Support\CrestAppsTranslator;
+use CrestApps\CodeGenerator\Support\ResourceTransformer;
 
 class CreateLanguageCommand extends Command
 {
@@ -22,8 +23,7 @@ class CreateLanguageCommand extends Command
     protected $signature = 'create:language
                             {model-name : The model name.}
                             {--language-file-name= : The name of the file to save the messages in.}
-                            {--fields= : The fields for the form.}
-                            {--fields-file= : File name to import fields from.}
+                            {--resource-file= : The name of the resource-file to import from.}
                             {--template-name= : The template name to use when generating the code.}';
 
     /**
@@ -41,8 +41,9 @@ class CreateLanguageCommand extends Command
     public function handle()
     {
         $input = $this->getCommandInput();
-        $fields = $this->getFields($input->fields, $input->fileName, $input->fieldsFile);
-        $languages = Helpers::getLanguageItems($fields);
+        $resources = ResourceTransformer::fromFile($input->resourceFile, $input->fileName);
+
+        $languages = Helpers::getLanguageItems($resources->fields);
         $viewLabels = new ViewLabelsGenerator($input->modelName, $this->isCollectiveTemplate());
 
         $standardLabels = $viewLabels->getTranslatedLabels(array_keys($languages));
@@ -224,11 +225,10 @@ class CreateLanguageCommand extends Command
     {
         $modelName = trim($this->argument('model-name'));
         $fileName = trim($this->option('language-file-name')) ?: Helpers::makeLocaleGroup($modelName);
-        $fields = trim($this->option('fields'));
-        $fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($modelName);
+        $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
         $template = trim($this->option('template-name'));
 
-        return (object) compact('modelName', 'fileName', 'fields', 'fieldsFile', 'template');
+        return (object) compact('modelName','fileName','resourceFile','template');
     }
 
     /**

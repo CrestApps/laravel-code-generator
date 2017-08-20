@@ -11,7 +11,7 @@ use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Commands\FieldsFileCreateCommand;
 
-class FieldsFileAppendCommand extends Command
+class ResourceFileAppendCommand extends Command
 {
     use CommonCommand;
 
@@ -20,9 +20,9 @@ class FieldsFileAppendCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'fields-file:append
+    protected $signature = 'resource-file:append
                             {model-name : The model name that these files represent.}
-                            {--fields-filename= : The destination file name to append too.}
+                            {--resource-filename= : The destination file name to append too.}
                             {--names= : A comma seperate field names.}
                             {--data-types= : A comma seperated data-type for each field.}
                             {--translation-for= : A comma seperated string of languages to create fields for.}
@@ -33,7 +33,7 @@ class FieldsFileAppendCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create a new fields file.';
+    protected $description = 'Append new field(s) to existing resource-file.';
 
     /**
      * Executes the console command.
@@ -52,17 +52,17 @@ class FieldsFileAppendCommand extends Command
         }
 
         if (! $this->isFileExists($file)) {
-            $this->warn('The fields-file does not exists.');
+            $this->warn('The resource-file does not exists.');
 
-            $this->call('fields-file:create', $this->getCommandOptions($input));
+            $this->call('resource-file:create', $this->getCommandOptions($input));
 
             return false;
         }
 
         $existingFields = $this->mergeFields($file, $input);
-        $string = json_encode($existingFields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        $content = json_encode($existingFields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
-        $this->putContentInFile($file, $string)
+        $this->putContentInFile($file, $content)
              ->info('New fields where appended to the file.');
     }
 
@@ -86,10 +86,10 @@ class FieldsFileAppendCommand extends Command
         }
         
         $existingName = Collect($existingFields)->pluck('name')->all();
-        $fields = FieldsFileCreateCommand::getFields($input, true);
+        $fields = ResourceFileCreateCommand::getFields($input, true);
         foreach ($fields as $field) {
             if (in_array($field->name, $existingName)) {
-                $this->warn('the field "' . $field->name . '" already exists in the file.');
+                $this->warn('The field "' . $field->name . '" already exists in the file.');
                 continue;
             }
 
@@ -108,11 +108,11 @@ class FieldsFileAppendCommand extends Command
     protected function getCommandOptions($input)
     {
         return [
-            'model-name'        => $input->modelName,
-            '--fields-filename' => $input->file,
-            '--names'           => implode(',', $input->names),
-            '--data-types'      => implode(',', $input->dataTypes),
-            '--html-types'      => implode(',', $input->htmlTypes)
+            'model-name'          => $input->modelName,
+            '--resource-filename' => $input->file,
+            '--names'             => implode(',', $input->names),
+            '--data-types'        => implode(',', $input->dataTypes),
+            '--html-types'        => implode(',', $input->htmlTypes)
         ];
     }
 
@@ -124,14 +124,14 @@ class FieldsFileAppendCommand extends Command
     protected function getCommandInput()
     {
         $modelName = trim($this->argument('model-name'));
-        $filename = trim($this->option('fields-filename'));
+        $filename = trim($this->option('resource-filename'));
         $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
         $names = array_unique(Helpers::convertStringToArray($this->generatorOption('names')));
         $dataTypes = Helpers::convertStringToArray($this->generatorOption('data-types'));
         $htmlTypes = Helpers::convertStringToArray($this->generatorOption('html-types'));
         $transaltionFor = Helpers::convertStringToArray($this->generatorOption('translation-for'));
 
-        return (object) compact('modelName', 'file', 'names', 'dataTypes', 'htmlTypes', 'transaltionFor');
+        return (object) compact('modelName','file','names','dataTypes','htmlTypes','transaltionFor');
     }
 
     /**

@@ -4,6 +4,7 @@ namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Support\ViewsCommand;
 use CrestApps\CodeGenerator\Support\GenerateFormViews;
+use CrestApps\CodeGenerator\Support\ResourceTransformer;
 
 class CreateShowViewCommand extends ViewsCommand
 {
@@ -14,8 +15,7 @@ class CreateShowViewCommand extends ViewsCommand
      */
     protected $signature = 'create:show-view
                             {model-name : The model name that this view will represent.}
-                            {--fields= : The fields to define the model.}
-                            {--fields-file= : File name to import fields from.}
+                            {--resource-file= : The name of the resource-file to import from.}
                             {--views-directory= : The name of the directory to create the views under.}
                             {--routes-prefix= : The routes prefix.}
                             {--lang-file-name= : The name of the language file.}
@@ -48,17 +48,17 @@ class CreateShowViewCommand extends ViewsCommand
     protected function handleCreateView()
     {
         $input = $this->getCommandInput();
-        $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
+        $resources = ResourceTransformer::fromFile($input->resourceFile, $input->languageFileName);
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'show');
         
-        if ($this->canCreateView($destenationFile, $input->force, $fields)) {
+        if ($this->canCreateView($destenationFile, $input->force, $resources->fields)) {
             $stub = $this->getStub();
-            $htmlCreator = $this->getHtmlGenerator($fields, $input->modelName, $this->getTemplateName());
+            $htmlCreator = $this->getHtmlGenerator($resources->fields, $input->modelName, $this->getTemplateName());
 
-            $this->replaceCommonTemplates($stub, $input, $fields)
-                 ->replacePrimaryKey($stub, $this->getPrimaryKeyName($fields))
+            $this->replaceCommonTemplates($stub, $input, $resources->fields)
+                 ->replacePrimaryKey($stub, $this->getPrimaryKeyName($resources->fields))
                  ->replaceTableRows($stub, $htmlCreator->getShowRowsHtml())
-                 ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($fields, $input->modelName))
+                 ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($resources->fields, $input->modelName))
                  ->createFile($destenationFile, $stub)
                  ->info('Show view was crafted successfully.');
         }

@@ -50,25 +50,7 @@ trait CommonCommand
                     'show',
                     'edit'
                 ];
-
-    /**
-     * Gets the field from the input
-     *
-     * @param string $fields
-     * @param string $langFile
-     * @param string $fieldsFile
-     *
-     * @return Field array
-     */
-    protected function getFields($fields, $langFile, $fieldsFile)
-    {
-        if (!empty($fields)) {
-            return Helpers::getFields($fields, $langFile);
-        }
-
-        return Helpers::getFieldsFromFile($fieldsFile, $langFile);
-    }
-
+                
     /**
      * Replaces a template variable in the giving subject.
      *

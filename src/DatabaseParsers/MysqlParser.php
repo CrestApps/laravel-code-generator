@@ -5,7 +5,9 @@ use DB;
 use App;
 use CrestApps\CodeGenerator\DatabaseParsers\ParserBase;
 use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Models\Index;
 use CrestApps\CodeGenerator\Models\ForeignConstraint;
+use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Support\Config;
 
@@ -17,6 +19,21 @@ class MysqlParser extends ParserBase
      * @var array
      */
     protected $constrains;
+
+    /**
+     * List of the foreign relations.
+     *
+     * @var array
+     */
+    protected $relations;
+
+    /**
+     * List of the data types that hold large data.
+     * This will be used to eliminate the column from the index view
+     *
+     * @var array
+     */
+    protected $largeDataTypes = ['varbinary','blob','mediumblob','longblob','text','mediumtext','longtext'];
 
     /**
      * Gets column meta info from the information schema.
@@ -82,6 +99,131 @@ class MysqlParser extends ParserBase
         return $this->constrains;
     }
     
+
+    protected function getRawIndexes()
+    {
+        $result = DB::select('SELECT 
+                               INDEX_NAME AS name
+                              ,COUNT(1) AS TotalColumns
+                              ,GROUP_CONCAT(DISTINCT COLUMN_NAME ORDER BY SEQ_IN_INDEX ASC SEPARATOR \'|||\') AS columns
+                              FROM INFORMATION_SCHEMA.STATISTICS AS s
+                              WHERE TABLE_NAME = ? AND TABLE_SCHEMA = ?
+                              GROUP BY INDEX_NAME
+                              HAVING COUNT(1) > 1;', 
+                              [$this->tableName, $this->databaseName]);
+
+        return $result;
+    }
+
+    /**
+     * Get all available relations
+     *
+     * @return array of CrestApps\CodeGenerator\Models\ForeignRelationship;
+    */
+    protected function getRelations()
+    {
+        $relations = [];
+        $rawRelations = $this->getRawRelations();
+
+        foreach($rawRelations as $rawRelation) {
+            $relations[] = $this->getRealtion($rawRelation->foreignTable, $rawRelation->foreignKey, $rawRelation->localKey);
+        }
+
+        return $relations;
+    }
+
+    /**
+     * Gets the raw relations from the database.
+     *
+     * @return array
+    */
+    protected function getRawRelations()
+    {
+        if (is_null($this->relations)) {
+            $this->relations = DB::select('SELECT DISTINCT
+                                             u.referenced_column_name AS `localKey`
+                                            ,u.column_name AS `foreignKey`
+                                            ,r.table_name AS `foreignTable`
+                                            FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS r
+                                            INNER JOIN information_schema.key_column_usage AS u ON u.CONSTRAINT_NAME = r.CONSTRAINT_NAME
+                                                                                               AND u.table_schema = r.constraint_schema
+                                                                                               AND u.table_name = r.table_name
+                                            WHERE u.referenced_table_name = ? AND u.constraint_schema = ?;',
+                                          [$this->tableName, $this->databaseName]);
+        }
+
+        return $this->relations;
+    }
+
+    /**
+     * Gets a query to check the relation type.
+     *
+     * @return string
+    */
+    protected function getRelationTypeQuery($tableName, $columnName)
+    {
+        return ' SELECT `' . $columnName . '` AS id, COUNT(1) AS total ' .
+               ' FROM `'. $tableName . '` ' .
+               ' GROUP BY `' . $columnName . '` ' .
+               ' HAVING COUNT(1) > 1 ' .
+               ' LIMIT 1 ';
+    }
+
+    /**
+     * Get a corresponding relation to a giving table name, foreign column and local column.
+     *
+     * @return CrestApps\CodeGenerator\Models\ForeignRelationship
+    */
+    protected function getRealtion($foreignTableName, $foreignColumn, $localColumn)
+    {
+        $model = FieldTransformer::guessModelFullName($foreignTableName, $this->getModelNamespace());
+
+        $params = [
+                    $model, 
+                    $foreignColumn, 
+                    $localColumn
+                ];
+
+        if($this->isOneToMany($foreignTableName, $foreignColumn)) {
+            return new ForeignRelationship('hasMany', $params, camel_case(str_plural($foreignTableName)));
+        }
+
+        return new ForeignRelationship('hasOne', $params, camel_case(str_singular($foreignTableName)));
+    }
+
+    /**
+     * Checks of the table has one-to-many relations
+     *
+     * @return bool
+    */
+    protected function isOneToMany($tableName, $columnName)
+    {
+        $query = $this->getRelationTypeQuery($tableName, $columnName);
+        $result = DB::select($query);
+
+        return isset($result[0]);
+    }
+
+    /**
+     * Get all available indexed
+     *
+     * @return array of CrestApps\CodeGenerator\Models\Index;
+    */
+    protected function getIndexes()
+    {
+        $indexes = [];
+        $rawIndexes = $this->getRawIndexes();
+
+        foreach($rawIndexes as $rawIndex) {
+            $index = new Index($rawIndex->name);
+            $index->addColumns(explode('|||', $rawIndex->columns));
+
+            $indexes[] = $index;
+        }
+
+        return $indexes;
+    }
+
     /**
      * Gets the field after transfering it from a giving query object.
      *
@@ -108,10 +250,13 @@ class MysqlParser extends ParserBase
             $properties['options'] = $this->getHtmlOptions($column->DATA_TYPE, $column->COLUMN_TYPE);
             $properties['is-unsigned'] = (strpos($column->COLUMN_TYPE, 'unsigned') !== false);
             $properties['html-type'] = $this->getHtmlType($column->DATA_TYPE);
-            $properties['foreign-constraint'] = $this->getForeignConstraint($column->COLUMN_NAME);
+
+            $constraint = $this->getForeignConstraint($column->COLUMN_NAME);
+
+            $properties['foreign-constraint'] = is_null($constraint) ? null : $constraint->toArray();
 
             if (intval($column->CHARACTER_MAXIMUM_LENGTH) > 255
-                || in_array($column->DATA_TYPE, ['varbinary','blob','mediumblob','longblob','text','mediumtext','longtext'])) {
+                || in_array($column->DATA_TYPE, $this->largeDataTypes)) {
                 $properties['is-on-index'] = false;
             }
 
@@ -176,7 +321,7 @@ class MysqlParser extends ParserBase
      *
      * @param string $name
      *
-     * @return $this
+     * @return null || CrestApps\CodeGenerator\Models\ForeignConstraint
      */
     protected function getForeignConstraint($name)
     {
@@ -186,13 +331,14 @@ class MysqlParser extends ParserBase
             return null;
         }
 
-        return [
-            'field'      => strtolower($raw->foreign),
-            'references' => strtolower($raw->references),
-            'on'         => strtolower($raw->on),
-            'on-delete'  => strtolower($raw->onDelete),
-            'on-update'  => strtolower($raw->onUpdate)
-        ];
+        return new ForeignConstraint(
+                        strtolower($raw->foreign),
+                        strtolower($raw->references),
+                        strtolower($raw->on),
+                        strtolower($raw->onDelete),
+                        strtolower($raw->onUpdate)
+                    );
+
     }
 
     /**

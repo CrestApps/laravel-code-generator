@@ -54,18 +54,11 @@ class ResourceInput
     public $perPage = 25;
 
      /**
-     * The raw fields
-     *
-     * @var string
-     */
-    public $fields;
-
-     /**
      * The fields file
      *
      * @var string
      */
-    public $fieldsFile;
+    public $resourceFile;
 
      /**
      * With form-request
@@ -108,13 +101,6 @@ class ResourceInput
      * @var string
      */
     public $modelDirectory;
-
-    /**
-     * Fillable
-     *
-     * @var string
-     */
-    public $fillable;
     
     /**
      * Primary key
@@ -122,13 +108,6 @@ class ResourceInput
      * @var string
      */
     public $primaryKey;
-
-    /**
-     * Relationship
-     *
-     * @var string
-     */
-    public $relationships;
 
     /**
      * With soft delete
@@ -157,20 +136,6 @@ class ResourceInput
      * @var string
      */
     public $connectionName;
-
-     /**
-     * The indexes
-     *
-     * @var string
-     */
-    public $indexes;
-    
-    /**
-     * The foreign key
-     *
-     * @var string
-     */
-    public $foreignKeys;
     
     /**
      * The database engine name

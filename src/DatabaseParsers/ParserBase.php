@@ -6,6 +6,7 @@ use App;
 use Exception;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\FieldMapper;
+use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\FieldsOptimizer;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
@@ -94,7 +95,7 @@ abstract class ParserBase
      *
      * @return array
     */
-    public function getFields()
+    protected function getFields()
     {
         if (is_null($this->fields)) {
             $columns = $this->getColumn();
@@ -108,6 +109,47 @@ abstract class ParserBase
 
         return $this->fields;
     }
+
+    /**
+     * Gets the final resource.
+     *
+     * @return CrestApps\CodeGenerator\Models\Resource
+    */
+    protected function getResource()
+    {
+        $resource = new Resource($this->getFields());
+
+        $resource->indexes = $this->getIndexes();
+
+        $resource->relations = $this->getRelations();
+
+        return $resource;
+    }
+
+    /**
+     * Gets the final resource.
+     *
+     * @return CrestApps\CodeGenerator\Models\Resource
+    */
+    public function getResourceAsJson()
+    {
+        $resource = $this->getResource();
+
+        $resource->fields = array_map(function ($field) {
+            return $field->toArray();
+        }, $resource->fields);
+
+        $resource->indexes = array_map(function ($index) {
+            return $index->toArray();
+        }, $resource->indexes);
+
+        $resource->relations = array_map(function ($relation) {
+            return $relation->toArray();
+        }, $resource->relations);
+
+        return json_encode($resource, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    }
+
 
     /**
      * Gets array of field after transfering each column meta into field.
@@ -188,6 +230,7 @@ abstract class ParserBase
         return $this->getAppNamespace() . Config::getModelsPath();
     }
 
+
     /**
      * Gets a labe field's label from a giving name.
      *
@@ -211,4 +254,18 @@ abstract class ParserBase
      * @return array of CrestApps\CodeGenerator\Models\Field;
     */
     abstract protected function getTransfredFields(array $columns);
+
+    /**
+     * Get all available indexed
+     *
+     * @return array of CrestApps\CodeGenerator\Models\Index;
+    */
+    abstract protected function getIndexes();
+
+    /**
+     * Get all available relations
+     *
+     * @return array of CrestApps\CodeGenerator\Models\ForeignRelationship;
+    */
+    abstract protected function getRelations();
 }

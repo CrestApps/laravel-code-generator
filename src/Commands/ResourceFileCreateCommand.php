@@ -10,7 +10,7 @@ use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 
-class FieldsFileCreateCommand extends Command
+class ResourceFileCreateCommand extends Command
 {
     use CommonCommand;
 
@@ -19,9 +19,9 @@ class FieldsFileCreateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'fields-file:create
+    protected $signature = 'resource-file:create
                             {model-name : The model name that these files represent.}
-                            {--fields-filename= : The destination file name to create.}
+                            {--resource-filename= : The destination file name to create.}
                             {--names= : A comma seperate field names.}
                             {--data-types= : A comma seperated data-type for each field.}
                             {--html-types= : A comma seperated html-type for each field.}
@@ -34,7 +34,7 @@ class FieldsFileCreateCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create a new fields file.';
+    protected $description = 'Create a new resource-file.';
 
     /**
      * Executes the console command.
@@ -47,7 +47,7 @@ class FieldsFileCreateCommand extends Command
         $file = $this->getFilename($input->file);
 
         if ($this->isFileExists($file) && ! $input->force) {
-            $this->error('The fields-file already exists! To override the existing file, use --force option to append.');
+            $this->error('The resource-file already exists! To override the existing file, use --force option to append.');
 
             return false;
         }
@@ -66,7 +66,7 @@ class FieldsFileCreateCommand extends Command
         $string = $this->getFieldAsJson($fields);
 
         $this->createFile($file, $string)
-             ->info('New fields-file was crafted!');
+             ->info('New resource-file was crafted!');
     }
 
     /**
@@ -77,7 +77,7 @@ class FieldsFileCreateCommand extends Command
     protected function getCommandInput()
     {
         $modelName = trim($this->argument('model-name'));
-        $filename = trim($this->option('fields-filename'));
+        $filename = trim($this->option('resource-filename'));
         $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
         $names = array_unique(Helpers::convertStringToArray($this->generatorOption('names')));
         $dataTypes = Helpers::convertStringToArray($this->generatorOption('data-types'));
@@ -175,7 +175,7 @@ class FieldsFileCreateCommand extends Command
 
             $existingFields->push([
                 'model-name'  => $modelName,
-                'fields-file' => $fieldsFileName,
+                'resource-file' => $fieldsFileName,
             ]);
 
             foreach ($existingFields as $existingField) {

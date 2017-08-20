@@ -91,7 +91,6 @@ class FieldTransformer
                         'checkbox',
                         'radio',
                         'number',
-                        //'date',
                         'select',
                         'multipleSelect',
                         'textarea',
@@ -127,32 +126,20 @@ class FieldTransformer
     /**
      * Create a new transformer instance.
      *
-     * @return void
-     */
-    protected function __construct($properties, $localeGroup)
-    {
-        if (empty($localeGroup)) {
-            throw new Exception("$localeGroup must have a valid value");
-        }
-
-        $this->rawFields = is_array($properties) ? $properties : $this->parseRawString($properties);
-        $this->localeGroup = $localeGroup;
-        $this->defaultLang = App::getLocale();
-    }
-
-    /**
-     * It transfred a gining string to a collection of field
-     *
-     * @param string $fieldsString
+     * @param array $properties
      * @param string $localeGroup
      *
-     * @return array Support\Field
-    */
-    public static function fromText($fieldsString, $localeGroup)
+     * @return void
+     */
+    protected function __construct(array $properties, $localeGroup)
     {
-        $transformer = new self($fieldsString, $localeGroup);
+        if (empty($localeGroup)) {
+            throw new Exception('LocaleGroup must have a valid value.');
+        }
 
-        return $transformer->transfer()->getFields();
+        $this->rawFields = $properties;
+        $this->localeGroup = $localeGroup;
+        $this->defaultLang = App::getLocale();
     }
 
     /**
@@ -197,9 +184,7 @@ class FieldTransformer
     protected function transfer()
     {
         $finalFields = [];
-
         $this->validateFields($this->rawFields);
-
         foreach ($this->rawFields as $rawField) {
             $finalFields[] = $this->transferField($rawField);
         }
@@ -329,7 +314,8 @@ class FieldTransformer
      */
     protected function isValidSelectRangeType(array $properties)
     {
-        return $this->isKeyExists($properties, 'html-type') && starts_with($properties['html-type'], 'selectRange|');
+        return $this->isKeyExists($properties, 'html-type') 
+            && starts_with($properties['html-type'], 'selectRange|');
     }
 
    /**
@@ -342,7 +328,6 @@ class FieldTransformer
     */
     protected function isKeyExists(array $properties, ...$name)
     {
-        $exists = false;
         $args = func_get_args();
 
         for ($i = 1; $i < count($args); $i++) {
@@ -481,7 +466,6 @@ class FieldTransformer
             return $params;
         }
         
-
         return [];
     }
 
@@ -533,7 +517,7 @@ class FieldTransformer
         if ($this->isKeyExists($properties, 'foreign-relation')) {
             $relation = self::makeForeignRelation($field, (array)$properties['foreign-relation']);
         } else {
-            $relation = self::getPredectableForeignRelation($field, $this->getModelsPath());
+            $relation = self::predictForeignRelation($field, $this->getModelsPath());
         }
 
         $field->setForeignRelation($relation);
@@ -610,29 +594,6 @@ class FieldTransformer
     }
 
     /**
-     * Get a foreign relationship from giving array
-     *
-     * @param array $options
-     *
-     * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
-     */
-    protected static function getForeignRelation(array $options)
-    {
-        if (!array_key_exists('type', $options) || !array_key_exists('params', $options)|| !array_key_exists('name', $options)) {
-            return null;
-        }
-        
-        $field = array_key_exists('field', $options) ? $options['field'] : null;
-
-        return new ForeignRelationship(
-                                $options['type'],
-                                $options['params'],
-                                $options['name'],
-                                $field
-                            );
-    }
-
-    /**
      * Get a predictable foreign relation using the giving field's name
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
@@ -640,7 +601,7 @@ class FieldTransformer
      *
      * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
      */
-    public static function getPredectableForeignRelation(Field & $field, $modelPath)
+    public static function predictForeignRelation(Field & $field, $modelPath)
     {
         $patterns = Config::getKeyPatterns();
 
@@ -665,7 +626,7 @@ class FieldTransformer
      */
     public static function makeForeignRelation(Field & $field, array $properties)
     {
-        $relation = self::getForeignRelation($properties);
+        $relation = ForeignRelationship::get($properties);
 
         if (!is_null($relation)) {
             self::setOnStore($field, $properties);
@@ -699,7 +660,7 @@ class FieldTransformer
      */
     public static function extractModelName($name)
     {
-        return ucfirst(studly_case(str_replace('_id', '', $name)));
+        return ucfirst(studly_case(str_singular(str_replace('_id', '', $name))));
     }
 
     /**
@@ -872,15 +833,11 @@ class FieldTransformer
     */
     protected function getOptions(Field & $field, array $properties)
     {
-        if (!$this->isKeyExists($properties, 'options')) {
-            return null;
-        }
-
-        if (is_array($properties['options'])) {
+        if ($this->isKeyExists($properties, 'options') && is_array($properties['options'])) {
             return self::transferOptionsToLabels($field, $properties['options'], $this->defaultLang, $this->localeGroup);
         }
 
-        return $this->parseOptions($properties['options']);
+        return null;
     }
     
     /**
@@ -927,7 +884,6 @@ class FieldTransformer
 
             foreach ($option as $optionValue => $text) {
                 // At this point the options are in array which mean they need translation.
-                //$lang = is_numeric($optionValue) || empty($optionValue) ? $lang : $optionValue;
                 $finalOptions[] = new Label($text, $localeGroup, false, $optionLang, null, $optionValue);
             }
         }
@@ -1047,10 +1003,6 @@ class FieldTransformer
     */
     protected function getLabels(array $properties)
     {
-        if (isset($properties['labels']) && is_array($properties['labels'])) {
-            //At this point we know the is array of labels
-            return $this->getLabelsFromArray($properties['labels']);
-        }
 
         if (isset($properties['label'])) {
             if (is_array($properties['label'])) {
@@ -1063,108 +1015,22 @@ class FieldTransformer
             ];
         }
 
-        $labels = $this->getLabelsFromRawProperties($properties);
-
-        if (!isset($labels[0]) && isset($properties['name'])) {
-            //At this point we know there are no labels found, generate one use the name
-            $label = self::convertNameToLabel($properties['name']);
+        if (isset($properties['labels'])) {
+            if (is_array($properties['labels'])) {
+                //At this point we know this the label
+                return $this->getLabelsFromArray($properties['labels']);
+            }
 
             return [
-                new Label($label, $this->localeGroup, true, $this->defaultLang)
+                new Label($properties['labels'], $this->localeGroup, true, $this->defaultLang)
             ];
         }
 
-        return $labels;
-    }
+        $label = self::convertNameToLabel($properties['name']);
 
-    /**
-     * It will get the provided labels from with the $properties's label property
-     * it will convert the following format "en|ar:label=Some Label" or "label=Some Label" to an array
-     *
-     * @param array $properties
-     *
-     * @return array
-    */
-    protected function getLabelsFromRawProperties(array $properties)
-    {
-        $labels = [];
-
-        foreach ($properties as $key => $label) {
-            if (!in_array($key, ['labels','label'])) {
-                continue;
-            }
-
-            $messages = Helpers::removeEmptyItems(explode('|', $label));
-
-            foreach ($messages as $message) {
-                $index = strpos($message, ':');
-
-                if ($index !== false) {
-                    $labelText = substr($message, $index + 1);
-                    $labelValue = substr($message, 0, $index);
-
-                    $labels[] = new Label($labelText, $this->localeGroup, false, $labelValue);
-                } else {
-                    $labels[] = new Label($message, $this->localeGroup, true, $this->defaultLang);
-                }
-            }
-        }
-
-        return $labels;
-    }
-
-    /**
-     * Parses a giving string and turns it into a valid array
-     *
-     * @param string $optionsString
-     *
-     * @return array
-    */
-    protected function parseOptions($optionsString)
-    {
-        $options = Helpers::removeEmptyItems(explode('|', $optionsString));
-        $finalOptions = [];
-
-        foreach ($options as $option) {
-            $index = strpos(':', $option);
-
-            if ($index !== false) {
-                $labelText = substr($option, $index + 1);
-                $labelValue = substr($option, 0, $index);
-                $finalOptions[] = new Label($labelText, $this->localeGroup, true, $this->defaultLang);
-            } else {
-                $finalOptions[] = new Label($option, $this->localeGroup, true, $this->defaultLang);
-            }
-        }
-
-        return $finalOptions;
-    }
-
-    /**
-     * Parses giving string and turns it into a valid array
-     *
-     * @param string $fieldsString
-     *
-     * @return array
-    */
-    protected function parseRawString($fieldsString)
-    {
-        if (empty($fieldsString)) {
-            return [];
-        }
-        
-        $fields = explode('#', $fieldsString);
-        $finalFields = [];
-
-        foreach ($fields as $field) {
-            $configs = $this->getPropertyConfig(Helpers::removeEmptyItems(explode(';', $field)));
-
-            if (!empty($configs)) {
-                $finalFields[] = $configs;
-            }
-        }
-
-        return $finalFields;
+        return [
+            new Label($label, $this->localeGroup, true, $this->defaultLang)
+        ];
     }
 
     /**

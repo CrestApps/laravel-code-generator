@@ -5,10 +5,11 @@ namespace CrestApps\CodeGenerator\Commands;
 use File;
 use Exception;
 use Illuminate\Console\Command;
-use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\ResourceTransformer;
 
 class CreateFormRequestCommand extends Command
 {
@@ -22,8 +23,7 @@ class CreateFormRequestCommand extends Command
     protected $signature = 'create:form-request
                             {model-name : The model name.}
                             {--class-name= : The name of the form-request class.}
-                            {--fields= : The fields to create the validation rules from.}
-                            {--fields-file= : File name to import fields from.}
+                            {--resource-file= : The name of the resource-file to import from.}
                             {--template-name= : The template name to use when generating the code.}
                             {--with-auth : Generate the form-request with Laravel auth middlewear. }
                             {--form-request-directory= : The directory of the form-request.}
@@ -34,7 +34,7 @@ class CreateFormRequestCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create a form-request file for the model.';
+    protected $description = 'Create a form-request class for the model.';
 
     /**
      * Execute the console command.
@@ -46,10 +46,10 @@ class CreateFormRequestCommand extends Command
         $input = $this->getCommandInput();
 
         $stub = $this->getStubContent('form-request', $input->template);
-        $fields = $this->getFields($input->fields, 'crestapps', $input->fieldsFile);
+        $resources = ResourceTransformer::fromFile($input->resourceFile, 'crestapps');
         $destenationFile = $this->getDestenationFile($input->fileName, $input->formRequestDirectory);
 
-        $validations = $this->getValidationRules($fields, $input->modelName, $input->formRequestDirectory);
+        $validations = $this->getValidationRules($resources->fields, $input->modelName, $input->formRequestDirectory);
 
         if ($this->alreadyExists($destenationFile)) {
             $this->error('The form-request already exists! To override the existing file, use --force option.');
@@ -60,12 +60,12 @@ class CreateFormRequestCommand extends Command
         $this->replaceFormRequestClass($stub, $input->fileName)
              ->replaceValidationRules($stub, $validations)
              ->replaceNamespace($stub, $this->getRequestsNamespace($input->formRequestDirectory))
-             ->replaceGetDataMethod($stub, $this->getDataMethod($fields))
+             ->replaceGetDataMethod($stub, $this->getDataMethod($resources->fields))
              ->replaceRequestVariable($stub, '$this')
              ->replaceAuthBoolean($stub, $this->getAuthBool($input->withAuth))
              ->replaceAuthNamespace($stub, $this->getAuthNamespace($input->withAuth))
              ->replaceTypeHintedRequestName($stub, '')
-             ->replaceFileMethod($stub, $this->getUploadFileMethod($fields))
+             ->replaceFileMethod($stub, $this->getUploadFileMethod($resources->fields))
              ->createFile($destenationFile, $stub)
              ->info('A new form-request have been crafted!');
     }
@@ -233,15 +233,13 @@ EOF;
     {
         $modelName = trim($this->argument('model-name'));
         $fileName = trim($this->option('class-name')) ?: Helpers::makeFormRequestName($modelName);
-
-        $fields = trim($this->option('fields'));
-        $fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($modelName);
+        $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
         $force = $this->option('force');
         $withAuth = $this->option('with-auth');
         $template = $this->option('template-name');
         $formRequestDirectory = trim($this->option('form-request-directory'));
 
-        return (object) compact('formRequestDirectory','withAuth','modelName', 'fileName', 'fields', 'fieldsFile', 'force', 'template');
+        return (object) compact('formRequestDirectory','withAuth','modelName', 'fileName', 'resourceFile', 'force', 'template');
     }
 
     /**

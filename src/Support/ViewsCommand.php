@@ -296,19 +296,18 @@ abstract class ViewsCommand extends Command
      *
      * @param string $langFile
      * @param string $fields
-     * @param string $fieldsFile
+     * @param string $resourceFile
      * @param string $modelName
      *
      * @return $this
      */
-    protected function createLanguageFile($langFile, $fields, $fieldsFile, $modelName)
+    protected function createLanguageFile($langFile, $resourceFile, $modelName)
     {
         $this->callSilent('create:language', [
-                                'model-name'           => $modelName,
-                                '--language-file-name' => $langFile,
-                                '--fields'             => $fields,
-                                '--fields-file'        => $fieldsFile,
-                                '--template-name'      => $this->getTemplateName()
+                                'model-name'             => $modelName,
+                                '--language-file-name'   => $langFile,
+                                '--resource-file'        => $resourceFile,
+                                '--template-name'        => $this->getTemplateName()
                            ]);
         return $this;
     }

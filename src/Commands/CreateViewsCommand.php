@@ -2,8 +2,9 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use CrestApps\CodeGenerator\Support\ViewsCommand;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\ViewsCommand;
+use CrestApps\CodeGenerator\Support\ResourceTransformer;
 
 class CreateViewsCommand extends ViewsCommand
 {
@@ -14,8 +15,7 @@ class CreateViewsCommand extends ViewsCommand
      */
     protected $signature = 'create:views
                             {model-name : The model name that this view will represent.}
-                            {--fields= : The fields to define the model.}
-                            {--fields-file= : File name to import fields from.}
+                            {--resource-file= : The name of the resource-file to import from.}
                             {--views-directory= : The name of the directory to create the views under.}
                             {--routes-prefix= : The routes prefix.}
                             {--lang-file-name= : The name of the language file.}
@@ -49,9 +49,9 @@ class CreateViewsCommand extends ViewsCommand
     protected function handleCreateView()
     {
         $input = $this->getCommandInput();
-        $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
+        $resources = ResourceTransformer::fromFile($input->resourceFile, $input->languageFileName);
 
-        if ($this->isMetRequirements($fields)) {
+        if ($this->isMetRequirements($resources->fields)) {
             $this->info('Crafting views...');
 
             foreach ($this->getOnlyViews() as $view) {

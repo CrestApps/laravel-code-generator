@@ -66,37 +66,36 @@ class CreateMappedResourcesCommand extends Command
         foreach ($validInputs as $validInput) {
             $this->call('create:resources',
                 [
-                    'model-name'               => $validInput->modelName,
-                    '--controller-name'        => $validInput->controllerName,
-                    '--controller-directory'   => $validInput->controllerDirectory,
-                    '--controller-extends'     => $validInput->controllerExtends,
-                    '--model-directory'        => $validInput->modelDirectory,
-                    '--views-directory'        => $validInput->viewsDirectory,
-                    '--fields-file'            => $validInput->fieldsFile,
-                    '--fields'                 => $validInput->fields,
-                    '--routes-prefix'          => $validInput->prefix,
-                    '--models-per-page'        => $validInput->perPage,
-                    '--lang-file-name'         => $validInput->languageFileName,
-                    '--with-form-request'      => $validInput->formRequest,
-                    '--form-request-directory' => $validInput->formRequestDirectory,
-                    '--with-auth'              => $validInput->withAuth,
-                    '--table-name'             => $validInput->table,
-                    '--fillable'               => $validInput->fillable,
-                    '--primary-key'            => $validInput->primaryKey,
-                    '--with-soft-delete'       => $validInput->withSoftDelete,
-                    '--without-timestamps'     => $validInput->withoutTimeStamps,
-                    '--relationships'          => $validInput->relationships,
-                    '--without-migration'      => $validInput->withoutMigration,
-                    '--migration-class-name'   => $validInput->migrationClass,
-                    '--connection-name'        => $validInput->connectionName,
-                    '--indexes'                => $validInput->indexes,
-                    '--foreign-keys'           => $validInput->foreignKeys,
-                    '--engine-name'            => $validInput->engineName,
-                    '--layout-name'            => $validInput->layoutName,
-                    '--template-name'          => $validInput->template,
-                    '--table-exists'           => $validInput->tableExists,
-                    '--translation-for'        => $validInput->translationFor,
-                    '--force'                  => $validInput->force
+                    'model-name'                 => $validInput->modelName,
+                    '--controller-name'          => $validInput->controllerName,
+                    '--controller-directory'     => $validInput->controllerDirectory,
+                    '--controller-extends'       => $validInput->controllerExtends,
+                    '--model-directory'          => $validInput->modelDirectory,
+                    '--views-directory'          => $validInput->viewsDirectory,
+                    '--resource-file'            => $validInput->resourceFile,
+                    '--routes-prefix'            => $validInput->prefix,
+                    '--models-per-page'          => $validInput->perPage,
+                    '--lang-file-name'           => $validInput->languageFileName,
+                    '--with-form-request'        => $validInput->formRequest,
+                    '--form-request-directory'   => $validInput->formRequestDirectory,
+                    '--with-auth'                => $validInput->withAuth,
+                    '--table-name'               => $validInput->table,
+                    '--fillable'                 => $validInput->fillable,
+                    '--primary-key'              => $validInput->primaryKey,
+                    '--with-soft-delete'         => $validInput->withSoftDelete,
+                    '--without-timestamps'       => $validInput->withoutTimeStamps,
+                    '--relationships'            => $validInput->relationships,
+                    '--without-migration'        => $validInput->withoutMigration,
+                    '--migration-class-name'     => $validInput->migrationClass,
+                    '--connection-name'          => $validInput->connectionName,
+                    '--indexes'                  => $validInput->indexes,
+                    '--foreign-keys'             => $validInput->foreignKeys,
+                    '--engine-name'              => $validInput->engineName,
+                    '--layout-name'              => $validInput->layoutName,
+                    '--template-name'            => $validInput->template,
+                    '--table-exists'             => $validInput->tableExists,
+                    '--translation-for'          => $validInput->translationFor,
+                    '--force'                    => $validInput->force
                 ]);
 
             $this->info('---------------------------------');
@@ -128,7 +127,7 @@ class CreateMappedResourcesCommand extends Command
             $input->modelName = trim($object->{'model-name'});
             $madeupTableName = $this->makeTableName($input->modelName);
             $controllerName = Helpers::makeControllerName($input->modelName);
-            $input->fieldsFile = $this->getValue($object, 'fields-file', Helpers::makeJsonFileName($input->modelName));
+            $input->resourceFile = $this->getValue($object, 'resource-file', Helpers::makeJsonFileName($input->modelName));
             $input->table = $this->getValue($object, 'table-name', $madeupTableName);
             $input->fields = null;
             $input->prefix = $this->getValue($object, 'routes-prefix', $madeupTableName);
@@ -160,7 +159,7 @@ class CreateMappedResourcesCommand extends Command
             $input->withAuth = $this->getValue($object, 'with-auth', $input->withAuth);
             $input->formRequestDirectory = $this->getValue($object, 'form-request-directory', $input->formRequestDirectory);
 
-            $fields = $this->getFields($input->fields, $input->languageFileName, $input->fieldsFile);
+            $fields = $this->getFields($input->fields, $input->languageFileName, $input->resourceFile);
 
             $this->validateField($fields);
             $validInputs[] = $input;

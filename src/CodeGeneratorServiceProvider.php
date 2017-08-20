@@ -51,11 +51,11 @@ class CodeGeneratorServiceProvider extends ServiceProvider
             'CrestApps\CodeGenerator\Commands\CreateMappedResourcesCommand',
             'CrestApps\CodeGenerator\Commands\CreateViewLayoutCommand',
             'CrestApps\CodeGenerator\Commands\CreateLayoutCommand',
-            'CrestApps\CodeGenerator\Commands\CreateFieldsFileCommand',
-            'CrestApps\CodeGenerator\Commands\FieldsFileCreateCommand',
-            'CrestApps\CodeGenerator\Commands\FieldsFileDeleteCommand',
-            'CrestApps\CodeGenerator\Commands\FieldsFileAppendCommand',
-            'CrestApps\CodeGenerator\Commands\FieldsFileReduceCommand'
+            'CrestApps\CodeGenerator\Commands\ResourceFileFromDatabaseCommand',
+            'CrestApps\CodeGenerator\Commands\ResourceFileCreateCommand',
+            'CrestApps\CodeGenerator\Commands\ResourceFileDeleteCommand',
+            'CrestApps\CodeGenerator\Commands\ResourceFileAppendCommand',
+            'CrestApps\CodeGenerator\Commands\ResourceFileReduceCommand'
         );
     }
 

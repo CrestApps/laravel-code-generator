@@ -4,10 +4,11 @@ namespace CrestApps\CodeGenerator\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
-use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Models\ResourceInput;
+use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\ResourceTransformer;
 
 class CreateResourcesCommand extends Command
 {
@@ -26,24 +27,19 @@ class CreateResourcesCommand extends Command
                             {--model-directory= : The path of the model.}
                             {--views-directory= : The name of the view path.}
                             {--form-request-directory= : The directory of the form-request.}
-                            {--fields= : Fields to use for creating the validation rules.}
-                            {--fields-file= : File name to import fields from.}
+                            {--resource-file= : The name of the resource-file to import from.}
                             {--routes-prefix=model-name-as-plural : Prefix of the route group.}
                             {--models-per-page=25 : The amount of models per page for index pages.}
                             {--lang-file-name= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
                             {--with-auth : Generate the controller with Laravel auth middlewear. }
                             {--table-name= : The name of the table.}
-                            {--fillable= : The exact string to put in the fillable property of the model.}
                             {--primary-key=id : The name of the primary key.}
                             {--with-soft-delete : Enables softdelete future should be enable in the model.}
                             {--without-timestamps : Prevent Eloquent from maintaining both created_at and the updated_at properties.}
-                            {--relationships= : The relationships for the model.}
                             {--without-migration : Prevent creating a migration for this resource.}
                             {--migration-class-name= : The name of the migration class.}
                             {--connection-name= : A specific connection name.}
-                            {--indexes= : A list of indexes to be add.}
-                            {--foreign-keys= : A list of the foreign-keys to be add.}
                             {--engine-name= : A specific engine name.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
                             {--template-name= : The template name to use when generating the code.}
@@ -69,15 +65,14 @@ class CreateResourcesCommand extends Command
         $input = $this->getCommandInput();
 
         if ($input->tableExists) {
-            $input->fields = null;
             $input->withoutMigration = true;
 
-            $this->createFieldsFile($input);
+            $this->createResourceFile($input);
         }
 
-        $fields = $this->getFields($input->fields, $input->languageFileName ?: 'generic', $input->fieldsFile);
+        $resources = ResourceTransformer::fromFile($input->resourceFile, $input->languageFileName ?: 'generic');
 
-        $this->validateField($fields)
+        $this->validateField($resources->fields)
              ->printInfo('Scaffolding resources for ' . $this->modelNamePlainEnglish($input->modelName) . '...')
              ->createModel($input)
              ->createController($input)
@@ -142,19 +137,16 @@ class CreateResourcesCommand extends Command
         if (!$input->withoutMigration) {
             $this->call('create:migration',
                 [
-                    'model-name'             => $input->modelName,
-                    '--table-name'           => $input->table,
-                    '--migration-class-name' => $input->migrationClass,
-                    '--connection-name'      => $input->connectionName,
-                    '--indexes'              => $input->indexes,
-                    '--foreign-keys'         => $input->foreignKeys,
-                    '--engine-name'          => $input->engineName,
-                    '--fields'               => $input->fields,
-                    '--fields-file'          => $input->fieldsFile,
-                    '--force'                => $input->force,
-                    '--template-name'        => $input->template,
-                    '--without-timestamps'   => $input->withoutTimeStamps,
-                    '--with-soft-delete'     => $input->withSoftDelete,
+                    'model-name'               => $input->modelName,
+                    '--table-name'             => $input->table,
+                    '--migration-class-name'   => $input->migrationClass,
+                    '--connection-name'        => $input->connectionName,
+                    '--engine-name'            => $input->engineName,
+                    '--resource-file'          => $input->resourceFile,
+                    '--force'                  => $input->force,
+                    '--template-name'          => $input->template,
+                    '--without-timestamps'     => $input->withoutTimeStamps,
+                    '--with-soft-delete'       => $input->withSoftDelete,
                 ]);
         }
 
@@ -168,9 +160,9 @@ class CreateResourcesCommand extends Command
      *
      * @return $this
      */
-    protected function createFieldsFile($input)
+    protected function createResourceFile($input)
     {
-        $this->callSilent('create:fields-file',
+        $this->callSilent('resource-file:from-database',
             [
                 'model-name'        => $input->modelName,
                 '--table-name'      => $input->table,
@@ -192,11 +184,10 @@ class CreateResourcesCommand extends Command
     {
         $this->callSilent('create:language',
             [
-                'model-name'           => $input->modelName,
-                '--language-file-name' => $input->languageFileName,
-                '--fields'             => $input->fields,
-                '--fields-file'        => $input->fieldsFile,
-                '--template-name'      => $input->template
+                'model-name'             => $input->modelName,
+                '--language-file-name'   => $input->languageFileName,
+                '--resource-file'        => $input->resourceFile,
+                '--template-name'        => $input->template
             ]);
 
         return $this;
@@ -213,14 +204,13 @@ class CreateResourcesCommand extends Command
     {
         $this->call('create:views',
             [
-                'model-name'        => $input->modelName,
-                '--fields'          => $input->fields,
-                '--fields-file'     => $input->fieldsFile,
-                '--views-directory' => $input->viewsDirectory,
-                '--routes-prefix'   => $input->prefix,
-                '--layout-name'     => $input->layoutName,
-                '--force'           => $input->force,
-                '--template-name'   => $input->template
+                'model-name'          => $input->modelName,
+                '--resource-file'     => $input->resourceFile,
+                '--views-directory'   => $input->viewsDirectory,
+                '--routes-prefix'     => $input->prefix,
+                '--layout-name'       => $input->layoutName,
+                '--force'             => $input->force,
+                '--template-name'     => $input->template
             ]);
 
         return $this;
@@ -257,22 +247,21 @@ class CreateResourcesCommand extends Command
     {
         $this->call('create:controller',
             [
-                'model-name'               => $input->modelName,
-                '--controller-name'        => $input->controllerName,
-                '--controller-directory'   => $input->controllerDirectory,
-                '--controller-extends'     => $input->controllerExtends,
-                '--model-directory'        => $input->modelDirectory,
-                '--views-directory'        => $input->viewsDirectory,
-                '--fields'                 => $input->fields,
-                '--fields-file'            => $input->fieldsFile,
-                '--models-per-page'        => $input->perPage,
-                '--routes-prefix'          => $input->prefix,
-                '--lang-file-name'         => $input->languageFileName,
-                '--with-form-request'      => $input->formRequest,
-                '--form-request-directory' => $input->formRequestDirectory,
-                '--force'                  => $input->force,
-                '--with-auth'              => $input->withAuth,
-                '--template-name'          => $input->template
+                'model-name'                 => $input->modelName,
+                '--controller-name'          => $input->controllerName,
+                '--controller-directory'     => $input->controllerDirectory,
+                '--controller-extends'       => $input->controllerExtends,
+                '--model-directory'          => $input->modelDirectory,
+                '--views-directory'          => $input->viewsDirectory,
+                '--resource-file'            => $input->resourceFile,
+                '--models-per-page'          => $input->perPage,
+                '--routes-prefix'            => $input->prefix,
+                '--lang-file-name'           => $input->languageFileName,
+                '--with-form-request'        => $input->formRequest,
+                '--form-request-directory'   => $input->formRequestDirectory,
+                '--force'                    => $input->force,
+                '--with-auth'                => $input->withAuth,
+                '--template-name'            => $input->template
             ]);
 
         return $this;
@@ -289,18 +278,15 @@ class CreateResourcesCommand extends Command
     {
         $this->call('create:model',
             [
-                'model-name'           => $input->modelName,
-                '--table-name'         => $input->table,
-                '--fillable'           => $input->fillable,
-                '--relationships'      => $input->relationships,
-                '--primary-key'        => $input->primaryKey,
-                '--fields'             => $input->fields,
-                '--fields-file'        => $input->fieldsFile,
-                '--model-directory'    => $input->modelDirectory,
-                '--with-soft-delete'   => $input->withSoftDelete,
-                '--without-timestamps' => $input->withoutTimeStamps,
-                '--force'              => $input->force,
-                '--template-name'      => $input->template
+                'model-name'             => $input->modelName,
+                '--table-name'           => $input->table,
+                '--primary-key'          => $input->primaryKey,
+                '--resource-file'        => $input->resourceFile,
+                '--model-directory'      => $input->modelDirectory,
+                '--with-soft-delete'     => $input->withSoftDelete,
+                '--without-timestamps'   => $input->withoutTimeStamps,
+                '--force'                => $input->force,
+                '--template-name'        => $input->template
             ]);
 
         return $this;
@@ -321,23 +307,18 @@ class CreateResourcesCommand extends Command
         $input->viewsDirectory = trim($this->option('views-directory'));
         $input->controllerName = trim($this->option('controller-name')) ?: Helpers::makeControllerName($input->modelName);
         $input->perPage = intval($this->option('models-per-page'));
-        $input->fields = $this->option('fields');
-        $input->fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($input->modelName);
+        $input->resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($input->modelName);
         $input->formRequest = $this->option('with-form-request');
         $input->controllerDirectory = $this->option('controller-directory');
         $input->controllerExtends = $this->option('controller-extends') ?: null;
         $input->withoutMigration = $this->option('without-migration');
         $input->force = $this->option('force');
         $input->modelDirectory = $this->option('model-directory');
-        $input->fillable = $this->option('fillable');
         $input->primaryKey = $this->option('primary-key');
-        $input->relationships = $this->option('relationships');
         $input->withSoftDelete = $this->option('with-soft-delete');
         $input->withoutTimeStamps = $this->option('without-timestamps');
         $input->migrationClass = $this->option('migration-class-name');
         $input->connectionName = $this->option('connection-name');
-        $input->indexes = $this->option('indexes');
-        $input->foreignKeys = $this->option('foreign-keys');
         $input->engineName = $this->option('engine-name');
         $input->template = $this->getTemplateName();
         $input->layoutName = $this->option('layout-name') ?: 'layouts.app';

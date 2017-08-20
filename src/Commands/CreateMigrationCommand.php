@@ -5,12 +5,14 @@ namespace CrestApps\CodeGenerator\Commands;
 use File;
 use Exception;
 use Illuminate\Console\Command;
-use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Models\ForeignConstraint;
+use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\ResourceTransformer;
 
 class CreateMigrationCommand extends Command
 {
@@ -26,11 +28,8 @@ class CreateMigrationCommand extends Command
                             {--table-name= : The name of the table that the migration will create.}
                             {--migration-class-name= : The name of the migration class.}
                             {--connection-name= : A specific connection name.}
-                            {--indexes= : A list of indexes to be add.}
-                            {--foreign-keys= : A list of the foreign-keys to be add.}
                             {--engine-name= : A specific engine name.}
-                            {--fields= : The fields to create the validation rules from.}
-                            {--fields-file= : File name to import fields from.}
+                            {--resource-file= : The name of the resource-file to import from.}
                             {--template-name= : The template name to use when generating the code.}
                             {--without-timestamps : Prevent Eloquent from maintaining both created_at and the updated_at properties.}
                             {--with-soft-delete : Enables softdelete future should be enable in the model.}
@@ -42,13 +41,6 @@ class CreateMigrationCommand extends Command
      * @var string
      */
     protected $description = 'Create a migration file for the model.';
-
-    /**
-     * The index types eloquent is capable of creating.
-     *
-     * @var string
-     */
-    protected $validIndexTypes = ['index','unique','primary'];
 
     /**
      * Creates a new command instance.
@@ -69,13 +61,13 @@ class CreateMigrationCommand extends Command
     {
         $input = $this->getCommandInput();
         $stub = $this->getStubContent('migration', $input->template);
-        $fields = $this->getFields($input->fields, 'migration', $input->fieldsFile);
+        $resource = ResourceTransformer::fromFile($input->resourceFile, 'migration');
 
-        if (count($fields) == 0) {
+        if (count($resource->fields) == 0) {
             throw new Exception('You must provide at least one field to generate the migration');
         }
 
-        $properites = $this->getTableProperties($fields, $input);
+        $properites = $this->getTableProperties($resource, $input);
         $destenationFile = $this->getDestenationFile($input->tableName);
 
         $this->replaceSchemaUp($stub, $this->getSchemaUpCommand($input, $properites))
@@ -106,18 +98,18 @@ class CreateMigrationCommand extends Command
      * @param (object) $input
      * @return string
      */
-    protected function getTableProperties(array $fields, $input)
+    protected function getTableProperties(Resource $resource, $input)
     {
         $properties = '';
 
-        $constraints = array_merge($this->getConstraintsFromfields($fields), $input->constraints);
+        $constraints = $this->getConstraintsFromfields($resource->fields);
 
         $this->addEngineName($properties, $input->engine)
-             ->addPrimaryField($properties, $this->getPrimaryField($fields))
+             ->addPrimaryField($properties, $this->getPrimaryField($resource->fields))
              ->addTimestamps($properties, $input->withoutTimestamps)
              ->addSoftDelete($properties, $input->withSoftDelete)
-             ->addFieldProperties($properties, $fields, $input->withoutTimestamps, $input->withSoftDelete)
-             ->addIndexes($properties, $input->indexes)
+             ->addFieldProperties($properties, $resource->fields, $input->withoutTimestamps, $input->withSoftDelete)
+             ->addIndexes($properties, $resource->indexes)
              ->addForeignConstraints($properties, $constraints);
 
         return $properties;
@@ -287,55 +279,28 @@ class CreateMigrationCommand extends Command
     protected function addIndexes(& $properties, array $indexes)
     {
         foreach ($indexes as $index) {
-            $properties .= sprintf('%s([%s])', $this->getPropertyBase($index->type), implode(',', $index->columns));
+
+            if(!$index->hasColumns()) {
+                continue;
+            }
+
+            $indexName = '';
+            if($index->hasName()) {
+                $indexName = sprintf(", '%s'", $index->getName());
+            }
+
+            if($index->hasMultipleColumns()) {
+                $indexColumn = sprintf('[%s]', implode(',', Helpers::wrapItems($index->getColumns())));
+            } else {
+                $indexColumn = sprintf("'%s'", $index->getFirstColumn());
+            }
+
+            $properties .= sprintf('%s(%s%s)', $this->getPropertyBase($index->getType()), $indexColumn, $indexName);
+
             $this->addFieldPropertyClousure($properties);
         }
 
         return $this;
-    }
-
-    /**
-     * Parses the indexes string
-     *
-     * @param string $properties
-     * @param array $indexes
-     *
-     * @return array
-     */
-    protected function getIndexCollection($indexesString)
-    {
-        $finalIndexes = [];
-        $indexes = explode('#', $indexesString);
-
-        foreach ($indexes as $index) {
-            $indexParts = Helpers::removeEmptyItems(explode('=', $index));
-
-            if (isset($indexParts[1]) && in_array(strtolower($indexParts[0]), $this->validIndexTypes)) {
-                $columns = $this->getCleanColumns($indexParts[1]);
-
-                if (isset($columns[0])) {
-                    $finalIndexes[] = $this->getForeignObject(strtolower($indexParts[0]), $columns);
-                }
-            }
-        }
-
-        return $finalIndexes;
-    }
-
-    /**
-     * Creats foreign relation object.
-     *
-     * @param string $type
-     * @param array $columns
-     *
-     * @return object
-     */
-    protected function getForeignObject($type, array $columns)
-    {
-        return (object) [
-                            'type' => $type,
-                            'columns' => $columns
-                        ];
     }
 
     /**
@@ -834,17 +799,14 @@ class CreateMigrationCommand extends Command
         $className = trim($this->option('migration-class-name')) ?: sprintf('Create%sTable', studly_case($madeUpTableName));
         $connection =  trim($this->option('connection-name'));
         $engine =  trim($this->option('engine-name'));
-        $fields = trim($this->option('fields'));
-        $fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($modelName);
-        $indexes = $this->getIndexCollection(trim($this->option('indexes')));
+        $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
         $force = $this->option('force');
-        $constraints = $this->getForeignConstraints(trim($this->option('foreign-keys')));
         $template = $this->getTemplateName();
         $withoutTimestamps = $this->option('without-timestamps');
         $withSoftDelete = $this->option('with-soft-delete');
 
-        return (object) compact('modelName', 'tableName', 'className', 'connection', 'engine',
-                                'fields', 'fieldsFile', 'force', 'indexes', 'constraints', 'template', 'withoutTimestamps', 'withSoftDelete');
+        return (object) compact('modelName','tableName','className','connection','engine',
+                                'resourceFile','force','template','withoutTimestamps','withSoftDelete');
     }
 
     /**

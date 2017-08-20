@@ -6,9 +6,11 @@ use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
+use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
+use CrestApps\CodeGenerator\Support\ResourceTransformer;
 
 class CreateControllerCommand extends Command
 {
@@ -25,8 +27,7 @@ class CreateControllerCommand extends Command
                             {--controller-directory= : The directory where the controller should be created under.}
                             {--model-directory= : The path where the model should be created under.}
                             {--views-directory= : The path where the views should be created under.}
-                            {--fields= : Fields to use for creating the validation rules.}
-                            {--fields-file= : File name to import fields from.}
+                            {--resource-file= : The name of the resource-file to import from.}
                             {--routes-prefix= : Prefix of the route group.}
                             {--models-per-page=25 : The amount of models per page for index pages.}
                             {--lang-file-name= : The languages file name to put the labels in.}
@@ -85,7 +86,8 @@ class CreateControllerCommand extends Command
             $this->makeFormRequest($input);
         }
 
-        $fields = $this->getFields($input->fields, $input->langFile, $input->fieldsFile);
+        $resources = ResourceTransformer::fromFile($input->resourceFile, $input->langFile);
+        $fields = $resources->fields;
         $viewVariablesForIndex = $this->getCompactVariablesFor($fields, $this->getPluralVariable($input->modelName), 'index');
         $viewVariablesForShow = $this->getCompactVariablesFor($fields, $this->getSingularVariable($input->modelName), 'show');
         $viewVariablesForEdit = $this->getCompactVariablesFor($fields, $this->getSingularVariable($input->modelName), 'form');
@@ -680,10 +682,9 @@ class CreateControllerCommand extends Command
         [
             'model-name'               => $input->modelName,
             '--class-name'             => $input->formRequestName,
-            '--fields'                 => $input->fields,
             '--force'                  => $input->force,
             '--with-auth'              => $input->withAuth,
-            '--fields-file'            => $input->fieldsFile,
+            '--resource-file'            => $input->resourceFile,
             '--template-name'          => $input->template,
             '--form-request-directory' => $input->formRequestDirectory
         ]);
@@ -723,8 +724,7 @@ class CreateControllerCommand extends Command
         $viewDirectory = $this->option('views-directory');
         $prefix = $this->option('routes-prefix');
         $perPage = intval($this->option('models-per-page'));
-        $fields = trim($this->option('fields'));
-        $fieldsFile = trim($this->option('fields-file')) ?: Helpers::makeJsonFileName($modelName);
+        $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
         $langFile = $this->option('lang-file-name') ?: Helpers::makeLocaleGroup($modelName);
         $withFormRequest = $this->option('with-form-request');
         $force = $this->option('force');
@@ -736,9 +736,9 @@ class CreateControllerCommand extends Command
         $extends = $this->generatorOption('controller-extends');
         $withAuth = $this->option('with-auth');
 
-        return (object) compact('formRequestDirectory', 'viewDirectory', 'viewName', 'modelName', 'prefix', 'perPage', 'fileSnippet', 'modelDirectory',
-                                'langFile', 'fields', 'withFormRequest', 'formRequestName', 'force', 'fieldsFile', 'template',
-                                'controllerName', 'extends', 'withAuth', 'controllerDirectory');
+        return (object) compact('formRequestDirectory','viewDirectory','viewName','modelName','prefix','perPage'
+                               ,'fileSnippet','modelDirectory','langFile','fields','withFormRequest','formRequestName'
+                               ,'force','resourceFile','template','controllerName','extends','withAuth','controllerDirectory');
     }
 
     /**

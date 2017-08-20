@@ -11,7 +11,7 @@ use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Config;
 
-class CreateFieldsFileCommand extends Command
+class ResourceFileFromDatabaseCommand extends Command
 {
     use CommonCommand;
 
@@ -20,11 +20,11 @@ class CreateFieldsFileCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'create:fields-file
+    protected $signature = 'resource-file:from-database
                             {model-name : The model name that these files represent.}
                             {--table-name= : The database table name to fetch the field from.}
                             {--database-name= : The database name the table is stored in.}
-                            {--fields-filename= : The destination file name to create.}
+                            {--resource-filename= : The destination file name to create.}
                             {--translation-for= : A comma seperated string of languages to create fields for.}
                             {--force : This option will override the view if one already exists.}';
 
@@ -33,7 +33,7 @@ class CreateFieldsFileCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create a json fields file from existing database table.';
+    protected $description = 'Creates a resource-file from existing table in a database.';
 
     /**
      * The supported database drivers. lowercase only
@@ -52,20 +52,19 @@ class CreateFieldsFileCommand extends Command
         $destenationFile = $this->getDestinationFullname();
 
         if ($this->alreadyExists($destenationFile)) {
-            $this->error('The fields-file already exists! To override the existing file, use --force option.');
+            $this->error('The resource-file already exists! To override the existing file, use --force option.');
 
             return false;
         }
 
-        $content = $this->getFieldsAsJson();
-
+        $content = $this->getJsonContent();
 
         if (Config::autoManageResourceMapper()) {
             $this->appendMapper($this->getModelName(), $this->getFilename());
         }
 
         $this->createFile($destenationFile, $content)
-             ->info('The fields file "'. $this->getFilename() .'" was crafted!');
+             ->info('The resource-file "'. $this->getFilename() .'" was crafted!');
     }
 
     /**
@@ -98,7 +97,7 @@ class CreateFieldsFileCommand extends Command
 
             $existingFields->push([
                 'model-name'  => $modelName,
-                'fields-file' => $fieldsFileName,
+                'resource-file' => $fieldsFileName,
                 'table-name'  => $this->getTableName(),
             ]);
 
@@ -108,21 +107,6 @@ class CreateFieldsFileCommand extends Command
         }
 
         $this->putContentInFile($file, json_encode($fields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-    }
-
-    /**
-     * Converts field's object into a user friendly json string.
-     *
-     *
-     * @return string
-     */
-    protected function getFieldsAsJson()
-    {
-        $fields =  array_map(function ($field) {
-            return $field->toArray();
-        }, $this->getFields());
-
-        return json_encode($fields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -140,7 +124,7 @@ class CreateFieldsFileCommand extends Command
      *
      * @return array
      */
-    protected function getFields()
+    protected function getJsonContent()
     {
         $driver = strtolower(DB::getDriverName());
 
@@ -152,7 +136,7 @@ class CreateFieldsFileCommand extends Command
 
         $parser = new $class($this->getTableName(), $this->getDatabaseName(), $this->getLangugaes());
 
-        return $parser->getFields();
+        return $parser->getResourceAsJson();
     }
 
     /**
@@ -172,7 +156,7 @@ class CreateFieldsFileCommand extends Command
      */
     protected function getFilename()
     {
-        $filename = trim($this->option('fields-filename')) ?: Helpers::makeJsonFileName($this->getModelName());
+        $filename = trim($this->option('resource-filename')) ?: Helpers::makeJsonFileName($this->getModelName());
 
         return str_finish($filename, '.json');
     }
