@@ -412,7 +412,7 @@ class CreateControllerCommand extends Command
             return strlen($a)-strlen($b);
         });
 
-        return implode(PHP_EOL, array_unique(commands));
+        return implode(PHP_EOL, array_unique($commands));
     }
 
     /**
