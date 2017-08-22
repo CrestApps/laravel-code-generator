@@ -143,10 +143,10 @@ class CreateResourcesCommand extends Command
                     '--connection-name'        => $input->connectionName,
                     '--engine-name'            => $input->engineName,
                     '--resource-file'          => $input->resourceFile,
-                    '--force'                  => $input->force,
                     '--template-name'          => $input->template,
                     '--without-timestamps'     => $input->withoutTimeStamps,
                     '--with-soft-delete'       => $input->withSoftDelete,
+                    '--force'                  => $input->force,
                 ]);
         }
 
@@ -164,10 +164,10 @@ class CreateResourcesCommand extends Command
     {
         $this->callSilent('resource-file:from-database',
             [
-                'model-name'        => $input->modelName,
-                '--table-name'      => $input->table,
-                '--force'           => $input->force,
-                '--translation-for' => $input->translationFor,
+                'model-name'          => $input->modelName,
+                '--table-name'        => $input->table,
+                '--translation-for'   => $input->translationFor,
+                '--force'             => $input->force,
             ]);
 
         return $this;
@@ -209,8 +209,8 @@ class CreateResourcesCommand extends Command
                 '--views-directory'   => $input->viewsDirectory,
                 '--routes-prefix'     => $input->prefix,
                 '--layout-name'       => $input->layoutName,
-                '--force'             => $input->force,
                 '--template-name'     => $input->template
+                '--force'             => $input->force,
             ]);
 
         return $this;
@@ -259,9 +259,9 @@ class CreateResourcesCommand extends Command
                 '--lang-file-name'           => $input->languageFileName,
                 '--with-form-request'        => $input->formRequest,
                 '--form-request-directory'   => $input->formRequestDirectory,
-                '--force'                    => $input->force,
                 '--with-auth'                => $input->withAuth,
-                '--template-name'            => $input->template
+                '--template-name'            => $input->template,
+                '--force'                    => $input->force,
             ]);
 
         return $this;
@@ -285,8 +285,8 @@ class CreateResourcesCommand extends Command
                 '--model-directory'      => $input->modelDirectory,
                 '--with-soft-delete'     => $input->withSoftDelete,
                 '--without-timestamps'   => $input->withoutTimeStamps,
+                '--template-name'        => $input->template,
                 '--force'                => $input->force,
-                '--template-name'        => $input->template
             ]);
 
         return $this;

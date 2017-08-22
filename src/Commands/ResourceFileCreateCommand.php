@@ -9,6 +9,7 @@ use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
+use CrestApps\CodeGenerator\Models\Resource;
 
 class ResourceFileCreateCommand extends Command
 {
@@ -63,10 +64,14 @@ class ResourceFileCreateCommand extends Command
         }
 
         $fields = $this->getFields($input, $input->withoutPrimaryKey);
-        $string = $this->getFieldAsJson($fields);
 
-        $this->createFile($file, $string)
-             ->info('New resource-file was crafted!');
+        $resource = new Resource($fields);
+
+        $content = json_encode($resource->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+
+        $this->createFile($file, $content)
+             ->info('The  "'. basename($file) .'" file was crafted successfully!');
     }
 
     /**
@@ -109,7 +114,7 @@ class ResourceFileCreateCommand extends Command
      * @param object $input
      * @param bool $withoutPrimaryKey
      *
-     * @return string
+     * @return array
      */
     public static function getFields($input, $withoutPrimaryKey)
     {
@@ -184,21 +189,6 @@ class ResourceFileCreateCommand extends Command
         }
 
         $this->putContentInFile($file, json_encode($fields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-    }
-
-    /**
-     * Converts field's object into a user friendly json string.
-     *
-     *
-     * @return string
-     */
-    protected function getFieldAsJson($fields)
-    {
-        $rarField =  array_map(function ($field) {
-            return $field->toArray();
-        }, $fields);
-
-        return json_encode($rarField, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
     /**

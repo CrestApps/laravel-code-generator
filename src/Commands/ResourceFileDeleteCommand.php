@@ -51,7 +51,7 @@ class ResourceFileDeleteCommand extends Command
         }
 
         $this->deleteFile($file);
-        $this->info('Fields where removed from exising file');
+        $this->info('The "'. basename($file) .'" file was successfully deleted!');
     }
 
     /**
@@ -65,24 +65,23 @@ class ResourceFileDeleteCommand extends Command
     {
         $file = $path = base_path(Config::getFieldsFilePath(Config::getDefaultMapperFileName()));
 
-        $fields = [];
+        $maps = [];
 
         if ($this->isFileExists($file)) {
-            $content = $this->getFileContent($file);
 
-            $existingFields = json_decode($content);
+            $existingMaps = json_decode($this->getFileContent($file));
 
-            if (is_null($existingFields)) {
+            if (is_null($existingMaps)) {
                 $this->error('The existing mapping file contains invalid json string. Please fix the file then try again');
                 return false;
             }
             
-            $fields = Collect($existingFields)->filter(function ($resource) use ($modelName) {
-                return isset($resource->{'model-name'}) && $resource->{'model-name'} != $modelName;
+            $maps = Collect($existingMaps)->filter(function ($map) use ($modelName) {
+                return isset($map->{'model-name'}) && $map->{'model-name'} != $modelName;
             });
         }
 
-        $content = json_encode($fields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        $content = json_encode($maps, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         $this->putContentInFile($file, $content);
     }

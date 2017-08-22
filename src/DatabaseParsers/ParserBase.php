@@ -135,19 +135,7 @@ abstract class ParserBase
     {
         $resource = $this->getResource();
 
-        $resource->fields = array_map(function ($field) {
-            return $field->toArray();
-        }, $resource->fields);
-
-        $resource->indexes = array_map(function ($index) {
-            return $index->toArray();
-        }, $resource->indexes);
-
-        $resource->relations = array_map(function ($relation) {
-            return $relation->toArray();
-        }, $resource->relations);
-
-        return json_encode($resource, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        return json_encode($resource->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
 

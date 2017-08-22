@@ -9,6 +9,7 @@ use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
+use CrestApps\CodeGenerator\Support\ResourceTransformer;
 use CrestApps\CodeGenerator\Commands\FieldsFileCreateCommand;
 
 class ResourceFileAppendCommand extends Command
@@ -58,12 +59,13 @@ class ResourceFileAppendCommand extends Command
 
             return false;
         }
-
-        $existingFields = $this->mergeFields($file, $input);
-        $content = json_encode($existingFields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        $totalAddedFields = 0;
+        $resource = $this->mergeFields($file, $input, $totalAddedFields);
+        
+        $content = json_encode($resource->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         $this->putContentInFile($file, $content)
-             ->info('New fields where appended to the file.');
+             ->info($totalAddedFields . ' new fields where appended to the "' . basename($file) . '" file.');
     }
 
     /**
@@ -72,32 +74,26 @@ class ResourceFileAppendCommand extends Command
      * @param string $file
      * @param (object) $input
      *
-     * @return array
+     * @return CrestApps\CodeGenerator\Models\Resource
      */
-    protected function mergeFields($file, $input)
+    protected function mergeFields($file, $input, &$mergeFields)
     {
-        $content = $this->getFileContent($file);
-
-        $existingFields = json_decode($content);
-
-        if (is_null($existingFields)) {
-            $this->error('The existing file contains invalid json string. Please fix the file then try again');
-            return false;
-        }
+        $resource = ResourceTransformer::fromJson($this->getFileContent($file), 'crestapps');
         
-        $existingName = Collect($existingFields)->pluck('name')->all();
+        $existingNames = Collect($resource->fields)->pluck('name')->all();
         $fields = ResourceFileCreateCommand::getFields($input, true);
         foreach ($fields as $field) {
-            if (in_array($field->name, $existingName)) {
+            if (in_array($field->name, $existingNames)) {
                 $this->warn('The field "' . $field->name . '" already exists in the file.');
                 continue;
             }
 
             $existingName[] = $field->name;
-            $existingFields[] = $field->toArray();
+            $resource->fields[] = $field;
+            $mergeFields++;
         }
 
-        return $existingFields;
+        return $resource;
     }
 
     /**

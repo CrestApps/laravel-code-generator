@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Config;
-use CrestApps\CodeGenerator\Support\FieldTransformer;
+use CrestApps\CodeGenerator\Support\ResourceTransformer;
 
 class ResourceFileReduceCommand extends Command
 {
@@ -52,25 +52,25 @@ class ResourceFileReduceCommand extends Command
 
             return false;
         }
-
-        $reducedFields = $this->reduceFields($file, $input);
+        $totalReducedFields = 0;
+        $resource = $this->reduceFields($file, $input, $totalReducedFields);
         
-        if (empty($reducedFields)) {
+        if ($resource->isEmpty()) {
             $this->callSilent('resource-file:delete',
                 [
-                    'model-name'        => $input->modelName,
+                    'model-name'          => $input->modelName,
                     '--resource-filename' => $file
                 ]);
 
-            $this->info('No more fields left in the file. The file (' . $file . ') was deleted!');
+            $this->info('All fields were removed from the resource-file. The file "' . basename($file) . '" was deleted successfully!');
 
             return false;
         }
 
-        $string = json_encode($reducedFields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        $content = json_encode($resource->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
-        $this->putContentInFile($file, $string)
-             ->info('Fields where removed from exising file');
+        $this->putContentInFile($file, $content)
+             ->info($totalReducedFields . ' fields where removed from the "' . basename($file) . '" file.');
     }
 
     /**
@@ -81,24 +81,25 @@ class ResourceFileReduceCommand extends Command
      *
      * @return mixed
      */
-    protected function reduceFields($file, $input)
+    protected function reduceFields($file, $input, &$totalReducedFields)
     {
-        $fields = json_decode($this->getFileContent($file));
-
-        if (is_null($fields)) {
-            $this->error('The existing file contains invalid json string. Please fix the file then try again');
-            return false;
-        }
+        $resource = ResourceTransformer::fromJson($this->getFileContent($file), 'crestapps');
 
         $keep = [];
         
-        foreach ($fields as $field) {
-            if (!in_array($field->name, $input->names)) {
-                $keep[] = $field;
+        foreach ($resource->fields as $field) {
+
+            if (in_array($field->name, $input->names) || in_array($field->name, $keep)) {
+                $totalReducedFields++;
+                continue;   
             }
+
+            $keep[] = $field;
         }
 
-        return $keep;
+        $resource->fields = $keep;
+
+        return $resource;
     }
 
     /**

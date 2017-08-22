@@ -64,7 +64,7 @@ class ResourceFileFromDatabaseCommand extends Command
         }
 
         $this->createFile($destenationFile, $content)
-             ->info('The resource-file "'. $this->getFilename() .'" was crafted!');
+             ->info('The  "'. basename($destenationFile) .'" file was crafted successfully!');
     }
 
     /**

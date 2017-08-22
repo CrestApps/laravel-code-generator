@@ -41,6 +41,7 @@ class ResourceTransformer
         if (empty($json) || ($capsule = json_decode($json, true)) === null) {
             throw new Exception("The provided string is not a valid json.");
         }
+        
         if(is_array($capsule) && !Helpers::isAssociative($capsule)) {
             // At this point we know the resource file is using old convention
             // Set the fields
