@@ -17,6 +17,16 @@ class Config
     }
 
     /**
+     * Gets the non-english singular to plural definitions.
+     * 
+     * @return array
+    */
+    public static function getPluralDefinitions()
+    {
+        return config('codegenerator.plural_definitions', []);
+    }
+
+    /**
      * Gets the default datetime output format
      * 
      * @return array

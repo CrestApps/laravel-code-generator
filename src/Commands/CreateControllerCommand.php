@@ -682,11 +682,11 @@ class CreateControllerCommand extends Command
         [
             'model-name'               => $input->modelName,
             '--class-name'             => $input->formRequestName,
-            '--force'                  => $input->force,
             '--with-auth'              => $input->withAuth,
-            '--resource-file'            => $input->resourceFile,
+            '--resource-file'          => $input->resourceFile,
             '--template-name'          => $input->template,
-            '--form-request-directory' => $input->formRequestDirectory
+            '--form-request-directory' => $input->formRequestDirectory,
+            '--force'                  => $input->force,
         ]);
 
         return $this;

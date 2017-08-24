@@ -209,7 +209,7 @@ class CreateResourcesCommand extends Command
                 '--views-directory'   => $input->viewsDirectory,
                 '--routes-prefix'     => $input->prefix,
                 '--layout-name'       => $input->layoutName,
-                '--template-name'     => $input->template
+                '--template-name'     => $input->template,
                 '--force'             => $input->force,
             ]);
 
