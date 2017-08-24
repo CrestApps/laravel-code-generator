@@ -16,7 +16,14 @@ trait GeneratorReplacers
     protected function replaceModelName(&$stub, $modelName)
     {
         $englishSingle = $this->modelNamePlainEnglish($modelName);
-        $plural = str_plural($englishSingle);
+        
+        //allow custom plurals in the case that str_plural doesn't work fine in your language
+        if(config('codegenerator.plurals') && array_key_exists($englishSingle,config('codegenerator.plurals'))){
+            $plural = config('codegenerator.plurals')[$englishSingle];
+        }
+        else{
+            $plural = str_plural($englishSingle);            
+        } 
 
         $stub = $this->strReplace('model_name', $englishSingle, $stub);
         $stub = $this->strReplace('model_name_flat', strtolower($modelName), $stub);   
