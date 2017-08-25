@@ -78,11 +78,11 @@ class StandardHtml extends HtmlGeneratorBase
      */
     protected function getFieldPlaceHolder(Label $placeholder = null)
     {
-        if(is_null($placeholder)) {
+        if (is_null($placeholder)) {
             return '';
         }
 
-        return empty($placeholder) ? '' : sprintf(' placeholder="%s"', $this->getTitle($placeholder, true) );
+        return empty($placeholder) ? '' : sprintf(' placeholder="%s"', $this->getTitle($placeholder, true));
     }
 
     /**
@@ -95,7 +95,7 @@ class StandardHtml extends HtmlGeneratorBase
      */
     protected function getFieldPlaceHolderForMenu(Label $placeholder = null, $name = '')
     {
-        if(is_null($placeholder)) {
+        if (is_null($placeholder)) {
             return '';
         }
 
@@ -169,9 +169,11 @@ class StandardHtml extends HtmlGeneratorBase
      */
     protected function getCheckedItem($value, $name, $defaultValue)
     {
-        return sprintf(" {{ %s == '%s' ? 'checked' : '' }}", 
-                        $this->getRawOptionValue($name, $defaultValue), 
-                        $value);
+        return sprintf(
+            " {{ %s == '%s' ? 'checked' : '' }}",
+                        $this->getRawOptionValue($name, $defaultValue),
+                        $value
+        );
     }
 
     /**
@@ -253,8 +255,8 @@ class StandardHtml extends HtmlGeneratorBase
 
         $defaultValueString = '[]';
 
-        if(!empty($defaultValue)) {
-            $joinedValues = implode(',', Helpers::wrapItems((array)$defaultValue) );
+        if (!empty($defaultValue)) {
+            $joinedValues = implode(',', Helpers::wrapItems((array)$defaultValue));
             $defaultValueString = sprintf('[%s]', $joinedValues);
         }
 

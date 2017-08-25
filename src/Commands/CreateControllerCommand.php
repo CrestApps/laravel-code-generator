@@ -500,7 +500,8 @@ class CreateControllerCommand extends Command
      */
     protected function getRelationAccessor(ForeignRelationship $collection)
     {
-        return sprintf('$%s = %s::pluck(\'%s\',\'%s\')->all();',
+        return sprintf(
+            '$%s = %s::pluck(\'%s\',\'%s\')->all();',
                             $collection->getCollectionName(),
                             $collection->getForeignModel(),
                             $collection->getField(),
@@ -678,16 +679,18 @@ class CreateControllerCommand extends Command
      */
     protected function makeFormRequest($input)
     {
-        $this->callSilent('create:form-request',
-        [
-            'model-name'               => $input->modelName,
-            '--class-name'             => $input->formRequestName,
-            '--with-auth'              => $input->withAuth,
-            '--resource-file'          => $input->resourceFile,
-            '--template-name'          => $input->template,
-            '--form-request-directory' => $input->formRequestDirectory,
-            '--force'                  => $input->force,
-        ]);
+        $this->callSilent(
+            'create:form-request',
+            [
+                'model-name'               => $input->modelName,
+                '--class-name'             => $input->formRequestName,
+                '--with-auth'              => $input->withAuth,
+                '--resource-file'          => $input->resourceFile,
+                '--template-name'          => $input->template,
+                '--form-request-directory' => $input->formRequestDirectory,
+                '--force'                  => $input->force,
+            ]
+        );
 
         return $this;
     }
@@ -736,9 +739,27 @@ class CreateControllerCommand extends Command
         $extends = $this->generatorOption('controller-extends');
         $withAuth = $this->option('with-auth');
 
-        return (object) compact('formRequestDirectory','viewDirectory','viewName','modelName','prefix','perPage'
-                               ,'fileSnippet','modelDirectory','langFile','fields','withFormRequest','formRequestName'
-                               ,'force','resourceFile','template','controllerName','extends','withAuth','controllerDirectory');
+        return (object) compact(
+                                'formRequestDirectory',
+                                'viewDirectory',
+                                'viewName',
+                                'modelName',
+                                'prefix',
+                                'perPage',
+                                'fileSnippet',
+                                'modelDirectory',
+                                'langFile',
+                                'fields',
+                                'withFormRequest',
+                                'formRequestName',
+                                'force',
+                                'resourceFile',
+                                'template',
+                                'controllerName',
+                                'extends',
+                                'withAuth',
+                                'controllerDirectory'
+        );
     }
 
     /**

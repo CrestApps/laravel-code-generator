@@ -13,6 +13,7 @@ use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Models\ForeignConstraint;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Str;
 
 class FieldTransformer
 {
@@ -240,13 +241,13 @@ class FieldTransformer
         return new FieldMapper($field, $properties);
     }
 
-   /**
-     * Get the properties after applying the predefined keys.
-     *
-     * @param array $properties
-     *
-     * @return array
-    */
+    /**
+      * Get the properties after applying the predefined keys.
+      *
+      * @param array $properties
+      *
+      * @return array
+     */
     protected function getProperties(array $properties)
     {
         if (!$this->isValidHtmlType($properties)) {
@@ -272,13 +273,13 @@ class FieldTransformer
         return $properties;
     }
 
-   /**
-     * Checks if a field contains a valid html-type name
-     *
-     * @param array $properties
-     *
-     * @return bool
-    */
+    /**
+      * Checks if a field contains a valid html-type name
+      *
+      * @param array $properties
+      *
+      * @return bool
+     */
     protected function isValidHtmlType(array $properties)
     {
         return $this->isKeyExists($properties, 'html-type') &&
@@ -314,18 +315,18 @@ class FieldTransformer
      */
     protected function isValidSelectRangeType(array $properties)
     {
-        return $this->isKeyExists($properties, 'html-type') 
+        return $this->isKeyExists($properties, 'html-type')
             && starts_with($properties['html-type'], 'selectRange|');
     }
 
-   /**
-     * Checks if a key exists in a giving array
-     *
-     * @param array $properties
-     * @param string $name
-     *
-     * @return bool
-    */
+    /**
+      * Checks if a key exists in a giving array
+      *
+      * @param array $properties
+      * @param string $name
+      *
+      * @return bool
+     */
     protected function isKeyExists(array $properties, ...$name)
     {
         $args = func_get_args();
@@ -660,7 +661,7 @@ class FieldTransformer
      */
     public static function extractModelName($name)
     {
-        return ucfirst(studly_case(str_singular(str_replace('_id', '', $name))));
+        return ucfirst(studly_case(Str::singular(str_replace('_id', '', $name))));
     }
 
     /**
@@ -1003,7 +1004,6 @@ class FieldTransformer
     */
     protected function getLabels(array $properties)
     {
-
         if (isset($properties['label'])) {
             if (is_array($properties['label'])) {
                 //At this point we know this the label
@@ -1081,7 +1081,7 @@ class FieldTransformer
     {
         $snake = snake_case($name);
         $englishSingle = str_replace('_', ' ', $snake);
-        $plural = str_plural($englishSingle);
+        $plural = Str::plural($englishSingle);
 
         $stub = $this->strReplace('field_name', $englishSingle, $stub);
         $stub = $this->strReplace('field_name_flat', strtolower($name), $stub);
@@ -1091,8 +1091,8 @@ class FieldTransformer
         $stub = $this->strReplace('field_name_snake', $snake, $stub);
         $stub = $this->strReplace('field_name_studly', studly_case($name), $stub);
         $stub = $this->strReplace('field_name_slug', str_slug($englishSingle), $stub);
-        $stub = $this->strReplace('field_name_kebab', Helpers::kebabCase($name), $stub);
-        $stub = $this->strReplace('field_name_title', Helpers::titleCase($englishSingle), $stub);
+        $stub = $this->strReplace('field_name_kebab', Str::kebabCase($name), $stub);
+        $stub = $this->strReplace('field_name_title', Str::titleCase($englishSingle), $stub);
         $stub = $this->strReplace('field_name_title_lower', strtolower($englishSingle), $stub);
         $stub = $this->strReplace('field_name_title_upper', strtoupper($englishSingle), $stub);
         $stub = $this->strReplace('field_name_class', $name, $stub);

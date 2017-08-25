@@ -9,7 +9,7 @@
  - The CodeGenerator is now able to automatically create `hasOne` and `hasMany` relations when creating resource-file from existing database using `php artisan resource-file:from-database` command
  - The CodeGenerator allows you to add compound index in the resource-file directly to give you the ability to reuse the setting in the future.
  - The CodeGenerator allows you to add any type of relation in the resource-file directly to give you the ability to reuse the setting in the future.
-
+ - New configuration option was added (i.e. `plural_definitions`) to allow you to define a non-english singular to plural words. This is helpfull if your coding using a non-english language like Spanish or Frensh. For more info go to https://github.com/CrestApps/laravel-code-generator/pull/25
 
 ## Command Changes
 The following command have been renamed

@@ -185,7 +185,6 @@ abstract class ViewsCommand extends Command
     {
         foreach ($items as $labels) {
             foreach ($labels as $label) {
-
                 $text = $label->isPlain ? $label->text : sprintf("{{ trans('%s') }}", $label->localeGroup);
                 
                 if ($label->isInFunction) {
@@ -322,7 +321,7 @@ abstract class ViewsCommand extends Command
      */
     protected function getFullViewsPath($viewsDirectory, $routesPrefix)
     {
-        $path = !empty($routesPrefix) ? Helpers::getPathWithSlash(str_replace('.','-', $routesPrefix)) : '';
+        $path = !empty($routesPrefix) ? Helpers::getPathWithSlash(str_replace('.', '-', $routesPrefix)) : '';
 
         if (!empty($viewsDirectory)) {
             $path .= Helpers::getPathWithSlash($viewsDirectory);

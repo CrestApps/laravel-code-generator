@@ -56,11 +56,13 @@ class ResourceFileReduceCommand extends Command
         $resource = $this->reduceFields($file, $input, $totalReducedFields);
         
         if ($resource->isEmpty()) {
-            $this->callSilent('resource-file:delete',
+            $this->callSilent(
+                'resource-file:delete',
                 [
                     'model-name'          => $input->modelName,
                     '--resource-filename' => $file
-                ]);
+                ]
+            );
 
             $this->info('All fields were removed from the resource-file. The file "' . basename($file) . '" was deleted successfully!');
 
@@ -88,10 +90,9 @@ class ResourceFileReduceCommand extends Command
         $keep = [];
         
         foreach ($resource->fields as $field) {
-
             if (in_array($field->name, $input->names) || in_array($field->name, $keep)) {
                 $totalReducedFields++;
-                continue;   
+                continue;
             }
 
             $keep[] = $field;

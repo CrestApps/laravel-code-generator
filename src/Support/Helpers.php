@@ -7,6 +7,7 @@ use File;
 use Exception;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Str;
 
 class Helpers
 {
@@ -19,7 +20,7 @@ class Helpers
      */
     public static function makeControllerName($modelName)
     {
-        $plural = ucfirst(camel_case(str_plural(snake_case($modelName))));
+        $plural = ucfirst(camel_case(Str::plural(snake_case($modelName))));
         
         return str_finish($plural, 'Controller');
     }
@@ -32,7 +33,7 @@ class Helpers
      * @return string
      */
     public static function makeFormRequestName($modelName)
-    {        
+    {
         return str_finish($modelName, 'FormRequest');
     }
 
@@ -73,38 +74,6 @@ class Helpers
     }
 
     /**
-     * Converts the give value into a title case.
-     *
-     * @param string $value
-     *
-     * @return string
-     */
-    public static function titleCase($value)
-    {
-        if (function_exists('title_case')) {
-            return title_case($value);
-        }
-        
-        return Str::title($value);
-    }
-
-    /**
-     * Converts the give value into a title case.
-     *
-     * @param string $value
-     *
-     * @return string
-     */
-    public static function kebabCase($value)
-    {
-        if (function_exists('kebab_case')) {
-            return kebab_case($value);
-        }
-        
-        return str_replace('_', '-', snake_case($value));
-    }
-
-    /**
      * Makes the locale groups name
      *
      * @param string $modelName
@@ -113,7 +82,7 @@ class Helpers
      */
     public static function makeLocaleGroup($modelName)
     {
-        return str_plural(snake_case($modelName));
+        return Str::plural(snake_case($modelName));
     }
 
     /**
@@ -264,55 +233,6 @@ class Helpers
         
         return in_array(strtolower($str), ['true','yes','1','valid','correct']);
     }
-
-    /**
-     * Converts a string of field to an array
-     *
-     * @param $fieldsLine
-     *
-     * @return array
-     */
-    /*
-    public static function getFields($fieldsLine, $langFile = 'generic')
-    {
-        return FieldTransformer::fromText($fieldsLine, $langFile);
-    }
-    */
-    /**
-     * Converts a string of field to an array
-     *
-     * @param string $filename
-     * @param string $langFile
-     *
-     * @return array
-     */
-    /*
-    public static function getFieldsFromFile($filename, $langFile = 'generic')
-    {
-        $content = self::jsonFileContent($filename);
-        
-        return FieldTransformer::fromJson($content, $langFile);
-    }
-    */
-    /**
-     * Gets the content of a json file.
-     *
-     * @param $filename
-     *
-     * @return string
-     */
-    /*
-    public static function jsonFileContent($filename)
-    {
-        $fileFullname = Config::pathToFieldFiles($filename);
-
-        if (!File::exists($fileFullname)) {
-            throw new Exception('The file ' . $fileFullname . ' was not found!');
-        }
-
-        return File::get($fileFullname);
-    }
-    */
 
     /**
      * Removes a string from the end of another giving string if it already ends with it.

@@ -127,7 +127,7 @@ class ResourceFileAppendCommand extends Command
         $htmlTypes = Helpers::convertStringToArray($this->generatorOption('html-types'));
         $transaltionFor = Helpers::convertStringToArray($this->generatorOption('translation-for'));
 
-        return (object) compact('modelName','file','names','dataTypes','htmlTypes','transaltionFor');
+        return (object) compact('modelName', 'file', 'names', 'dataTypes', 'htmlTypes', 'transaltionFor');
     }
 
     /**

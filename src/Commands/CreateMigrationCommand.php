@@ -279,17 +279,16 @@ class CreateMigrationCommand extends Command
     protected function addIndexes(& $properties, array $indexes)
     {
         foreach ($indexes as $index) {
-
-            if(!$index->hasColumns()) {
+            if (!$index->hasColumns()) {
                 continue;
             }
 
             $indexName = '';
-            if($index->hasName()) {
+            if ($index->hasName()) {
                 $indexName = sprintf(", '%s'", $index->getName());
             }
 
-            if($index->hasMultipleColumns()) {
+            if ($index->hasMultipleColumns()) {
                 $indexColumn = sprintf('[%s]', implode(',', Helpers::wrapItems($index->getColumns())));
             } else {
                 $indexColumn = sprintf("'%s'", $index->getFirstColumn());
@@ -805,8 +804,18 @@ class CreateMigrationCommand extends Command
         $withoutTimestamps = $this->option('without-timestamps');
         $withSoftDelete = $this->option('with-soft-delete');
 
-        return (object) compact('modelName','tableName','className','connection','engine',
-                                'resourceFile','force','template','withoutTimestamps','withSoftDelete');
+        return (object) compact(
+                                'modelName',
+                                'tableName',
+                                'className',
+                                'connection',
+                                'engine',
+                                'resourceFile',
+                                'force',
+                                'template',
+                                'withoutTimestamps',
+                                'withSoftDelete'
+        );
     }
 
     /**

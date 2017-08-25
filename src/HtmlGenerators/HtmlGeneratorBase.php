@@ -142,7 +142,6 @@ abstract class HtmlGeneratorBase
         $rows = '';
 
         foreach ($fields as $field) {
-
             if ($field->isOnIndexView) {
                 $row = $stub;
                 $this->replaceFieldTitle($row, $this->getTitle($field->getLabel(), true))
@@ -271,7 +270,7 @@ abstract class HtmlGeneratorBase
 
             $fieldAccessor = sprintf('$%s->%s->%s', $this->getSingularVariable($this->modelName), $relation->name, $relation->getField());
 
-            $fieldAccessor = sprintf(" isset(%s) ? %s : '' ",$fieldAccessor, $fieldAccessor);
+            $fieldAccessor = sprintf(" isset(%s) ? %s : '' ", $fieldAccessor, $fieldAccessor);
         }
 
         if ($field->isBoolean()) {
@@ -383,8 +382,7 @@ abstract class HtmlGeneratorBase
             // At this point we know this is a boolean field, we only need one option
             $fields .= $this->getPickItemsHtmlField($field, $field->getTrueBooleanOption(), $parser) . PHP_EOL;
         } else {
-
-            if(is_null($field->getOptionsByLang())){
+            if (is_null($field->getOptionsByLang())) {
                 throw new Exception('The field "' . $field->name . '" has no options!');
             }
 
@@ -794,7 +792,7 @@ abstract class HtmlGeneratorBase
     protected function getKeyValueStringsFromLabels(array $labels)
     {
         return array_map(function ($label) {
-            if(!$label->isPlain) {
+            if (!$label->isPlain) {
                 return sprintf("'%s' => %s", $label->value, $this->getTranslatedTitle($label));
             }
 
@@ -1278,7 +1276,7 @@ abstract class HtmlGeneratorBase
      */
     abstract protected function getFieldMultiple($isMulti);
 
-       /**
+    /**
      * Gets a plain title from a giving label.
      *
      * @param CrestApps\CodeGenerator\Models\Label $label
@@ -1321,7 +1319,7 @@ abstract class HtmlGeneratorBase
      */
     abstract protected function getSelectedValue($name, $valueAccessor, $defaultValue);
 
-        /**
+    /**
      * Gets checked item attribute.
      *
      * @param string $value

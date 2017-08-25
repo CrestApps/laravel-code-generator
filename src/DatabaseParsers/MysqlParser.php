@@ -10,6 +10,7 @@ use CrestApps\CodeGenerator\Models\ForeignConstraint;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Str;
 
 class MysqlParser extends ParserBase
 {
@@ -42,7 +43,8 @@ class MysqlParser extends ParserBase
     */
     protected function getColumn()
     {
-        return DB::select('SELECT
+        return DB::select(
+            'SELECT
 		                   COLUMN_NAME
 		                  ,COLUMN_DEFAULT
 		                  ,UPPER(IS_NULLABLE)  AS IS_NULLABLE
@@ -54,7 +56,8 @@ class MysqlParser extends ParserBase
 		                  ,COLUMN_TYPE
 		                  FROM INFORMATION_SCHEMA.COLUMNS
 		                  WHERE TABLE_NAME = ? AND TABLE_SCHEMA = ? ',
-                          [$this->tableName, $this->databaseName]);
+                          [$this->tableName, $this->databaseName]
+        );
     }
 
     /**
@@ -81,7 +84,8 @@ class MysqlParser extends ParserBase
     protected function getConstraints()
     {
         if (is_null($this->constrains)) {
-            $this->constrains = DB::select('SELECT 
+            $this->constrains = DB::select(
+                'SELECT 
                                             r.referenced_table_name AS `references`
                                            ,r.CONSTRAINT_NAME AS `name`
                                            ,r.UPDATE_RULE AS `onUpdate`
@@ -93,7 +97,8 @@ class MysqlParser extends ParserBase
                                                                                                AND u.table_schema = r.constraint_schema
                                                                                                AND u.table_name = r.table_name
                                            WHERE u.table_name = ? AND u.constraint_schema = ?;',
-                                          [$this->tableName, $this->databaseName]);
+                                          [$this->tableName, $this->databaseName]
+            );
         }
 
         return $this->constrains;
@@ -102,15 +107,17 @@ class MysqlParser extends ParserBase
 
     protected function getRawIndexes()
     {
-        $result = DB::select('SELECT 
+        $result = DB::select(
+            'SELECT 
                                INDEX_NAME AS name
                               ,COUNT(1) AS TotalColumns
                               ,GROUP_CONCAT(DISTINCT COLUMN_NAME ORDER BY SEQ_IN_INDEX ASC SEPARATOR \'|||\') AS columns
                               FROM INFORMATION_SCHEMA.STATISTICS AS s
                               WHERE TABLE_NAME = ? AND TABLE_SCHEMA = ?
                               GROUP BY INDEX_NAME
-                              HAVING COUNT(1) > 1;', 
-                              [$this->tableName, $this->databaseName]);
+                              HAVING COUNT(1) > 1;',
+                              [$this->tableName, $this->databaseName]
+        );
 
         return $result;
     }
@@ -125,7 +132,7 @@ class MysqlParser extends ParserBase
         $relations = [];
         $rawRelations = $this->getRawRelations();
 
-        foreach($rawRelations as $rawRelation) {
+        foreach ($rawRelations as $rawRelation) {
             $relations[] = $this->getRealtion($rawRelation->foreignTable, $rawRelation->foreignKey, $rawRelation->localKey);
         }
 
@@ -140,7 +147,8 @@ class MysqlParser extends ParserBase
     protected function getRawRelations()
     {
         if (is_null($this->relations)) {
-            $this->relations = DB::select('SELECT DISTINCT
+            $this->relations = DB::select(
+                'SELECT DISTINCT
                                              u.referenced_column_name AS `localKey`
                                             ,u.column_name AS `foreignKey`
                                             ,r.table_name AS `foreignTable`
@@ -149,7 +157,8 @@ class MysqlParser extends ParserBase
                                                                                                AND u.table_schema = r.constraint_schema
                                                                                                AND u.table_name = r.table_name
                                             WHERE u.referenced_table_name = ? AND u.constraint_schema = ?;',
-                                          [$this->tableName, $this->databaseName]);
+                                          [$this->tableName, $this->databaseName]
+            );
         }
 
         return $this->relations;
@@ -179,16 +188,16 @@ class MysqlParser extends ParserBase
         $model = FieldTransformer::guessModelFullName($foreignTableName, $this->getModelNamespace());
 
         $params = [
-                    $model, 
-                    $foreignColumn, 
+                    $model,
+                    $foreignColumn,
                     $localColumn
                 ];
 
-        if($this->isOneToMany($foreignTableName, $foreignColumn)) {
-            return new ForeignRelationship('hasMany', $params, camel_case(str_plural($foreignTableName)));
+        if ($this->isOneToMany($foreignTableName, $foreignColumn)) {
+            return new ForeignRelationship('hasMany', $params, camel_case(Str::plural($foreignTableName)));
         }
 
-        return new ForeignRelationship('hasOne', $params, camel_case(str_singular($foreignTableName)));
+        return new ForeignRelationship('hasOne', $params, camel_case(Str::singular($foreignTableName)));
     }
 
     /**
@@ -214,7 +223,7 @@ class MysqlParser extends ParserBase
         $indexes = [];
         $rawIndexes = $this->getRawIndexes();
 
-        foreach($rawIndexes as $rawIndex) {
+        foreach ($rawIndexes as $rawIndex) {
             $index = new Index($rawIndex->name);
             $index->addColumns(explode('|||', $rawIndex->columns));
 
@@ -262,7 +271,7 @@ class MysqlParser extends ParserBase
 
             $collection[] = $properties;
         }
-        $localeGroup = str_plural(strtolower($this->tableName));
+        $localeGroup = Str::plural(strtolower($this->tableName));
         $fields = FieldTransformer::fromArray($collection, $localeGroup);
 
         return $fields;
@@ -338,7 +347,6 @@ class MysqlParser extends ParserBase
                         strtolower($raw->onDelete),
                         strtolower($raw->onUpdate)
                     );
-
     }
 
     /**

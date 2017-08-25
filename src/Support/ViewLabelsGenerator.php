@@ -146,7 +146,7 @@ class ViewLabelsGenerator
      */
     protected function isInFunction(array $properties)
     {
-        return $this->isCollectiveTemplate 
+        return $this->isCollectiveTemplate
             && (isset($properties['in-function-with-collective']) && $properties['in-function-with-collective']);
     }
 

@@ -308,15 +308,15 @@ class Field
     {
         $langs = [];
 
-        foreach($this->getLabels() as $label){
-            if(!$label->isPlain) {
+        foreach ($this->getLabels() as $label) {
+            if (!$label->isPlain) {
                 $langs[] = $label->lang;
             }
         }
 
-        foreach($this->getOptions() as $labels){
-            foreach($labels as $label) {
-                if(!$label->isPlain) {
+        foreach ($this->getOptions() as $labels) {
+            foreach ($labels as $label) {
+                if (!$label->isPlain) {
                     $langs[] = $label->lang;
                 }
             }
@@ -947,7 +947,7 @@ class Field
      */
     public function getMinLength()
     {
-        if($this->isRequired() || !$this->isNullable) {
+        if ($this->isRequired() || !$this->isNullable) {
             return 1;
         }
 
@@ -961,7 +961,7 @@ class Field
      */
     public function getMaxLength()
     {
-        if($this->isString() && isset($this->methodParams[0])) {
+        if ($this->isString() && isset($this->methodParams[0])) {
             return intval($this->methodParams[0]);
         }
 

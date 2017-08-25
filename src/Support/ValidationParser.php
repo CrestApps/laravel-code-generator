@@ -296,7 +296,7 @@ class ValidationParser
 
     /**
      * Checks if a giving rule is required
-     * 
+     *
      * @param string $name
      *
      * @return bool
@@ -308,7 +308,7 @@ class ValidationParser
 
     /**
      * Gets the first found key in the rules
-     * 
+     *
      * @param string $key
      *
      * @return bool
@@ -329,7 +329,7 @@ class ValidationParser
 
     /**
      * Checks if any rule starts with a giving key
-     * 
+     *
      * @param string $key
      *
      * @return bool

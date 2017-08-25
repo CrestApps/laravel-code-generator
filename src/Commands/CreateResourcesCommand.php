@@ -135,7 +135,8 @@ class CreateResourcesCommand extends Command
     protected function createMigration($input)
     {
         if (!$input->withoutMigration) {
-            $this->call('create:migration',
+            $this->call(
+                'create:migration',
                 [
                     'model-name'               => $input->modelName,
                     '--table-name'             => $input->table,
@@ -147,7 +148,8 @@ class CreateResourcesCommand extends Command
                     '--without-timestamps'     => $input->withoutTimeStamps,
                     '--with-soft-delete'       => $input->withSoftDelete,
                     '--force'                  => $input->force,
-                ]);
+                ]
+            );
         }
 
         return $this;
@@ -162,13 +164,15 @@ class CreateResourcesCommand extends Command
      */
     protected function createResourceFile($input)
     {
-        $this->callSilent('resource-file:from-database',
+        $this->callSilent(
+            'resource-file:from-database',
             [
                 'model-name'          => $input->modelName,
                 '--table-name'        => $input->table,
                 '--translation-for'   => $input->translationFor,
                 '--force'             => $input->force,
-            ]);
+            ]
+        );
 
         return $this;
     }
@@ -182,13 +186,15 @@ class CreateResourcesCommand extends Command
      */
     protected function createLanguage($input)
     {
-        $this->callSilent('create:language',
+        $this->callSilent(
+            'create:language',
             [
                 'model-name'             => $input->modelName,
                 '--language-file-name'   => $input->languageFileName,
                 '--resource-file'        => $input->resourceFile,
                 '--template-name'        => $input->template
-            ]);
+            ]
+        );
 
         return $this;
     }
@@ -202,7 +208,8 @@ class CreateResourcesCommand extends Command
      */
     protected function createViews($input)
     {
-        $this->call('create:views',
+        $this->call(
+            'create:views',
             [
                 'model-name'          => $input->modelName,
                 '--resource-file'     => $input->resourceFile,
@@ -211,7 +218,8 @@ class CreateResourcesCommand extends Command
                 '--layout-name'       => $input->layoutName,
                 '--template-name'     => $input->template,
                 '--force'             => $input->force,
-            ]);
+            ]
+        );
 
         return $this;
     }
@@ -225,14 +233,16 @@ class CreateResourcesCommand extends Command
      */
     protected function createRoutes($input)
     {
-        $this->call('create:routes',
+        $this->call(
+            'create:routes',
             [
                 'model-name'               => $input->modelName,
                 '--controller-name'        => $input->controllerName,
                 '--routes-prefix'          => $input->prefix,
                 '--template-name'          => $input->template,
                 '--controller-directory'   => $input->controllerDirectory
-            ]);
+            ]
+        );
 
         return $this;
     }
@@ -245,7 +255,8 @@ class CreateResourcesCommand extends Command
      */
     protected function createController($input)
     {
-        $this->call('create:controller',
+        $this->call(
+            'create:controller',
             [
                 'model-name'                 => $input->modelName,
                 '--controller-name'          => $input->controllerName,
@@ -262,7 +273,8 @@ class CreateResourcesCommand extends Command
                 '--with-auth'                => $input->withAuth,
                 '--template-name'            => $input->template,
                 '--force'                    => $input->force,
-            ]);
+            ]
+        );
 
         return $this;
     }
@@ -276,7 +288,8 @@ class CreateResourcesCommand extends Command
      */
     protected function createModel($input)
     {
-        $this->call('create:model',
+        $this->call(
+            'create:model',
             [
                 'model-name'             => $input->modelName,
                 '--table-name'           => $input->table,
@@ -287,7 +300,8 @@ class CreateResourcesCommand extends Command
                 '--without-timestamps'   => $input->withoutTimeStamps,
                 '--template-name'        => $input->template,
                 '--force'                => $input->force,
-            ]);
+            ]
+        );
 
         return $this;
     }

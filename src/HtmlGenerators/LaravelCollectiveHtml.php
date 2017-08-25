@@ -168,9 +168,11 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      */
     protected function getCheckedItem($value, $name, $defaultValue)
     {
-        return sprintf(" (%s == '%s' ? true : null) ", 
-                        $this->getRawOptionValue($name, $defaultValue), 
-                        $value);
+        return sprintf(
+            " (%s == '%s' ? true : null) ",
+                        $this->getRawOptionValue($name, $defaultValue),
+                        $value
+        );
     }
 
     /**
@@ -211,7 +213,6 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      */
     protected function getRawOptionValue($name, $value)
     {
-
         $modelVariable = $this->getSingularVariable($this->modelName);
 
         $valueString = is_null($value) ? 'null' : sprintf("'%s'", $value);
@@ -239,8 +240,8 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
 
         $defaultValueString = '[]';
 
-        if(!empty($defaultValue)) {
-            $joinedValues = implode(',', Helpers::wrapItems((array)$defaultValue) );
+        if (!empty($defaultValue)) {
+            $joinedValues = implode(',', Helpers::wrapItems((array)$defaultValue));
             $defaultValueString = sprintf('[%s]', $joinedValues);
         }
 

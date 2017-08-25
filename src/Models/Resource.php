@@ -54,7 +54,7 @@ class Resource
      */
     public function toArray()
     {
-        return 
+        return
         [
             'fields'    => $this->getFieldsToArray(),
             'relations' => $this->getRelationsToArray(),

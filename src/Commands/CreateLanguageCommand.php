@@ -228,7 +228,12 @@ class CreateLanguageCommand extends Command
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
         $template = trim($this->option('template-name'));
 
-        return (object) compact('modelName','fileName','resourceFile','template');
+        return (object) compact(
+                                'modelName',
+                                'fileName',
+                                'resourceFile',
+                                'template'
+        );
     }
 
     /**

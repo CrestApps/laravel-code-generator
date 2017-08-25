@@ -48,11 +48,11 @@ class ViewInput
      */
     public $languageFileName;
 
-     /**
-     * The provided layout name
-     *
-     * @var string
-     */
+    /**
+    * The provided layout name
+    *
+    * @var string
+    */
     public $layout;
 
     /**

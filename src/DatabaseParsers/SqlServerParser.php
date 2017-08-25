@@ -80,7 +80,8 @@ class SqlServerParser extends ParserBase
     */
     protected function getColumn()
     {
-        return DB::select('SELECT 
+        return DB::select(
+            'SELECT 
 							 c.COLUMN_NAME
 							,c.COLUMN_DEFAULT
 							,c.IS_NULLABLE
@@ -97,7 +98,8 @@ class SqlServerParser extends ParserBase
 							            AND c.TABLE_NAME = pk.TABLE_NAME
 							            AND c.COLUMN_NAME = pk.COLUMN_NAME
 							WHERE c.TABLE_NAME = ? AND c.TABLE_CATALOG = ? ',
-                          [$this->tableName, $this->databaseName]);
+                          [$this->tableName, $this->databaseName]
+        );
     }
 
     /**

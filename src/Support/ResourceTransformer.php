@@ -28,21 +28,21 @@ class ResourceTransformer
         return self::fromJson($content, $localeGroup);
     }
 
-   /**
-     * It transfres a gining string to a collection of field
-     *
-     * @param string|json $json
-     * @param string $localeGroup
-     *
-     * @return array
-    */
+    /**
+      * It transfres a gining string to a collection of field
+      *
+      * @param string|json $json
+      * @param string $localeGroup
+      *
+      * @return array
+     */
     public static function fromJson($json, $localeGroup)
     {
         if (empty($json) || ($capsule = json_decode($json, true)) === null) {
             throw new Exception("The provided string is not a valid json.");
         }
         
-        if(is_array($capsule) && !Helpers::isAssociative($capsule)) {
+        if (is_array($capsule) && !Helpers::isAssociative($capsule)) {
             // At this point we know the resource file is using old convention
             // Set the fields
             $fields = FieldTransformer::fromArray($capsule, $localeGroup);
@@ -52,15 +52,15 @@ class ResourceTransformer
 
         $resource = new Resource();
 
-        if(array_key_exists('fields', $capsule)) {
+        if (array_key_exists('fields', $capsule)) {
             $resource->fields = FieldTransformer::fromArray($capsule['fields'], $localeGroup);
         }
 
-        if(array_key_exists('relations', $capsule)) {
+        if (array_key_exists('relations', $capsule)) {
             $resource->relations = self::getRelations($capsule['relations']);
         }
 
-        if(array_key_exists('indexes', $capsule)) {
+        if (array_key_exists('indexes', $capsule)) {
             $resource->indexes = self::getIndexes($capsule['indexes']);
         }
         
@@ -78,8 +78,8 @@ class ResourceTransformer
     {
         $relations = [];
 
-        foreach($properties as $property) {
-            if( !is_null($relation = ForeignRelationship::get($property))) {
+        foreach ($properties as $property) {
+            if (!is_null($relation = ForeignRelationship::get($property))) {
                 $relations[] = $relation;
             }
         }
@@ -98,7 +98,7 @@ class ResourceTransformer
     {
         $indexes = [];
 
-        foreach($properties as $property) {
+        foreach ($properties as $property) {
             $indexes[] = Index::get($property);
         }
 
@@ -122,5 +122,4 @@ class ResourceTransformer
 
         return File::get($fileFullname);
     }
-
 }

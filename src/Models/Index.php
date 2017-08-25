@@ -6,14 +6,14 @@ use Exception;
 
 class Index
 {
-	/**
+    /**
      * The default index type.
      *
      * @var string
      */
     protected $defaultIndexType = 'index';
 
-	/**
+    /**
      * The index types eloquent is capable of creating.
      *
      * @var string
@@ -27,11 +27,11 @@ class Index
      */
     protected $type;
 
-     /**
-     * The name of the index.
-     *
-     * @var string
-     */
+    /**
+    * The name of the index.
+    *
+    * @var string
+    */
     protected $name;
 
     /**
@@ -60,7 +60,7 @@ class Index
      */
     public function isValidType($type)
     {
-    	return in_array($type, $this->validIndexTypes);
+        return in_array($type, $this->validIndexTypes);
     }
 
     /**
@@ -70,7 +70,7 @@ class Index
      */
     public function getType()
     {
-    	return $this->type ?: $this->defaultIndexType;
+        return $this->type ?: $this->defaultIndexType;
     }
 
     /**
@@ -80,7 +80,7 @@ class Index
      */
     public function getColumns()
     {
-    	return $this->columns;
+        return $this->columns;
     }
 
     /**
@@ -90,13 +90,13 @@ class Index
      */
     public function getFirstColumn()
     {
-    	$columns = $this->getColumns();
+        $columns = $this->getColumns();
 
-    	if(isset($columns[0])) {
-    		return $columns[0];
-    	}
+        if (isset($columns[0])) {
+            return $columns[0];
+        }
 
-    	return null;
+        return null;
     }
 
     /**
@@ -106,9 +106,9 @@ class Index
      */
     public function addColumn($name)
     {
-    	if(!in_array($name, $this->columns)) {
-    		$this->columns[] = $name;
-    	}
+        if (!in_array($name, $this->columns)) {
+            $this->columns[] = $name;
+        }
     }
 
     /**
@@ -130,7 +130,7 @@ class Index
      */
     public function hasColumns()
     {
-    	return !empty($this->getColumns());
+        return !empty($this->getColumns());
     }
 
     /**
@@ -140,7 +140,7 @@ class Index
      */
     public function hasMultipleColumns()
     {
-    	return $this->getTotalColumns() > 1;
+        return $this->getTotalColumns() > 1;
     }
 
     /**
@@ -150,7 +150,7 @@ class Index
      */
     public function getTotalColumns()
     {
-    	return count($this->getColumns());
+        return count($this->getColumns());
     }
 
     /**
@@ -160,7 +160,7 @@ class Index
      */
     public function setName($name)
     {
-    	$this->name = $name;
+        $this->name = $name;
     }
 
     /**
@@ -170,7 +170,7 @@ class Index
      */
     public function getName()
     {
-    	return $this->name;
+        return $this->name;
     }
 
     /**
@@ -180,7 +180,7 @@ class Index
      */
     public function hasName()
     {
-    	return !empty(trim($this->getName()));
+        return !empty(trim($this->getName()));
     }
 
     /**
@@ -204,11 +204,11 @@ class Index
      */
     public function setType($type)
     {
-    	if(!$this->isValidType($type)) {
-    		throw new Exception('Invalid index type provided!');
-    	}
+        if (!$this->isValidType($type)) {
+            throw new Exception('Invalid index type provided!');
+        }
 
-    	$this->type = $type;
+        $this->type = $type;
     }
 
     /**
@@ -218,24 +218,24 @@ class Index
      */
     public static function get(array $properties)
     {
-    	if(!array_key_exists('columns', $properties)) {
-    		throw new Exception('An index requires at least one column.');
-    	}
+        if (!array_key_exists('columns', $properties)) {
+            throw new Exception('An index requires at least one column.');
+        }
 
-    	$index = new Index();
+        $index = new Index();
 
-    	foreach((array) $properties['columns'] as $column) {
-    		$index->addColumn($column);
-    	}
+        foreach ((array) $properties['columns'] as $column) {
+            $index->addColumn($column);
+        }
 
-    	if(array_key_exists('name', $properties)) {
-    		$index->setName($properties['name']);
-    	}
+        if (array_key_exists('name', $properties)) {
+            $index->setName($properties['name']);
+        }
 
-    	if(array_key_exists('type', $properties)) {
-    		$index->setType($properties['type']);
-    	}
+        if (array_key_exists('type', $properties)) {
+            $index->setType($properties['type']);
+        }
 
-    	return $index;
+        return $index;
     }
 }

@@ -68,7 +68,6 @@ class ResourceFileDeleteCommand extends Command
         $maps = [];
 
         if ($this->isFileExists($file)) {
-
             $existingMaps = json_decode($this->getFileContent($file));
 
             if (is_null($existingMaps)) {

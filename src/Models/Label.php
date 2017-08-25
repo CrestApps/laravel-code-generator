@@ -55,7 +55,7 @@ class Label
     public $template;
 
     /**
-     * When a label is inside a function we need to ignore adding {{ }} 
+     * When a label is inside a function we need to ignore adding {{ }}
      * when translating. All when displaying plain text, the text must
      * be wrapped with a single quote. This flag tell us to do that.
      *

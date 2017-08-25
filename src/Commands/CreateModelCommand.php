@@ -108,7 +108,6 @@ class CreateModelCommand extends Command
      */
     protected function getDestenationFile($name, $path)
     {
-
         if (!empty($path)) {
             $path = Helpers::getPathWithSlash(ucfirst($path));
         }
@@ -328,8 +327,19 @@ class CreateModelCommand extends Command
         $languageFileName = $this->option('lang-file-name') ?: Helpers::makeLocaleGroup($modelName);
         $template = $this->getTemplateName();
 
-        return (object) compact('table','fillable','primaryKey','relationships','useSoftDelete','useTimeStamps',
-                                'resourceFile','template','modelName','modelDirectory','languageFileName');
+        return (object) compact(
+                                'table',
+                                'fillable',
+                                'primaryKey',
+                                'relationships',
+                                'useSoftDelete',
+                                'useTimeStamps',
+                                'resourceFile',
+                                'template',
+                                'modelName',
+                                'modelDirectory',
+                                'languageFileName'
+        );
     }
 
     /**
@@ -351,7 +361,7 @@ class CreateModelCommand extends Command
             }
         }
 
-        foreach($relations as $relation) {
+        foreach ($relations as $relation) {
             $methods[$relation->name] = $this->getRelationshipMethod($relation);
         }
 

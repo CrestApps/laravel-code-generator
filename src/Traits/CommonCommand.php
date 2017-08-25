@@ -4,10 +4,11 @@ namespace CrestApps\CodeGenerator\Traits;
 
 use File;
 use Exception;
+use Illuminate\Container\Container;
+use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Config;
-use CrestApps\CodeGenerator\Models\Field;
-use Illuminate\Container\Container;
 
 trait CommonCommand
 {
@@ -19,7 +20,7 @@ trait CommonCommand
     protected $noValues = [
                         'empty',
                         'no_value',
-                        'blank', 
+                        'blank',
                         'none'
                     ];
 
@@ -110,7 +111,7 @@ trait CommonCommand
      */
     public function getPluralVariable($modelName)
     {
-        return camel_case(str_plural(snake_case($modelName)));
+        return camel_case(Str::plural(snake_case($modelName)));
     }
     
     /**
@@ -134,7 +135,7 @@ trait CommonCommand
      */
     protected function makeTableName($modelName)
     {
-        return str_plural(snake_case($modelName));
+        return Str::plural(snake_case($modelName));
     }
 
     /**
@@ -456,12 +457,12 @@ trait CommonCommand
         return null;
     }
 
-     /**
-     * Build the directory for the class if necessary.
-     *
-     * @param  string  $path
-     * @return $this
-     */
+    /**
+    * Build the directory for the class if necessary.
+    *
+    * @param  string  $path
+    * @return $this
+    */
     protected function createDirectory($path)
     {
         if (!File::isDirectory($path)) {

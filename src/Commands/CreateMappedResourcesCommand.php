@@ -64,7 +64,8 @@ class CreateMappedResourcesCommand extends Command
         $validInputs = $this->getValidInputs($objects, $this->getCommandInput());
 
         foreach ($validInputs as $validInput) {
-            $this->call('create:resources',
+            $this->call(
+                'create:resources',
                 [
                     'model-name'                 => $validInput->modelName,
                     '--controller-name'          => $validInput->controllerName,
@@ -96,7 +97,8 @@ class CreateMappedResourcesCommand extends Command
                     '--table-exists'             => $validInput->tableExists,
                     '--translation-for'          => $validInput->translationFor,
                     '--force'                    => $validInput->force
-                ]);
+                ]
+            );
 
             $this->info('---------------------------------');
         }

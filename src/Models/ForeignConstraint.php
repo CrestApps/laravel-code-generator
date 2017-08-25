@@ -2,9 +2,10 @@
 
 namespace CrestApps\CodeGenerator\Models;
 
-use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
 
 class ForeignConstraint
 {
@@ -126,7 +127,7 @@ class ForeignConstraint
      */
     protected function getForeignModelName()
     {
-        return camel_case(str_singular($this->references));
+        return camel_case(Str::singular($this->references));
     }
 
     /**

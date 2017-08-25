@@ -8,7 +8,7 @@ class Config
 {
     /**
      * Gets the default datetime output format
-     * 
+     *
      * @return array
     */
     public static function getCommonDefinitions()
@@ -18,7 +18,7 @@ class Config
 
     /**
      * Gets the non-english singular to plural definitions.
-     * 
+     *
      * @return array
     */
     public static function getPluralDefinitions()
@@ -28,7 +28,7 @@ class Config
 
     /**
      * Gets the default datetime output format
-     * 
+     *
      * @return array
     */
     public static function getDateTimeFormat()
@@ -38,7 +38,7 @@ class Config
 
     /**
      * Gets the default resources mapper file
-     * 
+     *
      * @return string
     */
     public static function getDefaultMapperFileName()
@@ -48,7 +48,7 @@ class Config
 
     /**
      * Check if the resource mapper should be auto managed.
-     * 
+     *
      * @return bool
     */
     public static function autoManageResourceMapper()
@@ -58,7 +58,7 @@ class Config
 
     /**
      * Gets the default placeholders by type
-     * 
+     *
      * @return array
     */
     public static function getPlaceholderByHtmlType()
@@ -68,7 +68,7 @@ class Config
 
     /**
      * Gets the common name patterns to use for headers.
-     * 
+     *
      * @return array
     */
     public static function getHeadersPatterns()
@@ -78,7 +78,7 @@ class Config
 
     /**
      * Gets the path to the field files.
-     * 
+     *
      * @param string $file = '';
      *
      * @return string
@@ -92,7 +92,7 @@ class Config
 
     /**
      * Gets the common key patterns.
-     * 
+     *
      * @return array
     */
     public static function getKeyPatterns()
@@ -116,7 +116,7 @@ class Config
 
     /**
      * Gets the default template name.
-     * 
+     *
      * @return array
     */
     public static function getTemplatesPath()
@@ -126,11 +126,11 @@ class Config
         return Helpers::getPathWithSlash($path);
     }
 
-   /**
-     * Gets the eloquent's method to html
-     *
-     * @return array
-    */
+    /**
+      * Gets the eloquent's method to html
+      *
+      * @return array
+     */
     public static function getEloquentToHtmlMap()
     {
         return config('codegenerator.eloquent_type_to_html_type', []);

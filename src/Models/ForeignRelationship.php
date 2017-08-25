@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Str;
 
 class ForeignRelationship
 {
@@ -55,11 +56,11 @@ class ForeignRelationship
      */
     public $name;
 
-   /**
-     * Instance of the foreign model.
-     *
-     * @var Illuminate\Database\Eloquent\Model
-     */
+    /**
+      * Instance of the foreign model.
+      *
+      * @var Illuminate\Database\Eloquent\Model
+      */
     private $foreignModel;
 
     /**
@@ -199,7 +200,7 @@ class ForeignRelationship
      */
     public function getCollectionName()
     {
-        return str_plural($this->name);
+        return Str::plural($this->name);
     }
 
     /**
@@ -209,7 +210,7 @@ class ForeignRelationship
      */
     public function getSingleName()
     {
-        return str_singular($this->name);
+        return Str::singular($this->name);
     }
 
     /**

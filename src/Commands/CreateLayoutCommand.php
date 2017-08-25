@@ -40,7 +40,8 @@ class CreateLayoutCommand extends Command
      */
     public function handle()
     {
-        $this->call('create:views-layout',
+        $this->call(
+            'create:views-layout',
                 [
                     'application-name' => $this->argument('application-name'),
                     '--layout-filename' => $this->option('layout-filename'),
