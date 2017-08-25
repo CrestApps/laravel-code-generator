@@ -8,21 +8,21 @@ A clean code generator for Laravel framework that will save you time! This aweso
 
 ## Features
 
-* Create very clean code to build on.
+* Create very clean highly readable code to build on.
 * Create full resources using a single command with/without **migration** or from **existing database**.
 * Create standard CRUD controllers with simple or form-request validation.
+* Utilizes JSON based resource-file to allow you to define your resources. Resource-file allows you to easily regenerate the resource at any time even when the business rules change.
 * Create model with relations.
 * Create named routes.
 * Create standard CRUD views.
-* Very flexible and rich with configurable options.
+* Customizable view’s templates to enable you to change the standard look and feel of your application.
+* Change the template at run time to generate different views.
 * Client-side validation.
-* File uploading handling.
+* Create view's layouts with and without client-side validation.
+* Very flexible and rich with configurable options.
+* It auto create the code to allow you to completly upload files from the client to the server.
 * Auto multiple-response storing in the database.
 * Create form-request for complex validation.
-* Customizable view’s templates to enable you to change the standard look and feel of your application.
-* Create view's layouts with and without client-side validation.
-* Change the template at run time to generate different views.
-* Create code to upload file.
 * Ability to generate views with and without Laravel-Collective.
 * Nicely deals with and format datetime, date or time field.
 * Auto handles any boolean field.
@@ -75,11 +75,11 @@ php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServ
 * php artisan create:migration [model-name]
 * php artisan create:form-request [model-name]
 * php artisan create:language [model-name]
-* php artisan create:fields-file [model-name]
-* php artisan fields-file:create [model-name]
-* php artisan fields-file:append [model-name]
-* php artisan fields-file:reduce [model-name]
-* php artisan fields-file:delete [model-name]
+* php artisan resource-file:from-database [model-name]
+* php artisan resource-file:create [model-name]
+* php artisan resource-file:append [model-name]
+* php artisan resource-file:reduce [model-name]
+* php artisan resource-file:delete [model-name]
 
 > Full documentation available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/docs/2.1 "Laravel Code Generator Documentation"). 
 
@@ -99,8 +99,8 @@ Lets create a CRUD called <var>AssetCategory</var> with the fields listed below.
 ### Basic example
 
 <blockquote>
-<p><code>php artisan fields-file:create AssetCategory --names=id,name,description,is_active</code></p>
-<p><small>The above command will create fields-file names <var>/resources/codegenerator-files/asset_categories.json</var></small></p>
+<p><code>php artisan resource-file:create AssetCategory --names=id,name,description,is_active</code></p>
+<p><small>The above command will create resource-file names <var>/resources/codegenerator-files/asset_categories.json</var></small></p>
 <p><code>php artisan create:resources AssetCategory</code></p>
 <p><small>The above command will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AsseyCategoriesController, all views, the routes, and migration file!</var></small></p>
 </blockquote>
@@ -109,8 +109,8 @@ Lets create a CRUD called <var>AssetCategory</var> with the fields listed below.
 ### Basic example using translations for english and arabic
 
 <blockquote>
-<p><code>php artisan fields-file:create AssetCategory --names=id,name,description,is_active --translation-for=en,ar</code></p>
-<p><small>The above command will create fields-file names <var>/resources/codegenerator-files/asset_categories.json</var></small></p>
+<p><code>php artisan resource-file:create AssetCategory --names=id,name,description,is_active --translation-for=en,ar</code></p>
+<p><small>The above command will create resource-file names <var>/resources/codegenerator-files/asset_categories.json</var></small></p>
 <p><code>php artisan create:resources AssetCategory</code></p>
 <p><small>The above command will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AsseyCategoriesController, all views, the routes, and migration file!</var></small></p>
 </blockquote>
@@ -120,9 +120,9 @@ Lets create a CRUD called <var>AssetCategory</var> with the fields listed below.
 
 <blockquote>
 <p><code>php artisan create:resources AssetCategory --table-exists --translation-for=en,ar</code></p>
-<p><small>The above command will create fields-file names <var>/resources/codegenerator-files/asset_categories.json</var></small></p>
+<p><small>The above command will create resource-file names <var>/resources/codegenerator-files/asset_categories.json</var></small></p>
 <p><small>Then it will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AsseyCategoriesController, all views and the routes!</var></small></p>
-<p><small>You may also create a fields-file from existing database separately using <code>create:fields-file AssetCategory --translation-for=en,ar</code></small></p>
+<p><small>You may also create a resource-file from existing database separately using <code>resource-file:from-database AssetCategory --translation-for=en,ar</code></small></p>
 </blockquote>
 
 ## Prologue
