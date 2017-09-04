@@ -349,7 +349,7 @@ return [
     | set this value to an empty string. Or, you can set it to any other value.
     |
      */
-    'controller-name-postfix' => 'Controller',
+    'controller_name_postfix' => 'Controller',
 
     /*
     |--------------------------------------------------------------------------
@@ -359,7 +359,17 @@ return [
     | set this value to an empty string. Or, you can set it to any other value.
     |
      */
-    'form-request-name-postfix' => 'FormRequest',
+    'form_request_name_postfix' => 'FormRequest',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Whether to use code-first approach or not.
+    |--------------------------------------------------------------------------
+    | If you choose not to use code-first apprach, the migration will not be
+    | generated each time you run the create:resources command.
+    |
+     */
+    'use_code_first_approach' => true,
 
     /*
     |--------------------------------------------------------------------------

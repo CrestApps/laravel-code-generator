@@ -17,23 +17,33 @@ class Config
     }
 
     /**
-     * Gets the postfix value for a controller name
+     * Should the generator use a code-first approach
      *
-     * @return array
+     * @return bool
      */
-    public static function getControllerNamePostFix()
+    public static function useCodeFirst()
     {
-        return config('codegenerator.controller-name-postfix', 'Controller');
+        return config('codegenerator.use_code_first_approach', true);
     }
 
     /**
      * Gets the postfix value for a controller name
      *
-     * @return array
+     * @return string
+     */
+    public static function getControllerNamePostFix()
+    {
+        return config('codegenerator.controller_name_postfix', 'Controller');
+    }
+
+    /**
+     * Gets the postfix value for a controller name
+     *
+     * @return string
      */
     public static function getFormRequestNamePostFix()
     {
-        return config('codegenerator.form-request-name-postfix', 'FormRequest');
+        return config('codegenerator.form-request_name_postfix', 'FormRequest');
     }
 
     /**

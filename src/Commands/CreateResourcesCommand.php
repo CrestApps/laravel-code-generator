@@ -3,6 +3,7 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Models\ResourceInput;
+use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ResourceTransformer;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
@@ -323,7 +324,7 @@ class CreateResourcesCommand extends Command
         $input->formRequest = $this->option('with-form-request');
         $input->controllerDirectory = $this->option('controller-directory');
         $input->controllerExtends = $this->option('controller-extends') ?: null;
-        $input->withoutMigration = $this->option('without-migration');
+        $input->withoutMigration = $this->option('without-migration') || !Config::useCodeFirst();
         $input->force = $this->option('force');
         $input->modelDirectory = $this->option('model-directory');
         $input->primaryKey = $this->option('primary-key');

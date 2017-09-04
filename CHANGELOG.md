@@ -11,8 +11,9 @@
  - The CodeGenerator allows you to add any type of relation in the resource-file directly to give you the ability to reuse the setting in the future.
  - New configuration option was added (i.e. `plural_definitions`) to allow you to define a non-english singular to plural words. This is helpfull if your coding using a non-english language like Spanish or Frensh. For more info go to https://github.com/CrestApps/laravel-code-generator/pull/25
  - Added `plural_names_for` config option to allow the user to set whether to create the resource in a plural or singular version.
- - Added `controller-name-postfix` config option to allow the user to change the controller post-fix or even remove it altogether.
- - Added `form-request-name-postfix` config option to allow the user to change the form-request post-fix or even remove it altogether.
+ - Added `controller_name_postfix` config option to allow the user to change the controller post-fix or even remove it altogether.
+ - Added `form_request_name_postfix` config option to allow the user to change the form-request post-fix or even remove it altogether.
+ - Added `use_code_first_approach` config option to allow the use to opt into not generation migration file each time the resource file runs.
 
 
 ## Command Changes
