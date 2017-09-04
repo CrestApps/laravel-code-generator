@@ -229,10 +229,10 @@ class CreateLanguageCommand extends Command
         $template = trim($this->option('template-name'));
 
         return (object) compact(
-                                'modelName',
-                                'fileName',
-                                'resourceFile',
-                                'template'
+            'modelName',
+            'fileName',
+            'resourceFile',
+            'template'
         );
     }
 

@@ -240,13 +240,13 @@ EOF;
         $formRequestDirectory = trim($this->option('form-request-directory'));
 
         return (object) compact(
-                                'formRequestDirectory',
-                                'withAuth',
-                                'modelName',
-                                'fileName',
-                                'resourceFile',
-                                'force',
-                                'template'
+            'formRequestDirectory',
+            'withAuth',
+            'modelName',
+            'fileName',
+            'resourceFile',
+            'force',
+            'template'
         );
     }
 

@@ -2,14 +2,12 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use Route;
-use Exception;
-use Illuminate\Console\Command;
-use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
-use CrestApps\CodeGenerator\Models\Resource;
+use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
+use Illuminate\Console\Command;
 
 class ResourceFileCreateCommand extends Command
 {
@@ -47,7 +45,7 @@ class ResourceFileCreateCommand extends Command
         $input = $this->getCommandInput();
         $file = $this->getFilename($input->file);
 
-        if ($this->isFileExists($file) && ! $input->force) {
+        if ($this->isFileExists($file) && !$input->force) {
             $this->error('The resource-file already exists! To override the existing file, use --force option to append.');
 
             return false;
@@ -69,9 +67,8 @@ class ResourceFileCreateCommand extends Command
 
         $content = json_encode($resource->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
-
         $this->createFile($file, $content)
-             ->info('The  "'. basename($file) .'" file was crafted successfully!');
+            ->info('The "' . basename($file) . '" file was crafted successfully!');
     }
 
     /**
@@ -91,7 +88,16 @@ class ResourceFileCreateCommand extends Command
         $transaltionFor = Helpers::convertStringToArray($this->generatorOption('translation-for'));
         $force = $this->option('force');
 
-        return (object) compact('modelName', 'file', 'names', 'dataTypes', 'htmlTypes', 'withoutPrimaryKey', 'transaltionFor', 'force');
+        return (object) compact(
+            'modelName',
+            'file',
+            'names',
+            'dataTypes',
+            'htmlTypes',
+            'withoutPrimaryKey',
+            'transaltionFor',
+            'force'
+        );
     }
 
     /**
@@ -128,7 +134,7 @@ class ResourceFileCreateCommand extends Command
             if (!$withoutPrimaryKey && strtolower($name) == 'id') {
                 continue;
             }
-            
+
             $properties = ['name' => $name];
 
             if (isset($input->htmlTypes[$key])) {
@@ -173,13 +179,13 @@ class ResourceFileCreateCommand extends Command
                 $this->error('The existing mapping file contains invalid json string. Please fix the file then try again');
                 return false;
             }
-            
+
             $existingFields = Collect($existingFields)->filter(function ($resource) use ($modelName) {
                 return isset($resource['model-name']) && $resource['model-name'] != $modelName;
             });
 
             $existingFields->push([
-                'model-name'  => $modelName,
+                'model-name' => $modelName,
                 'resource-file' => $fieldsFileName,
             ]);
 
@@ -202,7 +208,7 @@ class ResourceFileCreateCommand extends Command
             'name' => 'id',
             'type' => 'integer',
             'is-primary' => true,
-            'is-auto-increment' => true
+            'is-auto-increment' => true,
         ];
     }
 }

@@ -2,17 +2,17 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use File;
-use Exception;
-use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Models\Field;
-use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Models\ForeignConstraint;
+use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Models\Resource;
-use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ResourceTransformer;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
+use Exception;
+use File;
+use Illuminate\Console\Command;
 
 class CreateMigrationCommand extends Command
 {
@@ -71,10 +71,10 @@ class CreateMigrationCommand extends Command
         $destenationFile = $this->getDestenationFile($input->tableName);
 
         $this->replaceSchemaUp($stub, $this->getSchemaUpCommand($input, $properites))
-             ->replaceSchemaDown($stub, $this->getSchemaDownCommand($input))
-             ->replaceMigationName($stub, $input->className)
-             ->createFile($destenationFile, $stub)
-             ->info('A migration was crafted successfully.');
+            ->replaceSchemaDown($stub, $this->getSchemaDownCommand($input))
+            ->replaceMigationName($stub, $input->className)
+            ->createFile($destenationFile, $stub)
+            ->info('A migration was crafted successfully.');
     }
 
     /**
@@ -105,12 +105,12 @@ class CreateMigrationCommand extends Command
         $constraints = $this->getConstraintsFromfields($resource->fields);
 
         $this->addEngineName($properties, $input->engine)
-             ->addPrimaryField($properties, $this->getPrimaryField($resource->fields))
-             ->addTimestamps($properties, $input->withoutTimestamps)
-             ->addSoftDelete($properties, $input->withSoftDelete)
-             ->addFieldProperties($properties, $resource->fields, $input->withoutTimestamps, $input->withSoftDelete)
-             ->addIndexes($properties, $resource->indexes)
-             ->addForeignConstraints($properties, $constraints);
+            ->addPrimaryField($properties, $this->getPrimaryField($resource->fields))
+            ->addTimestamps($properties, $input->withoutTimestamps)
+            ->addSoftDelete($properties, $input->withSoftDelete)
+            ->addFieldProperties($properties, $resource->fields, $input->withoutTimestamps, $input->withSoftDelete)
+            ->addIndexes($properties, $resource->indexes)
+            ->addForeignConstraints($properties, $constraints);
 
         return $properties;
     }
@@ -123,15 +123,15 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addForeignConstraints(& $properties, array $constraints)
+    protected function addForeignConstraints(&$properties, array $constraints)
     {
         foreach ($constraints as $constraint) {
             $this->addForeignConstraint($properties, $constraint)
-                 ->addReferencesConstraint($properties, $constraint)
-                 ->addOnConstraint($properties, $constraint)
-                 ->addOnDeleteConstraint($properties, $constraint)
-                 ->addOnUpdateConstraint($properties, $constraint)
-                 ->addFieldPropertyClousure($properties);
+                ->addReferencesConstraint($properties, $constraint)
+                ->addOnConstraint($properties, $constraint)
+                ->addOnDeleteConstraint($properties, $constraint)
+                ->addOnUpdateConstraint($properties, $constraint)
+                ->addFieldPropertyClousure($properties);
         }
 
         return $this;
@@ -165,7 +165,7 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addForeignConstraint(& $properties, ForeignConstraint $constraint)
+    protected function addForeignConstraint(&$properties, ForeignConstraint $constraint)
     {
         $properties .= PHP_EOL . sprintf("%s('%s')", $this->getPropertyBase('foreign'), $constraint->column);
 
@@ -180,7 +180,7 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addReferencesConstraint(& $properties, ForeignConstraint $constraint)
+    protected function addReferencesConstraint(&$properties, ForeignConstraint $constraint)
     {
         $properties .= $this->getPropertyBaseSpace(18, true) . sprintf("->references('%s')", $constraint->references);
 
@@ -195,7 +195,7 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addOnConstraint(& $properties, ForeignConstraint $constraint)
+    protected function addOnConstraint(&$properties, ForeignConstraint $constraint)
     {
         $properties .= $this->getPropertyBaseSpace(18, true) . sprintf("->on('%s')", $constraint->on);
 
@@ -210,10 +210,10 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addOnDeleteConstraint(& $properties, ForeignConstraint $constraint)
+    protected function addOnDeleteConstraint(&$properties, ForeignConstraint $constraint)
     {
         if ($constraint->hasDeleteAction()) {
-            $properties .= $this->getPropertyBaseSpace(18, true) . sprintf("->onDelete('%s')", $constraint->onDelete) ;
+            $properties .= $this->getPropertyBaseSpace(18, true) . sprintf("->onDelete('%s')", $constraint->onDelete);
         }
 
         return $this;
@@ -227,7 +227,7 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addOnUpdateConstraint(& $properties, ForeignConstraint $constraint)
+    protected function addOnUpdateConstraint(&$properties, ForeignConstraint $constraint)
     {
         if ($constraint->hasUpdateAction()) {
             $properties .= $this->getPropertyBaseSpace(18, true) . sprintf("->onUpdate('%s')", $constraint->onUpdate);
@@ -276,7 +276,7 @@ class CreateMigrationCommand extends Command
      * @param array $indexes
      * @return $this
      */
-    protected function addIndexes(& $properties, array $indexes)
+    protected function addIndexes(&$properties, array $indexes)
     {
         foreach ($indexes as $index) {
             if (!$index->hasColumns()) {
@@ -329,7 +329,7 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addFieldProperties(& $properties, array $fields, $withoutTimestamps, $withSoftDelete)
+    protected function addFieldProperties(&$properties, array $fields, $withoutTimestamps, $withSoftDelete)
     {
         $primaryField = $this->getPrimaryField($fields);
 
@@ -343,12 +343,12 @@ class CreateMigrationCommand extends Command
                 }
 
                 $this->addFieldType($properties, $field)
-                     ->addFieldComment($properties, $field)
-                     ->addFieldUnsigned($properties, $field)
-                     ->addFieldNullable($properties, $field)
-                     ->addFieldIndex($properties, $field)
-                     ->addFieldUnique($properties, $field)
-                     ->addFieldPropertyClousure($properties);
+                    ->addFieldComment($properties, $field)
+                    ->addFieldUnsigned($properties, $field)
+                    ->addFieldNullable($properties, $field)
+                    ->addFieldIndex($properties, $field)
+                    ->addFieldUnique($properties, $field)
+                    ->addFieldPropertyClousure($properties);
             }
         }
 
@@ -362,7 +362,7 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addFieldPropertyClousure(& $property)
+    protected function addFieldPropertyClousure(&$property)
     {
         $property .= ';' . PHP_EOL;
 
@@ -377,7 +377,7 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addFieldType(& $property, Field $field)
+    protected function addFieldType(&$property, Field $field)
     {
         $type = strtolower(Helpers::removeNonEnglishChars($field->dataType));
 
@@ -431,14 +431,14 @@ class CreateMigrationCommand extends Command
         }
 
         $labels = array_filter($field->getOptionsByLang(), function ($option) use ($field) {
-            return ! ($field->isRequired() && $option->value == '');
+            return !($field->isRequired() && $option->value == '');
         });
 
         $values = $this->getLabelValues($labels);
 
         if (count($values) == 0) {
             throw new Exception('Could not find any option values to construct the enum values from. ' .
-                                'It is possible that this field is required but only have option available has an empty string.');
+                'It is possible that this field is required but only have option available has an empty string.');
         }
 
         return sprintf('[%s]', implode(',', Helpers::wrapItems($values)));
@@ -501,7 +501,7 @@ class CreateMigrationCommand extends Command
         $stub = $this->getStubContent('schema-down', $input->template);
 
         $this->replaceConnectionName($stub, $input->connection)
-             ->replaceTableName($stub, $input->tableName);
+            ->replaceTableName($stub, $input->tableName);
 
         return $stub;
     }
@@ -518,8 +518,8 @@ class CreateMigrationCommand extends Command
         $stub = $this->getStubContent('schema-up', $input->template);
 
         $this->replaceConnectionName($stub, $input->connection)
-             ->replaceTableName($stub, $input->tableName)
-             ->replaceBlueprintBodyName($stub, $blueprintBody);
+            ->replaceTableName($stub, $input->tableName)
+            ->replaceBlueprintBodyName($stub, $blueprintBody);
 
         return $stub;
     }
@@ -594,12 +594,12 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addFieldDefaultValue(& $property, Field $field)
+    protected function addFieldDefaultValue(&$property, Field $field)
     {
         if (!is_null($field->dataValue) && !$field->nullable) {
             $property .= sprintf("->default('%s')", $field->dataValue);
         }
-    
+
         return $this;
     }
 
@@ -611,12 +611,12 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addFieldUnsigned(& $property, Field $field)
+    protected function addFieldUnsigned(&$property, Field $field)
     {
         if ($field->isUnsigned) {
             $property .= '->unsigned()';
         }
-    
+
         return $this;
     }
 
@@ -628,12 +628,12 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addFieldUnique(& $property, Field $field)
+    protected function addFieldUnique(&$property, Field $field)
     {
         if ($field->isUnique) {
             $property .= '->unique()';
         }
-    
+
         return $this;
     }
 
@@ -645,12 +645,12 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addFieldIndex(& $property, Field $field)
+    protected function addFieldIndex(&$property, Field $field)
     {
         if ($field->isIndex && !$field->isUnique) {
             $property .= '->index()';
         }
-    
+
         return $this;
     }
 
@@ -662,12 +662,12 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addFieldNullable(& $property, Field $field)
+    protected function addFieldNullable(&$property, Field $field)
     {
         if ($field->isNullable) {
             $property .= '->nullable()';
         }
-    
+
         return $this;
     }
 
@@ -679,12 +679,12 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addFieldComment(& $property, Field $field)
+    protected function addFieldComment(&$property, Field $field)
     {
         if (!empty($field->comment)) {
             $property .= sprintf("->comment('%s')", $field->comment);
         }
-    
+
         return $this;
     }
 
@@ -696,13 +696,13 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addEngineName(& $property, $name)
+    protected function addEngineName(&$property, $name)
     {
         if (!empty($name)) {
             $property .= sprintf("%s = '%s'", $this->getPropertyBase('engine'), $name);
             $this->addFieldPropertyClousure($property);
         }
-    
+
         return $this;
     }
 
@@ -714,14 +714,14 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addPrimaryField(& $property, Field $field = null)
+    protected function addPrimaryField(&$property, Field $field = null)
     {
         if (!is_null($field)) {
             $eloquentMethodName = $this->getPrimaryMethodName($field->dataType);
             $property .= sprintf("%s('%s')", $this->getPropertyBase($eloquentMethodName), $field->name);
             $this->addFieldPropertyClousure($property);
         }
-    
+
         return $this;
     }
 
@@ -733,13 +733,13 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addTimestamps(& $property, $without)
+    protected function addTimestamps(&$property, $without)
     {
         if (!$without) {
             $property .= sprintf("%s()", $this->getPropertyBase('timestamps'));
             $this->addFieldPropertyClousure($property);
         }
-    
+
         return $this;
     }
 
@@ -751,13 +751,13 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function addSoftDelete(& $property, $withSoftDelete)
+    protected function addSoftDelete(&$property, $withSoftDelete)
     {
         if ($withSoftDelete) {
             $property .= sprintf("%s()", $this->getPropertyBase('softDeletes'));
             $this->addFieldPropertyClousure($property);
         }
-    
+
         return $this;
     }
 
@@ -774,11 +774,11 @@ class CreateMigrationCommand extends Command
 
         $methodName = 'primary';
 
-        if (in_array($type, ['int','integer'])) {
+        if (in_array($type, ['int', 'integer'])) {
             $methodName = 'increments';
-        } elseif (in_array($type, ['bigint','biginteger'])) {
+        } elseif (in_array($type, ['bigint', 'biginteger'])) {
             $methodName = 'bigIncrements';
-        } elseif (in_array($type, ['mediuminteger','mediumincrements'])) {
+        } elseif (in_array($type, ['mediuminteger', 'mediumincrements'])) {
             $methodName = 'mediumincrements';
         }
 
@@ -793,11 +793,11 @@ class CreateMigrationCommand extends Command
     protected function getCommandInput()
     {
         $modelName = trim($this->argument('model-name'));
-        $madeUpTableName = $this->makeTableName($modelName);
+        $madeUpTableName = Helpers::makeTableName($modelName);
         $tableName = trim($this->option('table-name')) ?: $madeUpTableName;
         $className = trim($this->option('migration-class-name')) ?: sprintf('Create%sTable', studly_case($madeUpTableName));
-        $connection =  trim($this->option('connection-name'));
-        $engine =  trim($this->option('engine-name'));
+        $connection = trim($this->option('connection-name'));
+        $engine = trim($this->option('engine-name'));
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
         $force = $this->option('force');
         $template = $this->getTemplateName();
@@ -805,16 +805,16 @@ class CreateMigrationCommand extends Command
         $withSoftDelete = $this->option('with-soft-delete');
 
         return (object) compact(
-                                'modelName',
-                                'tableName',
-                                'className',
-                                'connection',
-                                'engine',
-                                'resourceFile',
-                                'force',
-                                'template',
-                                'withoutTimestamps',
-                                'withSoftDelete'
+            'modelName',
+            'tableName',
+            'className',
+            'connection',
+            'engine',
+            'resourceFile',
+            'force',
+            'template',
+            'withoutTimestamps',
+            'withSoftDelete'
         );
     }
 

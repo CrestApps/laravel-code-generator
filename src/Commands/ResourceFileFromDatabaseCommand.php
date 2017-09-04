@@ -2,14 +2,14 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use DB;
-use File;
-use Exception;
-use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\traits\CommonCommand;
-use CrestApps\CodeGenerator\Support\Config;
+use DB;
+use Exception;
+use File;
+use Illuminate\Console\Command;
 
 class ResourceFileFromDatabaseCommand extends Command
 {
@@ -64,7 +64,7 @@ class ResourceFileFromDatabaseCommand extends Command
         }
 
         $this->createFile($destenationFile, $content)
-             ->info('The  "'. basename($destenationFile) .'" file was crafted successfully!');
+            ->info('The  "' . basename($destenationFile) . '" file was crafted successfully!');
     }
 
     /**
@@ -90,15 +90,15 @@ class ResourceFileFromDatabaseCommand extends Command
                 $this->error('The existing mapping file contains invalid json string. Please fix the file then try again');
                 return false;
             }
-            
+
             $existingFields = Collect($existingFields)->filter(function ($resource) use ($modelName) {
                 return isset($resource->{'model-name'}) && $resource->{'model-name'} != $modelName;
             });
 
             $existingFields->push([
-                'model-name'  => $modelName,
+                'model-name' => $modelName,
                 'resource-file' => $fieldsFileName,
-                'table-name'  => $this->getTableName(),
+                'table-name' => $this->getTableName(),
             ]);
 
             foreach ($existingFields as $existingField) {
@@ -188,7 +188,7 @@ class ResourceFileFromDatabaseCommand extends Command
      */
     protected function getTableName()
     {
-        return trim($this->option('table-name')) ?: $this->makeTableName($this->getModelName());
+        return trim($this->option('table-name')) ?: Helpers::makeTableName($this->getModelName());
     }
 
     /**

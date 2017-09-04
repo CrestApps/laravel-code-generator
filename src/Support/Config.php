@@ -10,17 +10,53 @@ class Config
      * Gets the default datetime output format
      *
      * @return array
-    */
+     */
     public static function getCommonDefinitions()
     {
         return config('codegenerator.common_definitions', []);
     }
 
     /**
+     * Gets the postfix value for a controller name
+     *
+     * @return array
+     */
+    public static function getControllerNamePostFix()
+    {
+        return config('codegenerator.controller-name-postfix', 'Controller');
+    }
+
+    /**
+     * Gets the postfix value for a controller name
+     *
+     * @return array
+     */
+    public static function getFormRequestNamePostFix()
+    {
+        return config('codegenerator.form-request-name-postfix', 'FormRequest');
+    }
+
+    /**
+     * Checks if a giving file type should be a plural or not.
+     *
+     * @return array
+     */
+    public static function shouldBePlural($key)
+    {
+        $config = config('codegenerator.plural_names_for', []);
+
+        if (isset($config[$key])) {
+            return (bool) $config[$key];
+        }
+
+        return ($key != 'model-name');
+    }
+
+    /**
      * Gets the non-english singular to plural definitions.
      *
      * @return array
-    */
+     */
     public static function getPluralDefinitions()
     {
         return config('codegenerator.plural_definitions', []);
@@ -30,7 +66,7 @@ class Config
      * Gets the default datetime output format
      *
      * @return array
-    */
+     */
     public static function getDateTimeFormat()
     {
         return config('codegenerator.datetime_out_format', 'm/d/Y H:i A');
@@ -40,7 +76,7 @@ class Config
      * Gets the default resources mapper file
      *
      * @return string
-    */
+     */
     public static function getDefaultMapperFileName()
     {
         return config('codegenerator.default_mapper_file_name', 'resources_map.json');
@@ -50,7 +86,7 @@ class Config
      * Check if the resource mapper should be auto managed.
      *
      * @return bool
-    */
+     */
     public static function autoManageResourceMapper()
     {
         return config('codegenerator.auto_manage_resource_mapper', true);
@@ -60,7 +96,7 @@ class Config
      * Gets the default placeholders by type
      *
      * @return array
-    */
+     */
     public static function getPlaceholderByHtmlType()
     {
         return config('codegenerator.placeholder_by_html_type', []);
@@ -70,7 +106,7 @@ class Config
      * Gets the common name patterns to use for headers.
      *
      * @return array
-    */
+     */
     public static function getHeadersPatterns()
     {
         return config('codegenerator.common_header_patterns', []);
@@ -82,11 +118,11 @@ class Config
      * @param string $file = '';
      *
      * @return string
-    */
+     */
     public static function pathToFieldFiles($file = '')
     {
         $path = config('codegenerator.fields_file_path', '');
-        
+
         return Helpers::getPathWithSlash($path) . $file;
     }
 
@@ -94,12 +130,12 @@ class Config
      * Gets the common key patterns.
      *
      * @return array
-    */
+     */
     public static function getKeyPatterns()
     {
         return config('codegenerator.common_key_patterns', []);
     }
-    
+
     /**
      * Gets the path to requests
      *
@@ -118,18 +154,18 @@ class Config
      * Gets the default template name.
      *
      * @return array
-    */
+     */
     public static function getTemplatesPath()
     {
         $path = config('codegenerator.templates_path', 'resources/codegenerator-templates');
-        
+
         return Helpers::getPathWithSlash($path);
     }
 
     /**
-      * Gets the eloquent's method to html
-      *
-      * @return array
+     * Gets the eloquent's method to html
+     *
+     * @return array
      */
     public static function getEloquentToHtmlMap()
     {
@@ -236,7 +272,7 @@ class Config
      * Gets the eloquent type to method collection.
      *
      * @return array
-    */
+     */
     public static function dataTypeMap()
     {
         return config('codegenerator.eloquent_type_to_method', []);

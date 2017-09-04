@@ -2,13 +2,13 @@
 
 namespace CrestApps\CodeGenerator\Traits;
 
-use File;
-use Exception;
-use Illuminate\Container\Container;
 use CrestApps\CodeGenerator\Models\Field;
-use CrestApps\CodeGenerator\Support\Str;
-use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
+use Exception;
+use File;
+use Illuminate\Container\Container;
 
 trait CommonCommand
 {
@@ -18,11 +18,11 @@ trait CommonCommand
      * @var array
      */
     protected $noValues = [
-                        'empty',
-                        'no_value',
-                        'blank',
-                        'none'
-                    ];
+        'empty',
+        'no_value',
+        'blank',
+        'none',
+    ];
 
     /**
      * The default route actions
@@ -30,14 +30,14 @@ trait CommonCommand
      * @var array
      */
     protected $actions = [
-                    'index',
-                    'create',
-                    'show',
-                    'update',
-                    'edit',
-                    'destroy',
-                    'store'
-                ];
+        'index',
+        'create',
+        'show',
+        'update',
+        'edit',
+        'destroy',
+        'store',
+    ];
 
     /**
      * The default views actions
@@ -45,13 +45,13 @@ trait CommonCommand
      * @var array
      */
     protected $views = [
-                    'form',
-                    'index',
-                    'create',
-                    'show',
-                    'edit'
-                ];
-                
+        'form',
+        'index',
+        'create',
+        'show',
+        'edit',
+    ];
+
     /**
      * Replaces a template variable in the giving subject.
      *
@@ -113,7 +113,7 @@ trait CommonCommand
     {
         return camel_case(Str::plural(snake_case($modelName)));
     }
-    
+
     /**
      * Gets singular variable instance of a giving model.
      *
@@ -124,18 +124,6 @@ trait CommonCommand
     public function getSingularVariable($modelName)
     {
         return lcfirst($modelName);
-    }
-
-    /**
-     * Makes the table name from the giving model name.
-     *
-     * @param  string  $modelName
-     *
-     * @return string
-     */
-    protected function makeTableName($modelName)
-    {
-        return Str::plural(snake_case($modelName));
     }
 
     /**
@@ -171,7 +159,7 @@ trait CommonCommand
         if ($multiplier < 1) {
             return '';
         }
-        
+
         return str_repeat(' ', $multiplier);
     }
 
@@ -225,7 +213,7 @@ trait CommonCommand
             $viewTemplate = $this->getViewName($view);
             $stub = $this->strReplace($viewTemplate, $viewName, $stub);
         }
-        
+
         return $this;
     }
 
@@ -284,7 +272,7 @@ trait CommonCommand
             $routeTemplate = $this->getRouteName($action);
             $stub = $this->strReplace($routeTemplate, $routeName, $stub);
         }
-        
+
         return $this;
     }
 
@@ -458,11 +446,11 @@ trait CommonCommand
     }
 
     /**
-    * Build the directory for the class if necessary.
-    *
-    * @param  string  $path
-    * @return $this
-    */
+     * Build the directory for the class if necessary.
+     *
+     * @param  string  $path
+     * @return $this
+     */
     protected function createDirectory($path)
     {
         if (!File::isDirectory($path)) {
@@ -532,7 +520,7 @@ trait CommonCommand
         $template = Helpers::getPathWithSlash($template ?: Config::getDefaultTemplateName());
         $basePath = base_path(Config::getTemplatesPath() . $template);
         $path = Helpers::getPathWithSlash($basePath);
-  
+
         if (!$this->isFileExists($path)) {
             throw new Exception('Invalid template name or the templates is invalid. Make sure the following path exists: "' . $path . '"');
         }
@@ -564,7 +552,7 @@ trait CommonCommand
         $filtered = array_filter($fields, function ($field) {
             return $field->isFile();
         });
-        
+
         return (count($filtered) > 0);
     }
 

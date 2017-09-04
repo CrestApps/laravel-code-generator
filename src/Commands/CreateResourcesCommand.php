@@ -2,13 +2,12 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use Exception;
-use Illuminate\Console\Command;
-use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Models\ResourceInput;
-use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ResourceTransformer;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
+use Exception;
+use Illuminate\Console\Command;
 
 class CreateResourcesCommand extends Command
 {
@@ -47,7 +46,6 @@ class CreateResourcesCommand extends Command
                             {--translation-for= : A comma seperated string of languages to create fields for.}
                             {--force : This option will override the controller if one already exists.}';
 
-
     /**
      * The console command description.
      *
@@ -73,14 +71,14 @@ class CreateResourcesCommand extends Command
         $resources = ResourceTransformer::fromFile($input->resourceFile, $input->languageFileName ?: 'generic');
 
         $this->validateField($resources->fields)
-             ->printInfo('Scaffolding resources for ' . $this->modelNamePlainEnglish($input->modelName) . '...')
-             ->createModel($input)
-             ->createController($input)
-             ->createRoutes($input)
-             ->createLanguage($input)
-             ->createViews($input)
-             ->createMigration($input)
-             ->info('Done!');
+            ->printInfo('Scaffolding resources for ' . $this->modelNamePlainEnglish($input->modelName) . '...')
+            ->createModel($input)
+            ->createController($input)
+            ->createRoutes($input)
+            ->createLanguage($input)
+            ->createViews($input)
+            ->createMigration($input)
+            ->info('Done!');
     }
 
     /**
@@ -138,16 +136,16 @@ class CreateResourcesCommand extends Command
             $this->call(
                 'create:migration',
                 [
-                    'model-name'               => $input->modelName,
-                    '--table-name'             => $input->table,
-                    '--migration-class-name'   => $input->migrationClass,
-                    '--connection-name'        => $input->connectionName,
-                    '--engine-name'            => $input->engineName,
-                    '--resource-file'          => $input->resourceFile,
-                    '--template-name'          => $input->template,
-                    '--without-timestamps'     => $input->withoutTimeStamps,
-                    '--with-soft-delete'       => $input->withSoftDelete,
-                    '--force'                  => $input->force,
+                    'model-name' => $input->modelName,
+                    '--table-name' => $input->table,
+                    '--migration-class-name' => $input->migrationClass,
+                    '--connection-name' => $input->connectionName,
+                    '--engine-name' => $input->engineName,
+                    '--resource-file' => $input->resourceFile,
+                    '--template-name' => $input->template,
+                    '--without-timestamps' => $input->withoutTimeStamps,
+                    '--with-soft-delete' => $input->withSoftDelete,
+                    '--force' => $input->force,
                 ]
             );
         }
@@ -167,10 +165,10 @@ class CreateResourcesCommand extends Command
         $this->callSilent(
             'resource-file:from-database',
             [
-                'model-name'          => $input->modelName,
-                '--table-name'        => $input->table,
-                '--translation-for'   => $input->translationFor,
-                '--force'             => $input->force,
+                'model-name' => $input->modelName,
+                '--table-name' => $input->table,
+                '--translation-for' => $input->translationFor,
+                '--force' => $input->force,
             ]
         );
 
@@ -189,10 +187,10 @@ class CreateResourcesCommand extends Command
         $this->callSilent(
             'create:language',
             [
-                'model-name'             => $input->modelName,
-                '--language-file-name'   => $input->languageFileName,
-                '--resource-file'        => $input->resourceFile,
-                '--template-name'        => $input->template
+                'model-name' => $input->modelName,
+                '--language-file-name' => $input->languageFileName,
+                '--resource-file' => $input->resourceFile,
+                '--template-name' => $input->template,
             ]
         );
 
@@ -211,13 +209,13 @@ class CreateResourcesCommand extends Command
         $this->call(
             'create:views',
             [
-                'model-name'          => $input->modelName,
-                '--resource-file'     => $input->resourceFile,
-                '--views-directory'   => $input->viewsDirectory,
-                '--routes-prefix'     => $input->prefix,
-                '--layout-name'       => $input->layoutName,
-                '--template-name'     => $input->template,
-                '--force'             => $input->force,
+                'model-name' => $input->modelName,
+                '--resource-file' => $input->resourceFile,
+                '--views-directory' => $input->viewsDirectory,
+                '--routes-prefix' => $input->prefix,
+                '--layout-name' => $input->layoutName,
+                '--template-name' => $input->template,
+                '--force' => $input->force,
             ]
         );
 
@@ -236,11 +234,11 @@ class CreateResourcesCommand extends Command
         $this->call(
             'create:routes',
             [
-                'model-name'               => $input->modelName,
-                '--controller-name'        => $input->controllerName,
-                '--routes-prefix'          => $input->prefix,
-                '--template-name'          => $input->template,
-                '--controller-directory'   => $input->controllerDirectory
+                'model-name' => $input->modelName,
+                '--controller-name' => $input->controllerName,
+                '--routes-prefix' => $input->prefix,
+                '--template-name' => $input->template,
+                '--controller-directory' => $input->controllerDirectory,
             ]
         );
 
@@ -258,21 +256,21 @@ class CreateResourcesCommand extends Command
         $this->call(
             'create:controller',
             [
-                'model-name'                 => $input->modelName,
-                '--controller-name'          => $input->controllerName,
-                '--controller-directory'     => $input->controllerDirectory,
-                '--controller-extends'       => $input->controllerExtends,
-                '--model-directory'          => $input->modelDirectory,
-                '--views-directory'          => $input->viewsDirectory,
-                '--resource-file'            => $input->resourceFile,
-                '--models-per-page'          => $input->perPage,
-                '--routes-prefix'            => $input->prefix,
-                '--lang-file-name'           => $input->languageFileName,
-                '--with-form-request'        => $input->formRequest,
-                '--form-request-directory'   => $input->formRequestDirectory,
-                '--with-auth'                => $input->withAuth,
-                '--template-name'            => $input->template,
-                '--force'                    => $input->force,
+                'model-name' => $input->modelName,
+                '--controller-name' => $input->controllerName,
+                '--controller-directory' => $input->controllerDirectory,
+                '--controller-extends' => $input->controllerExtends,
+                '--model-directory' => $input->modelDirectory,
+                '--views-directory' => $input->viewsDirectory,
+                '--resource-file' => $input->resourceFile,
+                '--models-per-page' => $input->perPage,
+                '--routes-prefix' => $input->prefix,
+                '--lang-file-name' => $input->languageFileName,
+                '--with-form-request' => $input->formRequest,
+                '--form-request-directory' => $input->formRequestDirectory,
+                '--with-auth' => $input->withAuth,
+                '--template-name' => $input->template,
+                '--force' => $input->force,
             ]
         );
 
@@ -291,15 +289,15 @@ class CreateResourcesCommand extends Command
         $this->call(
             'create:model',
             [
-                'model-name'             => $input->modelName,
-                '--table-name'           => $input->table,
-                '--primary-key'          => $input->primaryKey,
-                '--resource-file'        => $input->resourceFile,
-                '--model-directory'      => $input->modelDirectory,
-                '--with-soft-delete'     => $input->withSoftDelete,
-                '--without-timestamps'   => $input->withoutTimeStamps,
-                '--template-name'        => $input->template,
-                '--force'                => $input->force,
+                'model-name' => $input->modelName,
+                '--table-name' => $input->table,
+                '--primary-key' => $input->primaryKey,
+                '--resource-file' => $input->resourceFile,
+                '--model-directory' => $input->modelDirectory,
+                '--with-soft-delete' => $input->withSoftDelete,
+                '--without-timestamps' => $input->withoutTimeStamps,
+                '--template-name' => $input->template,
+                '--force' => $input->force,
             ]
         );
 
@@ -315,7 +313,7 @@ class CreateResourcesCommand extends Command
     {
         $input = new ResourceInput(trim($this->argument('model-name')));
         $prefix = $this->option('routes-prefix');
-        $input->prefix = ($prefix == 'model-name-as-plural') ? $this->makeTableName($input->modelName) : $prefix;
+        $input->prefix = ($prefix == 'model-name-as-plural') ? Helpers::makeTableName($input->modelName) : $prefix;
         $input->languageFileName = trim($this->option('lang-file-name'));
         $input->table = trim($this->option('table-name'));
         $input->viewsDirectory = trim($this->option('views-directory'));

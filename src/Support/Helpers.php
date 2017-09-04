@@ -3,11 +3,9 @@
 namespace CrestApps\CodeGenerator\Support;
 
 use App;
-use File;
-use Exception;
-use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Str;
+use File;
 
 class Helpers
 {
@@ -20,9 +18,13 @@ class Helpers
      */
     public static function makeControllerName($modelName)
     {
-        $plural = ucfirst(camel_case(Str::plural(snake_case($modelName))));
-        
-        return str_finish($plural, 'Controller');
+        $case = ucfirst(camel_case(self::getProperCaseFor($modelName, 'controller-name')));
+
+        if (!empty($postFix = Config::getControllerNamePostFix())) {
+            return str_finish($case, $postFix);
+        }
+
+        return $case;
     }
 
     /**
@@ -34,7 +36,13 @@ class Helpers
      */
     public static function makeFormRequestName($modelName)
     {
-        return str_finish($modelName, 'FormRequest');
+        $case = ucfirst(camel_case(self::getProperCaseFor($modelName, 'request-form-name')));
+
+        if (!empty($postFix = Config::getFormRequestNamePostFix())) {
+            return str_finish($case, $postFix);
+        }
+
+        return $case;
     }
 
     /**
@@ -82,7 +90,38 @@ class Helpers
      */
     public static function makeLocaleGroup($modelName)
     {
-        return Str::plural(snake_case($modelName));
+        return self::getProperCaseFor($modelName, 'language-file-name');
+    }
+
+    /**
+     * Makes the proper english case giving a model name and a file type
+     *
+     * @param string $modelName
+     * @param string $key
+     *
+     * @return string
+     */
+    public static function getProperCaseFor($modelName, $key = null)
+    {
+        $snake = snake_case($modelName);
+
+        if (Config::shouldBePlural($key)) {
+            return Str::plural($snake);
+        }
+
+        return $snake;
+    }
+
+    /**
+     * Makes the table name from the giving model name.
+     *
+     * @param  string  $modelName
+     *
+     * @return string
+     */
+    public static function makeTableName($modelName)
+    {
+        return self::getProperCaseFor($modelName, 'table-name');
     }
 
     /**
@@ -94,7 +133,9 @@ class Helpers
      */
     public static function makeJsonFileName($modelName)
     {
-        return self::makeLocaleGroup($modelName) . '.json';
+        $snake = self::getProperCaseFor($modelName, 'resource-file-name');
+
+        return str_finish($snake, '.json');
     }
 
     /**
@@ -109,7 +150,15 @@ class Helpers
         return version_compare(App::VERSION(), $version) > 0;
     }
 
-
+    /**
+     * Replaces found pattern in a subject only one time.
+     *
+     * @param string $pattern
+     * @param string $replacment
+     * @param string $subject
+     *
+     * @return string
+     */
     public static function strReplaceOnce($pattern, $replacment, $subject)
     {
         if (strpos($subject, $pattern) !== false) {
@@ -178,7 +227,7 @@ class Helpers
      */
     public static function convertToDotNotation($string)
     {
-        return str_replace(['/','\\'], '.', $string);
+        return str_replace(['/', '\\'], '.', $string);
     }
 
     /**
@@ -230,8 +279,8 @@ class Helpers
         if (is_bool($str)) {
             return $str;
         }
-        
-        return in_array(strtolower($str), ['true','yes','1','valid','correct']);
+
+        return in_array(strtolower($str), ['true', 'yes', '1', 'valid', 'correct']);
     }
 
     /**
@@ -330,7 +379,7 @@ class Helpers
     {
         return array_map(function ($item) use ($wrapper) {
             $item = str_replace($wrapper, '\\' . $wrapper, trim($item, $wrapper));
-            
+
             return sprintf('%s%s%s', $wrapper, $item, $wrapper);
         }, $items);
     }

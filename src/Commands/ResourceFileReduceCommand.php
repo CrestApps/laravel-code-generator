@@ -115,7 +115,11 @@ class ResourceFileReduceCommand extends Command
         $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
         $names = array_unique(Helpers::convertStringToArray($this->generatorOption('names')));
 
-        return (object) compact('modelName', 'file', 'names');
+        return (object) compact(
+            'modelName',
+            'file',
+            'names'
+        );
     }
 
     /**

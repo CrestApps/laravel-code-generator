@@ -79,11 +79,11 @@ class CreateRoutesCommand extends Command
         $controllerDirectory = trim($this->option('controller-directory'));
 
         return (object) compact(
-                                'modelName',
-                                'controllerName',
-                                'prefix',
-                                'template',
-                                'controllerDirectory'
+            'modelName',
+            'controllerName',
+            'prefix',
+            'template',
+            'controllerDirectory'
         );
     }
 
