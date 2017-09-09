@@ -12,66 +12,66 @@ class ResourceInput
     public $modelName;
 
     /**
-    * The controller name
-    *
-    * @var string
-    */
+     * The controller name
+     *
+     * @var string
+     */
     public $controllerName;
 
     /**
-    * The prefix
-    *
-    * @var string
-    */
+     * The prefix
+     *
+     * @var string
+     */
     public $prefix;
 
     /**
-    * The language file
-    *
-    * @var string
-    */
+     * The language file
+     *
+     * @var string
+     */
     public $languageFileName;
 
     /**
-    * The table name
-    *
-    * @var string
-    */
+     * The table name
+     *
+     * @var string
+     */
     public $table;
 
     /**
-    * The views directory
-    *
-    * @var string
-    */
+     * The views directory
+     *
+     * @var string
+     */
     public $viewsDirectory;
 
     /**
-    * Total models per page
-    *
-    * @var int
-    */
+     * Total models per page
+     *
+     * @var int
+     */
     public $perPage = 25;
 
     /**
-    * The fields file
-    *
-    * @var string
-    */
+     * The fields file
+     *
+     * @var string
+     */
     public $resourceFile;
 
     /**
-    * With form-request
-    *
-    * @var bool
-    */
+     * With form-request
+     *
+     * @var bool
+     */
     public $formRequest = false;
 
     /**
-    * The controller directory
-    *
-    * @var string
-    */
+     * The controller directory
+     *
+     * @var string
+     */
     public $controllerDirectory;
 
     /**
@@ -82,26 +82,26 @@ class ResourceInput
     public $controllerExtends;
 
     /**
-    * Without migration
-    *
-    * @var bool
-    */
-    public $withoutMigration = false;
+     * Without migration
+     *
+     * @var bool
+     */
+    public $withMigration = false;
 
     /**
-    * Override existing files
-    *
-    * @var bool
-    */
+     * Override existing files
+     *
+     * @var bool
+     */
     public $force = false;
 
     /**
-    * Models directory
-    *
-    * @var string
-    */
+     * Models directory
+     *
+     * @var string
+     */
     public $modelDirectory;
-    
+
     /**
      * Primary key
      *
@@ -122,7 +122,7 @@ class ResourceInput
      * @var bool
      */
     public $withoutTimeStamps;
-    
+
     /**
      * migration class name
      *
@@ -136,7 +136,7 @@ class ResourceInput
      * @var string
      */
     public $connectionName;
-    
+
     /**
      * The database engine name
      *

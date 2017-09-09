@@ -17,16 +17,6 @@ class Config
     }
 
     /**
-     * Should the generator use a code-first approach
-     *
-     * @return bool
-     */
-    public static function useCodeFirst()
-    {
-        return config('codegenerator.use_code_first_approach', true);
-    }
-
-    /**
      * Gets the postfix value for a controller name
      *
      * @return string

@@ -28,7 +28,7 @@ class CreateMappedResourcesCommand extends Command
                             {--with-auth : Generate the controller with Laravel auth middlewear. }
                             {--with-soft-delete : Enables softdelete future should be enable in the model.}
                             {--without-timestamps : Prevent Eloquent from maintaining both created_at and the updated_at properties.}
-                            {--without-migration : Prevent creating a migration for this resource.}
+                            {--with-migration : Prevent creating a migration for this resource.}
                             {--connection-name= : A specific connection name.}
                             {--engine-name= : A specific engine name.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
@@ -86,7 +86,7 @@ class CreateMappedResourcesCommand extends Command
                     '--with-soft-delete' => $validInput->withSoftDelete,
                     '--without-timestamps' => $validInput->withoutTimeStamps,
                     '--relationships' => $validInput->relationships,
-                    '--without-migration' => $validInput->withoutMigration,
+                    '--with-migration' => $validInput->withMigration,
                     '--migration-class-name' => $validInput->migrationClass,
                     '--connection-name' => $validInput->connectionName,
                     '--indexes' => $validInput->indexes,
@@ -141,7 +141,7 @@ class CreateMappedResourcesCommand extends Command
             $input->formRequest = $this->getValue($object, 'with-form-request', $input->formRequest);
             $input->controllerDirectory = $this->getValue($object, 'controller-directory', $input->controllerDirectory);
             $input->controllerExtends = $this->getValue($object, 'controller-extends', $input->controllerExtends);
-            $input->withoutMigration = $this->getValue($object, 'without-migration', $input->withoutMigration);
+            $input->withMigration = $this->getValue($object, 'with-migration', $input->withMigration);
             $input->force = $this->getValue($object, 'force', $input->force);
             $input->modelDirectory = $this->getValue($object, 'model-directory', $input->modelDirectory);
             $input->fillable = $this->getValue($object, 'fillable', $input->fillable);
@@ -243,7 +243,7 @@ class CreateMappedResourcesCommand extends Command
         $input->formRequest = $this->option('with-form-request');
         $input->controllerDirectory = $this->option('controller-directory');
         $input->controllerExtends = $this->option('controller-extends') ?: null;
-        $input->withoutMigration = $this->option('without-migration') || !Config::useCodeFirst();
+        $input->withMigration = $this->option('with-migration');
         $input->force = $this->option('force');
         $input->modelDirectory = $this->option('model-directory');
         $input->primaryKey = $this->option('primary-key');

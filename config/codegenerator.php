@@ -334,8 +334,8 @@ return [
     |--------------------------------------------------------------------------
      */
     'plural_names_for' => [
-        'controller-name' => true,
-        'request-form-name' => true,
+        'controller-name' => false,
+        'request-form-name' => false,
         'language-file-name' => true,
         'resource-file-name' => true,
         'table-name' => true,

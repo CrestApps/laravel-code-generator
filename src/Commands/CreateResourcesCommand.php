@@ -3,7 +3,6 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Models\ResourceInput;
-use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ResourceTransformer;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
@@ -37,7 +36,7 @@ class CreateResourcesCommand extends Command
                             {--primary-key=id : The name of the primary key.}
                             {--with-soft-delete : Enables softdelete future should be enable in the model.}
                             {--without-timestamps : Prevent Eloquent from maintaining both created_at and the updated_at properties.}
-                            {--without-migration : Prevent creating a migration for this resource.}
+                            {--with-migration : Prevent creating a migration for this resource.}
                             {--migration-class-name= : The name of the migration class.}
                             {--connection-name= : A specific connection name.}
                             {--engine-name= : A specific engine name.}
@@ -64,7 +63,7 @@ class CreateResourcesCommand extends Command
         $input = $this->getCommandInput();
 
         if ($input->tableExists) {
-            $input->withoutMigration = true;
+            $input->withMigration = false;
 
             $this->createResourceFile($input);
         }
@@ -133,7 +132,7 @@ class CreateResourcesCommand extends Command
      */
     protected function createMigration($input)
     {
-        if (!$input->withoutMigration) {
+        if ($input->withMigration) {
             $this->call(
                 'create:migration',
                 [
@@ -325,7 +324,7 @@ class CreateResourcesCommand extends Command
         $input->formRequest = $this->option('with-form-request');
         $input->controllerDirectory = $this->option('controller-directory');
         $input->controllerExtends = $this->option('controller-extends') ?: null;
-        $input->withoutMigration = $this->option('without-migration') || !Config::useCodeFirst();
+        $input->withMigration = $this->option('with-migration');
         $input->force = $this->option('force');
         $input->modelDirectory = $this->option('model-directory');
         $input->primaryKey = $this->option('primary-key');

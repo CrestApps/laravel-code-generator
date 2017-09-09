@@ -38,7 +38,7 @@ A clean code generator for Laravel framework that will save you time! This aweso
 composer require crestapps/laravel-code-generator --dev
 ```
  
-2. **(Skip this step when using Laravel >= 5.5)** To bootstrap the packages into your project while using command-line only, open the app/Providers/AppServiceProvider.php file in your project. Then, add the following code to the register() method.
+2. **(You may skip this step when using Laravel >= 5.5)** To bootstrap the packages into your project while using command-line only, open the app/Providers/AppServiceProvider.php file in your project. Then, add the following code to the register() method.
 
 Add the following line to bootstrap laravel-code-generator to the framework.
 
@@ -87,7 +87,7 @@ php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServ
 
 ## Examples
 
-Lets create a CRUD called <var>AssetCategory</var> with the fields listed below.
+The following example assumes that we are trying to create a CRUD called <var>AssetCategory</var> with the fields listed below.
 
 - id
 - name
@@ -95,7 +95,7 @@ Lets create a CRUD called <var>AssetCategory</var> with the fields listed below.
 - is_active
 
 
-### Basic example
+#### Basic example
 
 <blockquote>
 <p><code>php artisan resource-file:create AssetCategory --names=id,name,description,is_active</code></p>
@@ -105,24 +105,61 @@ Lets create a CRUD called <var>AssetCategory</var> with the fields listed below.
 </blockquote>
 
 
-### Basic example using translations for english and arabic
+###	Basic example using translations for English and Arabic
 
 <blockquote>
-<p><code>php artisan resource-file:create AssetCategory --names=id,name,description,is_active --translation-for=en,ar</code></p>
+<p><code>php artisan fields-file:create AssetCategory --names=id,name,description,is_active --translation-for=en,ar</code></p>
 <p><small>The above command will create resource-file names <var>/resources/codegenerator-files/asset_categories.json</var></small></p>
 <p><code>php artisan create:resources AssetCategory</code></p>
 <p><small>The above command will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AsseyCategoriesController, all views, the routes, and migration file!</var></small></p>
 </blockquote>
 
+### Basic example with form-request
 
-### Creating resources from existing database with translation for english and arabic
+<blockquote>
+<p><code>php artisan resource-file:create AssetCategory --names=id,name,description,is_active</code></p>
+<p><small>The above command will create resource-file names <var>/resources/codegenerator-files/asset_categories.json</var></small></p>
+<p><code>php artisan create:resources AssetCategory --with-form-request</code></p>
+<p><small>The above command will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AsseyCategoriesController, all views, the routes, and migration file!</var></small></p>
+</blockquote>
+
+### Basic example with soft-delete and migration
+
+<blockquote>
+<p><code>php artisan resource-file:create AssetCategory --names=id,name,description,is_active</code></p>
+<p><small>The above command will create resource-file names <var>/resources/codegenerator-files/asset_categories.json</var></small></p>
+<p><code>php artisan create:resources AssetCategory --with-soft-delete --with-migration</code></p>
+<p><small>The above command will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AsseyCategoriesController, all views, the routes, and migration file!</var></small></p>
+</blockquote>
+
+### Creating resources from existing database
+
+<blockquote>
+<p><code>php artisan create:resources AssetCategory --table-exists</code></p>
+<p><small>The above command will create resource-file names <var>/resources/codegenerator-files/asset_categories.json</var></small></p>
+<p><small>Then it will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AsseyCategoriesController, all views and the routes!</var></small></p>
+<p><small>You may also create a resource-file from existing database separately using <code>php artisan resource-file:form-database AssetCategory</code></small></p>
+</blockquote>
+
+
+### Creating resources from existing database with translation for English and Arabic
 
 <blockquote>
 <p><code>php artisan create:resources AssetCategory --table-exists --translation-for=en,ar</code></p>
 <p><small>The above command will create resource-file names <var>/resources/codegenerator-files/asset_categories.json</var></small></p>
 <p><small>Then it will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AsseyCategoriesController, all views and the routes!</var></small></p>
-<p><small>You may also create a resource-file from existing database separately using <code>resource-file:from-database AssetCategory --translation-for=en,ar</code></small></p>
+<p><small>You may also create a resource-file from existing database separately using <code>php artisan resource-file:form-database AssetCategory --translation-for=en,ar</code></small></p>
 </blockquote>
+
+### Creating resources from existing database with translation for English and Arabic in two step for better control over the fields!
+
+<blockquote>
+<p><code>php artisan resource-file:form-database AssetCategory --translation-for=en,ar</code></p>
+<p><code>php artisan create:resources AssetCategory</code></p>
+<p><small>The above command will create resource-file names <var>/resources/codegenerator-files/asset_categories.json</var></small></p>
+<p><small>Then it will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AsseyCategoriesController, all views and the routes!</var></small></p>
+</blockquote>
+
 
 ## Prologue
 * <a href="https://crestapps.com/laravel-code-generator/docs/2.1#release-notes">Release Notes</a>
