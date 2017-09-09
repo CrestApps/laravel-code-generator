@@ -34,7 +34,7 @@ class CreateModelCommand extends Command
                             {--relationships= : The relationships for the model.}
                             {--primary-key=id : The name of the primary key.}
                             {--resource-file= : The name of the resource-file to import from.}
-                            {--lang-file-name= : The languages file name to put the labels in.}
+                            {--language-filename= : The languages file name to put the labels in.}
                             {--model-directory= : The directory where the model should be created.}
                             {--with-soft-delete : Enables softdelete future should be enable in the model.}
                             {--without-timestamps : Prevent Eloquent from maintaining both created_at and the updated_at properties.}
@@ -324,7 +324,7 @@ class CreateModelCommand extends Command
 
         $modelDirectory = trim($this->option('model-directory'));
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
-        $languageFileName = $this->option('lang-file-name') ?: Helpers::makeLocaleGroup($modelName);
+        $languageFileName = $this->option('language-filename') ?: Helpers::makeLocaleGroup($modelName);
         $template = $this->getTemplateName();
 
         return (object) compact(

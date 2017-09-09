@@ -30,7 +30,7 @@ class CreateResourcesCommand extends Command
                             {--resource-file= : The name of the resource-file to import from.}
                             {--routes-prefix=model-name-as-plural : Prefix of the route group.}
                             {--models-per-page=25 : The amount of models per page for index pages.}
-                            {--lang-file-name= : The languages file name to put the labels in.}
+                            {--language-filename= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
                             {--with-auth : Generate the controller with Laravel auth middlewear. }
                             {--table-name= : The name of the table.}
@@ -168,6 +168,7 @@ class CreateResourcesCommand extends Command
             [
                 'model-name' => $input->modelName,
                 '--table-name' => $input->table,
+                '--resource-filename' => $input->resourceFile,
                 '--translation-for' => $input->translationFor,
                 '--force' => $input->force,
             ]
@@ -189,7 +190,7 @@ class CreateResourcesCommand extends Command
             'create:language',
             [
                 'model-name' => $input->modelName,
-                '--language-file-name' => $input->languageFileName,
+                '--language-filename' => $input->languageFileName,
                 '--resource-file' => $input->resourceFile,
                 '--template-name' => $input->template,
             ]
@@ -266,7 +267,7 @@ class CreateResourcesCommand extends Command
                 '--resource-file' => $input->resourceFile,
                 '--models-per-page' => $input->perPage,
                 '--routes-prefix' => $input->prefix,
-                '--lang-file-name' => $input->languageFileName,
+                '--language-filename' => $input->languageFileName,
                 '--with-form-request' => $input->formRequest,
                 '--form-request-directory' => $input->formRequestDirectory,
                 '--with-auth' => $input->withAuth,
@@ -315,7 +316,7 @@ class CreateResourcesCommand extends Command
         $input = new ResourceInput(trim($this->argument('model-name')));
         $prefix = $this->option('routes-prefix');
         $input->prefix = ($prefix == 'model-name-as-plural') ? Helpers::makeTableName($input->modelName) : $prefix;
-        $input->languageFileName = trim($this->option('lang-file-name'));
+        $input->languageFileName = trim($this->option('language-filename'));
         $input->table = trim($this->option('table-name'));
         $input->viewsDirectory = trim($this->option('views-directory'));
         $input->controllerName = trim($this->option('controller-name')) ?: Helpers::makeControllerName($input->modelName);

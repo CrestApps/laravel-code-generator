@@ -2,8 +2,8 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use CrestApps\CodeGenerator\Support\ViewsCommand;
 use CrestApps\CodeGenerator\Support\ResourceTransformer;
+use CrestApps\CodeGenerator\Support\ViewsCommand;
 
 class CreateCreateViewCommand extends ViewsCommand
 {
@@ -17,7 +17,7 @@ class CreateCreateViewCommand extends ViewsCommand
                             {--resource-file= : The name of the resource-file to import from.}
                             {--views-directory= : The name of the directory to create the views under.}
                             {--routes-prefix= : The routes prefix.}
-                            {--lang-file-name= : The name of the language file.}
+                            {--language-filename= : The name of the language file.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
                             {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the view if one already exists.}';
@@ -38,7 +38,7 @@ class CreateCreateViewCommand extends ViewsCommand
     {
         return 'create.blade';
     }
-    
+
     /**
      * Execute the console command.
      *
@@ -55,12 +55,12 @@ class CreateCreateViewCommand extends ViewsCommand
             $headers = $this->getHeaderFieldAccessor($resources->fields, $input->modelName);
 
             $this->createLanguageFile($input->languageFileName, $input->resourceFile, $input->modelName)
-                 ->createMissingViews($input)
-                 ->replaceCommonTemplates($stub, $input, $resources->fields)
-                 ->replaceFileUpload($stub, $resources->fields)
-                 ->replaceModelHeader($stub, $headers)
-                 ->createFile($destenationFile, $stub)
-                 ->info('Create view was crafted successfully.');
+                ->createMissingViews($input)
+                ->replaceCommonTemplates($stub, $input, $resources->fields)
+                ->replaceFileUpload($stub, $resources->fields)
+                ->replaceModelHeader($stub, $headers)
+                ->createFile($destenationFile, $stub)
+                ->info('Create view was crafted successfully.');
         }
     }
 }

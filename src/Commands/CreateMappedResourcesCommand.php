@@ -76,7 +76,7 @@ class CreateMappedResourcesCommand extends Command
                     '--resource-file' => $validInput->resourceFile,
                     '--routes-prefix' => $validInput->prefix,
                     '--models-per-page' => $validInput->perPage,
-                    '--lang-file-name' => $validInput->languageFileName,
+                    '--language-filename' => $validInput->languageFileName,
                     '--with-form-request' => $validInput->formRequest,
                     '--form-request-directory' => $validInput->formRequestDirectory,
                     '--with-auth' => $validInput->withAuth,
@@ -134,7 +134,7 @@ class CreateMappedResourcesCommand extends Command
             $input->fields = null;
             $input->prefix = $this->getValue($object, 'routes-prefix', $madeupTableName);
             $input->controllerName = $this->getValue($object, 'controller-name', $controllerName);
-            $input->languageFileName = $this->getValue($object, 'lang-file-name', $madeupTableName);
+            $input->languageFileName = $this->getValue($object, 'language-filename', $madeupTableName);
             $input->table = $this->getValue($object, 'table-name', $madeupTableName);
             $input->viewsDirectory = $this->getValue($object, 'views-directory', $input->viewsDirectory);
             $input->perPage = $this->getValue($object, 'models-per-page', $input->perPage);

@@ -8,7 +8,7 @@ A clean code generator for Laravel framework that will save you time! This aweso
 
 ## Features
 
-* Create very clean highly readable code to build on.
+* Create very clean, reusable and highly readable code to build on.
 * Create full resources using a single command with/without **migration** or from **existing database**.
 * Create standard CRUD controllers with simple or form-request validation.
 * Utilizes JSON based resource-file to allow you to define your resources. Resource-file allows you to easily regenerate the resource at any time even when the business rules change.
@@ -28,7 +28,6 @@ A clean code generator for Laravel framework that will save you time! This aweso
 * Auto handles any boolean field.
 * Auto add foreign relations to the model.
 * Auto use foreign relation in the controller and the views when needed.
-* Create a very clean and reusable code.
 * Lots of documentation.
 
 ## Installation

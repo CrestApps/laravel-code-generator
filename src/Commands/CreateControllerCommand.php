@@ -43,7 +43,7 @@ class CreateControllerCommand extends Command
                             {--resource-file= : The name of the resource-file to import from.}
                             {--routes-prefix= : Prefix of the route group.}
                             {--models-per-page=25 : The amount of models per page for index pages.}
-                            {--lang-file-name= : The languages file name to put the labels in.}
+                            {--language-filename= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
                             {--with-auth : Generate the controller with Laravel auth middlewear. }
                             {--template-name= : The template name to use when generating the code.}
@@ -306,7 +306,7 @@ class CreateControllerCommand extends Command
         $prefix = $this->option('routes-prefix');
         $perPage = intval($this->option('models-per-page'));
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
-        $langFile = $this->option('lang-file-name') ?: Helpers::makeLocaleGroup($modelName);
+        $langFile = $this->option('language-filename') ?: Helpers::makeLocaleGroup($modelName);
         $withFormRequest = $this->option('with-form-request');
         $force = $this->option('force');
         $modelDirectory = $this->option('model-directory');

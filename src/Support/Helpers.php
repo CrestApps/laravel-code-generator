@@ -90,7 +90,7 @@ class Helpers
      */
     public static function makeLocaleGroup($modelName)
     {
-        return self::getProperCaseFor($modelName, 'language-file-name');
+        return self::getProperCaseFor($modelName, 'language-filename');
     }
 
     /**

@@ -2,8 +2,8 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use CrestApps\CodeGenerator\Support\ViewsCommand;
 use CrestApps\CodeGenerator\Support\ResourceTransformer;
+use CrestApps\CodeGenerator\Support\ViewsCommand;
 
 class CreateEditViewCommand extends ViewsCommand
 {
@@ -17,7 +17,7 @@ class CreateEditViewCommand extends ViewsCommand
                             {--resource-file= : The name of the resource-file to import from.}
                             {--views-directory= : The name of the directory to create the views under.}
                             {--routes-prefix= : The routes prefix.}
-                            {--lang-file-name= : The name of the language file.}
+                            {--language-filename= : The name of the language file.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
                             {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the view if one already exists.}';
@@ -54,13 +54,13 @@ class CreateEditViewCommand extends ViewsCommand
             $stub = $this->getStub();
 
             $this->createLanguageFile($input->languageFileName, $input->resourceFile, $input->modelName)
-                 ->createMissingViews($input)
-                 ->replaceCommonTemplates($stub, $input, $resources->fields)
-                 ->replaceFileUpload($stub, $resources->fields)
-                 ->replacePrimaryKey($stub, $this->getPrimaryKeyName($resources->fields))
-                 ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($resources->fields, $input->modelName))
-                 ->createFile($destenationFile, $stub)
-                 ->info('Edit view was crafted successfully.');
+                ->createMissingViews($input)
+                ->replaceCommonTemplates($stub, $input, $resources->fields)
+                ->replaceFileUpload($stub, $resources->fields)
+                ->replacePrimaryKey($stub, $this->getPrimaryKeyName($resources->fields))
+                ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($resources->fields, $input->modelName))
+                ->createFile($destenationFile, $stub)
+                ->info('Edit view was crafted successfully.');
         }
     }
 }

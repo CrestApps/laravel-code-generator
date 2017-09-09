@@ -2,19 +2,18 @@
 
 namespace CrestApps\CodeGenerator\Support;
 
-use Exception;
-use Illuminate\Console\Command;
-use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Support\Config;
-use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
-use CrestApps\CodeGenerator\Models\ViewInput;
 use CrestApps\CodeGenerator\HtmlGenerators\LaravelCollectiveHtml;
 use CrestApps\CodeGenerator\HtmlGenerators\StandardHtml;
+use CrestApps\CodeGenerator\Models\ViewInput;
+use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use Illuminate\Console\Command;
 
 abstract class ViewsCommand extends Command
 {
-    use CommonCommand,  GeneratorReplacers;
+    use CommonCommand, GeneratorReplacers;
 
     /**
      * Gets the name of the stub to process.
@@ -122,10 +121,10 @@ abstract class ViewsCommand extends Command
         $standardLabels = $viewLabels->getLabels($languages);
 
         $this->replaceModelName($stub, $input->modelName)
-             ->replaceRouteNames($stub, $this->getModelName($input->modelName), $input->prefix)
-             ->replaceViewNames($stub, $input->viewsDirectory, $input->prefix)
-             ->replaceLayoutName($stub, $input->layout)
-             ->replaceStandardLabels($stub, $standardLabels);
+            ->replaceRouteNames($stub, $this->getModelName($input->modelName), $input->prefix)
+            ->replaceViewNames($stub, $input->viewsDirectory, $input->prefix)
+            ->replaceLayoutName($stub, $input->layout)
+            ->replaceStandardLabels($stub, $standardLabels);
 
         return $this;
     }
@@ -141,7 +140,7 @@ abstract class ViewsCommand extends Command
      */
     protected function canCreateView($file, $force, array $fields = null)
     {
-        if ($this->alreadyExists($file) && ! $force) {
+        if ($this->alreadyExists($file) && !$force) {
             $this->error($this->getViewNameFromFile($file) . ' view already exists.');
             return false;
         }
@@ -186,7 +185,7 @@ abstract class ViewsCommand extends Command
         foreach ($items as $labels) {
             foreach ($labels as $label) {
                 $text = $label->isPlain ? $label->text : sprintf("{{ trans('%s') }}", $label->localeGroup);
-                
+
                 if ($label->isInFunction) {
                     $text = $label->isPlain ? sprintf("'%s'", $label->text) : sprintf("trans('%s')", $label->localeGroup);
                 }
@@ -303,11 +302,11 @@ abstract class ViewsCommand extends Command
     protected function createLanguageFile($langFile, $resourceFile, $modelName)
     {
         $this->callSilent('create:language', [
-                                'model-name'             => $modelName,
-                                '--language-file-name'   => $langFile,
-                                '--resource-file'        => $resourceFile,
-                                '--template-name'        => $this->getTemplateName()
-                           ]);
+            'model-name' => $modelName,
+            '--language-filename' => $langFile,
+            '--resource-file' => $resourceFile,
+            '--template-name' => $this->getTemplateName(),
+        ]);
         return $this;
     }
 
@@ -356,7 +355,7 @@ abstract class ViewsCommand extends Command
     {
         $field = $this->getHeaderField($fields);
 
-        return ! is_null($field) ? sprintf('$%s->%s', $this->getSingularVariable($modelName), $field->name) : '$title';
+        return !is_null($field) ? sprintf('$%s->%s', $this->getSingularVariable($modelName), $field->name) : '$title';
     }
 
     /**
@@ -385,7 +384,7 @@ abstract class ViewsCommand extends Command
      *
      * @return $this
      */
-    protected function replaceModelHeader(& $stub, $title)
+    protected function replaceModelHeader(&$stub, $title)
     {
         $stub = $this->strReplace('model_header', $title, $stub);
 

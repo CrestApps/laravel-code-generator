@@ -49,10 +49,10 @@ class ViewInput
     public $languageFileName;
 
     /**
-    * The provided layout name
-    *
-    * @var string
-    */
+     * The provided layout name
+     *
+     * @var string
+     */
     public $layout;
 
     /**
@@ -67,7 +67,7 @@ class ViewInput
         $this->viewsDirectory = trim($options['views-directory']);
         $this->prefix = trim($options['routes-prefix']);
         $this->force = $options['force'];
-        $this->languageFileName = trim($options['lang-file-name']) ?: Helpers::makeLocaleGroup($this->modelName);
+        $this->languageFileName = trim($options['language-filename']) ?: Helpers::makeLocaleGroup($this->modelName);
         $this->layout = trim($options['layout-name']);
         $this->template = trim($options['template-name']);
     }
@@ -80,14 +80,14 @@ class ViewInput
     public function getArrguments()
     {
         return [
-            'model-name'          => $this->modelName,
-            '--resource-file'     => $this->resourceFile,
-            '--views-directory'   => $this->viewsDirectory,
-            '--routes-prefix'     => $this->prefix,
-            '--lang-file-name'    => $this->languageFileName,
-            '--layout-name'       => $this->layout,
-            '--template-name'     => $this->template,
-            '--force'             => $this->force,
+            'model-name' => $this->modelName,
+            '--resource-file' => $this->resourceFile,
+            '--views-directory' => $this->viewsDirectory,
+            '--routes-prefix' => $this->prefix,
+            '--language-filename' => $this->languageFileName,
+            '--layout-name' => $this->layout,
+            '--template-name' => $this->template,
+            '--force' => $this->force,
         ];
     }
 }

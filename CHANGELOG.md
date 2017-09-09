@@ -3,6 +3,7 @@
 
  - The **--fields-file** option in all command have been renamed to **--resource-file** since that file is no longer just a fields-file. 
  - This completely drop support for fields from raw string. We relay heavy on the JSON-based resource-file. The resource-file allows you to define any relations, indexes and fields all at once.
+ - The **--lang-file-name** options have been changed to **--language-file-name** any where it exists
 
 
 ## New Features
@@ -14,6 +15,7 @@
  - Added `controller_name_postfix` config option to allow the user to change the controller post-fix or even remove it altogether.
  - Added `form_request_name_postfix` config option to allow the user to change the form-request post-fix or even remove it altogether.
  - Added `use_code_first_approach` config option to allow the use to opt into not generation migration file each time the resource file runs.
+
 
 
 ## Command Changes

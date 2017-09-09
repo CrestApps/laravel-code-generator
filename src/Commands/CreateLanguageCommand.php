@@ -2,14 +2,14 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use Illuminate\Console\Command;
 use CrestApps\CodeGenerator\Models\Label;
-use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Config;
-use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 use CrestApps\CodeGenerator\Support\CrestAppsTranslator;
+use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ResourceTransformer;
+use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
+use Illuminate\Console\Command;
 
 class CreateLanguageCommand extends Command
 {
@@ -22,7 +22,7 @@ class CreateLanguageCommand extends Command
      */
     protected $signature = 'create:language
                             {model-name : The model name.}
-                            {--language-file-name= : The name of the file to save the messages in.}
+                            {--language-filename= : The name of the file to save the messages in.}
                             {--resource-file= : The name of the resource-file to import from.}
                             {--template-name= : The template name to use when generating the code.}';
 
@@ -59,7 +59,7 @@ class CreateLanguageCommand extends Command
             $phrases = $this->getLangPhrases($labels, $messagesToRegister);
 
             $this->addMessagesToFile($file, $phrases, $language)
-                 ->registerMessages($messagesToRegister, $language);
+                ->registerMessages($messagesToRegister, $language);
         }
     }
 
@@ -115,7 +115,7 @@ class CreateLanguageCommand extends Command
      */
     protected function getTranslator()
     {
-        if (! Helpers::isNewerThan('5.3')) {
+        if (!Helpers::isNewerThan('5.3')) {
             return CrestAppsTranslator::getTranslator();
         }
 
@@ -143,7 +143,7 @@ class CreateLanguageCommand extends Command
         } else {
             $this->createMessageToFile($fileFullname, $messages, $language);
         }
-        
+
         return $this;
     }
 
@@ -168,7 +168,7 @@ class CreateLanguageCommand extends Command
         $newContent = substr_replace($content, PHP_EOL . $messages, $index + 1, 1);
 
         $this->putContentInFile($fileFullname, $newContent)
-             ->info('New messages were added to the [' . $baseFile . '] file');
+            ->info('New messages were added to the [' . $baseFile . '] file');
     }
 
     /**
@@ -199,7 +199,7 @@ class CreateLanguageCommand extends Command
         $stub = $this->getStubContent('language');
 
         $this->replaceFieldName($stub, $messages)
-             ->createFile($fileFullname, $stub);
+            ->createFile($fileFullname, $stub);
 
         $this->info('The file  [' . $language . '/' . basename($fileFullname) . '] was created successfully.');
     }
@@ -224,7 +224,7 @@ class CreateLanguageCommand extends Command
     protected function getCommandInput()
     {
         $modelName = trim($this->argument('model-name'));
-        $fileName = trim($this->option('language-file-name')) ?: Helpers::makeLocaleGroup($modelName);
+        $fileName = trim($this->option('language-filename')) ?: Helpers::makeLocaleGroup($modelName);
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
         $template = trim($this->option('template-name'));
 
@@ -244,18 +244,18 @@ class CreateLanguageCommand extends Command
      *
      * @return string
      */
-    protected function getLangPhrases(array $labels, array & $messagesToRegister)
+    protected function getLangPhrases(array $labels, array &$messagesToRegister)
     {
         $messages = [];
 
         foreach ($labels as $label) {
-            if (! $this->isMessageExists($label->localeGroup, $label->lang)) {
+            if (!$this->isMessageExists($label->localeGroup, $label->lang)) {
                 $messages[] = $this->getMessage($label);
                 $messagesToRegister[$label->localeGroup] = $label->text;
             }
         }
 
-        $glue =  "," . PHP_EOL;
+        $glue = "," . PHP_EOL;
 
         return !isset($messages[0]) ? '' : implode($glue, $messages) . $glue;
     }

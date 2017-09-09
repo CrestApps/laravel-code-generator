@@ -380,7 +380,7 @@ return [
     | and "str_singular()" to generate readable code to make your code spectacular.
     | The problem is the both of these functions support only English language.
     | If you are using a language other than english, you can define a word with
-    | its plural version to help the generator keep your code clean.
+    | its plural version to help the generator keep your code readable.
     |
     | plural_definitions must be an array where the key represents the singular
     | version of the word, and the value represents the plural version.
