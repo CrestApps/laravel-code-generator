@@ -1,16 +1,14 @@
 <?php
 namespace CrestApps\CodeGenerator\DatabaseParsers;
 
-use DB;
 use App;
-use Exception;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\FieldMapper;
 use CrestApps\CodeGenerator\Models\Resource;
-use CrestApps\CodeGenerator\Support\FieldsOptimizer;
-use CrestApps\CodeGenerator\Support\FieldTransformer;
-use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\FieldsOptimizer;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
+use Exception;
 
 abstract class ParserBase
 {
@@ -25,7 +23,7 @@ abstract class ParserBase
         'id',
         'created_at',
         'updated_at',
-        'deleted_at'
+        'deleted_at',
     ];
 
     /**
@@ -35,9 +33,9 @@ abstract class ParserBase
      */
     protected $booleanOptions = [
         '0' => 'No',
-        '1' => 'Yes'
+        '1' => 'Yes',
     ];
-    
+
     /**
      * The table name.
      *
@@ -94,7 +92,7 @@ abstract class ParserBase
      * Gets the final fields.
      *
      * @return array
-    */
+     */
     protected function getFields()
     {
         if (is_null($this->fields)) {
@@ -114,7 +112,7 @@ abstract class ParserBase
      * Gets the final resource.
      *
      * @return CrestApps\CodeGenerator\Models\Resource
-    */
+     */
     protected function getResource()
     {
         $resource = new Resource($this->getFields());
@@ -130,7 +128,7 @@ abstract class ParserBase
      * Gets the final resource.
      *
      * @return CrestApps\CodeGenerator\Models\Resource
-    */
+     */
     public function getResourceAsJson()
     {
         $resource = $this->getResource();
@@ -138,14 +136,13 @@ abstract class ParserBase
         return json_encode($resource->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
-
     /**
      * Gets array of field after transfering each column meta into field.
      *
      * @param array $columns
      *
      * @return array
-    */
+     */
     protected function transfer(array $columns)
     {
         $fields = array_map(function ($field) {
@@ -164,7 +161,7 @@ abstract class ParserBase
      * @param string $type
      *
      * @return string
-    */
+     */
     protected function getHtmlType($type)
     {
         $map = Config::getEloquentToHtmlMap();
@@ -180,10 +177,10 @@ abstract class ParserBase
      * Checks if the request requires languages.
      *
      * @return bool
-    */
+     */
     protected function hasLanguages()
     {
-        return ! empty($this->languages);
+        return !empty($this->languages);
     }
 
     /**
@@ -192,7 +189,7 @@ abstract class ParserBase
      * @param string $name
      *
      * @return mix (string | array)
-    */
+     */
     protected function getLabel($name)
     {
         if (!$this->hasLanguages()) {
@@ -212,48 +209,81 @@ abstract class ParserBase
      * Gets the models namespace
      *
      * @return string
-    */
+     */
     protected function getModelNamespace()
     {
         return $this->getAppNamespace() . Config::getModelsPath();
     }
 
+    /**
+     * Gets the model's name from a giving table name
+     *
+     * @param string $tableName
+     *
+     * @return string
+     */
+    protected function getModelName($tableName)
+    {
+        $file = base_path(Config::getFieldsFilePath(Config::getDefaultMapperFileName()));
+
+        $fields = [];
+
+        if ($this->isFileExists($file)) {
+            $content = $this->getFileContent($file);
+
+            $maps = json_decode($content, true);
+
+            if (is_array($maps)) {
+                foreach ($maps as $map) {
+                    if (array_key_exists('table-name', $map)
+                        && $map['table-name'] == $tableName
+                        && array_key_exists('model-name', $map)
+                        && !empty($map['model-name'])
+                    ) {
+                        return $map['model-name'];
+                    }
+                }
+            }
+        }
+
+        return $tableName;
+    }
 
     /**
      * Gets a labe field's label from a giving name.
      *
      * @return string
-    */
+     */
     protected function getLabelName($name)
     {
-        return trim(ucwords(str_replace(['-','_'], ' ', $name)));
+        return trim(ucwords(str_replace(['-', '_'], ' ', $name)));
     }
-    
+
     /**
      * Gets column meta info from the information schema.
      *
      * @return array
-    */
+     */
     abstract protected function getColumn();
 
     /**
      * Transfers every column in the giving array to a collection of fields.
      *
      * @return array of CrestApps\CodeGenerator\Models\Field;
-    */
+     */
     abstract protected function getTransfredFields(array $columns);
 
     /**
      * Get all available indexed
      *
      * @return array of CrestApps\CodeGenerator\Models\Index;
-    */
+     */
     abstract protected function getIndexes();
 
     /**
      * Get all available relations
      *
      * @return array of CrestApps\CodeGenerator\Models\ForeignRelationship;
-    */
+     */
     abstract protected function getRelations();
 }

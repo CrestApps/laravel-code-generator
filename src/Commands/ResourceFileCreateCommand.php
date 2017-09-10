@@ -166,7 +166,7 @@ class ResourceFileCreateCommand extends Command
      */
     protected function appendMapper($modelName, $fieldsFileName)
     {
-        $file = $path = base_path(Config::getFieldsFilePath(Config::getDefaultMapperFileName()));
+        $file = base_path(Config::getFieldsFilePath(Config::getDefaultMapperFileName()));
 
         $fields = [];
 

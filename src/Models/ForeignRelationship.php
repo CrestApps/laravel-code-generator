@@ -2,12 +2,12 @@
 
 namespace CrestApps\CodeGenerator\Models;
 
+use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
 use DB;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
-use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\Config;
-use CrestApps\CodeGenerator\Support\Str;
 
 class ForeignRelationship
 {
@@ -17,7 +17,7 @@ class ForeignRelationship
      * @var array
      */
     public static $allowedTypes =
-    [
+        [
         'hasOne',
         'belongsTo',
         'hasMany',
@@ -25,9 +25,9 @@ class ForeignRelationship
         'hasManyThrough',
         'morphTo',
         'morphMany',
-        'morphToMany'
+        'morphToMany',
     ];
-    
+
     /**
      * The type of the relation.
      *
@@ -41,7 +41,7 @@ class ForeignRelationship
      * @var array
      */
     public $parameters = [];
-    
+
     /**
      * The name of the property/field's name on the foreign model to represent the field on display.
      *
@@ -57,10 +57,10 @@ class ForeignRelationship
     public $name;
 
     /**
-      * Instance of the foreign model.
-      *
-      * @var Illuminate\Database\Eloquent\Model
-      */
+     * Instance of the foreign model.
+     *
+     * @var Illuminate\Database\Eloquent\Model
+     */
     private $foreignModel;
 
     /**
@@ -91,7 +91,7 @@ class ForeignRelationship
         return in_array($this->type, [
             'hasOne',
             'belongsTo',
-            'morphTo'
+            'morphTo',
         ]);
     }
 
@@ -134,7 +134,7 @@ class ForeignRelationship
     {
         $this->field = $name;
     }
-    
+
     /**
      * Get the foreign field name.
      *
@@ -171,7 +171,7 @@ class ForeignRelationship
         $idPatterns = config('codegenerator.common_id_patterns') ?: [];
 
         $columns = array_filter($columns, function ($column) use ($primary, $idPatterns, $datetimePatterns) {
-            return $column != $primary && ! Helpers::strIs($idPatterns, $column) && ! Helpers::strIs($datetimePatterns, $column);
+            return $column != $primary && !Helpers::strIs($idPatterns, $column) && !Helpers::strIs($datetimePatterns, $column);
         });
 
         if (count($columns) == 1) {
@@ -241,7 +241,7 @@ class ForeignRelationship
         if ($position !== false) {
             return substr($model, $position + 1);
         }
-        
+
         return '';
     }
 
@@ -252,7 +252,7 @@ class ForeignRelationship
      */
     protected function isModel($model)
     {
-        return $model instanceof Modle;
+        return $model instanceof Model;
     }
 
     /**
@@ -321,18 +321,18 @@ class ForeignRelationship
      */
     public static function get(array $options)
     {
-        if (!array_key_exists('type', $options) || !array_key_exists('params', $options)|| !array_key_exists('name', $options)) {
+        if (!array_key_exists('type', $options) || !array_key_exists('params', $options) || !array_key_exists('name', $options)) {
             return null;
         }
-        
+
         $field = array_key_exists('field', $options) ? $options['field'] : null;
 
         return new ForeignRelationship(
-                                $options['type'],
-                                $options['params'],
-                                $options['name'],
-                                $field
-                            );
+            $options['type'],
+            $options['params'],
+            $options['name'],
+            $field
+        );
     }
 
     /**
@@ -343,10 +343,10 @@ class ForeignRelationship
     public function toArray()
     {
         return [
-            'name'      => $this->name,
-            'type'      => $this->getType(),
-            'params'    => $this->parameters,
-            'field'     => $this->getField()
-       ];
+            'name' => $this->name,
+            'type' => $this->getType(),
+            'params' => $this->parameters,
+            'field' => $this->getField(),
+        ];
     }
 }

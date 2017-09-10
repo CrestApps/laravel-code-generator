@@ -60,7 +60,7 @@ class ResourceFileFromDatabaseCommand extends Command
         $content = $this->getJsonContent();
 
         if (Config::autoManageResourceMapper()) {
-            $this->appendMapper($this->getModelName(), $this->getFilename());
+            $this->appendMapper($this->getModelName(), $this->getTableName(), $this->getFilename());
         }
 
         $this->createFile($destenationFile, $content)
@@ -68,16 +68,17 @@ class ResourceFileFromDatabaseCommand extends Command
     }
 
     /**
-     * Removes mapping entry from the default mapping file.
+     * Appends mapping entry from the default mapping file.
      *
      * @param string $modelName
+     * @param string $tableName
      * @param string $fieldsFileName
      *
      * @return void
      */
-    protected function appendMapper($modelName, $fieldsFileName)
+    protected function appendMapper($modelName, $tableName, $fieldsFileName)
     {
-        $file = $path = base_path(Config::getFieldsFilePath(Config::getDefaultMapperFileName()));
+        $file = base_path(Config::getFieldsFilePath(Config::getDefaultMapperFileName()));
 
         $fields = [];
 
@@ -90,15 +91,15 @@ class ResourceFileFromDatabaseCommand extends Command
                 $this->error('The existing mapping file contains invalid json string. Please fix the file then try again');
                 return false;
             }
-
-            $existingFields = Collect($existingFields)->filter(function ($resource) use ($modelName) {
-                return isset($resource->{'model-name'}) && $resource->{'model-name'} != $modelName;
+            $existingFields = Collect($existingFields)->filter(function ($resource) use ($modelName, $tableName) {
+                return (isset($resource['model-name']) && $resource['model-name'] != $modelName)
+                    || (isset($resource['table-name']) && $resource['table-name'] != $tableName);
             });
 
             $existingFields->push([
                 'model-name' => $modelName,
                 'resource-file' => $fieldsFileName,
-                'table-name' => $this->getTableName(),
+                'table-name' => $tableName,
             ]);
 
             foreach ($existingFields as $existingField) {

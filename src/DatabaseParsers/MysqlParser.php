@@ -1,16 +1,16 @@
 <?php
 namespace CrestApps\CodeGenerator\DatabaseParsers;
 
-use DB;
 use App;
 use CrestApps\CodeGenerator\DatabaseParsers\ParserBase;
 use CrestApps\CodeGenerator\Models\Field;
-use CrestApps\CodeGenerator\Models\Index;
 use CrestApps\CodeGenerator\Models\ForeignConstraint;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
-use CrestApps\CodeGenerator\Support\FieldTransformer;
+use CrestApps\CodeGenerator\Models\Index;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Support\Str;
+use DB;
 
 class MysqlParser extends ParserBase
 {
@@ -34,29 +34,29 @@ class MysqlParser extends ParserBase
      *
      * @var array
      */
-    protected $largeDataTypes = ['varbinary','blob','mediumblob','longblob','text','mediumtext','longtext'];
+    protected $largeDataTypes = ['varbinary', 'blob', 'mediumblob', 'longblob', 'text', 'mediumtext', 'longtext'];
 
     /**
      * Gets column meta info from the information schema.
      *
      * @return array
-    */
+     */
     protected function getColumn()
     {
         return DB::select(
             'SELECT
-		                   COLUMN_NAME
-		                  ,COLUMN_DEFAULT
-		                  ,UPPER(IS_NULLABLE)  AS IS_NULLABLE
-		                  ,LOWER(DATA_TYPE) AS DATA_TYPE
-		                  ,CHARACTER_MAXIMUM_LENGTH
-		                  ,UPPER(COLUMN_KEY) AS COLUMN_KEY
-		                  ,UPPER(EXTRA) AS EXTRA
-		                  ,COLUMN_COMMENT
-		                  ,COLUMN_TYPE
-		                  FROM INFORMATION_SCHEMA.COLUMNS
-		                  WHERE TABLE_NAME = ? AND TABLE_SCHEMA = ? ',
-                          [$this->tableName, $this->databaseName]
+               COLUMN_NAME
+              ,COLUMN_DEFAULT
+              ,UPPER(IS_NULLABLE)  AS IS_NULLABLE
+              ,LOWER(DATA_TYPE) AS DATA_TYPE
+              ,CHARACTER_MAXIMUM_LENGTH
+              ,UPPER(COLUMN_KEY) AS COLUMN_KEY
+              ,UPPER(EXTRA) AS EXTRA
+              ,COLUMN_COMMENT
+              ,COLUMN_TYPE
+              FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE TABLE_NAME = ? AND TABLE_SCHEMA = ? ',
+            [$this->tableName, $this->databaseName]
         );
     }
 
@@ -64,7 +64,7 @@ class MysqlParser extends ParserBase
      * Gets foreign key constraint info for a giving column name.
      *
      * @return mix (null|object)
-    */
+     */
     protected function getConstraint($foreign)
     {
         foreach ($this->getConstraints() as $constraint) {
@@ -80,35 +80,34 @@ class MysqlParser extends ParserBase
      * Gets foreign key constraints info from the information schema.
      *
      * @return array
-    */
+     */
     protected function getConstraints()
     {
         if (is_null($this->constrains)) {
             $this->constrains = DB::select(
-                'SELECT 
-                                            r.referenced_table_name AS `references`
-                                           ,r.CONSTRAINT_NAME AS `name`
-                                           ,r.UPDATE_RULE AS `onUpdate`
-                                           ,r.DELETE_RULE AS `onDelete`
-                                           ,u.referenced_column_name AS `on`
-                                           ,u.column_name AS `foreign`
-                                           FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS r
-                                           INNER JOIN information_schema.key_column_usage AS u ON u.CONSTRAINT_NAME = r.CONSTRAINT_NAME
-                                                                                               AND u.table_schema = r.constraint_schema
-                                                                                               AND u.table_name = r.table_name
-                                           WHERE u.table_name = ? AND u.constraint_schema = ?;',
-                                          [$this->tableName, $this->databaseName]
+                'SELECT
+                    r.referenced_table_name AS `references`
+                   ,r.CONSTRAINT_NAME AS `name`
+                   ,r.UPDATE_RULE AS `onUpdate`
+                   ,r.DELETE_RULE AS `onDelete`
+                   ,u.referenced_column_name AS `on`
+                   ,u.column_name AS `foreign`
+                   FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS r
+                   INNER JOIN information_schema.key_column_usage AS u ON u.CONSTRAINT_NAME = r.CONSTRAINT_NAME
+                                                                       AND u.table_schema = r.constraint_schema
+                                                                       AND u.table_name = r.table_name
+                   WHERE u.table_name = ? AND u.constraint_schema = ?;',
+                [$this->tableName, $this->databaseName]
             );
         }
 
         return $this->constrains;
     }
-    
 
     protected function getRawIndexes()
     {
         $result = DB::select(
-            'SELECT 
+            'SELECT
                                INDEX_NAME AS name
                               ,COUNT(1) AS TotalColumns
                               ,GROUP_CONCAT(DISTINCT COLUMN_NAME ORDER BY SEQ_IN_INDEX ASC SEPARATOR \'|||\') AS columns
@@ -116,7 +115,7 @@ class MysqlParser extends ParserBase
                               WHERE TABLE_NAME = ? AND TABLE_SCHEMA = ?
                               GROUP BY INDEX_NAME
                               HAVING COUNT(1) > 1;',
-                              [$this->tableName, $this->databaseName]
+            [$this->tableName, $this->databaseName]
         );
 
         return $result;
@@ -126,7 +125,7 @@ class MysqlParser extends ParserBase
      * Get all available relations
      *
      * @return array of CrestApps\CodeGenerator\Models\ForeignRelationship;
-    */
+     */
     protected function getRelations()
     {
         $relations = [];
@@ -143,21 +142,21 @@ class MysqlParser extends ParserBase
      * Gets the raw relations from the database.
      *
      * @return array
-    */
+     */
     protected function getRawRelations()
     {
         if (is_null($this->relations)) {
             $this->relations = DB::select(
                 'SELECT DISTINCT
-                                             u.referenced_column_name AS `localKey`
-                                            ,u.column_name AS `foreignKey`
-                                            ,r.table_name AS `foreignTable`
-                                            FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS r
-                                            INNER JOIN information_schema.key_column_usage AS u ON u.CONSTRAINT_NAME = r.CONSTRAINT_NAME
-                                                                                               AND u.table_schema = r.constraint_schema
-                                                                                               AND u.table_name = r.table_name
-                                            WHERE u.referenced_table_name = ? AND u.constraint_schema = ?;',
-                                          [$this->tableName, $this->databaseName]
+                 u.referenced_column_name AS `localKey`
+                ,u.column_name AS `foreignKey`
+                ,r.table_name AS `foreignTable`
+                FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS r
+                INNER JOIN information_schema.key_column_usage AS u ON u.CONSTRAINT_NAME = r.CONSTRAINT_NAME
+                                                                   AND u.table_schema = r.constraint_schema
+                                                                   AND u.table_name = r.table_name
+                WHERE u.referenced_table_name = ? AND u.constraint_schema = ?;',
+                [$this->tableName, $this->databaseName]
             );
         }
 
@@ -168,30 +167,31 @@ class MysqlParser extends ParserBase
      * Gets a query to check the relation type.
      *
      * @return string
-    */
+     */
     protected function getRelationTypeQuery($tableName, $columnName)
     {
         return ' SELECT `' . $columnName . '` AS id, COUNT(1) AS total ' .
-               ' FROM `'. $tableName . '` ' .
-               ' GROUP BY `' . $columnName . '` ' .
-               ' HAVING COUNT(1) > 1 ' .
-               ' LIMIT 1 ';
+            ' FROM `' . $tableName . '` ' .
+            ' GROUP BY `' . $columnName . '` ' .
+            ' HAVING COUNT(1) > 1 ' .
+            ' LIMIT 1 ';
     }
 
     /**
      * Get a corresponding relation to a giving table name, foreign column and local column.
      *
      * @return CrestApps\CodeGenerator\Models\ForeignRelationship
-    */
+     */
     protected function getRealtion($foreignTableName, $foreignColumn, $localColumn)
     {
-        $model = FieldTransformer::guessModelFullName($foreignTableName, $this->getModelNamespace());
+        $modelName = $this->getModelName($foreignTableName);
+        $model = FieldTransformer::guessModelFullName($modelName, $this->getModelNamespace());
 
         $params = [
-                    $model,
-                    $foreignColumn,
-                    $localColumn
-                ];
+            $model,
+            $foreignColumn,
+            $localColumn,
+        ];
 
         if ($this->isOneToMany($foreignTableName, $foreignColumn)) {
             return new ForeignRelationship('hasMany', $params, camel_case(Str::plural($foreignTableName)));
@@ -204,7 +204,7 @@ class MysqlParser extends ParserBase
      * Checks of the table has one-to-many relations
      *
      * @return bool
-    */
+     */
     protected function isOneToMany($tableName, $columnName)
     {
         $query = $this->getRelationTypeQuery($tableName, $columnName);
@@ -217,7 +217,7 @@ class MysqlParser extends ParserBase
      * Get all available indexed
      *
      * @return array of CrestApps\CodeGenerator\Models\Index;
-    */
+     */
     protected function getIndexes()
     {
         $indexes = [];
@@ -285,10 +285,10 @@ class MysqlParser extends ParserBase
      * @param string $columnType
      *
      * @return $this
-    */
+     */
     protected function getPrecision($length, $dataType, $columnType)
     {
-        if (in_array($dataType, ['decimal','double','float','real'])) {
+        if (in_array($dataType, ['decimal', 'double', 'float', 'real'])) {
             $match = [];
 
             preg_match('#\((.*?)\)#', $columnType, $match);
@@ -313,7 +313,7 @@ class MysqlParser extends ParserBase
      * @param string $type
      *
      * @return $this
-    */
+     */
     protected function getDataType($type)
     {
         $map = Config::dataTypeMap();
@@ -341,12 +341,12 @@ class MysqlParser extends ParserBase
         }
 
         return new ForeignConstraint(
-                        strtolower($raw->foreign),
-                        strtolower($raw->references),
-                        strtolower($raw->on),
-                        strtolower($raw->onDelete),
-                        strtolower($raw->onUpdate)
-                    );
+            strtolower($raw->foreign),
+            strtolower($raw->references),
+            strtolower($raw->on),
+            strtolower($raw->onDelete),
+            strtolower($raw->onUpdate)
+        );
     }
 
     /**
@@ -378,7 +378,7 @@ class MysqlParser extends ParserBase
     protected function getBooleanOptions()
     {
         $options = [];
-        if (! $this->hasLanguages()) {
+        if (!$this->hasLanguages()) {
             return $this->booleanOptions;
         }
 
@@ -397,7 +397,7 @@ class MysqlParser extends ParserBase
      * @param string $type
      *
      * @return mix (null|array)
-    */
+     */
     protected function getEnumOptions($type)
     {
         $match = [];
@@ -408,7 +408,7 @@ class MysqlParser extends ParserBase
             return null;
         }
 
-        $options =  array_map(function ($option) {
+        $options = array_map(function ($option) {
             return trim($option, "'");
         }, explode(',', $match[1]));
 

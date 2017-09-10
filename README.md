@@ -1,6 +1,6 @@
 # An awesome code generator for laravel framework - with client-side validation
 
-For full documentation and live demo please visit <a href="https://crestapps.com/laravel-code-generator/docs/2.1" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
+For full documentation and live demo please visit <a href="https://crestapps.com/laravel-code-generator/docs/2.2" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
 
 ## Introduction
 
@@ -80,7 +80,7 @@ php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServ
 * php artisan resource-file:reduce [model-name]
 * php artisan resource-file:delete [model-name]
 
-> Full documentation available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/docs/2.1 "Laravel Code Generator Documentation"). 
+> Full documentation available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/docs/2.2 "Laravel Code Generator Documentation"). 
 
 > Live demo is available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/demos/v2-1 "Laravel Code Generator Live Demo"). 
 
@@ -162,8 +162,8 @@ The following example assumes that we are trying to create a CRUD called <var>As
 
 
 ## Prologue
-* <a href="https://crestapps.com/laravel-code-generator/docs/2.1#release-notes">Release Notes</a>
-* <a href="https://crestapps.com/laravel-code-generator/docs/2.1#upgrade-guide">Upgrade Guide</a>
+* <a href="https://crestapps.com/laravel-code-generator/docs/2.2#release-notes">Release Notes</a>
+* <a href="https://crestapps.com/laravel-code-generator/docs/2.2#upgrade-guide">Upgrade Guide</a>
 
 ## License
 
