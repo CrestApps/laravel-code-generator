@@ -167,8 +167,8 @@ class ForeignRelationship
         }
 
         $primary = $this->getPrimaryKeyForForeignModel();
-        $datetimePatterns = config('codegenerator.common_datetime_patterns') ?: [];
-        $idPatterns = config('codegenerator.common_id_patterns') ?: [];
+        $datetimePatterns = Config::getDateTimePatterns();
+        $idPatterns = Config::getCommonIdPatterns();
 
         $columns = array_filter($columns, function ($column) use ($primary, $idPatterns, $datetimePatterns) {
             return $column != $primary && !Helpers::strIs($idPatterns, $column) && !Helpers::strIs($datetimePatterns, $column);

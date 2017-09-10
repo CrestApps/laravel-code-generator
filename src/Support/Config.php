@@ -113,6 +113,26 @@ class Config
     }
 
     /**
+     * Gets the common datetime patterns to use for headers.
+     *
+     * @return array
+     */
+    public static function getDateTimePatterns()
+    {
+        return config('codegenerator.common_datetime_patterns', []);
+    }
+
+    /**
+     * Gets the common id patterns to use for headers.
+     *
+     * @return array
+     */
+    public static function getCommonIdPatterns()
+    {
+        return config('codegenerator.common_id_patterns', []);
+    }
+
+    /**
      * Gets the path to the field files.
      *
      * @param string $file = '';

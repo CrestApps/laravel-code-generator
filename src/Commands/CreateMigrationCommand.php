@@ -381,22 +381,12 @@ class CreateMigrationCommand extends Command
     {
         $type = strtolower(Helpers::removeNonEnglishChars($field->dataType));
 
-        if (isset($this->getTypeToMethodMap()[$type])) {
+        if (isset(Config::dataTypeMap()[$type])) {
             $params = $this->getMethodParamerters($field);
-            $property .= sprintf("%s('%s'%s)", $this->getPropertyBase($this->getTypeToMethodMap()[$type]), $field->name, $params);
+            $property .= sprintf("%s('%s'%s)", $this->getPropertyBase(Config::dataTypeMap()[$type]), $field->name, $params);
         }
 
         return $this;
-    }
-
-    /**
-     * Gets the type to method map
-     *
-     * @return array
-     */
-    protected function getTypeToMethodMap()
-    {
-        return config('codegenerator.eloquent_type_to_method');
     }
 
     /**
