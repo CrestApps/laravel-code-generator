@@ -268,8 +268,6 @@ class FieldTransformer
                 }
 
                 $value = $index;
-            } elseif (!$associative && !is_array($option) && count($option) == 2) {
-                $value = $option;
             }
 
             ++$index;

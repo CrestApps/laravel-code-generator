@@ -490,8 +490,20 @@ trait CommonCommand
         $validations = '';
 
         foreach ($fields as $field) {
-            if (!empty($field->validationRules)) {
-                $validations .= sprintf("        '%s' => '%s',\n    ", $field->name, implode('|', $field->validationRules));
+            $rules = $field->validationRules ?: [];
+
+            $customRules = array_filter($rules, function ($rule) {
+                return (strpos($rule, 'new ') !== false);
+            });
+
+            if (count($rules) > 0) {
+                if (count($customRules)) {
+                    $standardRules = array_diff($rules, $customRules);
+                    $wrappedRules = array_merge(Helpers::wrapItems($standardRules), $customRules);
+                    $validations .= sprintf("        '%s' => [%s],\n    ", $field->name, implode(',', $wrappedRules));
+                } else {
+                    $validations .= sprintf("        '%s' => '%s',\n    ", $field->name, implode('|', $rules));
+                }
             }
         }
 

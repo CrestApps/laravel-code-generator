@@ -15,6 +15,7 @@
  - Added `plural_names_for` config option to allow the user to set whether to create the resource in a plural or singular version.
  - Added `controller_name_postfix` config option to allow the user to change the controller post-fix or even remove it altogether.
  - Added `form_request_name_postfix` config option to allow the user to change the form-request post-fix or even remove it altogether.
+ - You can use Laravel 5.5 custom validation rule directly in the validations string.
 
 
 

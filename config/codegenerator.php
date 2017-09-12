@@ -487,7 +487,7 @@ return [
             'template' => 'model_was_deleted',
         ],
         'unexpected_error' => [
-            'text' => 'Unexpected error occurred while trying to process your request',
+            'text' => 'Unexpected error occurred while trying to process your request!',
             'template' => 'unexpected_error',
         ],
     ],
