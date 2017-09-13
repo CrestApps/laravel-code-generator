@@ -125,6 +125,18 @@ class Helpers
     }
 
     /**
+     * Makes the route group from the giving model name.
+     *
+     * @param  string  $modelName
+     *
+     * @return string
+     */
+    public static function makeRouteGroup($modelName)
+    {
+        return self::getProperCaseFor($modelName, 'route-group');
+    }
+
+    /**
      * Makes the json file name
      *
      * @param string $modelName

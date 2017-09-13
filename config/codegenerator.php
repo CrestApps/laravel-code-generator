@@ -360,6 +360,7 @@ return [
     'plural_names_for' => [
         'controller-name' => false,
         'request-form-name' => false,
+        'route-group' => true,
         'language-file-name' => true,
         'resource-file-name' => true,
         'table-name' => true,

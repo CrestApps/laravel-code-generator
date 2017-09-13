@@ -27,7 +27,7 @@ class CreateResourcesCommand extends Command
                             {--views-directory= : The name of the view path.}
                             {--form-request-directory= : The directory of the form-request.}
                             {--resource-file= : The name of the resource-file to import from.}
-                            {--routes-prefix=model-name-as-plural : Prefix of the route group.}
+                            {--routes-prefix=default-form : Prefix of the route group.}
                             {--models-per-page=25 : The amount of models per page for index pages.}
                             {--language-filename= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
@@ -314,7 +314,7 @@ class CreateResourcesCommand extends Command
     {
         $input = new ResourceInput(trim($this->argument('model-name')));
         $prefix = $this->option('routes-prefix');
-        $input->prefix = ($prefix == 'model-name-as-plural') ? Helpers::makeTableName($input->modelName) : $prefix;
+        $input->prefix = ($prefix == 'default-form') ? Helpers::makeRouteGroup($input->modelName) : $prefix;
         $input->languageFileName = trim($this->option('language-filename'));
         $input->table = trim($this->option('table-name'));
         $input->viewsDirectory = trim($this->option('views-directory'));
