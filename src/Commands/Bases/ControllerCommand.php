@@ -234,21 +234,6 @@ EOF;
     }
 
     /**
-     * Replaces the class name space
-     *
-     * @param $stub
-     * @param $snippet
-     *
-     * @return $this
-     */
-    protected function replaceNamespace(&$stub, $snippet)
-    {
-        $stub = $this->strReplace('class_namespace', $snippet, $stub);
-
-        return $this;
-    }
-
-    /**
      * Replaces get_data_method template.
      *
      * @param  string  $stub

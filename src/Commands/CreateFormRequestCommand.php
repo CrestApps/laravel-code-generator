@@ -52,7 +52,7 @@ class CreateFormRequestCommand extends ControllerCommand
         }
         $this->replaceFormRequestClass($stub, $input->fileName)
             ->replaceValidationRules($stub, $validations)
-            ->replaceNamespace($stub, $this->getRequestsNamespace($input->formRequestDirectory))
+            ->replaceClassNamespace($stub, $this->getRequestsNamespace($input->formRequestDirectory))
             ->replaceGetDataMethod($stub, $this->getDataMethod($resources->fields))
             ->replaceRequestVariable($stub, '$this')
             ->replaceAuthBoolean($stub, $this->getAuthBool($input->withAuth))
@@ -281,6 +281,21 @@ class CreateFormRequestCommand extends ControllerCommand
     protected function replaceFormRequestClass(&$stub, $name)
     {
         $stub = $this->strReplace('form_request_class', $name, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the class name space
+     *
+     * @param $stub
+     * @param $snippet
+     *
+     * @return $this
+     */
+    protected function replaceClassNamespace(&$stub, $snippet)
+    {
+        $stub = $this->strReplace('class_namespace', $snippet, $stub);
 
         return $this;
     }
