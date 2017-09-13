@@ -17,6 +17,17 @@ class Config
     }
 
     /**
+     * Gets the default value for whether to generate the moveFile method
+     * or not.
+     *
+     * @return bool
+     */
+    public static function createMoveFileMethod()
+    {
+        return (bool) config('codegenerator.create_move_file_method', true);
+    }
+
+    /**
      * Gets the postfix value for a controller name
      *
      * @return string

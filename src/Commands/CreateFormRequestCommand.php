@@ -2,19 +2,13 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use File;
-use Exception;
-use Illuminate\Console\Command;
-use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use CrestApps\CodeGenerator\Commands\Bases\ControllerCommand;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ResourceTransformer;
 
-class CreateFormRequestCommand extends Command
+class CreateFormRequestCommand extends ControllerCommand
 {
-    use CommonCommand, GeneratorReplacers;
-
     /**
      * The name and signature of the console command.
      *
@@ -56,18 +50,17 @@ class CreateFormRequestCommand extends Command
 
             return false;
         }
-
         $this->replaceFormRequestClass($stub, $input->fileName)
-             ->replaceValidationRules($stub, $validations)
-             ->replaceNamespace($stub, $this->getRequestsNamespace($input->formRequestDirectory))
-             ->replaceGetDataMethod($stub, $this->getDataMethod($resources->fields))
-             ->replaceRequestVariable($stub, '$this')
-             ->replaceAuthBoolean($stub, $this->getAuthBool($input->withAuth))
-             ->replaceAuthNamespace($stub, $this->getAuthNamespace($input->withAuth))
-             ->replaceTypeHintedRequestName($stub, '')
-             ->replaceFileMethod($stub, $this->getUploadFileMethod($resources->fields))
-             ->createFile($destenationFile, $stub)
-             ->info('A new form-request have been crafted!');
+            ->replaceValidationRules($stub, $validations)
+            ->replaceNamespace($stub, $this->getRequestsNamespace($input->formRequestDirectory))
+            ->replaceGetDataMethod($stub, $this->getDataMethod($resources->fields))
+            ->replaceRequestVariable($stub, '$this')
+            ->replaceAuthBoolean($stub, $this->getAuthBool($input->withAuth))
+            ->replaceAuthNamespace($stub, $this->getAuthNamespace($input->withAuth))
+            ->replaceTypeHintedRequestName($stub, '')
+            ->replaceFileMethod($stub, $this->getUploadFileMethod($resources->fields))
+            ->createFile($destenationFile, $stub)
+            ->info('A new form-request have been crafted!');
     }
 
     /**
@@ -82,10 +75,14 @@ class CreateFormRequestCommand extends Command
         $stub = $this->getStubContent('controller-getdata-method');
 
         $this->replaceFileSnippet($stub, $this->getFileSnippet($fields))
-             ->replaceBooleadSnippet($stub, $this->getBooleanSnippet($fields))
-             ->replaceStringToNullSnippet($stub, $this->getStringToNullSnippet($fields))
-             ->replaceRequestNameComment($stub, '')
-             ->replaceMethodVisibilityLevel($stub, 'public');
+            ->replaceValidationRules($stub, $this->getValidationRules($fields))
+            ->replaceFillables($stub, $this->getFillables($fields))
+            ->replaceBooleadSnippet($stub, $this->getBooleanSnippet($fields))
+            ->replaceStringToNullSnippet($stub, $this->getStringToNullSnippet($fields))
+            ->replaceRequestNameComment($stub, '')
+            ->replaceMethodVisibilityLevel($stub, 'public');
+
+        $stub = str_replace(PHP_EOL . PHP_EOL, PHP_EOL, $stub);
 
         return $stub;
     }
@@ -115,84 +112,17 @@ class CreateFormRequestCommand extends Command
     }
 
     /**
-     * Gets the code that call the file-upload's method.
+     * Checks if the ConvertEmptyStringsToNull middleware is registered or not
      *
-     * @param array $fields
-     *
-     * @return string
-     */
-    protected function getFileSnippet(array $fields)
-    {
-        $code = '';
-        $template = <<<EOF
-        if (\$this->hasFile('%s')) {
-            \$data['%s'] = \$this->moveFile(\$this->file('%s'));
-        }
-EOF;
-
-        foreach ($fields as $field) {
-            if ($field->isFile()) {
-                $code .= sprintf($template, $field->name, $field->name, $field->name);
-            }
-        }
-
-        return $code;
-    }
-
-    /**
-     * Gets the code that is needed to check for bool property.
-     *
-     * @param array $fields
+     * @param string $string
      *
      * @return string
      */
-    protected function getBooleanSnippet(array $fields)
+    protected function isConvertEmptyStringsToNullRegistered()
     {
-        $code = '';
+        $kernal = $this->getLaravel()->make(\App\Http\Kernel::class);
 
-        foreach ($fields as $field) {
-            if ($field->isBoolean() && $field->isCheckbox()) {
-                $code .= sprintf("        \$data['%s'] = \$this->has('%s');", $field->name, $field->name) . PHP_EOL;
-            }
-        }
-
-        return $code;
-    }
-
-    /**
-     * Gets the code that is needed to convert empty string to null.
-     *
-     * @param array $fields
-     *
-     * @return string
-     */
-    protected function getStringToNullSnippet(array $fields)
-    {
-        $code = '';
-
-        foreach ($fields as $field) {
-            if ($field->isNullable && !$field->isPrimary && !$field->isAutoIncrement && !$field->isRequired() && !$field->isBoolean() && !$field->isFile()) {
-                $code .= sprintf("        \$data['%s'] = !empty(\$this->input('%s')) ? \$this->input('%s') : null;", $field->name, $field->name, $field->name) . PHP_EOL;
-            }
-        }
-
-        return $code;
-    }
-
-    /**
-     * Gets the method's stub that handels the file uploading.
-     *
-     * @param array $fields
-     *
-     * @return string
-     */
-    protected function getUploadFileMethod(array $fields)
-    {
-        if ($this->containsfile($fields)) {
-            return $this->getStubContent('controller-upload-method', $this->getTemplateName());
-        }
-
-        return '';
+        return $kernal->hasMiddleware(\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class);
     }
 
     /**
@@ -248,21 +178,6 @@ EOF;
             'force',
             'template'
         );
-    }
-
-    /**
-     * Replaces the file snippet for the given stub.
-     *
-     * @param $stub
-     * @param $snippet
-     *
-     * @return $this
-     */
-    protected function replaceFileSnippet(&$stub, $snippet)
-    {
-        $stub = $this->strReplace('file_snippet', $snippet, $stub);
-
-        return $this;
     }
 
     /**
@@ -326,36 +241,6 @@ EOF;
     }
 
     /**
-     * Replaces the request_name_comment for the given stub.
-     *
-     * @param $stub
-     * @param $comment
-     *
-     * @return $this
-     */
-    protected function replaceRequestNameComment(&$stub, $comment)
-    {
-        $stub = $this->strReplace('request_name_comment', $comment, $stub);
-
-        return $this;
-    }
-
-    /**
-     * Replaces the visibility level of a giving stub
-     *
-     * @param  string  $stub
-     * @param  string  $level
-     *
-     * @return $this
-     */
-    protected function replaceMethodVisibilityLevel(&$stub, $level)
-    {
-        $stub = $this->strReplace('visibility_level', $level, $stub);
-
-        return $this;
-    }
-
-    /**
      * Replaces request variable.
      *
      * @param  string  $stub
@@ -366,36 +251,6 @@ EOF;
     protected function replaceRequestVariable(&$stub, $variable)
     {
         $stub = $this->strReplace('request_variable', $variable, $stub);
-
-        return $this;
-    }
-
-    /**
-     * Replaces the boolean snippet for the given stub.
-     *
-     * @param  string  $stub
-     * @param  string  $snippet
-     *
-     * @return $this
-     */
-    protected function replaceBooleadSnippet(&$stub, $snippet)
-    {
-        $stub = $this->strReplace('boolean_snippet', $snippet, $stub);
-
-        return $this;
-    }
-
-    /**
-     * Replaces the form-request's name for the given stub.
-     *
-     * @param  string  $stub
-     * @param  string  $snippet
-     *
-     * @return $this
-     */
-    protected function replaceStringToNullSnippet(&$stub, $snippet)
-    {
-        $stub = $this->strReplace('string_to_null_snippet', $snippet, $stub);
 
         return $this;
     }
@@ -426,21 +281,6 @@ EOF;
     protected function replaceFormRequestClass(&$stub, $name)
     {
         $stub = $this->strReplace('form_request_class', $name, $stub);
-
-        return $this;
-    }
-
-    /**
-     * Replaces get_data_method template.
-     *
-     * @param  string  $stub
-     * @param  string  $code
-     *
-     * @return $this
-     */
-    protected function replaceGetDataMethod(&$stub, $code)
-    {
-        $stub = $this->strReplace('get_data_method', $code, $stub);
 
         return $this;
     }

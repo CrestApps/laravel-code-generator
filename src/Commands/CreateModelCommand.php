@@ -30,7 +30,6 @@ class CreateModelCommand extends Command
     protected $signature = 'create:model
                             {model-name : The name of the model.}
                             {--table-name= : The name of the table.}
-                            {--fillable= : The exact string to put in the fillable property of the model.}
                             {--relationships= : The relationships for the model.}
                             {--primary-key=id : The name of the primary key.}
                             {--resource-file= : The name of the resource-file to import from.}
@@ -87,7 +86,7 @@ class CreateModelCommand extends Command
             ->replaceNamespace($stub, $this->getNamespace($input->modelName, $input->modelDirectory))
             ->replaceSoftDelete($stub, $input->useSoftDelete)
             ->replaceTimestamps($stub, $this->getTimeStampsStub($input->useTimeStamps))
-            ->replaceFillable($stub, $this->getFillables($stub, $input->fillable, $fields))
+            ->replaceFillable($stub, $this->getFillables($stub, $fields))
             ->replaceDateFields($stub, $this->getDateFields($stub, $fields))
             ->replaceCasts($stub, $this->getCasts($stub, $fields))
             ->replacePrimaryKey($stub, $primaryKey)
@@ -188,13 +187,18 @@ class CreateModelCommand extends Command
      *
      * @return string
      */
-    protected function getFillables($stub, $fillables, array $fields)
+    protected function getFillables($stub, array $fields)
     {
-        if (!empty($fillables)) {
-            return $this->getFillablesFromString($stub, $fillables);
+        $fillables = [];
+        $indentCount = $this->getIndent($stub, $this->getTemplateVariable('fillable'));
+        $indent = $this->Indent($indentCount - $this->backspaceCount);
+        foreach ($fields as $field) {
+            if ($field->isOnFormView) {
+                $fillables[] = sprintf("%s'%s'", $indent, $field->name);
+            }
         }
 
-        return $this->getFillablefields($stub, $fields);
+        return $this->makeArrayString($fillables, $indentCount - $this->backspaceCount - 4);
     }
 
     /**
@@ -217,28 +221,6 @@ class CreateModelCommand extends Command
 
         foreach ($columns as $column) {
             $fillables[$column] = sprintf("%s'%s'", $index, $column);
-        }
-
-        return $this->makeArrayString($fillables, $indentCount - $this->backspaceCount - 4);
-    }
-
-    /**
-     * Gets the fillable string from a giving fields array.
-     *
-     * @param string $stub
-     * @param array $fields
-     *
-     * @return string
-     */
-    protected function getFillablefields($stub, array $fields)
-    {
-        $fillables = [];
-        $indentCount = $this->getIndent($stub, $this->getTemplateVariable('fillable'));
-        $indent = $this->Indent($indentCount - $this->backspaceCount);
-        foreach ($fields as $field) {
-            if ($field->isOnFormView) {
-                $fillables[] = sprintf("%s'%s'", $indent, $field->name);
-            }
         }
 
         return $this->makeArrayString($fillables, $indentCount - $this->backspaceCount - 4);
@@ -316,7 +298,6 @@ class CreateModelCommand extends Command
     {
         $modelName = trim($this->argument('model-name'));
         $table = trim($this->option('table-name')) ?: Helpers::makeTableName($modelName);
-        $fillable = trim($this->option('fillable'));
         $primaryKey = trim($this->option('primary-key'));
         $relationships = !empty(trim($this->option('relationships'))) ? explode(',', trim($this->option('relationships'))) : [];
         $useSoftDelete = $this->option('with-soft-delete');
@@ -329,7 +310,6 @@ class CreateModelCommand extends Command
 
         return (object) compact(
             'table',
-            'fillable',
             'primaryKey',
             'relationships',
             'useSoftDelete',

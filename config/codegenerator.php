@@ -56,6 +56,30 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Should the moveFile method be generated for every resouces when needed
+    |--------------------------------------------------------------------------
+    |
+    | The code-generator will generate a method called "moveFile" method each
+    | time a file upload is required (i.e. protected function moveFile($file).)
+    | This method is needed to move the file from the request to a permanent
+    | place on your server.
+    |
+    | However, if you want to generate multiple CRUDs that handles file
+    | uploading, you may wish to put this method in a higher level of your code
+    | to prevent redundancy and your code is kept clean.
+    |
+    | If you decided to move this method to a higher level like
+    | App\Http\Controllers\Controller base class
+    | a new App\Http\Requests\FormRequest base class, you can set this option to
+    | `false` to prevent the generator from creating this method
+    | for every CRUD. Should you set it to `false` it is your responsibility to
+    | ensure that this method exists otherwise a MethodNotFound exception thrown.
+    |
+     */
+    'create_move_file_method' => true,
+
+    /*
+    |--------------------------------------------------------------------------
     | The default output format for datetime fields.
     |--------------------------------------------------------------------------
     |
