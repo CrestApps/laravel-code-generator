@@ -358,8 +358,8 @@ return [
     |--------------------------------------------------------------------------
      */
     'plural_names_for' => [
-        'controller-name' => false,
-        'request-form-name' => false,
+        'controller-name' => true,
+        'request-form-name' => true,
         'route-group' => true,
         'language-file-name' => true,
         'resource-file-name' => true,
@@ -385,16 +385,6 @@ return [
     |
      */
     'form_request_name_postfix' => 'FormRequest',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Whether to use code-first approach or not.
-    |--------------------------------------------------------------------------
-    | If you choose not to use code-first apprach, the migration will not be
-    | generated each time you run the create:resources command.
-    |
-     */
-    'use_code_first_approach' => true,
 
     /*
     |--------------------------------------------------------------------------
