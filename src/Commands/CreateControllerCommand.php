@@ -196,7 +196,7 @@ class CreateControllerCommand extends ControllerCommand
         $this->replaceFileSnippet($stub, $this->getFileSnippet($fields))
             ->replaceValidationRules($stub, $this->getValidationRules($fields))
             ->replaceFillables($stub, $this->getFillables($fields))
-            ->replaceBooleadSnippet($stub, $this->getBooleanSnippet($fields))
+            ->replaceBooleadSnippet($stub, $this->getBooleanSnippet($fields, $this->requestVariable))
             ->replaceStringToNullSnippet($stub, $this->getStringToNullSnippet($fields))
             ->replaceRequestNameComment($stub, $this->getRequestNameComment($requestFullname))
             ->replaceMethodVisibilityLevel($stub, 'protected');

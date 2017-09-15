@@ -53,13 +53,13 @@ class ControllerCommand extends Command
      *
      * @return string
      */
-    protected function getBooleanSnippet(array $fields)
+    protected function getBooleanSnippet(array $fields, $requestVariable = '$this')
     {
         $code = '';
 
         foreach ($fields as $field) {
             if ($field->isBoolean() && $field->isCheckbox()) {
-                $code .= sprintf("        \$data['%s'] = %s->has('%s');", $field->name, $this->requestVariable, $field->name) . PHP_EOL;
+                $code .= sprintf("        \$data['%s'] = %s->has('%s');", $field->name, $requestVariable, $field->name) . PHP_EOL;
             }
         }
 

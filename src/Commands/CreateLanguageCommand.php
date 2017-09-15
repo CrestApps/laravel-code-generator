@@ -55,6 +55,7 @@ class CreateLanguageCommand extends Command
 
         foreach ($languages as $language => $labels) {
             $file = $this->getDestenationFile($language, $input->fileName);
+
             $messagesToRegister = [];
             $phrases = $this->getLangPhrases($labels, $messagesToRegister);
 
@@ -139,6 +140,7 @@ class CreateLanguageCommand extends Command
         }
 
         if ($this->isFileExists($fileFullname)) {
+
             $this->appendMessageToFile($fileFullname, $messages);
         } else {
             $this->createMessageToFile($fileFullname, $messages, $language);
