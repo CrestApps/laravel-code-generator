@@ -162,7 +162,7 @@ class CreateResourcesCommand extends Command
      */
     protected function createResourceFile($input)
     {
-        $this->callSilent(
+        $this->call(
             'resource-file:from-database',
             [
                 'model-name' => $input->modelName,
@@ -185,13 +185,14 @@ class CreateResourcesCommand extends Command
      */
     protected function createLanguage($input)
     {
-        $this->callSilent(
+        $this->call(
             'create:language',
             [
                 'model-name' => $input->modelName,
                 '--language-filename' => $input->languageFileName,
                 '--resource-file' => $input->resourceFile,
                 '--template-name' => $input->template,
+                '--force' => $input->force,
             ]
         );
 
@@ -313,8 +314,7 @@ class CreateResourcesCommand extends Command
     protected function getCommandInput()
     {
         $input = new ResourceInput(trim($this->argument('model-name')));
-        $prefix = $this->option('routes-prefix');
-        $input->prefix = ($prefix == 'default-form') ? Helpers::makeRouteGroup($input->modelName) : $prefix;
+        $input->prefix = trim($this->option('routes-prefix'));
         $input->languageFileName = trim($this->option('language-filename'));
         $input->table = trim($this->option('table-name'));
         $input->viewsDirectory = trim($this->option('views-directory'));

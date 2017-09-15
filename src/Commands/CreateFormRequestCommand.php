@@ -56,7 +56,7 @@ class CreateFormRequestCommand extends ControllerCommand
             ->replaceGetDataMethod($stub, $this->getDataMethod($resources->fields))
             ->replaceRequestVariable($stub, '$this')
             ->replaceAuthBoolean($stub, $this->getAuthBool($input->withAuth))
-            ->replaceAuthNamespace($stub, $this->getAuthNamespace($input->withAuth))
+            ->replaceUseCommandPlaceholder($stub, $this->getRequiredUseClasses($resources->fields, $input->withAuth))
             ->replaceTypeHintedRequestName($stub, '')
             ->replaceFileMethod($stub, $this->getUploadFileMethod($resources->fields))
             ->createFile($destenationFile, $stub)
@@ -103,12 +103,31 @@ class CreateFormRequestCommand extends ControllerCommand
      * Gets the using statement for Auth.
      *
      * @param array $fields
+     * @param bool $withAuth
      *
      * @return string
      */
-    protected function getAuthNamespace($withAuth)
+    protected function getRequiredUseClasses(array $fields, $withAuth)
     {
-        return $withAuth ? 'use Auth;' : '';
+        $commands = [];
+        if ($withAuth) {
+            $commands[] = $this->getUseClassCommand('Auth');
+        }
+
+        foreach ($fields as $field) {
+            // Extract the name spaces fromt he custom rules
+            $customRules = $this->extractCustomValidationRules($field->getValidationRule());
+            $namespaces = $this->extractCustomValidationNamespaces($customRules);
+            foreach ($namespaces as $namespace) {
+                $commands[] = $this->getUseClassCommand($namespace);
+            }
+        }
+
+        usort($commands, function ($a, $b) {
+            return strlen($a) - strlen($b);
+        });
+
+        return implode(PHP_EOL, array_unique($commands));
     }
 
     /**
@@ -221,21 +240,6 @@ class CreateFormRequestCommand extends ControllerCommand
     protected function replaceAuthBoolean(&$stub, $code)
     {
         $stub = $this->strReplace('autherized_boolean', $code, $stub);
-
-        return $this;
-    }
-
-    /**
-     * Replaces the autherized_boolean for the given stub.
-     *
-     * @param $stub
-     * @param $code
-     *
-     * @return $this
-     */
-    protected function replaceAuthNamespace(&$stub, $code)
-    {
-        $stub = $this->strReplace('use_auth_namespace', $code, $stub);
 
         return $this;
     }

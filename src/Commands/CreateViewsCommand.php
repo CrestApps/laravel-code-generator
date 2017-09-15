@@ -2,9 +2,9 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
+use CrestApps\CodeGenerator\Commands\Bases\ViewsCommand;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ResourceTransformer;
-use CrestApps\CodeGenerator\Support\ViewsCommand;
 
 class CreateViewsCommand extends ViewsCommand
 {
@@ -17,7 +17,7 @@ class CreateViewsCommand extends ViewsCommand
                             {model-name : The model name that this view will represent.}
                             {--resource-file= : The name of the resource-file to import from.}
                             {--views-directory= : The name of the directory to create the views under.}
-                            {--routes-prefix= : The routes prefix.}
+                            {--routes-prefix=default-form : Prefix of the route group.}
                             {--language-filename= : The name of the language file.}
                             {--only-views=form,create,edit,show,index : The only views to be created.}
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}

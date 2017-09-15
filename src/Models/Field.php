@@ -3,10 +3,10 @@
 namespace CrestApps\CodeGenerator\Models;
 
 use App;
-use CrestApps\CodeGenerator\Models\Label;
-use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Models\ForeignRelationhip;
+use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Helpers;
 
 class Field
 {
@@ -42,14 +42,14 @@ class Field
      * @var array
      */
     private $labels = [];
-    
+
     /**
      * The html-type of the field
      *
      * @var string
      */
     public $htmlType = 'text';
-    
+
     /**
      * The field options of the field
      *
@@ -194,21 +194,21 @@ class Field
      *
      * @var string
      */
-    public $optionsDelimiter  = '; ';
+    public $optionsDelimiter = '; ';
 
     /**
      * Additional css cssClass to add to the field's input.
      *
      * @var string
      */
-    public $cssClass  = '';
+    public $cssClass = '';
 
     /**
      * Defines the datetime display format for a date field.
      *
      * @var string
      */
-    public $dateFormat  = '';
+    public $dateFormat = '';
 
     /**
      * The range of a selector
@@ -298,7 +298,7 @@ class Field
     {
         return $this->placeholders;
     }
-    
+
     /**
      * Gets the languages available in the labels.
      *
@@ -335,7 +335,7 @@ class Field
     public function getLabel($lang = null)
     {
         $lang = empty($lang) ? $this->getDefaultLanguage() : $lang;
-        
+
         if (!isset($this->labels[$lang])) {
             return $this->getFirstLabel();
         }
@@ -507,7 +507,7 @@ class Field
      */
     public function hasForeignRelation()
     {
-        return ! is_null($this->foreignRelation);
+        return !is_null($this->foreignRelation);
     }
 
     /**
@@ -517,7 +517,7 @@ class Field
      */
     public function isCastable()
     {
-        return ! empty($this->castAs);
+        return !empty($this->castAs);
     }
 
     /**
@@ -527,7 +527,7 @@ class Field
      */
     public function hasForeignConstraint()
     {
-        return ! is_null($this->foreignConstraint);
+        return !is_null($this->foreignConstraint);
     }
     /**
      * Checks if the field is on a giving view.
@@ -538,7 +538,7 @@ class Field
     {
         $view = ucfirst(strtolower($view));
 
-        if (in_array($view, ['Form','Index','Show'])) {
+        if (in_array($view, ['Form', 'Index', 'Show'])) {
             return $this->{'isOn' . $view . 'View'};
         }
 
@@ -560,7 +560,7 @@ class Field
     {
         $localKey = $this->getLocaleKey($localeGroup, $value);
         $id = $this->getFieldId($value);
-        
+
         $this->options[$lang][] = new Label($text, $localKey, $isPlain, $lang, $id, $value);
     }
 
@@ -604,6 +604,16 @@ class Field
     public function isRequired()
     {
         return in_array('required', $this->validationRules);
+    }
+
+    /**
+     * Get current validation rules.
+     *
+     * @return array
+     */
+    public function getValidationRule()
+    {
+        return $this->validationRules ?: [];
     }
 
     /**
@@ -665,7 +675,7 @@ class Field
     protected function cleanValue($optionValue)
     {
         $value = strtolower(str_replace(' ', '_', $optionValue));
-        
+
         return Helpers::removeNonEnglishChars($value);
     }
 
@@ -687,38 +697,38 @@ class Field
     public function toArray()
     {
         return [
-            'name'               => $this->name,
-            'labels'             => $this->labelsToRaw($this->getLabels()),
-            'html-type'          => $this->htmlType,
-            'css-class'          => $this->cssClass,
-            'options'            => $this->optionsToRaw($this->getOptions()),
-            'html-value'         => $this->htmlValue,
-            'validation'         => implode('|', $this->validationRules),
-            'is-on-index'        => $this->isOnIndexView,
-            'is-on-show'         => $this->isOnShowView,
-            'is-on-form'         => $this->isOnFormView,
-            'data-type'          => $this->getRawDataType(),
-            'data-type-params'   => $this->methodParams,
-            'data-value'         => $this->dataValue,
-            'is-index'           => $this->isIndex,
-            'is-unique'          => $this->isUnique,
-            'is-primary'         => $this->isPrimary,
-            'comment'            => $this->comment,
-            'is-nullable'        => $this->isNullable,
-            'is-header'          => $this->isHeader,
-            'is-unsigned'        => $this->isUnsigned,
-            'is-auto-increment'  => $this->isAutoIncrement,
-            'is-inline-options'  => $this->isInlineOptions,
-            'is-date'            => $this->isDate,
-            'date-format'        => $this->dateFormat,
-            'cast-as'            => $this->castAs,
-            'placeholder'        => $this->labelsToRaw($this->getPlaceholders()),
-            'delimiter'          => $this->optionsDelimiter,
-            'range'              => $this->range,
-            'foreign-relation'   => $this->getForeignRelationToRaw(),
+            'name' => $this->name,
+            'labels' => $this->labelsToRaw($this->getLabels()),
+            'html-type' => $this->htmlType,
+            'css-class' => $this->cssClass,
+            'options' => $this->optionsToRaw($this->getOptions()),
+            'html-value' => $this->htmlValue,
+            'validation' => implode('|', $this->validationRules),
+            'is-on-index' => $this->isOnIndexView,
+            'is-on-show' => $this->isOnShowView,
+            'is-on-form' => $this->isOnFormView,
+            'data-type' => $this->getRawDataType(),
+            'data-type-params' => $this->methodParams,
+            'data-value' => $this->dataValue,
+            'is-index' => $this->isIndex,
+            'is-unique' => $this->isUnique,
+            'is-primary' => $this->isPrimary,
+            'comment' => $this->comment,
+            'is-nullable' => $this->isNullable,
+            'is-header' => $this->isHeader,
+            'is-unsigned' => $this->isUnsigned,
+            'is-auto-increment' => $this->isAutoIncrement,
+            'is-inline-options' => $this->isInlineOptions,
+            'is-date' => $this->isDate,
+            'date-format' => $this->dateFormat,
+            'cast-as' => $this->castAs,
+            'placeholder' => $this->labelsToRaw($this->getPlaceholders()),
+            'delimiter' => $this->optionsDelimiter,
+            'range' => $this->range,
+            'foreign-relation' => $this->getForeignRelationToRaw(),
             'foreign-constraint' => $this->getForeignConstraintToRaw(),
-            'on-store'           => $this->onStore,
-            'on-update'          => $this->onUpdate,
+            'on-store' => $this->onStore,
+            'on-update' => $this->onUpdate,
         ];
     }
 
@@ -788,8 +798,8 @@ class Field
      */
     public function isDateTime()
     {
-        return     in_array($this->dataType, ['dateTime','dateTimeTz'])
-                || in_array($this->name, ['created_at','updated_at','deleted_at']);
+        return in_array($this->dataType, ['dateTime', 'dateTimeTz'])
+        || in_array($this->name, ['created_at', 'updated_at', 'deleted_at']);
     }
 
     /**
@@ -809,7 +819,7 @@ class Field
      */
     public function isTime()
     {
-        return in_array($this->dataType, ['time','timeTz']);
+        return in_array($this->dataType, ['time', 'timeTz']);
     }
 
     /**
@@ -819,7 +829,7 @@ class Field
      */
     public function isNumeric()
     {
-        return $this->isDecimal() || in_array($this->dataType, ['bigIncrements','bigInteger','increments','integer','mediumIncrements','mediumInteger','smallIncrements','smallInteger','tinyInteger','unsignedBigInteger','unsignedInteger','unsignedMediumInteger','unsignedSmallInteger','unsignedTinyInteger']);
+        return $this->isDecimal() || in_array($this->dataType, ['bigIncrements', 'bigInteger', 'increments', 'integer', 'mediumIncrements', 'mediumInteger', 'smallIncrements', 'smallInteger', 'tinyInteger', 'unsignedBigInteger', 'unsignedInteger', 'unsignedMediumInteger', 'unsignedSmallInteger', 'unsignedTinyInteger']);
     }
 
     /**
@@ -829,7 +839,7 @@ class Field
      */
     public function isString()
     {
-        return in_array($this->dataType, ['char','string']);
+        return in_array($this->dataType, ['char', 'string']);
     }
 
     /**
@@ -839,7 +849,7 @@ class Field
      */
     public function isTimeStamp()
     {
-        return in_array($this->dataType, ['timestamp','timestampTz']);
+        return in_array($this->dataType, ['timestamp', 'timestampTz']);
     }
 
     /**
@@ -869,7 +879,7 @@ class Field
 
         return null;
     }
-    
+
     /**
      * Checks if the data type contains decimal.
      *
@@ -877,7 +887,7 @@ class Field
      */
     public function isDecimal()
     {
-        return in_array($this->dataType, ['float','decimal','double']);
+        return in_array($this->dataType, ['float', 'decimal', 'double']);
     }
 
     /**
@@ -933,7 +943,7 @@ class Field
      */
     public function getDecimalPointLength()
     {
-        if ($this->isDecimal() && ! is_null($value = $this->getMethodParam(1))) {
+        if ($this->isDecimal() && !is_null($value = $this->getMethodParam(1))) {
             return $value / ($value * 100);
         }
 
@@ -975,7 +985,7 @@ class Field
      */
     public function getMaxValue()
     {
-        if (! $this->isNumeric()) {
+        if (!$this->isNumeric()) {
             return null;
         }
 
@@ -1014,8 +1024,8 @@ class Field
             return 0;
         }
 
-        if (! is_null($value = $this->getMaxValue())) {
-            return ($value * -1) - ($this->isDecimal() ? 0: 1);
+        if (!is_null($value = $this->getMaxValue())) {
+            return ($value * -1) - ($this->isDecimal() ? 0 : 1);
         }
 
         return null;
@@ -1074,7 +1084,7 @@ class Field
                 }
             }
         }
-        
+
         $finals = [];
 
         foreach ($collections as $value => $collection) {

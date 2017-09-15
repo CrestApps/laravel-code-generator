@@ -65,7 +65,8 @@ class ViewInput
         $this->modelName = trim($arguments['model-name']);
         $this->resourceFile = trim($options['resource-file']) ?: Helpers::makeJsonFileName($this->modelName);
         $this->viewsDirectory = trim($options['views-directory']);
-        $this->prefix = trim($options['routes-prefix']);
+        $prefix = trim($options['routes-prefix']);
+        $this->prefix = ($prefix == 'default-form') ? Helpers::makeRouteGroup($this->modelName) : $prefix;
         $this->force = $options['force'];
         $this->languageFileName = trim($options['language-filename']) ?: Helpers::makeLocaleGroup($this->modelName);
         $this->layout = trim($options['layout-name']);

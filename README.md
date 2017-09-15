@@ -82,7 +82,7 @@ php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServ
 
 > Full documentation available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/docs/2.2 "Laravel Code Generator Documentation"). 
 
-> Live demo is available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/demos/v2-1 "Laravel Code Generator Live Demo"). 
+> Live demo is available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/demos/v2-2 "Laravel Code Generator Live Demo"). 
 
 
 ## Examples

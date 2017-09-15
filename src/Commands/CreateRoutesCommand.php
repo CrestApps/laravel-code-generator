@@ -2,13 +2,12 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use Route;
-use Exception;
-use Illuminate\Console\Command;
+use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
-use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\Config;
+use Exception;
+use Illuminate\Console\Command;
+use Route;
 
 class CreateRoutesCommand extends Command
 {
@@ -22,7 +21,7 @@ class CreateRoutesCommand extends Command
     protected $signature = 'create:routes
                             {model-name : The model name.}
                             {--controller-name= : The name of the controller where the route should be routing to.}
-                            {--routes-prefix= : The routes prefix.}
+                            {--routes-prefix=default-form : Prefix of the route group.}
                             {--controller-directory= : The directory where the controller is under.}
                             {--template-name= : The template name to use when generating the code.}';
 
@@ -43,13 +42,13 @@ class CreateRoutesCommand extends Command
         $input = $this->getCommandInput();
 
         if ($this->isRouteNameExists($this->getDotNotationName($this->getModelName($input->modelName), $input->prefix, 'index'))) {
-            $this->warn("The route is already registred!");
+            $this->warn("The routes already registered!");
             return;
         }
 
         $routesFile = $this->getRoutesFileName();
 
-        if (! $this->isFileExists($routesFile)) {
+        if (!$this->isFileExists($routesFile)) {
             throw new Exception("The routes file does not exists. The expected location was " . $routesFile);
         }
 
@@ -58,11 +57,11 @@ class CreateRoutesCommand extends Command
         $controllnerName = $this->getControllerName($input->controllerName, $input->controllerDirectory);
 
         $this->replaceModelName($stub, $input->modelName)
-             ->replaceControllerName($stub, $controllnerName)
-             ->replaceRouteNames($stub, $this->getModelName($input->modelName), $input->prefix)
-             ->processRoutesGroup($stub, $input->prefix, $input->controllerDirectory, $input->template)
-             ->appendToRoutesFile($stub, $routesFile)
-             ->info('The routes were added successfully.');
+            ->replaceControllerName($stub, $controllnerName)
+            ->replaceRouteNames($stub, $this->getModelName($input->modelName), $input->prefix)
+            ->processRoutesGroup($stub, $input->prefix, $input->controllerDirectory, $input->template)
+            ->appendToRoutesFile($stub, $routesFile)
+            ->info('The routes were added successfully.');
     }
 
     /**
@@ -74,7 +73,8 @@ class CreateRoutesCommand extends Command
     {
         $modelName = trim($this->argument('model-name'));
         $controllerName = trim($this->option('controller-name')) ?: Helpers::postFixWith($modelName, 'Controller');
-        $prefix = str_replace('\\', '/', trim($this->option('routes-prefix')));
+        $prefix = ($this->option('routes-prefix') == 'default-form') ? Helpers::makeRouteGroup($modelName) : $this->option('routes-prefix');
+        $prefix = str_replace('\\', '/', $prefix);
         $template = $this->getTemplateName();
         $controllerDirectory = trim($this->option('controller-directory'));
 
@@ -169,7 +169,7 @@ class CreateRoutesCommand extends Command
             $groupStub = $this->getStubContent('routes-group');
 
             $this->replacePrefix($groupStub, $this->getGroupPrefix($prefix))
-                 ->replaceRoutes($groupStub, $stub);
+                ->replaceRoutes($groupStub, $stub);
 
             $stub = $groupStub;
         }

@@ -24,7 +24,8 @@ class CreateLanguageCommand extends Command
                             {model-name : The model name.}
                             {--language-filename= : The name of the file to save the messages in.}
                             {--resource-file= : The name of the resource-file to import from.}
-                            {--template-name= : The template name to use when generating the code.}';
+                            {--template-name= : The template name to use when generating the code.}
+                            {--force : This option will override the language file(s) if any already exists.}';
 
     /**
      * The console command description.
@@ -59,8 +60,10 @@ class CreateLanguageCommand extends Command
             $messagesToRegister = [];
             $phrases = $this->getLangPhrases($labels, $messagesToRegister);
 
-            $this->addMessagesToFile($file, $phrases, $language)
-                ->registerMessages($messagesToRegister, $language);
+            if (!empty($phrases)) {
+                $this->addMessagesToFile($file, $phrases, $language)
+                    ->registerMessages($messagesToRegister, $language);
+            }
         }
     }
 
@@ -134,16 +137,10 @@ class CreateLanguageCommand extends Command
      */
     protected function addMessagesToFile($fileFullname, $messages, $language)
     {
-        if (empty($messages)) {
-            $this->info('There was no messages to add the language files');
-            return $this;
-        }
-
-        if ($this->isFileExists($fileFullname)) {
-
-            $this->appendMessageToFile($fileFullname, $messages);
-        } else {
+        if (!$this->isFileExists($fileFullname) || $this->option('force')) {
             $this->createMessageToFile($fileFullname, $messages, $language);
+        } else {
+            $this->appendMessageToFile($fileFullname, $messages);
         }
 
         return $this;
@@ -199,11 +196,10 @@ class CreateLanguageCommand extends Command
     protected function createMessageToFile($fileFullname, $messages, $language)
     {
         $stub = $this->getStubContent('language');
-
         $this->replaceFieldName($stub, $messages)
             ->createFile($fileFullname, $stub);
 
-        $this->info('The file  [' . $language . '/' . basename($fileFullname) . '] was created successfully.');
+        $this->info('The file "' . $language . '/' . basename($fileFullname) . '" was crafted successfully.');
     }
 
     /**
@@ -251,7 +247,7 @@ class CreateLanguageCommand extends Command
         $messages = [];
 
         foreach ($labels as $label) {
-            if (!$this->isMessageExists($label->localeGroup, $label->lang)) {
+            if (!$this->isMessageExists($label->localeGroup, $label->lang) || $this->option('force')) {
                 $messages[] = $this->getMessage($label);
                 $messagesToRegister[$label->localeGroup] = $label->text;
             }

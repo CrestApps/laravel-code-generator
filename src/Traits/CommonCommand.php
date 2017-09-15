@@ -75,6 +75,18 @@ trait CommonCommand
     }
 
     /**
+     * Gets the relation accessor for the giving foreign renationship.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    protected function getUseClassCommand($name)
+    {
+        return sprintf('use %s;', $name);
+    }
+
+    /**
      * Gets the correct routes fullname based on current framework version.
      *
      * @return string
@@ -476,38 +488,6 @@ trait CommonCommand
         $this->putContentInFile($file, $stub);
 
         return $this;
-    }
-
-    /**
-     * Gets laravel ready field validation format from a giving string
-     *
-     * @param string $validations
-     *
-     * @return string
-     */
-    protected function getValidationRules(array $fields)
-    {
-        $validations = '';
-
-        foreach ($fields as $field) {
-            $rules = $field->validationRules ?: [];
-
-            $customRules = array_filter($rules, function ($rule) {
-                return (strpos($rule, 'new ') !== false);
-            });
-
-            if (count($rules) > 0) {
-                if (count($customRules)) {
-                    $standardRules = array_diff($rules, $customRules);
-                    $wrappedRules = array_merge(Helpers::wrapItems($standardRules), $customRules);
-                    $validations .= sprintf("        '%s' => [%s],\n    ", $field->name, implode(',', $wrappedRules));
-                } else {
-                    $validations .= sprintf("        '%s' => '%s',\n    ", $field->name, implode('|', $rules));
-                }
-            }
-        }
-
-        return $validations;
     }
 
     /**

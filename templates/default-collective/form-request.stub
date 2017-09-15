@@ -3,7 +3,8 @@
 namespace [% class_namespace %];
 
 use Illuminate\Foundation\Http\FormRequest;
-[% use_auth_namespace %]
+[% use_command_placeholder %]
+
 class [% form_request_class %] extends FormRequest
 {
     /**

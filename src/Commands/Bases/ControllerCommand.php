@@ -47,6 +47,166 @@ class ControllerCommand extends Command
     }
 
     /**
+     * Gets laravel ready field validation format from a giving string
+     *
+     * @param string $validations
+     *
+     * @return string
+     */
+    protected function getValidationRules(array $fields)
+    {
+        $validations = '';
+
+        foreach ($fields as $field) {
+
+            $rules = $field->getValidationRule();
+            $customRules = $this->extractCustomValidationRules($rules);
+
+            if (!empty($rules)) {
+
+                if (!empty($customRules)) {
+
+                    $standardRules = array_diff($rules, $customRules);
+                    $shortCustomRules = $this->extractCustomValidationShortName($customRules);
+
+                    $wrappedRules = array_merge(Helpers::wrapItems($standardRules), $shortCustomRules);
+
+                    $validations .= sprintf("        '%s' => [%s],\n    ", $field->name, implode(',', $wrappedRules));
+                } else {
+                    $validations .= sprintf("        '%s' => '%s',\n    ", $field->name, implode('|', $rules));
+                }
+            }
+        }
+
+        return $validations;
+    }
+
+    /**
+     * Extracts the custom validation rules' short name from the giving rules array.
+     *
+     * @param array $rules
+     *
+     * @return array
+     */
+    protected function extractCustomValidationShortName(array $rules)
+    {
+        $customRules = array_map(function ($rule) {
+            $fullname = $this->getCustomRuleFullName($rule);
+
+            if ($this->canHaveUsingCommand($fullname)) {
+                $shortName = $this->getCustomRuleShortName($fullname);
+
+                return $this->makeCustomRuleCall($shortName);
+            }
+
+            return $this->makeCustomRuleCall($fullname);
+
+        }, $rules);
+
+        return $customRules;
+    }
+
+    /**
+     * Extracts the custom validation rules' short name from the giving rules array.
+     *
+     * @param array $rules
+     *
+     * @return array
+     */
+    protected function extractCustomValidationNamespaces(array $rules)
+    {
+        $customRules = array_filter($rules, function ($rule) {
+            $fullname = $this->getCustomRuleFullName($rule);
+
+            return $this->canHaveUsingCommand($fullname);
+        });
+
+        $customRules = array_map(function ($rule) {
+            return $this->getCustomRuleFullName($rule);
+        }, $customRules);
+
+        return array_unique($customRules);
+    }
+
+    /**
+     * Extracts the custom validation rules from the giving rules array.
+     *
+     * @param array $rules
+     *
+     * @return array
+     */
+    protected function extractCustomValidationRules(array $rules)
+    {
+        $customRules = array_filter($rules, function ($rule) {
+            return $this->isCustomRule($rule);
+        });
+
+        return $customRules;
+    }
+
+    /**
+     * Checks if the givin rule is a custom validation rule
+     *
+     * @param string $rule
+     *
+     * @return bool
+     */
+    protected function isCustomRule($rule)
+    {
+        return starts_with(trim($rule), 'new ');
+    }
+
+    /**
+     * Make a custom rule call
+     *
+     * @param string $rule
+     *
+     * @return string
+     */
+    protected function makeCustomRuleCall($rule)
+    {
+        return sprintf('new %s', $rule);
+    }
+
+    /**
+     * Get the short name of the giving custom validation rule.
+     *
+     * @param string $rule
+     *
+     * @return string
+     */
+    protected function getCustomRuleShortName($rule)
+    {
+        $name = $this->getCustomRuleFullName($rule);
+
+        return class_basename($name);
+    }
+
+    /**
+     * Checks if a class name starts with a slash \
+     *
+     * @param string $fullname
+     *
+     * @return bool
+     */
+    protected function canHaveUsingCommand($fullname)
+    {
+        return !starts_with($fullname, '\\');
+    }
+
+    /**
+     * Get the full class name of the giving custom valiation rule.
+     *
+     * @param string $rule
+     *
+     * @return string
+     */
+    protected function getCustomRuleFullName($rule)
+    {
+        return str_replace(['new ', ';', ' '], '', trim($rule));
+    }
+
+    /**
      * Gets the code that is needed to check for bool property.
      *
      * @param array $fields
@@ -172,6 +332,21 @@ EOF;
     protected function replaceBooleadSnippet(&$stub, $snippet)
     {
         $stub = $this->strReplace('boolean_snippet', $snippet, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replaces useCommandPlaceHolder
+     *
+     * @param  string  $stub
+     * @param  string  $commands
+     *
+     * @return $this
+     */
+    protected function replaceUseCommandPlaceholder(&$stub, $commands)
+    {
+        $stub = $this->strReplace('use_command_placeholder', $commands, $stub);
 
         return $this;
     }

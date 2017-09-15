@@ -30,7 +30,6 @@ class CreateModelCommand extends Command
     protected $signature = 'create:model
                             {model-name : The name of the model.}
                             {--table-name= : The name of the table.}
-                            {--relationships= : The relationships for the model.}
                             {--primary-key=id : The name of the primary key.}
                             {--resource-file= : The name of the resource-file to import from.}
                             {--language-filename= : The languages file name to put the labels in.}
@@ -74,7 +73,7 @@ class CreateModelCommand extends Command
         $destenationFile = $this->getDestenationFile($input->modelName, $input->modelDirectory);
 
         if ($this->alreadyExists($destenationFile)) {
-            $this->error('The model already exists! To override the existing file, use --force option.');
+            $this->error('The model already exists!');
 
             return false;
         }
@@ -299,7 +298,6 @@ class CreateModelCommand extends Command
         $modelName = trim($this->argument('model-name'));
         $table = trim($this->option('table-name')) ?: Helpers::makeTableName($modelName);
         $primaryKey = trim($this->option('primary-key'));
-        $relationships = !empty(trim($this->option('relationships'))) ? explode(',', trim($this->option('relationships'))) : [];
         $useSoftDelete = $this->option('with-soft-delete');
         $useTimeStamps = !$this->option('without-timestamps');
 
@@ -311,7 +309,6 @@ class CreateModelCommand extends Command
         return (object) compact(
             'table',
             'primaryKey',
-            'relationships',
             'useSoftDelete',
             'useTimeStamps',
             'resourceFile',

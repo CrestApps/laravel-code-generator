@@ -37,7 +37,7 @@ class CreateControllerCommand extends ControllerCommand
                             {--model-directory= : The path where the model should be created under.}
                             {--views-directory= : The path where the views should be created under.}
                             {--resource-file= : The name of the resource-file to import from.}
-                            {--routes-prefix= : Prefix of the route group.}
+                            {--routes-prefix=default-form : Prefix of the route group.}
                             {--models-per-page=25 : The amount of models per page for index pages.}
                             {--language-filename= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
@@ -325,7 +325,7 @@ class CreateControllerCommand extends ControllerCommand
         $cName = trim($this->option('controller-name'));
         $controllerName = $cName ? str_finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($modelName);
         $viewDirectory = $this->option('views-directory');
-        $prefix = $this->option('routes-prefix');
+        $prefix = ($this->option('routes-prefix') == 'default-form') ? Helpers::makeRouteGroup($modelName) : $this->option('routes-prefix');
         $perPage = intval($this->option('models-per-page'));
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
         $langFile = $this->option('language-filename') ?: Helpers::makeLocaleGroup($modelName);
@@ -680,6 +680,12 @@ class CreateControllerCommand extends ControllerCommand
             if (!empty($field->onUpdate) && !in_array($field->onUpdate, $commands)) {
                 $commands[] = $this->extractNamespace($field->onUpdate);
             }
+            // Extract the name spaces fromt he custom rules
+            $customRules = $this->extractCustomValidationRules($field->getValidationRule());
+            $namespaces = $this->extractCustomValidationNamespaces($customRules);
+            foreach ($namespaces as $namespace) {
+                $commands[] = $this->getUseClassCommand($namespace);
+            }
         }
 
         usort($commands, function ($a, $b) {
@@ -699,18 +705,6 @@ class CreateControllerCommand extends ControllerCommand
     protected function getTypeHintedRequestName($name)
     {
         return sprintf('%s %s', $name, $this->requestVariable);
-    }
-
-    /**
-     * Gets the relation accessor for the giving foreign renationship.
-     *
-     * @param string $name
-     *
-     * @return string
-     */
-    protected function getUseClassCommand($name)
-    {
-        return sprintf('use %s;', $name);
     }
 
     /**
@@ -1060,21 +1054,6 @@ class CreateControllerCommand extends ControllerCommand
     protected function replaceTypeHintedRequestName(&$stub, $code)
     {
         $stub = $this->strReplace('type_hinted_request_name', $code, $stub);
-
-        return $this;
-    }
-
-    /**
-     * Replaces useCommandPlaceHolder
-     *
-     * @param  string  $stub
-     * @param  string  $commands
-     *
-     * @return $this
-     */
-    protected function replaceUseCommandPlaceholder(&$stub, $commands)
-    {
-        $stub = $this->strReplace('use_command_placeholder', $commands, $stub);
 
         return $this;
     }
