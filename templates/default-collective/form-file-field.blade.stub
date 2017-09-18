@@ -1,3 +1,8 @@
-        <label class="btn btn-default">
-        	Browse <input type="file" name="[% field_name %]" id="[% field_name %]" class="hidden[% class_class %]">
-        </label>
+        <div class="input-group uploaded-file-group">
+            <label class="input-group-btn">
+                <span class="btn btn-default">
+                    Browse <input type="file" name="[% field_name %]" id="[% field_name %]" class="hidden[% css_class %]">
+                </span>
+            </label>
+            <input type="text" class="form-control uploaded-file-name" readonly>
+        </div>

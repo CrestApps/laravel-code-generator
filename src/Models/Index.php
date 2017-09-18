@@ -18,7 +18,7 @@ class Index
      *
      * @var string
      */
-    protected $validIndexTypes = ['index','unique','primary'];
+    protected $validIndexTypes = ['index', 'unique', 'primary'];
 
     /**
      * The type of the index.
@@ -28,10 +28,10 @@ class Index
     protected $type;
 
     /**
-    * The name of the index.
-    *
-    * @var string
-    */
+     * The name of the index.
+     *
+     * @var string
+     */
     protected $name;
 
     /**
@@ -190,11 +190,13 @@ class Index
      */
     public function toArray()
     {
-        return [
-            'name'    => $this->getName(),
-            'type'    => $this->getType(),
+        $final = [
+            'name' => $this->getName(),
+            'type' => $this->getType(),
             'columns' => $this->getColumns(),
         ];
+
+        return $final;
     }
 
     /**
@@ -228,11 +230,11 @@ class Index
             $index->addColumn($column);
         }
 
-        if (array_key_exists('name', $properties)) {
+        if (array_key_exists('name', $properties) && !empty($properties['name'])) {
             $index->setName($properties['name']);
         }
 
-        if (array_key_exists('type', $properties)) {
+        if (array_key_exists('type', $properties) && !empty($properties['type'])) {
             $index->setType($properties['type']);
         }
 

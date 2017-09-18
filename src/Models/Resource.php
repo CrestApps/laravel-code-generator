@@ -55,10 +55,10 @@ class Resource
     public function toArray()
     {
         return
-        [
-            'fields'    => $this->getFieldsToArray(),
+            [
+            'fields' => $this->getFieldsToArray(),
             'relations' => $this->getRelationsToArray(),
-            'indexes'   => $this->getIndexesToArray()
+            'indexes' => $this->getIndexesToArray(),
         ];
     }
 

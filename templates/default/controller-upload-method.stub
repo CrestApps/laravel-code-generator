@@ -8,13 +8,13 @@
      */
     protected function moveFile($file)
     {
-        if (! $file->isValid()) {
+        if (!$file->isValid()) {
             return '';
         }
-            
-        $uploadPath = config('codegenerator.files_upload_path');
-        $name = sprintf('%s.%s', str_random(30), $file->getClientOriginalExtension());
-        $file->move(public_path($uploadPath), $name);
-
-        return asset($uploadPath) . "/". $name;
+        
+        $fileName = sprintf('%s.%s', uniqid(), $file->getClientOriginalExtension());
+        $destinationPath = config('codegenerator.files_upload_path');
+        $path = $file->move($destinationPath, $fileName);
+        
+        return $destinationPath . '/' . $fileName;
     }

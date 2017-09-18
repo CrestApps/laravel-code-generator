@@ -150,6 +150,16 @@ class ForeignRelationship
     }
 
     /**
+     * Get the relation name.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
      * Guesses the name of the foreign key.
      *
      * @return string

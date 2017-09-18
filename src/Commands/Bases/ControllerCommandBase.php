@@ -8,7 +8,7 @@ use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use Illuminate\Console\Command;
 
-class ControllerCommand extends Command
+class ControllerCommandBase extends Command
 {
     use CommonCommand, GeneratorReplacers;
 
@@ -286,7 +286,12 @@ EOF;
     protected function getUploadFileMethod(array $fields, $withFormRequest = false)
     {
         if (!$withFormRequest && Config::createMoveFileMethod() && $this->containsfile($fields)) {
-            return $this->getStubContent('controller-upload-method', $this->getTemplateName());
+            $stubName = 'controller-upload-method';
+            if (Helpers::isNewerThan('5.2.999999999')) {
+                $stubName .= '-5.3';
+            }
+
+            return $this->getStubContent($stubName, $this->getTemplateName());
         }
 
         return '';

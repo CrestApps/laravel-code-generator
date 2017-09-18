@@ -258,7 +258,7 @@ return [
             ],
         ],
         [
-            'match' => ['picture', 'file', 'photo'],
+            'match' => ['picture', 'file', 'photo', 'avatar'],
             'set' => [
                 'is-on-index' => false,
                 'html-type' => 'file',

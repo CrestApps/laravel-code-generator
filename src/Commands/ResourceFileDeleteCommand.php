@@ -2,18 +2,13 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use Route;
-use Exception;
-use Illuminate\Console\Command;
-use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Commands\Bases\ResourceFileCommandBase;
 use CrestApps\CodeGenerator\Support\Config;
-use CrestApps\CodeGenerator\Support\FieldTransformer;
+use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\ResourceMapper;
 
-class ResourceFileDeleteCommand extends Command
+class ResourceFileDeleteCommand extends ResourceFileCommandBase
 {
-    use CommonCommand;
-
     /**
      * The name and signature of the console command.
      *
@@ -41,48 +36,18 @@ class ResourceFileDeleteCommand extends Command
         $file = $this->getFilename($input->file);
 
         if (Config::autoManageResourceMapper()) {
-            $this->reduceMapper($input->modelName);
+            $mapper = new ResourceMapper($this);
+            $mapper->reduce($input->modelName, $input->file);
         }
 
-        if (! $this->isFileExists($file)) {
+        if (!$this->isFileExists($file)) {
             $this->error('The resource-file does not exists.');
 
             return false;
         }
 
         $this->deleteFile($file);
-        $this->info('The "'. basename($file) .'" file was successfully deleted!');
-    }
-
-    /**
-     * Removes mapping entry from the default mapping file.
-     *
-     * @param string $modelName
-     *
-     * @return void
-     */
-    protected function reduceMapper($modelName)
-    {
-        $file = $path = base_path(Config::getFieldsFilePath(Config::getDefaultMapperFileName()));
-
-        $maps = [];
-
-        if ($this->isFileExists($file)) {
-            $existingMaps = json_decode($this->getFileContent($file));
-
-            if (is_null($existingMaps)) {
-                $this->error('The existing mapping file contains invalid json string. Please fix the file then try again');
-                return false;
-            }
-            
-            $maps = Collect($existingMaps)->filter(function ($map) use ($modelName) {
-                return isset($map->{'model-name'}) && $map->{'model-name'} != $modelName;
-            });
-        }
-
-        $content = json_encode($maps, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-
-        $this->putContentInFile($file, $content);
+        $this->info('The "' . basename($file) . '" file was successfully deleted!');
     }
 
     /**
@@ -97,19 +62,5 @@ class ResourceFileDeleteCommand extends Command
         $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
 
         return (object) compact('modelName', 'file');
-    }
-
-    /**
-     * Gets the destenation filename.
-     *
-     * @param string $name
-     *
-     * @return string
-     */
-    protected function getFilename($name)
-    {
-        $path = base_path(Config::getFieldsFilePath());
-
-        return $path . $name;
     }
 }

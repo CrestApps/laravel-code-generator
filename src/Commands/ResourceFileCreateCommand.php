@@ -2,17 +2,13 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
+use CrestApps\CodeGenerator\Commands\Bases\ResourceFileCreatorCommandBase;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
-use CrestApps\CodeGenerator\Support\FieldTransformer;
-use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Traits\CommonCommand;
-use Illuminate\Console\Command;
+use CrestApps\CodeGenerator\Support\ResourceMapper;
 
-class ResourceFileCreateCommand extends Command
+class ResourceFileCreateCommand extends ResourceFileCreatorCommandBase
 {
-    use CommonCommand;
-
     /**
      * The name and signature of the console command.
      *
@@ -20,14 +16,12 @@ class ResourceFileCreateCommand extends Command
      */
     protected $signature = 'resource-file:create
                             {model-name : The model name that these files represent.}
-                            {--resource-filename= : The destination file name to create.}
-                            {--names= : A comma seperate field names.}
-                            {--data-types= : A comma seperated data-type for each field.}
-                            {--html-types= : A comma seperated html-type for each field.}
-                            {--without-primary-key : The directory where the controller is under.}
+                            {--resource-filename= : The destination file name to append too.}
+                            {--fields= : A comma seperate field names.}
+                            {--indexes= : A comma seperated index string.}
+                            {--relations= : A comma seperated realtion string.}
                             {--translation-for= : A comma seperated string of languages to create fields for.}
                             {--force : Override existing file if one exists.}';
-
     /**
      * The console command description.
      *
@@ -45,170 +39,82 @@ class ResourceFileCreateCommand extends Command
         $input = $this->getCommandInput();
         $file = $this->getFilename($input->file);
 
-        if ($this->isFileExists($file) && !$input->force) {
+        if ($this->isFileExists($file) && !$this->option('force')) {
             $this->error('The resource-file already exists! To override the existing file, use --force option to append.');
 
             return false;
         }
 
-        if (empty($input->names)) {
-            $this->error('No names were provided. Please use the --names option to pass field names.');
+        if (empty($input->fieldNames) && empty($input->relations) && empty($input->indexes)) {
+            $this->noResourcesProvided();
 
             return false;
         }
 
         if (Config::autoManageResourceMapper()) {
-            $this->appendMapper($input->modelName, $input->file);
+            $mapper = new ResourceMapper($this);
+            $mapper->append($input->modelName, $input->file);
         }
 
-        $fields = $this->getFields($input, $input->withoutPrimaryKey);
+        $fields = $this->getFields($input->fieldNames, $input->translationFor);
+        $relations = $this->getRelations($input->relations);
+        $indexes = $this->getIndexes($input->indexes);
 
-        $resource = new Resource($fields);
+        $resource = new Resource($fields, $relations, $indexes);
 
-        $content = json_encode($resource->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-
-        $this->createFile($file, $content)
+        $this->createFile($file, $this->getJson($resource->toArray()))
             ->info('The "' . basename($file) . '" file was crafted successfully!');
     }
 
     /**
-     * Gets a clean user inputs.
+     * Get the relations from an existing array.
      *
-     * @return object
-     */
-    protected function getCommandInput()
-    {
-        $modelName = trim($this->argument('model-name'));
-        $filename = trim($this->option('resource-filename'));
-        $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
-        $names = array_unique(Helpers::convertStringToArray($this->generatorOption('names')));
-        $dataTypes = Helpers::convertStringToArray($this->generatorOption('data-types'));
-        $htmlTypes = Helpers::convertStringToArray($this->generatorOption('html-types'));
-        $withoutPrimaryKey = $this->option('without-primary-key');
-        $transaltionFor = Helpers::convertStringToArray($this->generatorOption('translation-for'));
-        $force = $this->option('force');
-
-        return (object) compact(
-            'modelName',
-            'file',
-            'names',
-            'dataTypes',
-            'htmlTypes',
-            'withoutPrimaryKey',
-            'transaltionFor',
-            'force'
-        );
-    }
-
-    /**
-     * Gets the destenation filename.
-     *
-     * @param string $name
-     *
-     * @return string
-     */
-    protected function getFilename($name)
-    {
-        $path = base_path(Config::getFieldsFilePath());
-
-        return $path . $name;
-    }
-
-    /**
-     * Get primary key properties.
-     *
-     * @param object $input
-     * @param bool $withoutPrimaryKey
+     * @param array $relations
      *
      * @return array
      */
-    public static function getFields($input, $withoutPrimaryKey)
+    protected function getRelations($relations)
     {
-        $fields = [];
-
-        if (!$withoutPrimaryKey) {
-            $fields[] = self::getPrimaryKey();
-        }
-
-        foreach ($input->names as $key => $name) {
-            if (!$withoutPrimaryKey && strtolower($name) == 'id') {
+        $existingNames = [];
+        $finalRelations = [];
+        foreach ($relations as $relation) {
+            $newRelation = $this->getRelation($relation);
+            if (is_null($newRelation)) {
                 continue;
             }
 
-            $properties = ['name' => $name];
-
-            if (isset($input->htmlTypes[$key])) {
-                $properties['html-type'] = $input->htmlTypes[$key];
+            if (!empty($newRelation->name) && in_array($newRelation->name, $existingNames)) {
+                continue;
             }
 
-            if (isset($input->dataTypes[$key])) {
-                $properties['data-type'] = $input->dataTypes[$key];
-            }
-
-            $label = FieldTransformer::convertNameToLabel($name);
-            foreach ($input->transaltionFor as $lang) {
-                $properties['label'][$lang] = $label;
-            }
-
-            $fields[] = $properties;
+            $finalRelations[] = $newRelation;
+            $existingNames[] = $newRelation->name;
         }
 
-        return FieldTransformer::fromArray($fields, 'generic');
+        return $finalRelations;
     }
 
     /**
-     * Removes mapping entry from the default mapping file.
+     * Get the indexes from an existing array.
      *
-     * @param string $modelName
-     * @param string $fieldsFileName
-     *
-     * @return void
-     */
-    protected function appendMapper($modelName, $fieldsFileName)
-    {
-        $file = base_path(Config::getFieldsFilePath(Config::getDefaultMapperFileName()));
-
-        $fields = [];
-
-        if ($this->isFileExists($file)) {
-            $content = $this->getFileContent($file);
-
-            $existingFields = json_decode($content, true);
-
-            if (is_null($existingFields)) {
-                $this->error('The existing mapping file contains invalid json string. Please fix the file then try again');
-                return false;
-            }
-
-            $existingFields = Collect($existingFields)->filter(function ($resource) use ($modelName) {
-                return isset($resource['model-name']) && $resource['model-name'] != $modelName;
-            });
-
-            $existingFields->push([
-                'model-name' => $modelName,
-                'resource-file' => $fieldsFileName,
-            ]);
-
-            foreach ($existingFields as $existingField) {
-                $fields[] = (object) $existingField;
-            }
-        }
-
-        $this->putContentInFile($file, json_encode($fields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-    }
-
-    /**
-     * Get standard properties for primary key field.
+     * @param array $relations
      *
      * @return array
      */
-    protected static function getPrimaryKey()
+    protected function getIndexes($indexes)
     {
-        return [
-            'name' => 'id',
-            'type' => 'integer',
-            'is-primary' => true,
-            'is-auto-increment' => true,
-        ];
+        $existingNames = [];
+        $finalIndexes = [];
+        foreach ($indexes as $index) {
+            $newIndex = $this->getIndex($index);
+            if (!empty($newIndex->getName()) && in_array($newIndex->getName(), $existingNames)) {
+                continue;
+            }
+
+            $finalIndexes[] = $newIndex;
+            $existingNames[] = $newIndex->getName();
+        }
+
+        return $finalIndexes;
     }
 }

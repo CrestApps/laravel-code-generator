@@ -38,6 +38,10 @@
             max-width: 380px;
         }
 
+        .uploaded-file-name {
+            max-width: 310px;
+        }
+
         /* Vertically align the table cells inside body-panel */
         .panel-body .table > tr > td
         {
@@ -67,6 +71,17 @@
 
     <script type="text/javascript">
         $(function(){
+
+            $(document).on('change', ':file', function() {
+                var input = $(this);
+                var label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+
+                input.trigger('fileselect', [label]);
+            });
+
+            $(':file').on('fileselect', function(event, label) {
+                $(this).closest('.uploaded-file-group').find('.uploaded-file-name').val(label);
+            });
 
             $.validator.setDefaults({
                 errorElement: "span",

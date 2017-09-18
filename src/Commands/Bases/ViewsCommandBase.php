@@ -12,7 +12,7 @@ use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use Illuminate\Console\Command;
 
-abstract class ViewsCommand extends Command
+abstract class ViewsCommandBase extends Command
 {
     use CommonCommand, GeneratorReplacers;
 

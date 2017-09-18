@@ -2,19 +2,17 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
+use CrestApps\CodeGenerator\Commands\Bases\ResourceFileCommandBase;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\traits\CommonCommand;
+use CrestApps\CodeGenerator\Support\ResourceMapper;
 use DB;
 use Exception;
 use File;
-use Illuminate\Console\Command;
 
-class ResourceFileFromDatabaseCommand extends Command
+class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
 {
-    use CommonCommand;
-
     /**
      * The name and signature of the console command.
      *
@@ -60,54 +58,12 @@ class ResourceFileFromDatabaseCommand extends Command
         $content = $this->getJsonContent();
 
         if (Config::autoManageResourceMapper()) {
-            $this->appendMapper($this->getModelName(), $this->getTableName(), $this->getFilename());
+            $mapper = new ResourceMapper($this);
+            $mapper->append($this->getModelName(), $this->getNewFilename(), $this->getTableName());
         }
 
         $this->createFile($destenationFile, $content)
             ->info('The  "' . basename($destenationFile) . '" file was crafted successfully!');
-    }
-
-    /**
-     * Appends mapping entry from the default mapping file.
-     *
-     * @param string $modelName
-     * @param string $tableName
-     * @param string $fieldsFileName
-     *
-     * @return void
-     */
-    protected function appendMapper($modelName, $tableName, $fieldsFileName)
-    {
-        $file = base_path(Config::getFieldsFilePath(Config::getDefaultMapperFileName()));
-
-        $fields = [];
-
-        if ($this->isFileExists($file)) {
-            $content = $this->getFileContent($file);
-
-            $existingFields = json_decode($content, true);
-
-            if (is_null($existingFields)) {
-                $this->error('The existing mapping file contains invalid json string. Please fix the file then try again');
-                return false;
-            }
-            $existingFields = Collect($existingFields)->filter(function ($resource) use ($modelName, $tableName) {
-                return (isset($resource['model-name']) && $resource['model-name'] != $modelName)
-                    || (isset($resource['table-name']) && $resource['table-name'] != $tableName);
-            });
-
-            $existingFields->push([
-                'model-name' => $modelName,
-                'resource-file' => $fieldsFileName,
-                'table-name' => $tableName,
-            ]);
-
-            foreach ($existingFields as $existingField) {
-                $fields[] = (object) $existingField;
-            }
-        }
-
-        $this->putContentInFile($file, json_encode($fields, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
 
     /**
@@ -117,7 +73,7 @@ class ResourceFileFromDatabaseCommand extends Command
      */
     protected function getDestinationFullname()
     {
-        return base_path(Config::getFieldsFilePath($this->getFilename()));
+        return base_path(Config::getFieldsFilePath($this->getNewFilename()));
     }
 
     /**
@@ -155,7 +111,7 @@ class ResourceFileFromDatabaseCommand extends Command
      *
      * @return string
      */
-    protected function getFilename()
+    protected function getNewFilename()
     {
         $filename = trim($this->option('resource-filename')) ?: Helpers::makeJsonFileName($this->getModelName());
 

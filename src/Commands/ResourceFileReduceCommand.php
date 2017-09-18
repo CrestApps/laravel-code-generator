@@ -2,18 +2,11 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use Route;
-use Exception;
-use Illuminate\Console\Command;
-use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Commands\Bases\ResourceFileCommandBase;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\Config;
-use CrestApps\CodeGenerator\Support\ResourceTransformer;
 
-class ResourceFileReduceCommand extends Command
+class ResourceFileReduceCommand extends ResourceFileCommandBase
 {
-    use CommonCommand;
-
     /**
      * The name and signature of the console command.
      *
@@ -22,7 +15,9 @@ class ResourceFileReduceCommand extends Command
     protected $signature = 'resource-file:reduce
                             {model-name : The model name that these files represent.}
                             {--resource-filename= : The destination file name to reduce.}
-                            {--names= : A comma seperate field names.}';
+                            {--fields= : A comma seperate field names.}
+                            {--indexes= : A comma seperated index string.}
+                            {--relations= : A comma seperated realtion string.}';
 
     /**
      * The console command description.
@@ -41,57 +36,68 @@ class ResourceFileReduceCommand extends Command
         $input = $this->getCommandInput();
         $file = $this->getFilename($input->file);
 
-        if (! $this->isFileExists($file)) {
+        if (!$this->isFileExists($file)) {
             $this->error('The resource-file does not exists.');
 
             return false;
         }
-        
-        if (empty($input->names)) {
-            $this->error('No names were provided. Please use the --names option to pass field names to remove.');
+
+        if (empty($input->fieldNames) && empty($input->relations) && empty($input->indexes)) {
+            $this->noResourcesProvided();
 
             return false;
         }
-        $totalReducedFields = 0;
-        $resource = $this->reduceFields($file, $input, $totalReducedFields);
-        
+
+        $resource = $this->getResources($file);
+        $totalReducedFields = $this->reduceFields($resource, $input->fieldNames);
+        $totalReducedRelations = $this->reduceRelations($resource, $input->relations);
+        $totalReducedIndexes = $this->reduceIndexes($resource, $input->indexes);
+
         if ($resource->isEmpty()) {
             $this->callSilent(
                 'resource-file:delete',
                 [
-                    'model-name'          => $input->modelName,
-                    '--resource-filename' => $file
+                    'model-name' => $input->modelName,
+                    '--resource-filename' => $input->file,
                 ]
             );
 
-            $this->info('All fields were removed from the resource-file. The file "' . basename($file) . '" was deleted successfully!');
+            $this->info('All resources were removed from the resource-file. The file "' . basename($file) . '" was removed successfully!');
 
             return false;
         }
 
-        $content = json_encode($resource->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        $this->putContentInFile($file, $this->getJson($resource->toArray()));
+        $filename = basename($file);
 
-        $this->putContentInFile($file, $content)
-             ->info($totalReducedFields . ' fields where removed from the "' . basename($file) . '" file.');
+        if ($totalReducedFields) {
+            $this->info($totalReducedFields . ' field(s) where removed from the "' . $filename . '" file.');
+        }
+
+        if ($totalReducedRelations) {
+            $this->info($totalReducedRelations . ' relation(s) where removed from the "' . $filename . '" file.');
+        }
+
+        if ($totalReducedIndexes) {
+            $this->info($totalReducedIndexes . ' index(es) where removed from the "' . $filename . '" file.');
+        }
     }
 
     /**
-     * Reduces the fields from a giving file
+     * Reduces the fields from a giving resource.
      *
-     * @param string $file
-     * @param object $input
+     * @param CrestApps\CodeGenerator\Models\Resource &$resource
+     * @param array $$fieldNames
      *
      * @return mixed
      */
-    protected function reduceFields($file, $input, &$totalReducedFields)
+    protected function reduceFields(&$resource, array $fieldNames)
     {
-        $resource = ResourceTransformer::fromJson($this->getFileContent($file), 'crestapps');
-
         $keep = [];
-        
+        $totalReduced = 0;
         foreach ($resource->fields as $field) {
-            if (in_array($field->name, $input->names) || in_array($field->name, $keep)) {
-                $totalReducedFields++;
+            if (in_array($field->name, $fieldNames) || in_array($field->name, $keep)) {
+                $totalReduced++;
                 continue;
             }
 
@@ -100,7 +106,64 @@ class ResourceFileReduceCommand extends Command
 
         $resource->fields = $keep;
 
-        return $resource;
+        return $totalReduced;
+    }
+
+    /**
+     * Reduces the indexes from a giving resource.
+     *
+     * @param CrestApps\CodeGenerator\Models\Resource &$resource
+     * @param array $indexNames
+     *
+     * @return mixed
+     */
+    protected function reduceIndexes(&$resource, array $indexNames)
+    {
+        $keep = [];
+        $keepName = [];
+        $totalReduced = 0;
+        foreach ($resource->indexes as $index) {
+            if (in_array($index->getName(), $indexNames) || in_array($index->getName(), $keepName)) {
+                $totalReduced++;
+                continue;
+            }
+
+            $keep[] = $index;
+            $keepName[] = $index->getName();
+        }
+
+        $resource->indexes = $keep;
+
+        return $totalReduced;
+    }
+
+    /**
+     * Reduces the relations from a giving resource.
+     *
+     * @param CrestApps\CodeGenerator\Models\Resource &$resource
+     * @param array $relationNames
+     *
+     * @return mixed
+     */
+    protected function reduceRelations(&$resource, array $relationNames)
+    {
+        $keep = [];
+        $keepName = [];
+        $totalReduced = 0;
+        foreach ($resource->relations as $relation) {
+
+            if (in_array($relation->getName(), $relationNames) || in_array($relation->getName(), $keepName)) {
+                $totalReduced++;
+                continue;
+            }
+
+            $keep[] = $relation;
+            $keepName[] = $relation->getName();
+        }
+
+        $resource->relations = $keep;
+
+        return $totalReduced;
     }
 
     /**
@@ -113,26 +176,16 @@ class ResourceFileReduceCommand extends Command
         $modelName = trim($this->argument('model-name'));
         $filename = trim($this->option('resource-filename'));
         $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
-        $names = array_unique(Helpers::convertStringToArray($this->generatorOption('names')));
+        $fieldNames = array_unique(Helpers::convertStringToArray($this->generatorOption('fields')));
+        $relations = Helpers::convertStringToArray(trim($this->option('relations')));
+        $indexes = Helpers::convertStringToArray(trim($this->option('indexes')));
 
         return (object) compact(
             'modelName',
             'file',
-            'names'
+            'fieldNames',
+            'relations',
+            'indexes'
         );
-    }
-
-    /**
-     * Gets the destenation filename.
-     *
-     * @param string $name
-     *
-     * @return string
-     */
-    protected function getFilename($name)
-    {
-        $path = base_path(Config::getFieldsFilePath());
-
-        return $path . $name;
     }
 }

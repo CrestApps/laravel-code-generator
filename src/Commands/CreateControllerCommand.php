@@ -2,14 +2,14 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use CrestApps\CodeGenerator\Commands\Bases\ControllerCommand;
+use CrestApps\CodeGenerator\Commands\Bases\ControllerCommandBase;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ResourceTransformer;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 
-class CreateControllerCommand extends ControllerCommand
+class CreateControllerCommand extends ControllerCommandBase
 {
     /**
      * The console command description.

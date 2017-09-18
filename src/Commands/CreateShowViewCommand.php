@@ -2,10 +2,10 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use CrestApps\CodeGenerator\Commands\Bases\ViewsCommand;
+use CrestApps\CodeGenerator\Commands\Bases\ViewsCommandBase;
 use CrestApps\CodeGenerator\Support\ResourceTransformer;
 
-class CreateShowViewCommand extends ViewsCommand
+class CreateShowViewCommand extends ViewsCommandBase
 {
     /**
      * The name and signature of the console command.

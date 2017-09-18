@@ -2,20 +2,12 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use Route;
-use Exception;
-use Illuminate\Console\Command;
-use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\Config;
-use CrestApps\CodeGenerator\Support\FieldTransformer;
-use CrestApps\CodeGenerator\Support\ResourceTransformer;
-use CrestApps\CodeGenerator\Commands\FieldsFileCreateCommand;
+use CrestApps\CodeGenerator\Commands\Bases\ResourceFileCreatorCommandBase;
+use CrestApps\CodeGenerator\Models\Index;
+use CrestApps\CodeGenerator\Models\Resource;
 
-class ResourceFileAppendCommand extends Command
+class ResourceFileAppendCommand extends ResourceFileCreatorCommandBase
 {
-    use CommonCommand;
-
     /**
      * The name and signature of the console command.
      *
@@ -24,10 +16,10 @@ class ResourceFileAppendCommand extends Command
     protected $signature = 'resource-file:append
                             {model-name : The model name that these files represent.}
                             {--resource-filename= : The destination file name to append too.}
-                            {--names= : A comma seperate field names.}
-                            {--data-types= : A comma seperated data-type for each field.}
-                            {--translation-for= : A comma seperated string of languages to create fields for.}
-                            {--html-types= : A comma seperated html-type for each field.}';
+                            {--fields= : A comma seperate field names.}
+                            {--indexes= : A comma seperated index string.}
+                            {--relations= : A comma seperated realtion string.}
+                            {--translation-for= : A comma seperated string of languages to create fields for.}';
 
     /**
      * The console command description.
@@ -46,109 +38,135 @@ class ResourceFileAppendCommand extends Command
         $input = $this->getCommandInput();
         $file = $this->getFilename($input->file);
 
-        if (empty($input->names)) {
-            $this->error('No names were provided. Please use the --names option to pass field names.');
+        if (empty($input->fieldNames) && empty($input->relations) && empty($input->indexes)) {
+            $this->noResourcesProvided();
 
             return false;
         }
 
-        if (! $this->isFileExists($file)) {
+        if (!$this->isFileExists($file)) {
             $this->warn('The resource-file does not exists.');
-
             $this->call('resource-file:create', $this->getCommandOptions($input));
 
             return false;
         }
-        $totalAddedFields = 0;
-        $resource = $this->mergeFields($file, $input, $totalAddedFields);
-        
-        $content = json_encode($resource->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
-        $this->putContentInFile($file, $content)
-             ->info($totalAddedFields . ' new fields where appended to the "' . basename($file) . '" file.');
+        $resource = $this->getResources($file);
+
+        $totalAddedFields = $this->mergeFields($resource, $input);
+        $totalAddedRelations = $this->mergeRelations($resource, $input);
+        $totalAddedIndexes = $this->mergeIndexes($resource, $input);
+
+        $content = $this->getJson($resource->toArray());
+
+        $this->putContentInFile($file, $content);
+
+        $fileName = basename($file);
+
+        if ($totalAddedFields) {
+            $this->info($totalAddedFields . ' new field(s) where appended to the "' . $fileName . '" file.');
+        }
+
+        if ($totalAddedRelations) {
+            $this->info($totalAddedRelations . ' new relation(s) where appended to the "' . $fileName . '" file.');
+        }
+
+        if ($totalAddedIndexes) {
+            $this->info($totalAddedIndexes . ' new index(es) where appended to the "' . $fileName . '" file.');
+        }
     }
 
     /**
      * Merges the giving file's content to the new fields.
      *
-     * @param string $file
+     * @param CrestApps\CodeGenerator\Models\Resource &$resource
      * @param (object) $input
      *
-     * @return CrestApps\CodeGenerator\Models\Resource
+     * @return int
      */
-    protected function mergeFields($file, $input, &$mergeFields)
+    protected function mergeFields(&$resource, $input)
     {
-        $resource = ResourceTransformer::fromJson($this->getFileContent($file), 'crestapps');
-        
         $existingNames = Collect($resource->fields)->pluck('name')->all();
-        $fields = ResourceFileCreateCommand::getFields($input, true);
+        $fields = $this->getFields($input->fieldNames, $input->translationFor);
+        $mergeFields = 0;
         foreach ($fields as $field) {
             if (in_array($field->name, $existingNames)) {
                 $this->warn('The field "' . $field->name . '" already exists in the file.');
                 continue;
             }
 
-            $existingName[] = $field->name;
+            $existingNames[] = $field->name;
             $resource->fields[] = $field;
             $mergeFields++;
         }
 
-        return $resource;
+        return $mergeFields;
     }
 
     /**
-     * Converts the current command's argument and options into an array.
+     * Merges the relation to the existing resources.
      *
-     * @return array
+     * @param CrestApps\CodeGenerator\Models\Resource &$resource
+     * @param (object) $input
+     *
+     * @return int
      */
-    protected function getCommandOptions($input)
+    protected function mergeRelations(&$resource, $input)
     {
-        return [
-            'model-name'          => $input->modelName,
-            '--resource-filename' => $input->file,
-            '--names'             => implode(',', $input->names),
-            '--data-types'        => implode(',', $input->dataTypes),
-            '--html-types'        => implode(',', $input->htmlTypes)
-        ];
+        $existingNames = [];
+
+        foreach ($resource->relations as $relation) {
+            $existingNames[] = $relation->getName();
+        }
+        $mergeRelations = 0;
+        foreach ($input->relations as $relation) {
+            $newRelation = $this->getRelation($relation);
+
+            if (is_null($newRelation)) {
+                continue;
+            }
+            if (!empty($newRelation->name) && in_array($newRelation->name, $existingNames)) {
+                $this->warn('The relation "' . $newRelation->name . '" already exists in the file.');
+                continue;
+            }
+
+            $resource->relations[] = $newRelation;
+            $existingNames[] = $newRelation->name;
+
+            $mergeRelations++;
+        }
+
+        return $mergeRelations;
     }
 
     /**
-     * Gets a clean user inputs.
+     * Merges the indexes to the existing resources.
      *
-     * @return object
+     * @param CrestApps\CodeGenerator\Models\Resource &$resource
+     * @param (object) $input
+     *
+     * @return int
      */
-    protected function getCommandInput()
+    protected function mergeIndexes(&$resource, $input)
     {
-        $modelName = trim($this->argument('model-name'));
-        $filename = trim($this->option('resource-filename'));
-        $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
-        $names = array_unique(Helpers::convertStringToArray($this->generatorOption('names')));
-        $dataTypes = Helpers::convertStringToArray($this->generatorOption('data-types'));
-        $htmlTypes = Helpers::convertStringToArray($this->generatorOption('html-types'));
-        $transaltionFor = Helpers::convertStringToArray($this->generatorOption('translation-for'));
+        $existingNames = [];
 
-        return (object) compact(
-            'modelName',
-            'file',
-            'names',
-            'dataTypes',
-            'htmlTypes',
-            'transaltionFor'
-        );
-    }
+        foreach ($resource->indexes as $index) {
+            $existingNames[] = $index->getName();
+        }
+        $mergeIndexes = 0;
+        foreach ($input->indexes as $index) {
+            $newIndex = $this->getIndex($index);
+            if (!empty($newIndex->getName()) && in_array($newIndex->getName(), $existingNames)) {
+                $this->warn('The index "' . $newIndex->getName() . '" already exists in the file.');
+                continue;
+            }
 
-    /**
-     * Gets the destenation filename.
-     *
-     * @param string $name
-     *
-     * @return string
-     */
-    protected function getFilename($name)
-    {
-        $path = base_path(Config::getFieldsFilePath());
-        $name = Helpers::postFixWith($name, '.json');
+            $resource->indexes[] = $newIndex;
+            $existingNames[] = $newIndex->getName();
+            $mergeIndexes++;
+        }
 
-        return $path . $name;
+        return $mergeIndexes;
     }
 }

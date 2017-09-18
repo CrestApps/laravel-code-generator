@@ -12,9 +12,5 @@
             return '';
         }
         
-        $fileName = sprintf('%s.%s', uniqid(), $file->getClientOriginalExtension());
-        $destinationPath = config('codegenerator.files_upload_path');
-        $path = $file->move($destinationPath, $fileName);
-        
-        return $destinationPath . '/' . $fileName;
+        return $file->store(config('codegenerator.files_upload_path'), config('filesystems.default'));
     }

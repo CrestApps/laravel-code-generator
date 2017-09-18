@@ -5,6 +5,9 @@
  - This completely drop support for fields from raw string. We relay heavy on the JSON-based resource-file. The resource-file allows you to define any relations, indexes and fields all at once.
  - The **--lang-file-name** options have been changed to **--language-filename** any where it exists
  - The **--without-migration** option with **create:resources** command has been reversed. It is now **--with-migration** and should only be passed when you need a new migration created.
+ - The options `--names` in the `resource-file:create`, `resource-file:append`, or `resource-file:reduce` has been renamed to `--fields`.
+ - `--indexes` and `--relations` have been added to the following commands `resource-file:create`, `resource-file:append`, or `resource-file:reduce` to allow you to interact with the resource-file freely.
+ -- The options `--fields`, `--indexes` and `--relations` for the `resource-file:create`, `resource-file:append`, or `resource-file:reduce` commands accept complex string to allow you to pass more values to add to the resource-file.
 
 
 ## New Features
@@ -16,14 +19,17 @@
  - Added `controller_name_postfix` config option to allow the user to change the controller post-fix or even remove it altogether.
  - Added `form_request_name_postfix` config option to allow the user to change the form-request post-fix or even remove it altogether.
  - You can use Laravel 5.5 custom validation rule directly in the validations string.
- -- Added `create_move_file_method` config option to allow the user to chose not to create moveFile method on every CRUD when file-upload is required.
+ - Added `create_move_file_method` config option to allow the user to chose not to create moveFile method on every CRUD when file-upload is required.
+
 
 ## Template Changes
  - A new stub was added controller-getdata-method-5.5.stub to allow you to simplify your validation when using Laravel 5.5! This will make your code much cleaner and simpler thanks to the new Laravel 5.5 validation.
  - The stub `controller-getdata-method.stub` has a slight change to increase the security of the generate code. instead of using `$request->all()` to get all the data from the request, we do `$request->only([...])` to only get the fields that should be needed only!
  - The variable `[% use_auth_namespace %]` in the `form-request.stub` file has been renamed to `[% use_command_placeholder %]`.
  - New template file have been added `controller-getdata-method-5.5.stub`
-
+- New template file have been added `controller-upload-method-5.3.stub` to improve the syntax in the moveFile() method for Laravel 5.3+.
+- The content of the `form-file-field.blade.stub` were changed to show the uploaded filename.
+- The content of the `layout.stub` and `layout-with-validation.stub` were updated to show the file name for uploaded files.
 
 
 ## Command Changes
