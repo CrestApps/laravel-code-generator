@@ -45,7 +45,7 @@ class CreateLanguageCommand extends Command
         $resources = ResourceTransformer::fromFile($input->resourceFile, $input->fileName);
 
         $languages = Helpers::getLanguageItems($resources->fields);
-        $viewLabels = new ViewLabelsGenerator($input->modelName, $this->isCollectiveTemplate());
+        $viewLabels = new ViewLabelsGenerator($input->modelName, $resources->fields, $this->isCollectiveTemplate());
 
         $standardLabels = $viewLabels->getTranslatedLabels(array_keys($languages));
 

@@ -2,10 +2,11 @@
 
 namespace CrestApps\CodeGenerator\HtmlGenerators;
 
-use CrestApps\CodeGenerator\Models\Label;
-use CrestApps\CodeGenerator\Models\Field;
-use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\HtmlGenerators\HtmlGeneratorBase;
+use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Models\Label;
+use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 
 class LaravelCollectiveHtml extends HtmlGeneratorBase
 {
@@ -105,7 +106,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         return $isMulti ? "'multiple' => 'multiple'," : '';
     }
-    
+
     /**
      * It gets converts an array to a stringbase array for the views.
      *
@@ -170,8 +171,8 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         return sprintf(
             " (%s == '%s' ? true : null) ",
-                        $this->getRawOptionValue($name, $defaultValue),
-                        $value
+            $this->getRawOptionValue($name, $defaultValue),
+            $value
         );
     }
 
@@ -241,7 +242,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
         $defaultValueString = '[]';
 
         if (!empty($defaultValue)) {
-            $joinedValues = implode(',', Helpers::wrapItems((array)$defaultValue));
+            $joinedValues = implode(',', Helpers::wrapItems((array) $defaultValue));
             $defaultValueString = sprintf('[%s]', $joinedValues);
         }
 
@@ -272,5 +273,15 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     protected function getStepsValue($value)
     {
         return ($value) > 0 ? 'step => "any",' : '';
+    }
+
+    /**
+     * Gets an instance of ViewLabelsGenerator
+     *
+     * @return CrestApps\CodeGenerator\Support\ViewLabelsGenerator
+     */
+    protected function getViewLabelsGenerator()
+    {
+        return new ViewLabelsGenerator($this->modelName, $this->fields, false);
     }
 }

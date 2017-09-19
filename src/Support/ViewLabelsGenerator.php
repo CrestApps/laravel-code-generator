@@ -3,11 +3,12 @@
 namespace CrestApps\CodeGenerator\Support;
 
 use App;
-use Exception;
 use CrestApps\CodeGenerator\Models\Label;
+use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use Exception;
 
 class ViewLabelsGenerator
 {
@@ -19,6 +20,13 @@ class ViewLabelsGenerator
      * @var string
      */
     protected $modelName;
+
+    /**
+     * The fields.
+     *
+     * @var array
+     */
+    protected $fields;
 
     /**
      * The name of the file where labels will reside
@@ -46,13 +54,14 @@ class ViewLabelsGenerator
      *
      * @return void
      */
-    public function __construct($modelName, $isCollectiveTemplate)
+    public function __construct($modelName, array $fields, $isCollectiveTemplate)
     {
         if (empty($modelName)) {
             throw new Exception("$modelName must have a valid value");
         }
 
         $this->modelName = $modelName;
+        $this->fields = $fields;
         $this->localeGroup = Helpers::makeLocaleGroup($modelName);
         $this->defaultLang = App::getLocale();
         $this->isCollectiveTemplate = $isCollectiveTemplate;
@@ -69,12 +78,13 @@ class ViewLabelsGenerator
     {
         $labels = [];
         foreach ($languages as $language) {
-            foreach ($this->getTemplates() as $key => $properties) {
-                $label = $this->makeLabel($key, $properties, false, $language);
+
+            foreach (Config::getCustomModelTemplates() as $key => $properties) {
+                $label = $this->makeModelLabel($key, $properties, false, $language);
                 $labels[$language][] = $label;
             }
         }
-        
+
         return $labels;
     }
 
@@ -86,12 +96,14 @@ class ViewLabelsGenerator
      *
      * @return array
      */
-    public function getLabels(array $languages)
+    public function getLabels()
     {
+        $languages = array_keys(Helpers::getLanguageItems($this->fields));
+
         if (count($languages) > 0) {
             return $this->getTranslatedLabels($languages);
         }
-        
+
         return $this->getPlainLabels();
     }
 
@@ -104,16 +116,16 @@ class ViewLabelsGenerator
     {
         $labels = [];
 
-        foreach ($this->getTemplates() as $key => $properties) {
-            $label = $this->makeLabel($key, $properties, true, $this->defaultLang);
+        foreach (Config::getCustomModelTemplates() as $key => $properties) {
+            $label = $this->makeModelLabel($key, $properties, true, $this->defaultLang);
             $labels[$this->defaultLang][] = $label;
         }
-        
+
         return $labels;
     }
 
     /**
-     * Makes a label
+     * Makes a label from a model
      *
      * @param string $key
      * @param array $properties
@@ -122,14 +134,14 @@ class ViewLabelsGenerator
      *
      * @return CrestApps\CodeGenerator\Models\Label
      */
-    protected function makeLabel($key, array $properties, $isPlain, $lang)
+    protected function makeModelLabel($key, array $properties, $isPlain, $lang)
     {
         $text = $properties['text'];
 
         $this->replaceModelName($text, $this->modelName);
 
         $localeKey = sprintf('%s.%s', $this->localeGroup, $key);
-        
+
         $label = new Label($text, $localeKey, $isPlain, $lang, $key);
         $label->template = $properties['template'];
         $label->isInFunction = $this->isInFunction($properties);
@@ -148,76 +160,5 @@ class ViewLabelsGenerator
     {
         return $this->isCollectiveTemplate
             && (isset($properties['in-function-with-collective']) && $properties['in-function-with-collective']);
-    }
-
-    /**
-     * Get the default template.
-     *
-     * @return array
-     */
-    protected function getTemplates()
-    {
-        return config('codegenerator.generic_view_labels', [
-            'create' => [
-                'text'     => 'Create New [% model_name_title %]',
-                'template' => 'create_model',
-            ],
-            'delete' => [
-                'text'     => 'Delete [% model_name_title %]',
-                'template' => 'delete_model',
-                'in-function-with-collective' => true,
-            ],
-            'edit'   => [
-                'text'     => 'Edit [% model_name_title %]',
-                'template' => 'edit_model',
-            ],
-            'show'   => [
-                'text'     => 'Show [% model_name_title %]',
-                'template' => 'show_model',
-            ],
-            'show_all' => [
-                'text'     => 'Show All [% model_name_title %]',
-                'template' => 'show_all_models',
-            ],
-            'add' => [
-                'text'     => 'Add',
-                'template' => 'add',
-                'in-function-with-collective' => true,
-            ],
-            'update' => [
-                'text'     => 'Update',
-                'template' => 'update',
-                'in-function-with-collective' => true,
-            ],
-            'confirm_delete' => [
-                'text'     => 'Delete [% model_name_title %]?',
-                'template' => 'confirm_delete',
-                'in-function-with-collective' => true,
-            ],
-            'none_available' => [
-                'text'     => 'No [% model_name_plural_title %] Available!',
-                'template' => 'no_models_available',
-            ],
-            'model_plural' => [
-                'text'     => '[% model_name_plural_title %]',
-                'template' => 'model_plural',
-            ],
-            'model_was_added' => [
-                'text'     => '[% model_name_title %] was successfully added!',
-                'template' => 'model_was_added',
-            ],
-            'model_was_updated' => [
-                'text'     => '[% model_name_title %] was successfully updated!',
-                'template' => 'model_was_updated',
-            ],
-            'model_was_deleted' => [
-                'text'     => '[% model_name_title %] was successfully deleted!',
-                'template' => 'model_was_deleted',
-            ],
-            'unexpected_error' => [
-                'text'     => 'Unexpected error occurred while trying to process your request',
-                'template' => 'unexpected_error',
-            ],
-        ]);
     }
 }

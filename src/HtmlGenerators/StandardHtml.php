@@ -3,9 +3,10 @@
 namespace CrestApps\CodeGenerator\HtmlGenerators;
 
 use CrestApps\CodeGenerator\HtmlGenerators\HtmlGeneratorBase;
-use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 
 class StandardHtml extends HtmlGeneratorBase
 {
@@ -171,8 +172,8 @@ class StandardHtml extends HtmlGeneratorBase
     {
         return sprintf(
             " {{ %s == '%s' ? 'checked' : '' }}",
-                        $this->getRawOptionValue($name, $defaultValue),
-                        $value
+            $this->getRawOptionValue($name, $defaultValue),
+            $value
         );
     }
 
@@ -256,7 +257,7 @@ class StandardHtml extends HtmlGeneratorBase
         $defaultValueString = '[]';
 
         if (!empty($defaultValue)) {
-            $joinedValues = implode(',', Helpers::wrapItems((array)$defaultValue));
+            $joinedValues = implode(',', Helpers::wrapItems((array) $defaultValue));
             $defaultValueString = sprintf('[%s]', $joinedValues);
         }
 
@@ -276,7 +277,7 @@ class StandardHtml extends HtmlGeneratorBase
         $labelStub = $this->getStubContent('form-label-field.blade', $this->template);
 
         $this->replaceFieldName($labelStub, $name)
-             ->replaceFieldTitle($labelStub, $this->getTitle($label, true));
+            ->replaceFieldTitle($labelStub, $this->getTitle($label, true));
 
         return $labelStub;
     }
@@ -291,5 +292,15 @@ class StandardHtml extends HtmlGeneratorBase
     protected function getStepsValue($value)
     {
         return ($value) > 0 ? ' step="any"' : '';
+    }
+
+    /**
+     * Gets an instance of ViewLabelsGenerator
+     *
+     * @return CrestApps\CodeGenerator\Support\ViewLabelsGenerator
+     */
+    protected function getViewLabelsGenerator()
+    {
+        return new ViewLabelsGenerator($this->modelName, $this->fields, true);
     }
 }

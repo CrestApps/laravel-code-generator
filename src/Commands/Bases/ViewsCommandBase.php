@@ -115,11 +115,9 @@ abstract class ViewsCommandBase extends Command
      */
     protected function replaceCommonTemplates(&$stub, ViewInput $input, array $fields)
     {
-        $viewLabels = new ViewLabelsGenerator($input->modelName, $this->isCollectiveTemplate());
+        $viewLabels = new ViewLabelsGenerator($input->modelName, $fields, $this->isCollectiveTemplate());
 
-        $languages = array_keys(Helpers::getLanguageItems($fields));
-
-        $standardLabels = $viewLabels->getLabels($languages);
+        $standardLabels = $viewLabels->getLabels();
 
         $this->replaceModelName($stub, $input->modelName)
             ->replaceRouteNames($stub, $this->getModelName($input->modelName), $input->prefix)
@@ -171,31 +169,6 @@ abstract class ViewsCommandBase extends Command
         $file = basename($filename);
 
         return ucfirst(strstr($file, '.', true));
-    }
-
-    /**
-     * It Replaces the templates of the givin $labels
-     *
-     * @param string $stub
-     * @param array $items
-     *
-     * @return $this
-     */
-    protected function replaceStandardLabels(&$stub, array $items)
-    {
-        foreach ($items as $labels) {
-            foreach ($labels as $label) {
-                $text = $label->isPlain ? $label->text : sprintf("{{ trans('%s') }}", $label->localeGroup);
-
-                if ($label->isInFunction) {
-                    $text = $label->isPlain ? sprintf("'%s'", $label->text) : sprintf("trans('%s')", $label->localeGroup);
-                }
-
-                $stub = $this->strReplace($label->template, $text, $stub);
-            }
-        }
-
-        return $this;
     }
 
     /**

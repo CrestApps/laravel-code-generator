@@ -41,6 +41,13 @@
         .uploaded-file-name {
             max-width: 310px;
         }
+        
+        .help-block-standard {
+            display: block;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            color: #737373;
+        }
 
         /* Vertically align the table cells inside body-panel */
         .panel-body .table > tr > td

@@ -111,8 +111,8 @@ class CreateControllerCommand extends ControllerCommandBase
         $dataMethod = $this->getDataMethod($fields, $requestNameSpace . '\\' . $requestName, $input->withFormRequest);
         $stub = $this->getStubContent('controller');
         $languages = array_keys(Helpers::getLanguageItems($fields));
-        $viewLabels = new ViewLabelsGenerator($input->modelName, $this->isCollectiveTemplate());
-        $standardLabels = $viewLabels->getLabels($languages);
+        $viewLabels = new ViewLabelsGenerator($input->modelName, $fields, $this->isCollectiveTemplate());
+        $standardLabels = $viewLabels->getLabels();
 
         return $this->replaceViewNames($stub, $input->viewDirectory, $input->prefix)
             ->replaceGetDataMethod($stub, $dataMethod)

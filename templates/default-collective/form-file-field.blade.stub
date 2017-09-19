@@ -6,3 +6,6 @@
             </label>
             <input type="text" class="form-control uploaded-file-name" readonly>
         </div>
+        @if (isset($[% model_name_singular_variable %]->[% field_name %]))
+            <span class="help-block-standard"><strong>[% field_title %]</strong> {{ $[% model_name_singular_variable %]->[% field_name %] }}</span>
+        @endif

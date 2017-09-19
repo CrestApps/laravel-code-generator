@@ -308,4 +308,94 @@ class Config
     {
         return config('codegenerator.eloquent_type_to_method', []);
     }
+
+    /**
+     * Get the custom field templates.
+     *
+     * @return array
+     */
+    public static function getCustomFieldTemplates()
+    {
+        return config('codegenerator.generic_field_labels', [
+            'current_uploaded_file' => [
+                'text' => 'Current [% field_name_title %]:',
+                'template' => 'current_uploaded_file',
+            ],
+        ]);
+    }
+
+    /**
+     * Get the custom model templates.
+     *
+     * @return array
+     */
+    public static function getCustomModelTemplates()
+    {
+        return config('codegenerator.generic_view_labels', [
+            'create' => [
+                'text' => 'Create New [% model_name_title %]',
+                'template' => 'create_model',
+            ],
+            'delete' => [
+                'text' => 'Delete [% model_name_title %]',
+                'template' => 'delete_model',
+                'in-function-with-collective' => true,
+            ],
+            'edit' => [
+                'text' => 'Edit [% model_name_title %]',
+                'template' => 'edit_model',
+            ],
+            'show' => [
+                'text' => 'Show [% model_name_title %]',
+                'template' => 'show_model',
+            ],
+            'show_all' => [
+                'text' => 'Show All [% model_name_title %]',
+                'template' => 'show_all_models',
+            ],
+            'add' => [
+                'text' => 'Add',
+                'template' => 'add',
+                'in-function-with-collective' => true,
+            ],
+            'update' => [
+                'text' => 'Update',
+                'template' => 'update',
+                'in-function-with-collective' => true,
+            ],
+            'confirm_delete' => [
+                'text' => 'Delete [% model_name_title %]?',
+                'template' => 'confirm_delete',
+                'in-function-with-collective' => true,
+            ],
+            'none_available' => [
+                'text' => 'No [% model_name_plural_title %] Available!',
+                'template' => 'no_models_available',
+            ],
+            'model_plural' => [
+                'text' => '[% model_name_plural_title %]',
+                'template' => 'model_plural',
+            ],
+            'model_was_added' => [
+                'text' => '[% model_name_title %] was successfully added!',
+                'template' => 'model_was_added',
+            ],
+            'model_was_updated' => [
+                'text' => '[% model_name_title %] was successfully updated!',
+                'template' => 'model_was_updated',
+            ],
+            'model_was_deleted' => [
+                'text' => '[% model_name_title %] was successfully deleted!',
+                'template' => 'model_was_deleted',
+            ],
+            'unexpected_error' => [
+                'text' => 'Unexpected error occurred while trying to process your request!',
+                'template' => 'unexpected_error',
+            ],
+            'current_uploaded_file' => [
+                'text' => 'Current [% model_name_title %]:',
+                'template' => 'current_uploaded_file',
+            ],
+        ]);
+    }
 }

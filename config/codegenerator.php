@@ -421,7 +421,7 @@ return [
     | [% model_name %]                   <=> "asset category"
     | [% model_name_sentence %]          <=> "Asset category"
     | [% model_name_plural %]            <=> "asset categories"
-    | [% model_name_plural_title %]      <=> "Asset Category"
+    | [% model_name_plural_title %]      <=> "Asset Categories"
     | [% model_name_snake %]             <=> "asset_category"
     | [% model_name_studly %]            <=> "AssetCategory"
     | [% model_name_slug %]              <=> "asset-category"
