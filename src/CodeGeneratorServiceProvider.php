@@ -2,6 +2,7 @@
 
 namespace CrestApps\CodeGenerator;
 
+use File;
 use Illuminate\Support\ServiceProvider;
 
 class CodeGeneratorServiceProvider extends ServiceProvider
@@ -20,9 +21,11 @@ class CodeGeneratorServiceProvider extends ServiceProvider
             $dir . 'templates/default' => base_path('resources/codegenerator-templates/default'),
         ], 'default');
 
-        $this->publishes([
-            $dir . 'config/codegenerator_custom.php' => config_path('codegenerator_custom.php'),
-        ], 'default-custom');
+        if (File::exists($customFile = $dir . 'config/codegenerator_custom.php')) {
+            $this->publishes([
+                $customFile => config_path('codegenerator_custom.php'),
+            ], 'default-custom');
+        }
 
         $this->publishes([
             $dir . 'templates/default-collective' => base_path('resources/codegenerator-templates/default-collective'),
