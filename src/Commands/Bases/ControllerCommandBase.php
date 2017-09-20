@@ -233,18 +233,31 @@ class ControllerCommandBase extends Command
      *
      * @return string
      */
-    protected function getFileSnippet(array $fields)
+    protected function getFileSnippet(array $fields, $requestName = '$this')
     {
         $code = '';
         $template = <<<EOF
-        if (\$request->hasFile('%s')) {
-            \$data['%s'] = \$this->moveFile(\$request->file('%s'));
+        if (%s->has('custom_delete_%s')) {
+            \$data['%s'] = %s;
         }
+        if (%s->hasFile('%s')) {
+            \$data['%s'] = \$this->moveFile(%s->file('%s'));
+        }
+
 EOF;
 
         foreach ($fields as $field) {
             if ($field->isFile()) {
-                $code .= sprintf($template, $field->name, $field->name, $field->name);
+                $code .= sprintf($template,
+                    $requestName,
+                    $field->name,
+                    $field->name,
+                    $field->isNullable() ? 'null' : "''",
+                    $requestName,
+                    $field->name,
+                    $field->name,
+                    $requestName,
+                    $field->name);
             }
         }
 

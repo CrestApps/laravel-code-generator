@@ -30,7 +30,7 @@ class ResourceFileCommandBase extends Command
      */
     protected function getFilename($name)
     {
-        $path = base_path(Config::getFieldsFilePath());
+        $path = base_path(Config::getResourceFilePath());
 
         return $path . $name;
     }

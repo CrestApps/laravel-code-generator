@@ -117,7 +117,7 @@ class ResourceMapper
     {
         $filename = Config::getDefaultMapperFileName();
 
-        return base_path(Config::getFieldsFilePath($filename));
+        return base_path(Config::getResourceFilePath($filename));
     }
 
     public function getJson($maps)

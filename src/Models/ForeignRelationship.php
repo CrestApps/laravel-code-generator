@@ -177,11 +177,10 @@ class ForeignRelationship
         }
 
         $primary = $this->getPrimaryKeyForForeignModel();
-        $datetimePatterns = Config::getDateTimePatterns();
-        $idPatterns = Config::getCommonIdPatterns();
+        $idPatterns = Config::getKeyPatterns();
 
-        $columns = array_filter($columns, function ($column) use ($primary, $idPatterns, $datetimePatterns) {
-            return $column != $primary && !Helpers::strIs($idPatterns, $column) && !Helpers::strIs($datetimePatterns, $column);
+        $columns = array_filter($columns, function ($column) use ($primary, $idPatterns) {
+            return $column != $primary && !Helpers::strIs($idPatterns, $column);
         });
 
         if (count($columns) == 1) {

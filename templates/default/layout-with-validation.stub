@@ -34,21 +34,16 @@
         /* Set width on the form input elements since they're 100% wide by default */
         input,
         select,
-        textarea {
+        textarea,
+        .uploaded-file-group,
+        .input-width-input {
             max-width: 380px;
         }
 
-        .uploaded-file-name {
-            max-width: 310px;
+        .input-delete-container {
+            width: 46px !important;
         }
-        
-        .help-block-standard {
-            display: block;
-            margin-top: 5px;
-            margin-bottom: 10px;
-            color: #737373;
-        }
-        
+
         /* Vertically align the table cells inside body-panel */
         .panel-body .table > tr > td
         {
@@ -79,6 +74,7 @@
     <script type="text/javascript">
         $(function(){
 
+            // sends the uploaded file file to the fielselect event
             $(document).on('change', ':file', function() {
                 var input = $(this);
                 var label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
@@ -86,10 +82,31 @@
                 input.trigger('fileselect', [label]);
             });
 
+            // Set the label of the uploaded file
             $(':file').on('fileselect', function(event, label) {
                 $(this).closest('.uploaded-file-group').find('.uploaded-file-name').val(label);
             });
+            
+            // Deals with the upload file in edit mode
+            $('.custom-delete-file:checkbox').change(function(e){
+                var self = $(this);
+                var container = self.closest('.input-width-input');
+                var display = container.find('.custom-delete-file-name');
+                var flag = container.find('.custom-delete-flag:checkbox');
 
+                if (self.is(':checked')) {
+                    display.wrapInner('<del></del>');
+                    flag.prop('checked', true);
+                } else {
+                    var del = display.find('del').first();
+                    if (del.is('del')) {
+                        flag.prop('checked', false);
+                        del.contents().unwrap();
+                    }
+                }
+            }).change();
+
+            // Sets the validator defaults
             $.validator.setDefaults({
                 errorElement: "span",
                 errorClass: "help-block",
@@ -113,13 +130,13 @@
                 }
             });
 
+            // Makes sure any input with the required class is actually required
             $('form').each(function(index, item){
                 var form = $(item);
                 form.validate();
 
-                form.find(':input.required').each(function(i, inp){
-                    var input = $(inp);
-                    input.attr('required', true);
+                form.find(':input.required').each(function(i, input){
+                    $(input).attr('required', true);
                 });
             });
 

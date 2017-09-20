@@ -34,19 +34,14 @@
         /* Set width on the form input elements since they're 100% wide by default */
         input,
         select,
-        textarea {
+        textarea,
+        .uploaded-file-group,
+        .input-width-input {
             max-width: 380px;
         }
-        
-        .uploaded-file-name {
-            max-width: 310px;
-        }
-        
-        .help-block-standard {
-            display: block;
-            margin-top: 5px;
-            margin-bottom: 10px;
-            color: #737373;
+
+        .input-delete-container {
+            width: 46px !important;
         }
 
         /* Vertically align the table cells inside body-panel */
@@ -67,11 +62,10 @@
         .mb-5 {
             margin-bottom: 5px !important;
         }
-
     </style>
     <script type="text/javascript">
         $(function(){
-
+            // sends the uploaded file file to the fielselect event
             $(document).on('change', ':file', function() {
                 var input = $(this);
                 var label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
@@ -79,9 +73,29 @@
                 input.trigger('fileselect', [label]);
             });
 
+            // Set the label of the uploaded file
             $(':file').on('fileselect', function(event, label) {
                 $(this).closest('.uploaded-file-group').find('.uploaded-file-name').val(label);
             });
+            
+            // Deals with the upload file in edit mode
+            $('.custom-delete-file:checkbox').change(function(e){
+                var self = $(this);
+                var container = self.closest('.input-width-input');
+                var display = container.find('.custom-delete-file-name');
+                var flag = container.find('.custom-delete-flag:checkbox');
+
+                if (self.is(':checked')) {
+                    display.wrapInner('<del></del>');
+                    flag.prop('checked', true);
+                } else {
+                    var del = display.find('del').first();
+                    if (del.is('del')) {
+                        flag.prop('checked', false);
+                        del.contents().unwrap();
+                    }
+                }
+            }).change();
         });
     </script>
 

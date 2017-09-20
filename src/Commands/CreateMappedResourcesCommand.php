@@ -179,7 +179,7 @@ class CreateMappedResourcesCommand extends Command
     {
         $name = trim($this->option('mapping-filename')) ?: Config::getDefaultMapperFileName();
 
-        return base_path(Config::getFieldsFilePath($name));
+        return base_path(Config::getResourceFilePath($name));
     }
 
     /**

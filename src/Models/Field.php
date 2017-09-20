@@ -290,6 +290,16 @@ class Field
     }
 
     /**
+     * Checks if the field is nullable or not.
+     *
+     * @return bool
+     */
+    public function isNullable()
+    {
+        return $this->isNullable;
+    }
+
+    /**
      * Gets the field placeholders.
      *
      * @return array

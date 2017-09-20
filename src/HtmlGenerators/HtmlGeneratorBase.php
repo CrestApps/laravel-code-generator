@@ -287,6 +287,10 @@ abstract class HtmlGeneratorBase
             return sprintf("implode('%s', %s)", $field->optionsDelimiter, $fieldAccessor);
         }
 
+        if ($field->isFile()) {
+            return sprintf("basename(%s)", $fieldAccessor);
+        }
+
         return $fieldAccessor;
     }
 
@@ -565,6 +569,7 @@ abstract class HtmlGeneratorBase
 
         $this->replaceFieldName($stub, $field->name)
             ->replaceCssClass($stub, $field->cssClass)
+            ->replaceRowFieldValue($stub, $this->getFieldAccessorValue($field, 'show'))
             ->wrapField($stub, $field)
             ->replaceCommonTemplates($stub, $field);
 

@@ -91,13 +91,13 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The default path of where the json field files are located.
+    | The default path of where the json resource-files are located.
     |--------------------------------------------------------------------------
     |
-    | In this path, you can create json file to import the fields from.
+    | In this path, you can create json file to import the resources from.
     |
      */
-    'fields_file_path' => 'resources/codegenerator-files',
+    'resource_file_path' => 'resources/codegenerator-files',
 
     /*
     |--------------------------------------------------------------------------
@@ -198,7 +198,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | When creating resources from existing database, the codegenerator scans
-    | the field's name for a mattching pattern. When found, these field are considred
+    | the field's name for a mattching pattern. When found, these field are considered
     | foreign keys even when the database does not have a foreign constraints.
     | Here you can specify patterns to help the generator understand your
     | database naming convension.
@@ -397,12 +397,12 @@ return [
     | If you are using a language other than english, you can define a word with
     | its plural version to help the generator keep your code readable.
     |
-    | plural_definitions must be an array where the key represents the singular
+    | irregular_plurals must be an array where the key represents the singular
     | version of the word, and the value represents the plural version.
     |
      */
-    'plural_definitions' => [
-        'actividad' => 'actividades',
+    'irregular_plurals' => [
+        'software' => 'software',
     ],
 
     /*
@@ -543,6 +543,8 @@ return [
         'mediuminteger' => 'mediumInteger',
         'mediumint' => 'mediumInteger',
         'mediumtext' => 'mediumText',
+        'smallInteger' => 'smallInteger',
+        'smallint' => 'smallInteger',
         'morphs' => 'morphs',
         'string' => 'string',
         'varchar' => 'string',

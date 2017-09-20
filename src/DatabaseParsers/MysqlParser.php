@@ -11,6 +11,7 @@ use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Support\Str;
 use DB;
+use Exception;
 
 class MysqlParser extends ParserBase
 {

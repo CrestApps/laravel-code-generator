@@ -2,18 +2,106 @@
 
 namespace CrestApps\CodeGenerator\Support;
 
+use Config as LaravelConfig;
 use CrestApps\CodeGenerator\Support\Helpers;
 
 class Config
 {
     /**
-     * Gets the default datetime output format
+     * Get the proper array-based value from the config
+     *
+     * @param string $index
+     * @param array $default
+     *
+     * @return array
+     */
+    public static function getArrayBaseValue($index, $default = [])
+    {
+        $values = (array) self::getCustom($index, []);
+
+        return array_merge((array) self::get($index, $default), $values);
+    }
+
+    /**
+     * Get the proper bool-based value from the config
+     *
+     * @param string $index
+     * @param string $default
+     *
+     * @return bool
+     */
+    public static function getBoolBaseValue($index, $default)
+    {
+        if (self::hasCustom($index)) {
+            return (bool) self::getCustom($index);
+        }
+
+        return (bool) self::get($index, true);
+    }
+
+    /**
+     * Get the proper string-based value from the config
+     *
+     * @param string $index
+     * @param string $default
+     *
+     * @return string
+     */
+    public static function getStringBaseValue($index, $default)
+    {
+        if (self::hasCustom($index)) {
+            return (string) self::getCustom($index);
+        }
+
+        return (string) self::get($index, $default);
+    }
+
+    /**
+     * Gets the common definitions.
      *
      * @return array
      */
     public static function getCommonDefinitions()
     {
-        return config('codegenerator.common_definitions', []);
+        $customValues = (array) self::getCustom('common_definitions', []);
+        $defaultValues = self::get('common_definitions', []);
+        $final = [];
+
+        foreach ($defaultValues as $key => $defaultValue) {
+            if (is_array($defaultValue)
+                && array_key_exists('match', $defaultValue)
+                && array_key_exists('set', $defaultValue)
+            ) {
+                $matches = (array) $defaultValue['match'];
+
+                $final[] = [
+                    'match' => $matches,
+                    'set' => self::mergeDefinitions($matches, $customValues, (array) $defaultValue['set']),
+                ];
+            }
+        }
+
+        return $final;
+    }
+
+    protected static function mergeDefinitions(array $keys, array $customs, array $defaultValues)
+    {
+        $final = $defaultValues;
+
+        foreach ($customs as $key => $custom) {
+
+            if (!is_array($custom) || !array_key_exists('match', $custom) || !array_key_exists('set', $custom)) {
+                continue;
+            }
+            $matches = (array) $custom['match'];
+            $combined = array_intersect($keys, $matches);
+
+            if (!empty($combined)) {
+                $final = array_merge($final, (array) $custom['set']);
+            }
+        }
+
+        return $final;
     }
 
     /**
@@ -24,7 +112,7 @@ class Config
      */
     public static function createMoveFileMethod()
     {
-        return (bool) config('codegenerator.create_move_file_method', true);
+        return self::getBoolBaseValue('create_move_file_method', true);
     }
 
     /**
@@ -34,7 +122,7 @@ class Config
      */
     public static function getControllerNamePostFix()
     {
-        return config('codegenerator.controller_name_postfix', 'Controller');
+        return self::getStringBaseValue('controller_name_postfix', 'Controller');
     }
 
     /**
@@ -44,7 +132,7 @@ class Config
      */
     public static function getFormRequestNamePostFix()
     {
-        return config('codegenerator.form-request_name_postfix', 'FormRequest');
+        return self::getStringBaseValue('request_name_postfix', 'FormRequest');
     }
 
     /**
@@ -54,7 +142,14 @@ class Config
      */
     public static function shouldBePlural($key)
     {
-        $config = config('codegenerator.plural_names_for', []);
+        $config = self::getArrayBaseValue('plural_names_for', [
+            'controller-name' => true,
+            'request-form-name' => true,
+            'route-group' => true,
+            'language-file-name' => true,
+            'resource-file-name' => true,
+            'table-name' => true,
+        ]);
 
         if (isset($config[$key])) {
             return (bool) $config[$key];
@@ -64,13 +159,13 @@ class Config
     }
 
     /**
-     * Gets the non-english singular to plural definitions.
+     * Gets the non-English singular to plural definitions.
      *
      * @return array
      */
     public static function getPluralDefinitions()
     {
-        return config('codegenerator.plural_definitions', []);
+        return self::getArrayBaseValue('irregular_plurals', ['software' => 'software']);
     }
 
     /**
@@ -80,7 +175,7 @@ class Config
      */
     public static function getDateTimeFormat()
     {
-        return config('codegenerator.datetime_out_format', 'm/d/Y H:i A');
+        return self::getStringBaseValue('datetime_out_format', 'm/d/Y H:i A');
     }
 
     /**
@@ -90,7 +185,7 @@ class Config
      */
     public static function getDefaultMapperFileName()
     {
-        return config('codegenerator.default_mapper_file_name', 'resources_map.json');
+        return self::getStringBaseValue('default_mapper_file_name', 'resources_map.json');
     }
 
     /**
@@ -100,7 +195,7 @@ class Config
      */
     public static function autoManageResourceMapper()
     {
-        return config('codegenerator.auto_manage_resource_mapper', true);
+        return self::getBoolBaseValue('auto_manage_resource_mapper', true);
     }
 
     /**
@@ -110,7 +205,15 @@ class Config
      */
     public static function getPlaceholderByHtmlType()
     {
-        return config('codegenerator.placeholder_by_html_type', []);
+        $default = [
+            'text' => 'Enter [% field_name %] here...',
+            'number' => 'Enter [% field_name %] here...',
+            'password' => 'Enter [% field_name %] here...',
+            'email' => 'Enter [% field_name %] here...',
+            'select' => 'Select [% field_name %]',
+        ];
+
+        return self::getArrayBaseValue('placeholder_by_html_type', $default);
     }
 
     /**
@@ -120,27 +223,14 @@ class Config
      */
     public static function getHeadersPatterns()
     {
-        return config('codegenerator.common_header_patterns', []);
-    }
+        $default = [
+            'title',
+            'name',
+            'label',
+            'header',
+        ];
 
-    /**
-     * Gets the common datetime patterns to use for headers.
-     *
-     * @return array
-     */
-    public static function getDateTimePatterns()
-    {
-        return config('codegenerator.common_datetime_patterns', []);
-    }
-
-    /**
-     * Gets the common id patterns to use for headers.
-     *
-     * @return array
-     */
-    public static function getCommonIdPatterns()
-    {
-        return config('codegenerator.common_id_patterns', []);
+        return self::getArrayBaseValue('common_header_patterns', $default);
     }
 
     /**
@@ -152,7 +242,7 @@ class Config
      */
     public static function pathToFieldFiles($file = '')
     {
-        $path = config('codegenerator.fields_file_path', '');
+        $path = self::getStringBaseValue('fields_file_path', 'resources/codegenerator-files');
 
         return Helpers::getPathWithSlash($path) . $file;
     }
@@ -164,7 +254,12 @@ class Config
      */
     public static function getKeyPatterns()
     {
-        return config('codegenerator.common_key_patterns', []);
+        $default = [
+            '*_id',
+            '*_by',
+        ];
+
+        return self::getArrayBaseValue('common_key_patterns', $default);
     }
 
     /**
@@ -176,7 +271,7 @@ class Config
      */
     public static function getRequestsPath($file = '')
     {
-        $path = config('codegenerator.form_requests_path');
+        $path = self::getStringBaseValue('form_requests_path', 'Http/Requests');
 
         return Helpers::getPathWithSlash($path) . $file;
     }
@@ -188,7 +283,7 @@ class Config
      */
     public static function getTemplatesPath()
     {
-        $path = config('codegenerator.templates_path', 'resources/codegenerator-templates');
+        $path = self::getStringBaseValue('templates_path', 'resources/codegenerator-templates');
 
         return Helpers::getPathWithSlash($path);
     }
@@ -200,7 +295,49 @@ class Config
      */
     public static function getEloquentToHtmlMap()
     {
-        return config('codegenerator.eloquent_type_to_html_type', []);
+        $default = [
+            'char' => 'text',
+            'date' => 'text',
+            'dateTime' => 'text',
+            'dateTimeTz' => 'text',
+            'bigIncrements' => 'number',
+            'bigIncrements' => 'number',
+            'binary' => 'textarea',
+            'boolean' => 'checkbox',
+            'decimal' => 'number',
+            'double' => 'number',
+            'enum' => 'select',
+            'float' => 'number',
+            'integer' => 'number',
+            'integer' => 'number',
+            'ipAddress' => 'text',
+            'json' => 'checkbox',
+            'jsonb' => 'checkbox',
+            'longText' => 'textarea',
+            'macAddress' => 'text',
+            'mediumInteger' => 'number',
+            'mediumText' => 'textarea',
+            'string' => 'text',
+            'text' => 'textarea',
+            'time' => 'text',
+            'timeTz' => 'text',
+            'tinyInteger' => 'number',
+            'tinyInteger' => 'number',
+            'timestamp' => 'text',
+            'timestampTz' => 'text',
+            'unsignedBigInteger' => 'number',
+            'unsignedBigInteger' => 'number',
+            'unsignedInteger' => 'number',
+            'unsignedInteger' => 'number',
+            'unsignedMediumInteger' => 'number',
+            'unsignedMediumInteger' => 'number',
+            'unsignedSmallInteger' => 'number',
+            'unsignedSmallInteger' => 'number',
+            'unsignedTinyInteger' => 'number',
+            'uuid' => 'text',
+        ];
+
+        return self::getArrayBaseValue('eloquent_type_to_html_type', $default);
     }
 
     /**
@@ -210,7 +347,7 @@ class Config
      */
     public static function getModelsPath($file = '')
     {
-        $path = config('codegenerator.models_path');
+        $path = self::getStringBaseValue('models_path', 'Models');
 
         return Helpers::getPathWithSlash($path) . $file;
     }
@@ -224,7 +361,7 @@ class Config
      */
     public static function getControllersPath($file = '')
     {
-        $path = config('codegenerator.controllers_path');
+        $path = self::getStringBaseValue('controllers_path', 'Http/Controllers');
 
         return Helpers::getPathWithSlash($path) . $file;
     }
@@ -236,7 +373,7 @@ class Config
      */
     public static function getLanguagesPath()
     {
-        $path = config('codegenerator.languages_path', 'resources/lang');
+        $path = self::getStringBaseValue('languages_path', 'resources/lang');
 
         return Helpers::getPathWithSlash($path);
     }
@@ -260,23 +397,23 @@ class Config
      */
     public static function getMigrationsPath()
     {
-        $path = config('codegenerator.migrations_path', 'database/migrations');
+        $path = self::getStringBaseValue('migrations_path', 'resources/lang');
 
         return Helpers::getPathWithSlash($path);
     }
 
     /**
-     * Gets the field's file path.
+     * Gets the resource file path.
      *
-     * @param string $filename
+     * @param string $file
      *
      * @return string
      */
-    public static function getFieldsFilePath($filename = '')
+    public static function getResourceFilePath($file = '')
     {
-        $path = config('codegenerator.fields_file_path', 'resources/codegenerator-files');
+        $path = self::getStringBaseValue('resource_file_path', 'resources/codegenerator-files');
 
-        return Helpers::getPathWithSlash($path) . $filename;
+        return Helpers::getPathWithSlash($path) . $file;
     }
 
     /**
@@ -286,7 +423,7 @@ class Config
      */
     public static function getCollectiveTemplates()
     {
-        return config('codegenerator.laravel_collective_templates', ['default-collective']);
+        return self::getArrayBaseValue('laravel_collective_templates', ['default-collective']);
     }
 
     /**
@@ -296,7 +433,7 @@ class Config
      */
     public static function getDefaultTemplateName()
     {
-        return config('codegenerator.template', 'default');
+        return self::getStringBaseValue('template', 'default');
     }
 
     /**
@@ -306,22 +443,58 @@ class Config
      */
     public static function dataTypeMap()
     {
-        return config('codegenerator.eloquent_type_to_method', []);
-    }
+        $default = [
+            'char' => 'char',
+            'date' => 'date',
+            'datetime' => 'dateTime',
+            'datetimetz' => 'dateTimeTz',
+            'biginteger' => 'bigIncrements',
+            'bigint' => 'bigIncrements',
+            'blob' => 'binary',
+            'binary' => 'binary',
+            'bool' => 'boolean',
+            'boolean' => 'boolean',
+            'decimal' => 'decimal',
+            'double' => 'double',
+            'enum' => 'enum',
+            'list' => 'enum',
+            'float' => 'float',
+            'int' => 'integer',
+            'integer' => 'integer',
+            'ipaddress' => 'ipAddress',
+            'json' => 'json',
+            'jsonb' => 'jsonb',
+            'longtext' => 'longText',
+            'macaddress' => 'macAddress',
+            'mediuminteger' => 'mediumInteger',
+            'mediumint' => 'mediumInteger',
+            'mediumtext' => 'mediumText',
+            'smallInteger' => 'smallInteger',
+            'smallint' => 'smallInteger',
+            'morphs' => 'morphs',
+            'string' => 'string',
+            'varchar' => 'string',
+            'nvarchar' => 'string',
+            'text' => 'text',
+            'time' => 'time',
+            'timetz' => 'timeTz',
+            'tinyinteger' => 'tinyInteger',
+            'tinyint' => 'tinyInteger',
+            'timestamp' => 'timestamp',
+            'timestamptz' => 'timestampTz',
+            'unsignedbiginteger' => 'unsignedBigInteger',
+            'unsignedbigint' => 'unsignedBigInteger',
+            'unsignedInteger' => 'unsignedInteger',
+            'unsignedint' => 'unsignedInteger',
+            'unsignedmediuminteger' => 'unsignedMediumInteger',
+            'unsignedmediumint' => 'unsignedMediumInteger',
+            'unsignedsmallinteger' => 'unsignedSmallInteger',
+            'unsignedsmallint' => 'unsignedSmallInteger',
+            'unsignedtinyinteger' => 'unsignedTinyInteger',
+            'uuid' => 'uuid',
+        ];
 
-    /**
-     * Get the custom field templates.
-     *
-     * @return array
-     */
-    public static function getCustomFieldTemplates()
-    {
-        return config('codegenerator.generic_field_labels', [
-            'current_uploaded_file' => [
-                'text' => 'Current [% field_name_title %]:',
-                'template' => 'current_uploaded_file',
-            ],
-        ]);
+        return self::getArrayBaseValue('eloquent_type_to_method', $default);
     }
 
     /**
@@ -331,7 +504,7 @@ class Config
      */
     public static function getCustomModelTemplates()
     {
-        return config('codegenerator.generic_view_labels', [
+        $default = [
             'create' => [
                 'text' => 'Create New [% model_name_title %]',
                 'template' => 'create_model',
@@ -396,6 +569,90 @@ class Config
                 'text' => 'Current [% model_name_title %]:',
                 'template' => 'current_uploaded_file',
             ],
-        ]);
+        ];
+
+        return self::getArrayBaseValue('generic_view_labels', $default);
+    }
+
+    /**
+     * Get the config value of the giving index, using the default configs.
+     *
+     * @param string $index
+     * @param string $default = null
+     *
+     * @return mix
+     */
+    public static function get($index, $default = null)
+    {
+        $key = self::getKey($index);
+
+        return LaravelConfig::get($key, $default);
+    }
+
+    /**
+     * Get the config value of the giving index, using the custom configs.
+     *
+     * @param string $index
+     * @param string $default = null
+     *
+     * @return mix
+     */
+    public static function getCustom($index, $default = null)
+    {
+        $key = self::getCustomKey($index);
+
+        return LaravelConfig::get($key, $default);
+    }
+
+    /**
+     * Checks of the default-configs has a giving key
+     *
+     * @param string $index
+     *
+     * @return bool
+     */
+    public static function has($index)
+    {
+        $key = self::getKey($index);
+
+        return LaravelConfig::has($key);
+    }
+
+    /**
+     * Checks of the custom-configs has a giving key
+     *
+     * @param string $index
+     *
+     * @return bool
+     */
+    public static function hasCustom($index)
+    {
+        $key = self::getCustomKey($index);
+
+        return LaravelConfig::has($key);
+    }
+
+    /**
+     * Checks the key to access the default-config.
+     *
+     * @param string $index
+     *
+     * @return string
+     */
+    public static function getKey($index)
+    {
+        return sprintf('codegenerator.%s', $index);
+    }
+
+    /**
+     * Checks the key to access the custom-config.
+     *
+     * @param string $index
+     *
+     * @return string
+     */
+    public static function getCustomKey($index)
+    {
+        return sprintf('codegenerator_custom.%s', $index);
     }
 }

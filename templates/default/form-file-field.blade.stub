@@ -6,6 +6,17 @@
             </label>
             <input type="text" class="form-control uploaded-file-name" readonly>
         </div>
-        @if (isset($[% model_name_singular_variable %]->[% field_name %]))
-            <span class="help-block-standard"><strong>[% field_title %]</strong> {{ $[% model_name_singular_variable %]->[% field_name %] }}</span>
+
+        @if (isset($[% model_name_singular_variable %]->[% field_name %]) && !empty($[% model_name_singular_variable %]->[% field_name %]))
+            <div class="input-group input-width-input">
+                <span class="input-group-addon">
+                    <input type="checkbox" class="custom-delete-file"> Delete
+                </span>
+
+                <span class="input-group-addon custom-delete-file-name">
+                    {{ [% field_value %] }}
+                </span>
+                
+                <input type="checkbox" name="custom_delete_[% field_name %]" class="custom-delete-flag hidden">
+            </div>
         @endif

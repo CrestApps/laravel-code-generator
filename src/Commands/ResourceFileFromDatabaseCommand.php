@@ -73,7 +73,7 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
      */
     protected function getDestinationFullname()
     {
-        return base_path(Config::getFieldsFilePath($this->getNewFilename()));
+        return base_path(Config::getResourceFilePath($this->getNewFilename()));
     }
 
     /**

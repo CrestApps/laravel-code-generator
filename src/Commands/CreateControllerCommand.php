@@ -193,7 +193,7 @@ class CreateControllerCommand extends ControllerCommandBase
 
         $stub = $this->getDataMethodStubContent();
 
-        $this->replaceFileSnippet($stub, $this->getFileSnippet($fields))
+        $this->replaceFileSnippet($stub, $this->getFileSnippet($fields, $this->requestVariable))
             ->replaceValidationRules($stub, $this->getValidationRules($fields))
             ->replaceFillables($stub, $this->getFillables($fields))
             ->replaceBooleadSnippet($stub, $this->getBooleanSnippet($fields, $this->requestVariable))

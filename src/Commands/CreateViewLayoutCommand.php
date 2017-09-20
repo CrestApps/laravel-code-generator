@@ -2,12 +2,12 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use File;
-use Exception;
-use Illuminate\Console\Command;
+use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Support\Config;
+use Exception;
+use File;
+use Illuminate\Console\Command;
 
 class CreateViewLayoutCommand extends Command
 {
@@ -54,8 +54,8 @@ class CreateViewLayoutCommand extends Command
         $stub = $this->getStubContent($stubName, $this->getTemplateName());
 
         $this->replaceApplicationName($stub, $input->appName)
-             ->createFile($destenationFile, $stub)
-             ->info('A layout have been created!');
+            ->createFile($destenationFile, $stub)
+            ->info('A layout have been crafted!');
     }
 
     /**
@@ -73,7 +73,7 @@ class CreateViewLayoutCommand extends Command
             throw new Exception('The destenation file already exists. To override the existing file, pass "--force" option.');
         }
 
-        if (! File::put($filename, $content)) {
+        if (!File::put($filename, $content)) {
             throw new Exception('Unexpected error occurred while trying to create the file. please try your request again.');
         }
 
@@ -118,10 +118,10 @@ class CreateViewLayoutCommand extends Command
     protected function getCommandInput()
     {
         $appName = trim($this->argument('application-name'));
-        $layoutFileName =  Helpers::postFixWith(trim($this->option('layout-filename')) ?: 'layout-filename', '.blade.php');
-        $layoutDirectory =  trim($this->option('layout-directory'));
+        $layoutFileName = Helpers::postFixWith(trim($this->option('layout-filename')) ?: 'layout-filename', '.blade.php');
+        $layoutDirectory = trim($this->option('layout-directory'));
         $withoutValidation = $this->option('without-validation');
-        $force =  $this->option('force');
+        $force = $this->option('force');
 
         return (object) compact('appName', 'layoutFileName', 'layoutDirectory', 'withoutValidation', 'force');
     }

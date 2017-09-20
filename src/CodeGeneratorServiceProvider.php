@@ -21,6 +21,10 @@ class CodeGeneratorServiceProvider extends ServiceProvider
         ], 'default');
 
         $this->publishes([
+            $dir . 'config/codegenerator_custom.php' => config_path('codegenerator_custom.php'),
+        ], 'default-custom');
+
+        $this->publishes([
             $dir . 'templates/default-collective' => base_path('resources/codegenerator-templates/default-collective'),
         ], 'default-collective');
 

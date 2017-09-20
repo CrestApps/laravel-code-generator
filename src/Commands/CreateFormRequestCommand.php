@@ -74,7 +74,7 @@ class CreateFormRequestCommand extends ControllerCommandBase
     {
         $stub = $this->getStubContent('controller-getdata-method');
 
-        $this->replaceFileSnippet($stub, $this->getFileSnippet($fields))
+        $this->replaceFileSnippet($stub, $this->getFileSnippet($fields, '$this'))
             ->replaceValidationRules($stub, $this->getValidationRules($fields))
             ->replaceFillables($stub, $this->getFillables($fields))
             ->replaceBooleadSnippet($stub, $this->getBooleanSnippet($fields))

@@ -117,25 +117,35 @@ trait CommonCommand
     /**
      * Gets plural variable instance of a giving model.
      *
-     * @param  string  $modelName
+     * @param  string  $name
      *
      * @return string
      */
-    public function getPluralVariable($modelName)
+    public function getPluralVariable($name)
     {
-        return camel_case(Str::plural(snake_case($modelName)));
+        $snake = snake_case($name);
+
+        $variableName = camel_case(Str::plural($snake));
+
+        if ($variableName == $this->getSingularVariable($name)) {
+            $variableName .= 'Objects';
+        }
+
+        return $variableName;
     }
 
     /**
      * Gets singular variable instance of a giving model.
      *
-     * @param  string  $modelName
+     * @param  string  $name
      *
      * @return string
      */
-    public function getSingularVariable($modelName)
+    public function getSingularVariable($name)
     {
-        return lcfirst($modelName);
+        $snake = snake_case($name);
+
+        return camel_case($snake);
     }
 
     /**

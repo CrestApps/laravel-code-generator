@@ -224,7 +224,7 @@ abstract class ParserBase
      */
     protected function getModelName($tableName)
     {
-        $file = base_path(Config::getFieldsFilePath(Config::getDefaultMapperFileName()));
+        $file = base_path(Config::getResourceFilePath(Config::getDefaultMapperFileName()));
 
         $fields = [];
 
