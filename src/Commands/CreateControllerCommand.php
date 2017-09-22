@@ -41,6 +41,7 @@ class CreateControllerCommand extends ControllerCommandBase
                             {--models-per-page=25 : The amount of models per page for index pages.}
                             {--language-filename= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
+                            {--without-form-request : Generate the controller without the form-request file. }
                             {--with-auth : Generate the controller with Laravel auth middlewear. }
                             {--template-name= : The template name to use when generating the code.}
                             {--form-request-directory= : The directory of the form-request.}
@@ -96,7 +97,10 @@ class CreateControllerCommand extends ControllerCommandBase
         if ($input->withFormRequest) {
             $requestName = $input->formRequestName;
             $requestNameSpace = $this->getRequestsNamespace($requestName, $input->formRequestDirectory);
-            $this->makeFormRequest($input);
+
+            if (!$this->option('without-form-request')) {
+                $this->makeFormRequest($input);
+            }
         }
 
         $resources = ResourceTransformer::fromFile($input->resourceFile, $input->langFile);

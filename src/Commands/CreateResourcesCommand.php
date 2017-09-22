@@ -35,6 +35,11 @@ class CreateResourcesCommand extends Command
                             {--table-name= : The name of the table.}
                             {--primary-key=id : The name of the primary key.}
                             {--with-soft-delete : Enables softdelete future should be enable in the model.}
+                            {--without-languages : Generate the resource without the language files. }
+                            {--without-model : Generate the resource without the model file. }
+                            {--without-controller : Generate the resource without the controller file. }
+                            {--without-form-request : Generate the resource without the form-request file. }
+                            {--without-views : Generate the resource without the views. }
                             {--without-timestamps : Prevent Eloquent from maintaining both created_at and the updated_at properties.}
                             {--with-migration : Prevent creating a migration for this resource.}
                             {--migration-class-name= : The name of the migration class.}
@@ -185,16 +190,18 @@ class CreateResourcesCommand extends Command
      */
     protected function createLanguage($input)
     {
-        $this->call(
-            'create:language',
-            [
-                'model-name' => $input->modelName,
-                '--language-filename' => $input->languageFileName,
-                '--resource-file' => $input->resourceFile,
-                '--template-name' => $input->template,
-                '--force' => $input->force,
-            ]
-        );
+        if (!$this->option('without-languages')) {
+            $this->call(
+                'create:language',
+                [
+                    'model-name' => $input->modelName,
+                    '--language-filename' => $input->languageFileName,
+                    '--resource-file' => $input->resourceFile,
+                    '--template-name' => $input->template,
+                    '--force' => $input->force,
+                ]
+            );
+        }
 
         return $this;
     }
@@ -208,18 +215,20 @@ class CreateResourcesCommand extends Command
      */
     protected function createViews($input)
     {
-        $this->call(
-            'create:views',
-            [
-                'model-name' => $input->modelName,
-                '--resource-file' => $input->resourceFile,
-                '--views-directory' => $input->viewsDirectory,
-                '--routes-prefix' => $input->prefix,
-                '--layout-name' => $input->layoutName,
-                '--template-name' => $input->template,
-                '--force' => $input->force,
-            ]
-        );
+        if (!$this->option('without-views')) {
+            $this->call(
+                'create:views',
+                [
+                    'model-name' => $input->modelName,
+                    '--resource-file' => $input->resourceFile,
+                    '--views-directory' => $input->viewsDirectory,
+                    '--routes-prefix' => $input->prefix,
+                    '--layout-name' => $input->layoutName,
+                    '--template-name' => $input->template,
+                    '--force' => $input->force,
+                ]
+            );
+        }
 
         return $this;
     }
@@ -255,26 +264,28 @@ class CreateResourcesCommand extends Command
      */
     protected function createController($input)
     {
-        $this->call(
-            'create:controller',
-            [
-                'model-name' => $input->modelName,
-                '--controller-name' => $input->controllerName,
-                '--controller-directory' => $input->controllerDirectory,
-                '--controller-extends' => $input->controllerExtends,
-                '--model-directory' => $input->modelDirectory,
-                '--views-directory' => $input->viewsDirectory,
-                '--resource-file' => $input->resourceFile,
-                '--models-per-page' => $input->perPage,
-                '--routes-prefix' => $input->prefix,
-                '--language-filename' => $input->languageFileName,
-                '--with-form-request' => $input->formRequest,
-                '--form-request-directory' => $input->formRequestDirectory,
-                '--with-auth' => $input->withAuth,
-                '--template-name' => $input->template,
-                '--force' => $input->force,
-            ]
-        );
+        if (!$this->option('without-controller')) {
+            $this->call(
+                'create:controller',
+                [
+                    'model-name' => $input->modelName,
+                    '--controller-name' => $input->controllerName,
+                    '--controller-directory' => $input->controllerDirectory,
+                    '--controller-extends' => $input->controllerExtends,
+                    '--model-directory' => $input->modelDirectory,
+                    '--views-directory' => $input->viewsDirectory,
+                    '--resource-file' => $input->resourceFile,
+                    '--models-per-page' => $input->perPage,
+                    '--routes-prefix' => $input->prefix,
+                    '--language-filename' => $input->languageFileName,
+                    '--with-form-request' => $input->formRequest,
+                    '--form-request-directory' => $input->formRequestDirectory,
+                    '--with-auth' => $input->withAuth,
+                    '--template-name' => $input->template,
+                    '--force' => $input->force,
+                ]
+            );
+        }
 
         return $this;
     }
@@ -288,20 +299,22 @@ class CreateResourcesCommand extends Command
      */
     protected function createModel($input)
     {
-        $this->call(
-            'create:model',
-            [
-                'model-name' => $input->modelName,
-                '--table-name' => $input->table,
-                '--primary-key' => $input->primaryKey,
-                '--resource-file' => $input->resourceFile,
-                '--model-directory' => $input->modelDirectory,
-                '--with-soft-delete' => $input->withSoftDelete,
-                '--without-timestamps' => $input->withoutTimeStamps,
-                '--template-name' => $input->template,
-                '--force' => $input->force,
-            ]
-        );
+        if (!$this->option('without-model')) {
+            $this->call(
+                'create:model',
+                [
+                    'model-name' => $input->modelName,
+                    '--table-name' => $input->table,
+                    '--primary-key' => $input->primaryKey,
+                    '--resource-file' => $input->resourceFile,
+                    '--model-directory' => $input->modelDirectory,
+                    '--with-soft-delete' => $input->withSoftDelete,
+                    '--without-timestamps' => $input->withoutTimeStamps,
+                    '--template-name' => $input->template,
+                    '--force' => $input->force,
+                ]
+            );
+        }
 
         return $this;
     }

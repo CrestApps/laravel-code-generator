@@ -8,6 +8,7 @@
  - The options `--names` in the `resource-file:create`, `resource-file:append`, or `resource-file:reduce` has been renamed to `--fields`.
  - `--indexes` and `--relations` have been added to the following commands `resource-file:create`, `resource-file:append`, or `resource-file:reduce` to allow you to interact with the resource-file freely.
  -- The options `--fields`, `--indexes` and `--relations` for the `resource-file:create`, `resource-file:append`, or `resource-file:reduce` commands accept complex string to allow you to pass more values to add to the resource-file.
+ -- Added `--without-languages`, `--without-controller`, `--without-form-request`, `--without-views` and `without-model` options to the `create:resources` command.
 
 
 ## New Features
