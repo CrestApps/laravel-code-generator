@@ -271,6 +271,6 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      */
     protected function getStepsValue($value)
     {
-        return ($value) > 0 ? 'step => "any",' : '';
+        return ($value) > 0 ? '"step" => "any",' : '';
     }
 }
