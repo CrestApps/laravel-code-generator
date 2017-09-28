@@ -3,9 +3,9 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Commands\Bases\ResourceFileCommandBase;
-use CrestApps\CodeGenerator\Models\ResourceMapper;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\ResourceMapper;
 
 class ResourceFileDeleteCommand extends ResourceFileCommandBase
 {
