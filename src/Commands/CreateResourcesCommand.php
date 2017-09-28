@@ -4,7 +4,7 @@ namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Models\ResourceInput;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\ResourceTransformer;
+use CrestApps\CodeGenerator\Support\Resource;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use Exception;
 use Illuminate\Console\Command;
@@ -73,7 +73,7 @@ class CreateResourcesCommand extends Command
             $this->createResourceFile($input);
         }
 
-        $resources = ResourceTransformer::fromFile($input->resourceFile, $input->languageFileName ?: 'generic');
+        $resources = Resource::fromFile($input->resourceFile, $input->languageFileName ?: 'generic');
 
         $this->validateField($resources->fields)
             ->printInfo('Scaffolding resources for ' . $this->modelNamePlainEnglish($input->modelName) . '...')
@@ -279,6 +279,7 @@ class CreateResourcesCommand extends Command
                     '--routes-prefix' => $input->prefix,
                     '--language-filename' => $input->languageFileName,
                     '--with-form-request' => $input->formRequest,
+                    '--without-form-request' => $this->option('without-form-request'),
                     '--form-request-directory' => $input->formRequestDirectory,
                     '--with-auth' => $input->withAuth,
                     '--template-name' => $input->template,

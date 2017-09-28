@@ -1,4 +1,0 @@
-Schema::[% connection_name %]create('[% table_name %]', function(Blueprint $table)
-        {
-[% blue_print_body %]
-        });

@@ -67,7 +67,7 @@ class ResourceFileReduceCommand extends ResourceFileCommandBase
             return false;
         }
 
-        $this->putContentInFile($file, $this->getJson($resource->toArray()));
+        $this->putContentInFile($file, Helpers::prettifyJson($resource->toArray()));
         $filename = basename($file);
 
         if ($totalReducedFields) {

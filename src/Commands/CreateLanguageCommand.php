@@ -3,10 +3,10 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Models\Label;
+use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\CrestAppsTranslator;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\ResourceTransformer;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use Illuminate\Console\Command;
@@ -42,7 +42,7 @@ class CreateLanguageCommand extends Command
     public function handle()
     {
         $input = $this->getCommandInput();
-        $resources = ResourceTransformer::fromFile($input->resourceFile, $input->fileName);
+        $resources = Resource::fromFile($input->resourceFile, $input->fileName);
 
         $languages = Helpers::getLanguageItems($resources->fields);
         $viewLabels = new ViewLabelsGenerator($input->modelName, $resources->fields, $this->isCollectiveTemplate());

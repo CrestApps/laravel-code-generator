@@ -2,9 +2,10 @@
 
 namespace CrestApps\CodeGenerator\Models;
 
+use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
 use Exception;
 
-class Index
+class Index implements JsonWriter
 {
     /**
      * The default index type.
@@ -40,6 +41,13 @@ class Index
      * @var array
      */
     protected $columns = [];
+
+    /**
+     * If the index is flagged to be deleted during migration changes.
+     *
+     * @var bool
+     */
+    public $flaggedForDelete = false;
 
     /**
      * Create a new index instance.

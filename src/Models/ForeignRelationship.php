@@ -3,13 +3,14 @@
 namespace CrestApps\CodeGenerator\Models;
 
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Str;
 use DB;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 
-class ForeignRelationship
+class ForeignRelationship implements JsonWriter
 {
     /**
      * The allowed relation types.

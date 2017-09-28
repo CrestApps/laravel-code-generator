@@ -3,7 +3,7 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Commands\Bases\ViewsCommandBase;
-use CrestApps\CodeGenerator\Support\ResourceTransformer;
+use CrestApps\CodeGenerator\Models\Resource;
 
 class CreateEditViewCommand extends ViewsCommandBase
 {
@@ -47,7 +47,7 @@ class CreateEditViewCommand extends ViewsCommandBase
     protected function handleCreateView()
     {
         $input = $this->getCommandInput();
-        $resources = ResourceTransformer::fromFile($input->resourceFile, $input->languageFileName);
+        $resources = Resource::fromFile($input->resourceFile, $input->languageFileName);
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'edit');
 
         if ($this->canCreateView($destenationFile, $input->force, $resources->fields)) {

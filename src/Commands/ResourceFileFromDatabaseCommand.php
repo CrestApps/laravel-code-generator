@@ -4,15 +4,22 @@ namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Commands\Bases\ResourceFileCommandBase;
 use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Models\MigrationCapsule;
+use CrestApps\CodeGenerator\Models\MigrationTrackerCapsule;
+use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\MigrationHistoryTracker;
 use CrestApps\CodeGenerator\Support\ResourceMapper;
+use CrestApps\CodeGenerator\Traits\Migration;
 use DB;
 use Exception;
 use File;
 
 class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
 {
+    use Migration;
+
     /**
      * The name and signature of the console command.
      *
@@ -55,15 +62,18 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
             return false;
         }
 
-        $content = $this->getJsonContent();
+        $parser = $this->getParser();
+        $tableName = $this->getTableName();
 
         if (Config::autoManageResourceMapper()) {
             $mapper = new ResourceMapper($this);
-            $mapper->append($this->getModelName(), $this->getNewFilename(), $this->getTableName());
+            $mapper->append($this->getModelName(), $this->getNewFilename(), $tableName);
         }
 
-        $this->createFile($destenationFile, $content)
-            ->info('The  "' . basename($destenationFile) . '" file was crafted successfully!');
+        $this->createVirtualMigration($parser->getResource(), $destenationFile, $tableName);
+
+        $this->createFile($destenationFile, $parser->getResourceAsJson())
+            ->info('The "' . basename($destenationFile) . '" file was crafted successfully!');
     }
 
     /**
@@ -77,11 +87,34 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
     }
 
     /**
+     * Creates a virtual migration in the migration tracker
+     *
+     * @param CrestApps\CodeGenerator\Models\Resource $resource
+     * @param string $destenationFile
+     * @param string $tableName
+     *
+     * @return void
+     */
+    protected function createVirtualMigration(Resource $resource, $destenationFile, $tableName)
+    {
+        $tracker = new MigrationHistoryTracker();
+        $capsule = $tracker->get($tableName);
+
+        if (!is_null($capsule)) {
+            $tracker->forget($tableName);
+        }
+        // At this point there are no capsule or migration associated with this table.
+        $capsule = MigrationTrackerCapsule::get($tableName, $this->getModelName(), Helpers::convertSlashToBackslash($destenationFile));
+        $migration = $this->getMigrationCapsule($resource, $tableName);
+        $tracker->add($capsule, $migration);
+    }
+
+    /**
      * Gets the fields' collection after from using the connection's driver.
      *
      * @return array
      */
-    protected function getJsonContent()
+    protected function getParser()
     {
         $driver = strtolower(DB::getDriverName());
 
@@ -91,9 +124,7 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
 
         $class = sprintf('CrestApps\CodeGenerator\DatabaseParsers\%sParser', ucfirst($driver));
 
-        $parser = new $class($this->getTableName(), $this->getDatabaseName(), $this->getLangugaes());
-
-        return $parser->getResourceAsJson();
+        return new $class($this->getTableName(), $this->getDatabaseName(), $this->getLangugaes());
     }
 
     /**
@@ -156,5 +187,44 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
     protected function getLangugaes()
     {
         return Helpers::convertStringToArray($this->option('translation-for'));
+    }
+
+    /**
+     * Gets migration fullname
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    protected function getMigrationFullName($name)
+    {
+        $folder = '';
+
+        if (Config::organizeMigrations()) {
+            $folder = $this->getTableName();
+        }
+
+        return $this->getMigrationPath($folder) . DIRECTORY_SEPARATOR . $name . '.php';
+    }
+
+    /**
+     * Make a migration capsule
+     *
+     * @param CrestApps\CodeGenerator\Models\Resource $resource
+     * @param string $tableName
+     *
+     * @return CrestApps\CodeGenerator\Models\MigrationCapsule
+     */
+    protected function getMigrationCapsule($resource, $tableName)
+    {
+        $migration = MigrationCapsule::get($this->getCreateMigrationName($tableName));
+
+        $migration->path = $this->getMigrationFullName($migration->name);
+        $migration->resource = $resource;
+        $migration->className = $this->makeCreateTableClassName(Helpers::makeTableName($tableName));
+        $migration->isCreate = true;
+        $migration->isVirtual = true;
+
+        return $migration;
     }
 }

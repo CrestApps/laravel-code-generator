@@ -12,6 +12,8 @@
 
 
 ## New Features
+ - Added Smart migrations! smart migrations will keep trak of all your migration and determine the next migration based on the changes made to your resource files. So when you add a field after the table is migrated, the system will generate an alter migration to allow you to add the new field to the database.
+ - Ability to organize the migration using one folder per table.
  - The CodeGenerator is now able to automatically create `hasOne` and `hasMany` relations when creating resource-file from existing database using `php artisan resource-file:from-database` command
  - A new file `codegenerator_custom.php` to allow you to store all of your custom configuration was added.
  - Added the ability to delete already uploaded file in edit mode.
@@ -25,16 +27,22 @@
  - Added `create_move_file_method` config option to allow the user to chose not to create moveFile method on every CRUD when file-upload is required.
 
 
+## Clean up
+ - The `codegenerator-templates` and `codegenerate-files` folder have been moved from `/resources` to `/resources/laravel-code-generator` by default. Also, the folder `codegenerator-templates` was renamed to `templates` and the `codegenerator-files` to `sources`. Finally, a new folder (i.e system) will be generated when needed by the system in `/resources/laravel-code-generator`.
+
+
 
 ## Template Changes
  - A new stub was added controller-getdata-method-5.5.stub to allow you to simplify your validation when using Laravel 5.5! This will make your code much cleaner and simpler thanks to the new Laravel 5.5 validation.
  - The stub `controller-getdata-method.stub` has a slight change to increase the security of the generate code. instead of using `$request->all()` to get all the data from the request, we do `$request->only([...])` to only get the fields that should be needed only!
  - The variable `[% use_auth_namespace %]` in the `form-request.stub` file has been renamed to `[% use_command_placeholder %]`.
  - New template file have been added `controller-getdata-method-5.5.stub`
-- New template file have been added `controller-upload-method-5.3.stub` to improve the syntax in the moveFile() method for Laravel 5.3+.
-- The content of the `form-file-field.blade.stub` were changed to show the uploaded filename.
-- The content of the `layout.stub` and `layout-with-validation.stub` were updated to show the file name for uploaded files.
-
+ - New template file have been added `controller-upload-method-5.3.stub` to improve the syntax in the moveFile() method for Laravel 5.3+.
+ - The content of the `form-file-field.blade.stub` changed to show the uploaded filename.
+ - The content of the `layout.stub` and `layout-with-validation.stub` were updated to show the file name for uploaded files.
+ - The content of the `schema-up.stub` changed to allow for alter operation.
+ - The stub `schema-down.stub` was renamed to `migration-schema-down.stub`.
+ - The stub `schema-up.stub` was renamed to `migration-schema-up.stub`.
 
 ## Command Changes
 The following command have been renamed
@@ -44,6 +52,7 @@ The following command have been renamed
  - The command fields-file:delete has been renamed to resource-file:delete
  - The command fields-file:append has been renamed to resource-file:append
  - The command fields-file:reduce has been renamed to resource-file:reduce
+ - The following commands were added `php artisan migrate-all`, `php artisan migrate:rollback-all`, `php artisan migrate:reset-all`, `php artisan migrate:refresh-all` and `php artisan migrate:status-all` which should help you when chosing to turn on the `organize_migration` options
 
 
 ## Eliminated Options

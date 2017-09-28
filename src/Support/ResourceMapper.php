@@ -2,6 +2,8 @@
 
 namespace CrestApps\CodeGenerator\Support;
 
+use CrestApps\CodeGenerator\Models\Resource;
+use CrestApps\CodeGenerator\Support\Helpers;
 use File;
 use Illuminate\Console\Command;
 
@@ -50,7 +52,7 @@ class ResourceMapper
             }
         }
 
-        File::put($file, $this->getJson($finalMaps));
+        File::put($file, Helpers::prettifyJson($finalMaps));
     }
 
     /**
@@ -90,14 +92,14 @@ class ResourceMapper
             }
         }
 
-        File::put($file, $this->getJson($finalMaps));
+        File::put($file, Helpers::prettifyJson($finalMaps));
     }
 
     protected function getResources()
     {
         $content = File::get($file);
 
-        return ResourceTransformer::fromJson($content, 'crestapps');
+        return Resource::fromJson($content, 'crestapps');
     }
 
     protected function mapExists(array $map, $modelName, $tableName = null)
@@ -118,11 +120,6 @@ class ResourceMapper
         $filename = Config::getDefaultMapperFileName();
 
         return base_path(Config::getResourceFilePath($filename));
-    }
-
-    public function getJson($maps)
-    {
-        return json_encode($maps, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
     protected function getMaps($file)

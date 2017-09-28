@@ -8,103 +8,6 @@ use CrestApps\CodeGenerator\Support\Helpers;
 class Config
 {
     /**
-     * Get the proper array-based value from the config
-     *
-     * @param string $index
-     * @param array $default
-     *
-     * @return array
-     */
-    public static function getArrayBaseValue($index, $default = [])
-    {
-        $values = (array) self::getCustom($index, []);
-
-        return array_merge((array) self::get($index, $default), $values);
-    }
-
-    /**
-     * Get the proper bool-based value from the config
-     *
-     * @param string $index
-     * @param string $default
-     *
-     * @return bool
-     */
-    public static function getBoolBaseValue($index, $default)
-    {
-        if (self::hasCustom($index)) {
-            return (bool) self::getCustom($index);
-        }
-
-        return (bool) self::get($index, true);
-    }
-
-    /**
-     * Get the proper string-based value from the config
-     *
-     * @param string $index
-     * @param string $default
-     *
-     * @return string
-     */
-    public static function getStringBaseValue($index, $default)
-    {
-        if (self::hasCustom($index)) {
-            return (string) self::getCustom($index);
-        }
-
-        return (string) self::get($index, $default);
-    }
-
-    /**
-     * Gets the common definitions.
-     *
-     * @return array
-     */
-    public static function getCommonDefinitions()
-    {
-        $customValues = (array) self::getCustom('common_definitions', []);
-        $defaultValues = self::get('common_definitions', []);
-        $final = [];
-
-        foreach ($defaultValues as $key => $defaultValue) {
-            if (is_array($defaultValue)
-                && array_key_exists('match', $defaultValue)
-                && array_key_exists('set', $defaultValue)
-            ) {
-                $matches = (array) $defaultValue['match'];
-
-                $final[] = [
-                    'match' => $matches,
-                    'set' => self::mergeDefinitions($matches, $customValues, (array) $defaultValue['set']),
-                ];
-            }
-        }
-
-        return $final;
-    }
-
-    protected static function mergeDefinitions(array $keys, array $customs, array $defaultValues)
-    {
-        $final = $defaultValues;
-
-        foreach ($customs as $key => $custom) {
-
-            if (!is_array($custom) || !array_key_exists('match', $custom) || !array_key_exists('set', $custom)) {
-                continue;
-            }
-            $matches = (array) $custom['match'];
-            $combined = array_intersect($keys, $matches);
-
-            if (!empty($combined)) {
-                $final = array_merge($final, (array) $custom['set']);
-            }
-        }
-
-        return $final;
-    }
-
-    /**
      * Gets the default value for whether to generate the moveFile method
      * or not.
      *
@@ -116,6 +19,27 @@ class Config
     }
 
     /**
+     * Gets the default value for whether to use smart migrations or not
+     *
+     * @return bool
+     */
+    public static function useSmartMigration()
+    {
+        return self::getBoolBaseValue('use_smart_migrations', true);
+    }
+
+    /**
+     * Gets the default value for whether to organize migrations or not
+     * or not.
+     *
+     * @return bool
+     */
+    public static function organizeMigrations()
+    {
+        return self::getBoolBaseValue('organize_migrations', false);
+    }
+
+    /**
      * Gets the postfix value for a controller name
      *
      * @return string
@@ -123,6 +47,20 @@ class Config
     public static function getControllerNamePostFix()
     {
         return self::getStringBaseValue('controller_name_postfix', 'Controller');
+    }
+
+    /**
+     * Gets the default value of the system path
+     *
+     * @param string $file
+     *
+     * @return string
+     */
+    public static function getSystemPath($file = null)
+    {
+        $path = self::getStringBaseValue('system_files_path', 'resources/laravel-code-generator/system');
+
+        return Helpers::getPathWithSlash($path) . $file;
     }
 
     /**
@@ -234,20 +172,6 @@ class Config
     }
 
     /**
-     * Gets the path to the field files.
-     *
-     * @param string $file = '';
-     *
-     * @return string
-     */
-    public static function pathToFieldFiles($file = '')
-    {
-        $path = self::getStringBaseValue('fields_file_path', 'resources/codegenerator-files');
-
-        return Helpers::getPathWithSlash($path) . $file;
-    }
-
-    /**
      * Gets the common key patterns.
      *
      * @return array
@@ -283,7 +207,7 @@ class Config
      */
     public static function getTemplatesPath()
     {
-        $path = self::getStringBaseValue('templates_path', 'resources/codegenerator-templates');
+        $path = self::getStringBaseValue('templates_path', 'resources/laravel-code-generator/templates');
 
         return Helpers::getPathWithSlash($path);
     }
@@ -411,7 +335,7 @@ class Config
      */
     public static function getResourceFilePath($file = '')
     {
-        $path = self::getStringBaseValue('resource_file_path', 'resources/codegenerator-files');
+        $path = self::getStringBaseValue('resource_file_path', 'resources/laravel-code-generator/sources');
 
         return Helpers::getPathWithSlash($path) . $file;
     }
@@ -655,4 +579,111 @@ class Config
     {
         return sprintf('codegenerator_custom.%s', $index);
     }
+
+    /**
+     * Get the proper array-based value from the config
+     *
+     * @param string $index
+     * @param array $default
+     *
+     * @return array
+     */
+    public static function getArrayBaseValue($index, $default = [])
+    {
+        $values = (array) self::getCustom($index, []);
+
+        return array_merge((array) self::get($index, $default), $values);
+    }
+
+    /**
+     * Get the proper bool-based value from the config
+     *
+     * @param string $index
+     * @param string $default
+     *
+     * @return bool
+     */
+    public static function getBoolBaseValue($index, $default)
+    {
+        if (self::hasCustom($index)) {
+            return (bool) self::getCustom($index);
+        }
+
+        return (bool) self::get($index, true);
+    }
+
+    /**
+     * Get the proper string-based value from the config
+     *
+     * @param string $index
+     * @param string $default
+     *
+     * @return string
+     */
+    public static function getStringBaseValue($index, $default)
+    {
+        if (self::hasCustom($index)) {
+            return (string) self::getCustom($index);
+        }
+
+        return (string) self::get($index, $default);
+    }
+
+    /**
+     * Gets the common definitions.
+     *
+     * @return array
+     */
+    public static function getCommonDefinitions()
+    {
+        $customValues = (array) self::getCustom('common_definitions', []);
+        $defaultValues = self::get('common_definitions', []);
+        $final = [];
+
+        foreach ($defaultValues as $key => $defaultValue) {
+            if (is_array($defaultValue)
+                && array_key_exists('match', $defaultValue)
+                && array_key_exists('set', $defaultValue)
+            ) {
+                $matches = (array) $defaultValue['match'];
+
+                $final[] = [
+                    'match' => $matches,
+                    'set' => self::mergeDefinitions($matches, $customValues, (array) $defaultValue['set']),
+                ];
+            }
+        }
+
+        return $final;
+    }
+
+    /**
+     * Merges the field definition
+     *
+     * @param array $keys
+     * @param array $customs
+     * @param array $defaultValues
+     *
+     * @return array
+     */
+    protected static function mergeDefinitions(array $keys, array $customs, array $defaultValues)
+    {
+        $final = $defaultValues;
+
+        foreach ($customs as $key => $custom) {
+
+            if (!is_array($custom) || !array_key_exists('match', $custom) || !array_key_exists('set', $custom)) {
+                continue;
+            }
+            $matches = (array) $custom['match'];
+            $combined = array_intersect($keys, $matches);
+
+            if (!empty($combined)) {
+                $final = array_merge($final, (array) $custom['set']);
+            }
+        }
+
+        return $final;
+    }
+
 }

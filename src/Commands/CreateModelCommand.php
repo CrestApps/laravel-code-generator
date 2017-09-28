@@ -4,9 +4,9 @@ namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
+use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\ResourceTransformer;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use Illuminate\Console\Command;
@@ -63,7 +63,7 @@ class CreateModelCommand extends Command
         $stub = $this->getStubContent('model');
         $input = $this->getCommandInput();
 
-        $resources = ResourceTransformer::fromFile($input->resourceFile, $input->languageFileName);
+        $resources = Resource::fromFile($input->resourceFile, $input->languageFileName);
         $fields = $resources->fields;
         if ($input->useSoftDelete) {
             $fields = $this->upsertDeletedAt($fields);

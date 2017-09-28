@@ -2,12 +2,12 @@
 
 namespace CrestApps\CodeGenerator\Models;
 
-use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Support\Config;
-use CrestApps\CodeGenerator\Support\FieldTransformer;
+use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 
-class ForeignConstraint
+class ForeignConstraint implements JsonWriter
 {
     use CommonCommand;
 
@@ -24,14 +24,14 @@ class ForeignConstraint
      * @var string
      */
     public $references;
-    
+
     /**
      * The name of the foreign model being referenced.
      *
      * @var string
      */
     public $on;
-    
+
     /**
      * The action to take when the model is updated.
      *
@@ -99,15 +99,15 @@ class ForeignConstraint
         $params = [
             $this->getReferencesModel(),
             $this->column,
-            $this->on
+            $this->on,
         ];
 
         return new ForeignRelationship(
-                                    'belongsTo',
-                                    $params,
-                                    $this->getForeignModelName(),
-                                    $this->on
-                                );
+            'belongsTo',
+            $params,
+            $this->getForeignModelName(),
+            $this->on
+        );
     }
 
     /**
@@ -137,7 +137,7 @@ class ForeignConstraint
      */
     public function hasDeleteAction()
     {
-        return ! empty($this->onDelete);
+        return !empty($this->onDelete);
     }
 
     /**
@@ -147,7 +147,7 @@ class ForeignConstraint
      */
     public function hasUpdateAction()
     {
-        return ! empty($this->onUpdate);
+        return !empty($this->onUpdate);
     }
 
     /**
@@ -163,7 +163,7 @@ class ForeignConstraint
             'on' => $this->on,
             'on-delete' => $this->onDelete,
             'on-update' => $this->onUpdate,
-            'references-model' => $this->getReferencesModel()
-       ];
+            'references-model' => $this->getReferencesModel(),
+        ];
     }
 }

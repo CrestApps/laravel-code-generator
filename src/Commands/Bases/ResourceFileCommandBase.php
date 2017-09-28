@@ -2,9 +2,9 @@
 
 namespace CrestApps\CodeGenerator\Commands\Bases;
 
+use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
-use CrestApps\CodeGenerator\Support\ResourceTransformer;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use Illuminate\Console\Command;
 
@@ -12,14 +12,16 @@ class ResourceFileCommandBase extends Command
 {
     use CommonCommand;
 
-    protected function getJson(array $resource)
-    {
-        return json_encode($resource, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    }
-
+    /**
+     * Gets the resource from the giving file
+     *
+     * @param string $file
+     *
+     * @return CrestApps\CodeGenerator\Models\Resource
+     */
     protected function getResources($file)
     {
-        return ResourceTransformer::fromJson($this->getFileContent($file), 'crestapps');
+        return Resource::fromJson($this->getFileContent($file), 'crestapps');
     }
     /**
      * Gets the destenation filename.
@@ -110,6 +112,11 @@ class ResourceFileCommandBase extends Command
         return FieldTransformer::fromArray($fields, 'generic');
     }
 
+    /**
+     * Display a common error
+     *
+     * @return void
+     */
     protected function noResourcesProvided()
     {
         $this->error('Nothing to append was provided! Please use the --fields, --relations, or --indexes to append to file.');

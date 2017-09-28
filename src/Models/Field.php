@@ -6,9 +6,10 @@ use App;
 use CrestApps\CodeGenerator\Models\ForeignRelationhip;
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
 use CrestApps\CodeGenerator\Support\Helpers;
 
-class Field
+class Field implements JsonWriter
 {
     /**
      * Fields that are auto managed by Laravel on update.
@@ -265,6 +266,13 @@ class Field
      * @var string
      */
     public $castAs = '';
+
+    /**
+     * If the field is flagged to be deleted during migration changes.
+     *
+     * @var bool
+     */
+    public $flaggedForDelete = false;
 
     /**
      * Creates a new field instance.
@@ -636,6 +644,21 @@ class Field
         return $this->dataType == 'boolean';
     }
 
+    /**
+     * Gets Eloquent's method name
+     *
+     * @return string
+     */
+    public function getEloquentDataMethod()
+    {
+        $map = Config::dataTypeMap();
+
+        if (isset($map[$this->dataType])) {
+            return $map[$this->dataType];
+        }
+
+        return 'string';
+    }
     /**
      * Checks if this field's html is checkbox
      *
@@ -1103,4 +1126,5 @@ class Field
 
         return (object) $finals;
     }
+
 }

@@ -2,11 +2,12 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
+use App;
 use CrestApps\CodeGenerator\Commands\Bases\ControllerCommandBase;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
+use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\ResourceTransformer;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 
 class CreateControllerCommand extends ControllerCommandBase
@@ -103,7 +104,7 @@ class CreateControllerCommand extends ControllerCommandBase
             }
         }
 
-        $resources = ResourceTransformer::fromFile($input->resourceFile, $input->langFile);
+        $resources = Resource::fromFile($input->resourceFile, $input->langFile);
         $fields = $resources->fields;
         $viewVariablesForIndex = $this->getCompactVariablesFor($fields, $this->getPluralVariable($input->modelName), 'index');
         $viewVariablesForShow = $this->getCompactVariablesFor($fields, $this->getSingularVariable($input->modelName), 'show');

@@ -3,8 +3,8 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Commands\Bases\ViewsCommandBase;
+use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\ResourceTransformer;
 
 class CreateViewsCommand extends ViewsCommandBase
 {
@@ -49,7 +49,7 @@ class CreateViewsCommand extends ViewsCommandBase
     protected function handleCreateView()
     {
         $input = $this->getCommandInput();
-        $resources = ResourceTransformer::fromFile($input->resourceFile, $input->languageFileName);
+        $resources = Resource::fromFile($input->resourceFile, $input->languageFileName);
 
         if ($this->isMetRequirements($resources->fields)) {
             $this->info('Crafting views...');

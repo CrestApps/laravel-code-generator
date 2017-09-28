@@ -3,9 +3,9 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Commands\Bases\ControllerCommandBase;
+use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\ResourceTransformer;
 
 class CreateFormRequestCommand extends ControllerCommandBase
 {
@@ -40,7 +40,7 @@ class CreateFormRequestCommand extends ControllerCommandBase
         $input = $this->getCommandInput();
 
         $stub = $this->getStubContent('form-request', $input->template);
-        $resources = ResourceTransformer::fromFile($input->resourceFile, 'crestapps');
+        $resources = Resource::fromFile($input->resourceFile, 'crestapps');
         $destenationFile = $this->getDestenationFile($input->fileName, $input->formRequestDirectory);
 
         $validations = $this->getValidationRules($resources->fields, $input->modelName, $input->formRequestDirectory);

@@ -7,6 +7,7 @@ use CrestApps\CodeGenerator\Models\FieldMapper;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldsOptimizer;
+use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use Exception;
 
@@ -113,7 +114,7 @@ abstract class ParserBase
      *
      * @return CrestApps\CodeGenerator\Models\Resource
      */
-    protected function getResource()
+    public function getResource()
     {
         $resource = new Resource($this->getFields());
 
@@ -133,7 +134,7 @@ abstract class ParserBase
     {
         $resource = $this->getResource();
 
-        return json_encode($resource->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        return Helpers::prettifyJson($resource->toArray());
     }
 
     /**

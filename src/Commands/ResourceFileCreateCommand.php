@@ -5,6 +5,7 @@ namespace CrestApps\CodeGenerator\Commands;
 use CrestApps\CodeGenerator\Commands\Bases\ResourceFileCreatorCommandBase;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ResourceMapper;
 
 class ResourceFileCreateCommand extends ResourceFileCreatorCommandBase
@@ -62,7 +63,7 @@ class ResourceFileCreateCommand extends ResourceFileCreatorCommandBase
 
         $resource = new Resource($fields, $relations, $indexes);
 
-        $this->createFile($file, $this->getJson($resource->toArray()))
+        $this->createFile($file, Helpers::prettifyJson($resource->toArray()))
             ->info('The "' . basename($file) . '" file was crafted successfully!');
     }
 

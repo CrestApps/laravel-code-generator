@@ -5,6 +5,7 @@ namespace CrestApps\CodeGenerator\Commands;
 use CrestApps\CodeGenerator\Commands\Bases\ResourceFileCreatorCommandBase;
 use CrestApps\CodeGenerator\Models\Index;
 use CrestApps\CodeGenerator\Models\Resource;
+use CrestApps\CodeGenerator\Support\Helpers;
 
 class ResourceFileAppendCommand extends ResourceFileCreatorCommandBase
 {
@@ -57,7 +58,7 @@ class ResourceFileAppendCommand extends ResourceFileCreatorCommandBase
         $totalAddedRelations = $this->mergeRelations($resource, $input);
         $totalAddedIndexes = $this->mergeIndexes($resource, $input);
 
-        $content = $this->getJson($resource->toArray());
+        $content = Helpers::prettifyJson($resource->toArray());
 
         $this->putContentInFile($file, $content);
 

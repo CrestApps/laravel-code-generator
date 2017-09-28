@@ -2,22 +2,27 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
+use CrestApps\CodeGenerator\Commands\Bases\MigrationCommandBase;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\ForeignConstraint;
 use CrestApps\CodeGenerator\Models\Label;
+use CrestApps\CodeGenerator\Models\MigrationCapsule;
+use CrestApps\CodeGenerator\Models\MigrationChangeCapsule;
+use CrestApps\CodeGenerator\Models\MigrationTrackerCapsule;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\ResourceTransformer;
+use CrestApps\CodeGenerator\Support\MigrationHistoryTracker;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use Exception;
 use File;
-use Illuminate\Console\Command;
 
-class CreateMigrationCommand extends Command
+class CreateMigrationCommand extends MigrationCommandBase
 {
     use CommonCommand;
 
+    protected $notChnagableTypes = ['char', 'double', 'enum', 'mediumInteger', 'timestamp', 'tinyInteger', 'ipAddress', 'json',
+        'jsonb', 'macAddress', 'mediumIncrements', 'morphs', 'nullableMorphs', 'nullableTimestamps', 'softDeletes', 'timeTz', 'timestampTz', 'timestamps', 'timestampsTz', 'unsignedMediumInteger', 'unsignedTinyInteger', 'uuid'];
     /**
      * The name and signature of the console command.
      *
@@ -43,16 +48,6 @@ class CreateMigrationCommand extends Command
     protected $description = 'Create a migration file for the model.';
 
     /**
-     * Creates a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Executes the console command.
      *
      * @return void
@@ -60,21 +55,187 @@ class CreateMigrationCommand extends Command
     public function handle()
     {
         $input = $this->getCommandInput();
-        $stub = $this->getStubContent('migration', $input->template);
-        $resource = ResourceTransformer::fromFile($input->resourceFile, 'migration');
+        $tracker = new MigrationHistoryTracker();
+        $capsule = $tracker->get($input->tableName);
+        $resource = $this->getCurrentResource($input->resourceFile);
 
-        if (count($resource->fields) == 0) {
-            throw new Exception('You must provide at least one field to generate the migration');
+        if (is_null($capsule)) {
+            // At this point there are no capsule or migration associated with this table.
+            $capsule = $this->getMigrationTrackerCapsule($input);
+            $migration = $this->getMigrationCapsule($input, $resource, $this->getCreateMigrationName($input->tableName));
+            $tracker->add($capsule, $migration);
+            $this->makeCreateMigration($input, $migration);
+
+            return false;
         }
 
-        $properites = $this->getTableProperties($resource, $input);
-        $destenationFile = $this->getDestenationFile($input->tableName);
+        $migration = $capsule->getCurrentMigration();
 
-        $this->replaceSchemaUp($stub, $this->getSchemaUpCommand($input, $properites))
-            ->replaceSchemaDown($stub, $this->getSchemaDownCommand($input))
-            ->replaceMigationName($stub, $input->className)
-            ->createFile($destenationFile, $stub)
+        if (is_null($migration)) {
+            // At this point, there are no migration with this current capsule
+            // add it, then create create migration
+            $migration = $this->getMigrationCapsule($input, $resource, $this->getCreateMigrationName($input->tableName));
+            $tracker->addMigration($input->tableName, $migration);
+            $this->makeCreateMigration($input, $migration);
+
+        } elseif (!Config::useSmartMigration() || (!$this->isMigrated($migration->name) && $migration->isCreate && !$migration->isVirtual)) {
+            //At this point the current migration is the first one and is not migrated
+            //Create update the migration using the current resource then recreate the migration file
+            $migration->setResource($resource);
+            $migration->path = $this->getMigrationFullName($migration->name, $input->tableName); // make sure we use the same path
+            $tracker->updateMigration($capsule->tableName, $migration);
+            $this->makeCreateMigration($input, $migration);
+
+        } else if ($this->isMigrated($migration->name) || $migration->isVirtual) {
+            // Make new alter migration
+            $migrationName = $this->getAlterMigrationName($input->tableName, $capsule->totalMigrations());
+            $newMigration = $this->getMigrationCapsule($input, $resource, $migrationName, false);
+            $newMigration->className = $this->makeAlterTableClassName($input->tableName, $capsule->totalMigrations());
+            $this->makeAlterMigration($input, $newMigration, $capsule->getDelta($resource, $migration->resource));
+            $tracker->addMigration($input->tableName, $newMigration);
+
+        } else {
+            // update existing alter migration
+            $beforeLastMigration = $capsule->getMigrationBeforeCurrent();
+            if (is_null($beforeLastMigration)) {
+                throw new Exception('The migration before current was not found!');
+            }
+            $migration->setResource($resource);
+            $tracker->updateMigration($capsule->tableName, $migration);
+
+            $this->makeAlterMigration($input, $migration, $capsule->getDelta($resource, $beforeLastMigration->resource));
+        }
+    }
+
+    /**
+     * Gets resource using current fields file
+     *
+     * @param string $resourceFile
+     *
+     * @throws Exception
+     *
+     * @return CrestApps\CodeGenerator\Models\Resource
+     */
+    protected function getCurrentResource($resourceFile)
+    {
+        $resource = Resource::fromFile($resourceFile, 'migration');
+
+        if (count($resource->fields) == 0 && count($resource->indexes)) {
+            throw new Exception('You must provide at least one field or index to generate the migration');
+        }
+
+        return $resource;
+    }
+
+    /**
+     * Gets a new migration capsule
+     *
+     * @param object $input
+     *
+     * @return CrestApps\CodeGenerator\Models\MigrationTrackerCapsule
+     */
+    protected function getMigrationTrackerCapsule($input)
+    {
+        return MigrationTrackerCapsule::get($input->tableName, $input->modelName, $input->resourceFile);
+    }
+
+    /**
+     * Make a migration capsule
+     *
+     * @param object $input
+     * @param CrestApps\CodeGenerator\Models\Resource $resource
+     * @param string $name
+     * @param bool $isCreate
+     *
+     * @return CrestApps\CodeGenerator\Models\MigrationCapsule
+     */
+    protected function getMigrationCapsule($input, $resource, $name, $isCreate = true)
+    {
+        $migration = MigrationCapsule::get($name);
+        $migration->path = $this->getMigrationFullName($name, $input->tableName);
+        $migration->resource = $resource;
+        $migration->className = $this->makeCreateTableClassName(Helpers::makeTableName($input->tableName));
+        $migration->isCreate = $isCreate;
+
+        return $migration;
+    }
+
+    /**
+     * Gets migration fullname
+     *
+     * @param string $name
+     * @param string $tableName
+     *
+     * @return string
+     */
+    protected function getMigrationFullName($name, $tableName)
+    {
+        $folder = '';
+
+        if (Config::organizeMigrations()) {
+            $folder = $tableName;
+        }
+
+        return str_finish($this->getMigrationPath($folder) . DIRECTORY_SEPARATOR . $name, '.php');
+    }
+
+    /**
+     * Make a create migration
+     *
+     * @param object $input
+     * @param CrestApps\CodeGenerator\Models\MigrationCapsule $migration
+     *
+     * @return void
+     */
+    protected function makeCreateMigration($input, MigrationCapsule $migration)
+    {
+        $stub = $this->getStubContent('migration', $input->template);
+
+        $blueprint = $this->getCreateTableBlueprint($migration->resource, $input);
+
+        $this->replaceSchemaUp($stub, $this->getSchemaUpCreateCommand($input, $blueprint, 'create'))
+            ->replaceSchemaDown($stub, $this->getSchemaDownCreateBlueprint($input))
+            ->replaceMigationClassName($stub, $migration->className)
+            ->createFile($migration->path, $stub)
             ->info('A migration was crafted successfully.');
+    }
+
+    /**
+     * Make an alter migration
+     *
+     * @param object $input
+     * @param CrestApps\CodeGenerator\Models\MigrationCapsule $migration
+     * @param CrestApps\CodeGenerator\Models\MigrationChangeCapsule $changeCapsule
+     *
+     * @return void
+     */
+    protected function makeAlterMigration($input, MigrationCapsule $migration, MigrationChangeCapsule $changeCapsule)
+    {
+        $stub = $this->getStubContent('migration', $input->template);
+
+        $blueprint = $this->getAlterTableBlueprint($input, $changeCapsule);
+        $downBlueprint = $this->getSchemaDownAlterBlueprint($input, $changeCapsule);
+        $this->replaceSchemaUp($stub, $this->getSchemaUpCreateCommand($input, $blueprint, 'table'))
+            ->replaceSchemaDown($stub, $this->getSchemaUpAlterCommand($input, $downBlueprint))
+            ->replaceMigationClassName($stub, $migration->className)
+            ->createFile($migration->path, $stub)
+            ->info('A migration was crafted successfully.');
+    }
+
+    /**
+     * Gets name of the folder to put the migration in
+     *
+     * @param string  $tableName
+     *
+     * @return string
+     */
+    protected function getFolderName($tableName)
+    {
+        if (Config::organizeMigrations()) {
+            return $tableName;
+        }
+
+        return null;
     }
 
     /**
@@ -86,7 +247,7 @@ class CreateMigrationCommand extends Command
      */
     protected function getDestenationFile($tableName)
     {
-        $file = $this->makeFileName($tableName);
+        $file = $this->getCreateMigrationName($tableName);
 
         return base_path(Config::getMigrationsPath()) . $file;
     }
@@ -98,7 +259,7 @@ class CreateMigrationCommand extends Command
      * @param (object) $input
      * @return string
      */
-    protected function getTableProperties(Resource $resource, $input)
+    protected function getCreateTableBlueprint(Resource $resource, $input)
     {
         $properties = '';
 
@@ -111,6 +272,71 @@ class CreateMigrationCommand extends Command
             ->addFieldProperties($properties, $resource->fields, $input->withoutTimestamps, $input->withSoftDelete)
             ->addIndexes($properties, $resource->indexes)
             ->addForeignConstraints($properties, $constraints);
+
+        return $properties;
+    }
+
+    /**
+     * Creates the table properties.
+     *
+     * @param array $fields
+     * @param (object) $input
+     * @return string
+     */
+    protected function getAlterTableBlueprint($input, MigrationChangeCapsule $changeCapsule)
+    {
+        $properties = '';
+
+        $this->addEngineName($properties, $input->engine);
+
+        $fieldsWithChanges = $changeCapsule->getFieldsWithUpdate();
+
+        foreach ($fieldsWithChanges as $fieldsWithChange) {
+            if ($fieldsWithChange->isDeleted) {
+
+                $this->addDropColumn($properties, $fieldsWithChange->field->name)
+                    ->addFieldPropertyClousure($properties);
+
+            } elseif ($fieldsWithChange->isAdded) {
+
+                $this->addFieldType($properties, $fieldsWithChange->field)
+                    ->addFieldComment($properties, $fieldsWithChange->field)
+                    ->addFieldUnsigned($properties, $fieldsWithChange->field)
+                    ->addFieldNullable($properties, $fieldsWithChange->field)
+                    ->addFieldIndex($properties, $fieldsWithChange->field)
+                    ->addFieldUnique($properties, $fieldsWithChange->field)
+                    ->addFieldPropertyClousure($properties);
+
+            } elseif ($fieldsWithChange->isRenamed()) {
+                $this->addRenameColumn($properties, $fieldsWithChange->fromField->name, $fieldsWithChange->toField->name)
+                    ->addFieldPropertyClousure($properties);
+            } else {
+
+                if (in_array($field->getEloquentDataMethod(), $this->notChnagableTypes)) {
+                    throw new Exception('The type' . $field->getEloquentDataMethod() . ' cannot be changed using the change() method!');
+                }
+
+                $this->addFieldType($properties, $fieldsWithChange->fromField)
+                    ->addFieldComment($properties, $fieldsWithChange->fromField)
+                    ->addFieldUnsigned($properties, $fieldsWithChange->fromField)
+                    ->addFieldNullable($properties, $fieldsWithChange->fromField)
+                    ->addFieldIndex($properties, $fieldsWithChange->fromField)
+                    ->addFieldUnique($properties, $fieldsWithChange->fromField)
+                    ->addFieldChangeMethod($properties)
+                    ->addFieldPropertyClousure($properties);
+            }
+        }
+
+        $indexesWithChanges = $changeCapsule->getIndexesWithUpdate();
+
+        foreach ($indexesWithChanges as $indexesWithChange) {
+            if ($indexesWithChange->isDeleted) {
+                $this->addIndex($properties, $indexesWithChange->index);
+
+            } elseif ($indexesWithChange->isAdded) {
+                $this->dropIndex($properties, $indexesWithChange->index);
+            }
+        }
 
         return $properties;
     }
@@ -370,6 +596,20 @@ class CreateMigrationCommand extends Command
     }
 
     /**
+     * Adds the change method
+     *
+     * @param string $property
+     *
+     * @return $this
+     */
+    protected function addFieldChangeMethod(&$property)
+    {
+        $property .= '->change()';
+
+        return $this;
+    }
+
+    /**
      * Adds a 'field type' to the property
      *
      * @param string $property
@@ -379,12 +619,8 @@ class CreateMigrationCommand extends Command
      */
     protected function addFieldType(&$property, Field $field)
     {
-        $type = strtolower(Helpers::removeNonEnglishChars($field->dataType));
-
-        if (isset(Config::dataTypeMap()[$type])) {
-            $params = $this->getMethodParamerters($field);
-            $property .= sprintf("%s('%s'%s)", $this->getPropertyBase(Config::dataTypeMap()[$type]), $field->name, $params);
-        }
+        $params = $this->getMethodParamerters($field);
+        $property .= sprintf("%s('%s'%s)", $this->getPropertyBase($field->getEloquentDataMethod()), $field->name, $params);
 
         return $this;
     }
@@ -400,7 +636,7 @@ class CreateMigrationCommand extends Command
     {
         $params = count($field->methodParams) == 0 ? '' : ', ' . implode(',', $field->methodParams);
 
-        if ($field->dataType == 'enum') {
+        if ($field->getEloquentDataMethod() == 'enum') {
             $params = ', ' . $this->getEnumParams($field);
         }
 
@@ -416,7 +652,7 @@ class CreateMigrationCommand extends Command
      */
     protected function getEnumParams(Field $field)
     {
-        if ($field->dataType != 'enum') {
+        if ($field->getEloquentDataMethod() != 'enum') {
             throw new Exception('The field type is not enum! Cannot create an enum column with no options.');
         }
 
@@ -486,12 +722,97 @@ class CreateMigrationCommand extends Command
      *
      * @return string
      */
-    protected function getSchemaDownCommand($input)
+    protected function getSchemaDownCreateBlueprint($input)
     {
-        $stub = $this->getStubContent('schema-down', $input->template);
+        $stub = $this->getStubContent('migration-schema-down', $input->template);
 
         $this->replaceConnectionName($stub, $input->connection)
             ->replaceTableName($stub, $input->tableName);
+
+        return $stub;
+    }
+
+    /**
+     * Get the schema down blueprint for alter command.
+     *
+     * @param object $input
+     * @param CrestApps\CodeGenerator\Models\MigrationChangeCapsule $changeCapsule
+     *
+     * @return string
+     */
+    protected function getSchemaDownAlterBlueprint($input, MigrationChangeCapsule $changeCapsule)
+    {
+        $properties = '';
+
+        $this->addEngineName($properties, $input->engine);
+
+        $fieldsWithChanges = $changeCapsule->getFieldsWithUpdate();
+
+        foreach ($fieldsWithChanges as $fieldsWithChange) {
+            if ($fieldsWithChange->isDeleted) {
+                // Add it back
+                $this->addFieldType($properties, $fieldsWithChange->field)
+                    ->addFieldComment($properties, $fieldsWithChange->field)
+                    ->addFieldUnsigned($properties, $fieldsWithChange->field)
+                    ->addFieldNullable($properties, $fieldsWithChange->field)
+                    ->addFieldIndex($properties, $fieldsWithChange->field)
+                    ->addFieldUnique($properties, $fieldsWithChange->field)
+                    ->addFieldPropertyClousure($properties);
+
+            } elseif ($fieldsWithChange->isAdded) {
+
+                $this->addDropColumn($properties, $fieldsWithChange->field->name)
+                    ->addFieldPropertyClousure($properties);
+
+            } elseif ($fieldsWithChange->isRenamed()) {
+                $this->addRenameColumn($properties, $fieldsWithChange->fromField->name, $fieldsWithChange->toField->name)
+                    ->addFieldPropertyClousure($properties);
+            } else {
+                if (in_array($field->getEloquentDataMethod(), $this->notChnagableTypes)) {
+                    throw new Exception('The type' . $field->getEloquentDataMethod() . ' cannot be changed using the change() method!');
+                }
+
+                $this->addFieldType($properties, $fieldsWithChange->toField)
+                    ->addFieldComment($properties, $fieldsWithChange->toField)
+                    ->addFieldUnsigned($properties, $fieldsWithChange->toField)
+                    ->addFieldNullable($properties, $fieldsWithChange->toField)
+                    ->addFieldIndex($properties, $fieldsWithChange->toField)
+                    ->addFieldUnique($properties, $fieldsWithChange->toField)
+                    ->addFieldChangeMethod($properties)
+                    ->addFieldPropertyClousure($properties);
+            }
+        }
+
+        $indexesWithChanges = $changeCapsule->getIndexesWithUpdate();
+
+        foreach ($indexesWithChanges as $indexesWithChange) {
+            if ($indexesWithChange->isDeleted) {
+                // Add it back
+                $this->dropIndex($properties, $indexesWithChange->index);
+
+            } elseif ($indexesWithChange->isAdded) {
+                $this->addIndex($properties, $indexesWithChange->index);
+            }
+        }
+
+        return $properties;
+    }
+
+    /**
+     * Constructs the schema down command.
+     *
+     * @param (object) $input
+     *
+     * @return string
+     */
+    protected function getSchemaUpAlterCommand($input, $blueprintBody)
+    {
+        $stub = $this->getStubContent('migration-schema-up', $input->template);
+
+        $this->replaceConnectionName($stub, $input->connection)
+            ->replaceTableName($stub, $input->tableName)
+            ->replaceOperationName($stub, 'table')
+            ->replaceBlueprintBodyName($stub, $blueprintBody);
 
         return $stub;
     }
@@ -503,12 +824,13 @@ class CreateMigrationCommand extends Command
      *
      * @return string
      */
-    protected function getSchemaUpCommand($input, $blueprintBody)
+    protected function getSchemaUpCreateCommand($input, $blueprintBody, $operationName)
     {
-        $stub = $this->getStubContent('schema-up', $input->template);
+        $stub = $this->getStubContent('migration-schema-up', $input->template);
 
         $this->replaceConnectionName($stub, $input->connection)
             ->replaceTableName($stub, $input->tableName)
+            ->replaceOperationName($stub, $operationName)
             ->replaceBlueprintBodyName($stub, $blueprintBody);
 
         return $stub;
@@ -522,9 +844,24 @@ class CreateMigrationCommand extends Command
      *
      * @return $this
      */
-    protected function replaceMigationName(&$stub, $className)
+    protected function replaceMigationClassName(&$stub, $className)
     {
         $stub = $this->strReplace('migration_name', $className, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replace the operation name of the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    protected function replaceOperationName(&$stub, $name)
+    {
+        $stub = $this->strReplace('operation_name', $name, $stub);
 
         return $this;
     }
@@ -611,6 +948,41 @@ class CreateMigrationCommand extends Command
     }
 
     /**
+     * Adds the field's "dropColumn" method call to the giving property.
+     *
+     * @param string $property
+     * @param string $name
+     *
+     * @return $this
+     */
+    protected function addDropColumn(&$property, $name)
+    {
+        if (is_array($name)) {
+            $property .= sprintf('%s([%s])', $this->getPropertyBase('dropColumn'), implode(',', Helpers::wrapItems($name)));
+        } else {
+            $property .= sprintf("%s('%s')", $this->getPropertyBase('dropColumn'), $name);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Adds the field's "renameColumn" method call to the giving property.
+     *
+     * @param string $property
+     * @param string $from
+     * @param string $to
+     *
+     * @return $this
+     */
+    protected function addRenameColumn(&$property, $from, $to)
+    {
+        $property .= sprintf("%s('%s', '%s')", $this->getPropertyBase('renameColumn'), $from, $to);
+
+        return $this;
+    }
+
+    /**
      * Adds the field's "unique" value to the giving property.
      *
      * @param string $property
@@ -642,6 +1014,36 @@ class CreateMigrationCommand extends Command
         }
 
         return $this;
+    }
+
+    /**
+     * Adds an index
+     *
+     * @param string $property
+     * @param CrestApps\CodeGenerator\Models\Index $index
+     *
+     * @return $this
+     */
+    protected function addIndex(&$property, Index $index)
+    {
+        $property .= sprintf("('%s')", $this->getPropertyBase($index->getType), $index->name);
+
+        return $this->addFieldPropertyClousure($property);
+    }
+
+    /**
+     * drop an index
+     *
+     * @param string $property
+     * @param CrestApps\CodeGenerator\Models\Index $index
+     *
+     * @return $this
+     */
+    protected function dropIndex(&$property, Index $index)
+    {
+        $property .= sprintf("('%s')", $this->getPropertyBase('drop' . ucfirst($index->getType)), $index->name);
+
+        return $this->addFieldPropertyClousure($property);
     }
 
     /**
@@ -707,7 +1109,7 @@ class CreateMigrationCommand extends Command
     protected function addPrimaryField(&$property, Field $field = null)
     {
         if (!is_null($field)) {
-            $eloquentMethodName = $this->getPrimaryMethodName($field->dataType);
+            $eloquentMethodName = $this->getPrimaryMethodName($field->getEloquentDataMethod());
             $property .= sprintf("%s('%s')", $this->getPropertyBase($eloquentMethodName), $field->name);
             $this->addFieldPropertyClousure($property);
         }
@@ -760,8 +1162,7 @@ class CreateMigrationCommand extends Command
      */
     protected function getPrimaryMethodName($type)
     {
-        $type = strtolower(Helpers::removeNonEnglishChars($type));
-
+        $type = strtolower($type);
         $methodName = 'primary';
 
         if (in_array($type, ['int', 'integer'])) {
@@ -769,7 +1170,7 @@ class CreateMigrationCommand extends Command
         } elseif (in_array($type, ['bigint', 'biginteger'])) {
             $methodName = 'bigIncrements';
         } elseif (in_array($type, ['mediuminteger', 'mediumincrements'])) {
-            $methodName = 'mediumincrements';
+            $methodName = 'mediumIncrements';
         }
 
         return $methodName;
@@ -785,7 +1186,7 @@ class CreateMigrationCommand extends Command
         $modelName = trim($this->argument('model-name'));
         $madeUpTableName = Helpers::makeTableName($modelName);
         $tableName = trim($this->option('table-name')) ?: $madeUpTableName;
-        $className = trim($this->option('migration-class-name')) ?: sprintf('Create%sTable', studly_case($madeUpTableName));
+        $className = trim($this->option('migration-class-name')) ?: $this->makeCreateTableClassName($madeUpTableName);
         $connection = trim($this->option('connection-name'));
         $engine = trim($this->option('engine-name'));
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
@@ -806,20 +1207,6 @@ class CreateMigrationCommand extends Command
             'withoutTimestamps',
             'withSoftDelete'
         );
-    }
-
-    /**
-     * Makes a file name for the migration.
-     *
-     * @param  string  $name
-     *
-     * @return string
-     */
-    protected function makeFileName($name)
-    {
-        $filename = sprintf('%s_create_%s_table.php', date('Y_m_d_His'), strtolower($name));
-
-        return Helpers::postFixWith($filename, '.php');
     }
 
     /**

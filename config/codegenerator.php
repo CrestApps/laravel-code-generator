@@ -8,14 +8,14 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you change the stub templates to use when generating code.
-    | You can duplicate the 'default' template folder
-    | and call it what ever template name you like 'ex. skyblue'.
-    | Now, you can change the stubs to have your own templates generated.
+    | You can duplicate the 'default' template folder and call it whatever
+    | template name you like 'ex. skyblue'. Now, you can change the stubs to
+    | have your own templates generated.
     |
     |
-    | IMPORTANT: It is not recomended to modify the default template, rather create a new template.
-    | If you modify the default template and then executed 'php artisan vendor:publish' command,
-    | will override your changes!
+    | IMPORTANT: It is not recommended to modify the default template, rather
+    | create a new template. If you modify the default template and then
+    | executed 'php artisan vendor:publish' command, will override your changes!
     |
      */
     'template' => 'default',
@@ -28,17 +28,16 @@ return [
     | In this path, you can add more templates.
     |
      */
-    'templates_path' => 'resources/codegenerator-templates',
+    'templates_path' => 'resources/laravel-code-generator/templates',
 
     /*
     |--------------------------------------------------------------------------
-    | Array of templetes that should be generated with Laravel-Collective.
+    | Array of templates that should be generated with Laravel-Collective.
     |--------------------------------------------------------------------------
     |
     | If you want to generate code by using laravel-collective, you must first
     | install the package. Then add the tamplate name that should be using
     | Laravel-Collective extensions when generating code.
-    |
     |
      */
     'laravel_collective_templates' => [
@@ -47,16 +46,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The default path of where the uploaded files lives.
+    | The default path of where the uploaded files live.
     |--------------------------------------------------------------------------
     |
+    | You can use Laravel Storage filesystem. By default, the code-generator
+    | uses the default file system.
+    | For more info about Laravel's file system visit
+    | https://laravel.com/docs/5.5/filesystem
     |
      */
     'files_upload_path' => 'uploads',
 
     /*
     |--------------------------------------------------------------------------
-    | Should the moveFile method be generated for every resouces when needed
+    | Should the moveFile method be generated for every resources when needed
     |--------------------------------------------------------------------------
     |
     | The code-generator will generate a method called "moveFile" method each
@@ -97,19 +100,66 @@ return [
     | In this path, you can create json file to import the resources from.
     |
      */
-    'resource_file_path' => 'resources/codegenerator-files',
+    'resource_file_path' => 'resources/laravel-code-generator/sources',
+
+    /*
+    |--------------------------------------------------------------------------
+    | The default path for any system used file
+    |--------------------------------------------------------------------------
+    |
+     */
+    'system_files_path' => 'resources/laravel-code-generator/system',
 
     /*
     |--------------------------------------------------------------------------
     | The default path of where the migrations will be generated into.
     |--------------------------------------------------------------------------
+    |
      */
     'migrations_path' => 'database/migrations',
 
     /*
     |--------------------------------------------------------------------------
+    | Should the code generator use smart migrations?
+    |--------------------------------------------------------------------------
+    |
+    | This option will allow the code generator to create or alter migration.
+    | when needed. This option will only work for tables that are not
+    | yet generated or generated using laravel-code-generator.
+    |
+    | To create a migration, you still have to use create:migration command
+    | or --with-migration option when using create:resources command but the
+    | system will know what migration should be created.
+    |
+     */
+    'use_smart_migrations' => true,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Should the code generator organize the new migrations?
+    |--------------------------------------------------------------------------
+    |
+    | This option will allow the code generator to group the migration related
+    | to the same table is a separate folder. The folder name will be the name
+    | of the table.
+    |
+    | It is recommended to set this value to true, then use crest apps command
+    | to migrate instead of the build in command.
+    |
+    | php artisan migrate-all
+    | php artisan migrate:rollback-all
+    | php artisan migrate:reset-all
+    | php artisan migrate:refresh-all
+    | php artisan migrate:status-all
+    |
+     */
+    'organize_migrations' => false,
+
+    /*
+    |--------------------------------------------------------------------------
     | The default path of where the controllers will be generated into.
     |--------------------------------------------------------------------------
+    |
      */
     'form_requests_path' => 'Http/Requests',
 
@@ -117,6 +167,7 @@ return [
     |--------------------------------------------------------------------------
     | The default path of where the controllers will be generated into.
     |--------------------------------------------------------------------------
+    |
      */
     'controllers_path' => 'Http/Controllers',
 
@@ -124,6 +175,7 @@ return [
     |--------------------------------------------------------------------------
     | The default path of where the models will be generated into.
     |--------------------------------------------------------------------------
+    |
      */
     'models_path' => 'Models',
 
@@ -131,6 +183,7 @@ return [
     |--------------------------------------------------------------------------
     | The default path of where the languages will be generated into.
     |--------------------------------------------------------------------------
+    |
      */
     'languages_path' => 'resources/lang',
 
@@ -138,6 +191,7 @@ return [
     |--------------------------------------------------------------------------
     | The name of the default resources map file.
     |--------------------------------------------------------------------------
+    |
      */
     'default_mapper_file_name' => 'resources_map.json',
 
@@ -145,13 +199,16 @@ return [
     |--------------------------------------------------------------------------
     | Should the code generator auto manage resources mappers?
     |--------------------------------------------------------------------------
+    |
      */
     'auto_manage_resource_mapper' => true,
 
     /*
     |--------------------------------------------------------------------------
-    | Key phrases that are will be used to determine if a field name should be used for header.
+    | Key phrases that are will be used to determine if a field name should be
+    | used for header.
     |--------------------------------------------------------------------------
+    |
      */
     'common_header_patterns' => [
         'title',
@@ -183,6 +240,7 @@ return [
     | [% field_name_title_upper %]       <=> "OWNER NAME"
     | [% field_name_plural_variable %]   <=> "ownerNames"
     | [% field_name_singular_variable %] <=> "ownerName"
+    |
      */
     'placeholder_by_html_type' => [
         'text' => 'Enter [% field_name %] here...',
@@ -356,6 +414,7 @@ return [
     |--------------------------------------------------------------------------
     | Plural vs singular naming conventions.
     |--------------------------------------------------------------------------
+    |
      */
     'plural_names_for' => [
         'controller-name' => true,
@@ -370,6 +429,7 @@ return [
     |--------------------------------------------------------------------------
     | A string to postfix the controller name with.
     |--------------------------------------------------------------------------
+    |
     | If you don't like to post fix the controller with "Controller" you can
     | set this value to an empty string. Or, you can set it to any other value.
     |
@@ -380,6 +440,7 @@ return [
     |--------------------------------------------------------------------------
     | A string to postfix the form-request name with.
     |--------------------------------------------------------------------------
+    |
     | If you don't like to post fix the form-request with "FormRequest" you can
     | set this value to an empty string. Or, you can set it to any other value.
     |
@@ -388,17 +449,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Defining non-english language plural and singulars
+    | Defining non-english or irregular plurals
     |--------------------------------------------------------------------------
     |
     | The code-generator heavily uses Laravel helpers "str_plural()"
     | and "str_singular()" to generate readable code to make your code spectacular.
-    | The problem is the both of these functions support only English language.
-    | If you are using a language other than english, you can define a word with
-    | its plural version to help the generator keep your code readable.
+    | The problem is the both of these functions support only English language
+    | which covers most cases. If you are using a language other than english,
+    | you can define a word with its plural-form to help the generator keep
+    | your code readable.
     |
-    | irregular_plurals must be an array where the key represents the singular
-    | version of the word, and the value represents the plural version.
+    | irregular_plurals must be an array where the key represents the singular-
+    | form of the word, and the value represents the plural-form.
     |
      */
     'irregular_plurals' => [
@@ -432,7 +494,7 @@ return [
     | [% model_name_singular_variable %] <=> "assetCategory"
     |
     | ~Example
-    | Lets say we need to add a new template in our views that reads the following
+    | Let's say we need to add a new template in our views that reads the following
     | "Creating resources for ... was a breeze!"
     | The following entry can be added to the below array
     |
@@ -441,7 +503,6 @@ return [
     |        'template' => 'custom_template_example',
     |    ],
     | Finally, add [% custom_template_example %] in the view where you want it to appear!
-    |
     |
      */
     'generic_view_labels' => [
@@ -516,6 +577,7 @@ return [
     | A list of Eloquent methods can be found on this link https://laravel.com/docs/5.3/migrations#creating-columns
     | The only time you really have to add more items here is if you don't like using the existing data-value that are used
     | with the code generator.
+    |
      */
     'eloquent_type_to_method' => [
         'char' => 'char',
@@ -574,6 +636,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | This is the mapping used to convert database-column into html field
+    |
      */
     'eloquent_type_to_html_type' => [
         'char' => 'text',

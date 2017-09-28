@@ -28,6 +28,18 @@ class Helpers
     }
 
     /**
+     * Converts array to a pretty JSON string.
+     *
+     * @param array $object
+     *
+     * @return string
+     */
+    public static function prettifyJson(array $object)
+    {
+        return json_encode($object, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
      * Makes a form request class name of the givin model's name
      *
      * @param string $modelName
@@ -355,7 +367,7 @@ class Helpers
      */
     public static function getPathWithSlash($path)
     {
-        return self::postFixWith($path, '/');
+        return self::postFixWith($path, DIRECTORY_SEPARATOR);
     }
 
     /**

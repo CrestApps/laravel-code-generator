@@ -18,20 +18,20 @@ class CodeGeneratorServiceProvider extends ServiceProvider
 
         $this->publishes([
             $dir . 'config/codegenerator.php' => config_path('codegenerator.php'),
-            $dir . 'templates/default' => base_path('resources/codegenerator-templates/default'),
+            $dir . 'templates/default' => base_path('resources/laravel-code-generator/templates/default'),
         ], 'default');
 
-        if (File::exists($customFile = $dir . 'config/codegenerator_custom.php')) {
+        if (!File::exists(config_path('codegenerator_custom.php'))) {
             $this->publishes([
-                $customFile => config_path('codegenerator_custom.php'),
-            ], 'default-custom');
+                $dir . 'config/codegenerator_custom.php' => config_path('codegenerator_custom.php'),
+            ], 'default');
         }
 
         $this->publishes([
-            $dir . 'templates/default-collective' => base_path('resources/codegenerator-templates/default-collective'),
+            $dir . 'templates/default-collective' => base_path('resources/laravel-code-generator/templates/default-collective'),
         ], 'default-collective');
 
-        $this->createDirectory(base_path('resources/codegenerator-files'));
+        $this->createDirectory(base_path('resources/laravel-code-generator/sources'));
     }
 
     /**
@@ -62,7 +62,11 @@ class CodeGeneratorServiceProvider extends ServiceProvider
             'CrestApps\CodeGenerator\Commands\ResourceFileCreateCommand',
             'CrestApps\CodeGenerator\Commands\ResourceFileDeleteCommand',
             'CrestApps\CodeGenerator\Commands\ResourceFileAppendCommand',
-            'CrestApps\CodeGenerator\Commands\ResourceFileReduceCommand'
+            'CrestApps\CodeGenerator\Commands\ResourceFileReduceCommand',
+            'CrestApps\CodeGenerator\Commands\Migrations\MigrateAllCommand',
+            'CrestApps\CodeGenerator\Commands\Migrations\RefreshAllCommand',
+            'CrestApps\CodeGenerator\Commands\Migrations\ResetAllCommand',
+            'CrestApps\CodeGenerator\Commands\Migrations\RollbackAllCommand'
         );
     }
 
