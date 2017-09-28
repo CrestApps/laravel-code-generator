@@ -70,15 +70,15 @@ class ResourceFileReduceCommand extends ResourceFileCommandBase
         $this->putContentInFile($file, Helpers::prettifyJson($resource->toArray()));
         $filename = basename($file);
 
-        if ($totalReducedFields) {
+        if (!empty($input->fieldNames)) {
             $this->info($totalReducedFields . ' field(s) where removed from the "' . $filename . '" file.');
         }
 
-        if ($totalReducedRelations) {
+        if (!empty($input->relations)) {
             $this->info($totalReducedRelations . ' relation(s) where removed from the "' . $filename . '" file.');
         }
 
-        if ($totalReducedIndexes) {
+        if (!empty($input->indexes)) {
             $this->info($totalReducedIndexes . ' index(es) where removed from the "' . $filename . '" file.');
         }
     }

@@ -64,15 +64,15 @@ class ResourceFileAppendCommand extends ResourceFileCreatorCommandBase
 
         $fileName = basename($file);
 
-        if ($totalAddedFields) {
+        if (!empty($input->fieldNames)) {
             $this->info($totalAddedFields . ' new field(s) where appended to the "' . $fileName . '" file.');
         }
 
-        if ($totalAddedRelations) {
+        if (!empty($input->relations)) {
             $this->info($totalAddedRelations . ' new relation(s) where appended to the "' . $fileName . '" file.');
         }
 
-        if ($totalAddedIndexes) {
+        if (!empty($input->indexes)) {
             $this->info($totalAddedIndexes . ' new index(es) where appended to the "' . $fileName . '" file.');
         }
     }
