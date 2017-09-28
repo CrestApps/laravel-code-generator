@@ -24,19 +24,6 @@ class StatusAllCommand extends MigrationCommandBase
     protected $description = 'Show the status of each migration from all folders';
 
     /**
-     * Create a new migration rollback command instance.
-     *
-     * @param  Illuminate\Database\Migrations\Migrator $migrator
-     * @return void
-     */
-    public function __construct(Migrator $migrator)
-    {
-        parent::__construct();
-
-        $this->migrator = $migrator;
-    }
-
-    /**
      * Execute the console command.
      *
      * @return void

@@ -99,6 +99,7 @@ class CreateMigrationCommand extends MigrationCommandBase
                 throw new Exception('The migration before current was not found!');
             }
             $migration->setResource($resource);
+            $migration->path = $this->getMigrationFullName($migration->name, $input->tableName); // make sure we use the same path
             $tracker->updateMigration($capsule->tableName, $migration);
 
             $this->makeAlterMigration($input, $migration, $capsule->getDelta($resource, $beforeLastMigration->resource));
@@ -509,7 +510,8 @@ class CreateMigrationCommand extends MigrationCommandBase
             }
 
             if ($index->hasMultipleColumns()) {
-                $indexColumn = sprintf('[%s]', implode(',', Helpers::wrapItems($index->getColumns())));
+                $columns = Helpers::wrapItems($index->getColumns());
+                $indexColumn = sprintf('[%s]', implode(',', $columns));
             } else {
                 $indexColumn = sprintf("'%s'", $index->getFirstColumn());
             }

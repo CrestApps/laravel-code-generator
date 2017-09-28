@@ -3,6 +3,7 @@
 namespace CrestApps\CodeGenerator\Models;
 
 use CrestApps\CodeGenerator\Models\Resource;
+use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
 use Exception;
 
@@ -45,6 +46,13 @@ class MigrationCapsule implements JsonWriter
     public $isVirtual = false;
 
     /**
+     * Is the migration organized?
+     *
+     * @var bool
+     */
+    public $isOrganized = false;
+
+    /**
      * The resources associated with the migration
      *
      * @var CrestApps\CodeGenerator\Models\Resource
@@ -80,6 +88,12 @@ class MigrationCapsule implements JsonWriter
             $this->isVirtual = (bool) $properties['is-virtual'];
         }
 
+        $this->isOrganized = Config::organizeMigrations();
+
+        if (isset($properties['is-organized'])) {
+            $this->isOrganized = (bool) $properties['is-organized'];
+        }
+
         if (isset($properties['class-name'])) {
             $this->className = $properties['class-name'];
         }
@@ -108,6 +122,7 @@ class MigrationCapsule implements JsonWriter
             'path' => $this->path,
             'is-create' => $this->isCreate,
             'is-virtual' => $this->isVirtual,
+            'is-organized' => $this->isOrganized,
             'resource' => ($this->resource ?: new Resource())->toArray(),
         ];
     }

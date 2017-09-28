@@ -66,7 +66,8 @@ class CodeGeneratorServiceProvider extends ServiceProvider
             'CrestApps\CodeGenerator\Commands\Migrations\MigrateAllCommand',
             'CrestApps\CodeGenerator\Commands\Migrations\RefreshAllCommand',
             'CrestApps\CodeGenerator\Commands\Migrations\ResetAllCommand',
-            'CrestApps\CodeGenerator\Commands\Migrations\RollbackAllCommand'
+            'CrestApps\CodeGenerator\Commands\Migrations\RollbackAllCommand',
+            'CrestApps\CodeGenerator\Commands\Migrations\StatusAllCommand'
         );
     }
 

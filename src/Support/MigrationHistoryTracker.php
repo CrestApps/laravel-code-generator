@@ -36,7 +36,11 @@ class MigrationHistoryTracker
         $file = base_path(Config::getSystemPath('migration_tracker.json'));
 
         if (!File::exists($file)) {
-            File::makeDirectory(dirname($file));
+
+            if (!File::exists($path = dirname($file))) {
+                File::makeDirectory($path);
+            }
+
             File::put($file, '[]');
         }
 
