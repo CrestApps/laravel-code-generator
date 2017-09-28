@@ -58,6 +58,66 @@ class Resource implements JsonWriter
     }
 
     /**
+     * Checks if the resources has fields
+     *
+     * @return int
+     */
+    public function hasFields()
+    {
+        return $this->totalFields() > 0;
+    }
+
+    /**
+     * Checks if the resources has relations
+     *
+     * @return int
+     */
+    public function hasRelations()
+    {
+        return $this->totalRelations() > 0;
+    }
+
+    /**
+     * Checks if the resources has indexes
+     *
+     * @return int
+     */
+    public function hasIndexes()
+    {
+        return $this->totalIndexes() > 0;
+    }
+
+    /**
+     * Get the total available fields in he fields collection.
+     *
+     * @return int
+     */
+    public function totalFields()
+    {
+        return count($this->fields);
+    }
+
+    /**
+     * Get the total available relations in he relation collection.
+     *
+     * @return int
+     */
+    public function totalRelations()
+    {
+        return count($this->fields);
+    }
+
+    /**
+     * Get the total available indexes in he indexes collection.
+     *
+     * @return int
+     */
+    public function totalIndexes()
+    {
+        return count($this->fields);
+    }
+
+    /**
      * Converts the object into a json-ready array
      *
      * @return array

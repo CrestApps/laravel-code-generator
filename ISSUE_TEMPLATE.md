@@ -8,5 +8,5 @@
 ### Steps/Commands To Reproduce:
 
 
-### Content Of The Fields-File:
+### Content Of The Resource-File:
 

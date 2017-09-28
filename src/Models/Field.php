@@ -31,6 +31,13 @@ class Field implements JsonWriter
     ];
 
     /**
+     * List of the data types that are not changable via migrations
+     *
+     * @var array
+     */
+    protected $notChangableTypes = ['char', 'double', 'enum', 'mediumInteger', 'timestamp', 'tinyInteger', 'ipAddress', 'json', 'jsonb', 'macAddress', 'mediumIncrements', 'morphs', 'nullableMorphs', 'nullableTimestamps', 'softDeletes', 'timeTz', 'timestampTz', 'timestamps', 'timestampsTz', 'unsignedMediumInteger', 'unsignedTinyInteger', 'uuid'];
+
+    /**
      * The name of the field
      *
      * @var string
@@ -667,6 +674,16 @@ class Field implements JsonWriter
     public function isCheckbox()
     {
         return $this->htmlType == 'checkbox';
+    }
+
+    /**
+     * Check if the Eloquent data method is changable to the giving type
+     *
+     * @var bool
+     */
+    public function isDataChangeAllowed($type)
+    {
+        return in_array($type, $this->notChangableTypes);
     }
 
     /**

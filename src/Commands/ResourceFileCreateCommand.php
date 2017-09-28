@@ -4,9 +4,9 @@ namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Commands\Bases\ResourceFileCreatorCommandBase;
 use CrestApps\CodeGenerator\Models\Resource;
+use CrestApps\CodeGenerator\Models\ResourceMapper;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\ResourceMapper;
 
 class ResourceFileCreateCommand extends ResourceFileCreatorCommandBase
 {

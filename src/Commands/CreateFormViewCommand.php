@@ -3,7 +3,7 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Commands\Bases\ViewsCommandBase;
-use CrestApps\CodeGenerator\Support\Resource;
+use CrestApps\CodeGenerator\Models\Resource;
 
 class CreateFormViewCommand extends ViewsCommandBase
 {

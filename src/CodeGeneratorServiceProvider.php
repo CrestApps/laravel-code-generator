@@ -71,17 +71,16 @@ class CodeGeneratorServiceProvider extends ServiceProvider
     }
 
     /**
-     * create a directory if one does not already exists
+     * Create a directory if one does not already exists
      *
      * @param string $path
-     * @param string $mode
      *
      * @return void
      */
-    protected function createDirectory($path, $mode = '0777')
+    protected function createDirectory($path)
     {
-        if (!file_exists($path)) {
-            mkdir($path, $mode);
+        if (!File::exists($path)) {
+            File::makeDirectory($path, 0777, true);
         }
     }
 }

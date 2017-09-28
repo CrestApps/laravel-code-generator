@@ -21,8 +21,6 @@ class CreateMigrationCommand extends MigrationCommandBase
 {
     use CommonCommand;
 
-    protected $notChnagableTypes = ['char', 'double', 'enum', 'mediumInteger', 'timestamp', 'tinyInteger', 'ipAddress', 'json',
-        'jsonb', 'macAddress', 'mediumIncrements', 'morphs', 'nullableMorphs', 'nullableTimestamps', 'softDeletes', 'timeTz', 'timestampTz', 'timestamps', 'timestampsTz', 'unsignedMediumInteger', 'unsignedTinyInteger', 'uuid'];
     /**
      * The name and signature of the console command.
      *
@@ -120,7 +118,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     {
         $resource = Resource::fromFile($resourceFile, 'migration');
 
-        if (count($resource->fields) == 0 && count($resource->indexes)) {
+        if (!$resource->hasFields() && !$resource->hasIndexes()) {
             throw new Exception('You must provide at least one field or index to generate the migration');
         }
 
@@ -311,10 +309,6 @@ class CreateMigrationCommand extends MigrationCommandBase
                 $this->addRenameColumn($properties, $fieldsWithChange->fromField->name, $fieldsWithChange->toField->name)
                     ->addFieldPropertyClousure($properties);
             } else {
-
-                if (in_array($field->getEloquentDataMethod(), $this->notChnagableTypes)) {
-                    throw new Exception('The type' . $field->getEloquentDataMethod() . ' cannot be changed using the change() method!');
-                }
 
                 $this->addFieldType($properties, $fieldsWithChange->fromField)
                     ->addFieldComment($properties, $fieldsWithChange->fromField)
@@ -768,8 +762,11 @@ class CreateMigrationCommand extends MigrationCommandBase
                 $this->addRenameColumn($properties, $fieldsWithChange->fromField->name, $fieldsWithChange->toField->name)
                     ->addFieldPropertyClousure($properties);
             } else {
-                if (in_array($field->getEloquentDataMethod(), $this->notChnagableTypes)) {
-                    throw new Exception('The type' . $field->getEloquentDataMethod() . ' cannot be changed using the change() method!');
+
+                $newType = $fieldsWithChange->toField->getEloquentDataMethod();
+
+                if (!$fieldsWithChange->toField->isDataChangeAllowed($newType)) {
+                    throw new Exception('The type of the field "' . $fieldsWithChange->fromField->name . '" cannot be changed from "' . $fieldsWithChange->fromField->getEloquentDataMethod() . '" to "' . $newType . '" cannot be changed using Eloquent!');
                 }
 
                 $this->addFieldType($properties, $fieldsWithChange->toField)

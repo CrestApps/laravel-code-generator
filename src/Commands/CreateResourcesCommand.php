@@ -2,9 +2,9 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
+use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Models\ResourceInput;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Support\Resource;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use Exception;
 use Illuminate\Console\Command;
