@@ -28,7 +28,7 @@ class StatusAllCommand extends MigrationCommandBase
      *
      * @return void
      */
-    public function fire()
+    public function handle()
     {
         $this->migrator->setConnection($this->option('database'));
 

@@ -103,8 +103,6 @@ class CodeGeneratorServiceProvider extends ServiceProvider
      */
     protected function codeGeneratorBase($path = null)
     {
-        $base = base_path('resources/laravel-code-generator');
-
-        return Helpers::getPathWithSlash($base) . $path;
+        return base_path('resources/laravel-code-generator/') . $path;
     }
 }

@@ -34,7 +34,7 @@ class MigrateAllCommand extends MigrationCommandBase
      *
      * @return void
      */
-    public function fire()
+    public function handle()
     {
         if (!$this->confirmToProceed()) {
             return;

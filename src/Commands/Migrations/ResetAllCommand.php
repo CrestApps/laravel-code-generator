@@ -30,7 +30,7 @@ class ResetAllCommand extends MigrationCommandBase
      *
      * @return void
      */
-    public function fire()
+    public function handle()
     {
         if (!$this->confirmToProceed()) {
             return;
