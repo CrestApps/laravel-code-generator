@@ -243,7 +243,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function getAffirmMethod($withFormRequest, array $fields, $requestNamespace)
     {
-        if ($withFormRequest || $this->isLaravel55OrUp()) {
+        if ($withFormRequest || Helpers::isNewerThanOrEqualTo('5.5')) {
             return '';
         }
 
@@ -264,7 +264,7 @@ class CreateControllerCommand extends ControllerCommandBase
     {
         $stubName = 'controller-getdata-method';
 
-        if ($this->isLaravel55OrUp()) {
+        if (Helpers::isNewerThanOrEqualTo('5.5')) {
             $stubName .= '-5.5';
         }
 
@@ -296,7 +296,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function getCallAffirm($withFormRequest)
     {
-        if ($withFormRequest || $this->isLaravel55OrUp()) {
+        if ($withFormRequest || Helpers::isNewerThanOrEqualTo('5.5')) {
             return '';
         }
 

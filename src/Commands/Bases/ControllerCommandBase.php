@@ -300,7 +300,7 @@ EOF;
     {
         if (!$withFormRequest && Config::createMoveFileMethod() && $this->containsfile($fields)) {
             $stubName = 'controller-upload-method';
-            if (Helpers::isNewerThan('5.2.999999999')) {
+            if (Helpers::isNewerThanOrEqualTo()) {
                 $stubName .= '-5.3';
             }
 
@@ -441,13 +441,4 @@ EOF;
         return $this;
     }
 
-    /**
-     * Checks if current Laravel's Version is >= 5.5
-     *
-     * @return string
-     */
-    protected function isLaravel55OrUp()
-    {
-        return Helpers::isNewerThan('5.4.9999999999');
-    }
 }

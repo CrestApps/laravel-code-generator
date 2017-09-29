@@ -969,7 +969,7 @@ class FieldTransformer
             $field->validationRules = is_array($properties['validation']) ? $properties['validation'] : Helpers::removeEmptyItems(explode('|', $properties['validation']));
         }
 
-        if (Helpers::isNewerThan('5.2') && $field->isNullable && !in_array('nullable', $field->validationRules)) {
+        if (Helpers::isNewerThanOrEqualTo('5.2') && $field->isNullable && !in_array('nullable', $field->validationRules)) {
             $field->validationRules[] = 'nullable';
         }
 

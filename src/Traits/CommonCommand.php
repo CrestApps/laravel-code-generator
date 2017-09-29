@@ -93,7 +93,7 @@ trait CommonCommand
      */
     protected function getRoutesFileName()
     {
-        if (Helpers::isNewerThan()) {
+        if (Helpers::isNewerThanOrEqualTo()) {
             return base_path('routes/web.php');
         }
 
@@ -107,7 +107,7 @@ trait CommonCommand
      */
     public function arguments()
     {
-        if (Helpers::isNewerThan()) {
+        if (Helpers::isNewerThanOrEqualTo()) {
             return parent::arguments();
         }
 
@@ -192,7 +192,7 @@ trait CommonCommand
      */
     public function options()
     {
-        if (Helpers::isNewerThan()) {
+        if (Helpers::isNewerThanOrEqualTo()) {
             return parent::options();
         }
 

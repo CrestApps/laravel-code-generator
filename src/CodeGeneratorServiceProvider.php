@@ -2,6 +2,7 @@
 
 namespace CrestApps\CodeGenerator;
 
+use CrestApps\CodeGenerator\Support\Helpers;
 use File;
 use Illuminate\Support\ServiceProvider;
 
@@ -18,7 +19,7 @@ class CodeGeneratorServiceProvider extends ServiceProvider
 
         $this->publishes([
             $dir . 'config/codegenerator.php' => config_path('codegenerator.php'),
-            $dir . 'templates/default' => base_path('resources/laravel-code-generator/templates/default'),
+            $dir . 'templates/default' => $this->codeGeneratorBase('templates/default'),
         ], 'default');
 
         if (!File::exists(config_path('codegenerator_custom.php'))) {
@@ -28,10 +29,10 @@ class CodeGeneratorServiceProvider extends ServiceProvider
         }
 
         $this->publishes([
-            $dir . 'templates/default-collective' => base_path('resources/laravel-code-generator/templates/default-collective'),
+            $dir . 'templates/default-collective' => $this->codeGeneratorBase('templates/default-collective'),
         ], 'default-collective');
 
-        $this->createDirectory(base_path('resources/laravel-code-generator/sources'));
+        $this->createDirectory($this->codeGeneratorBase('sources'));
     }
 
     /**
@@ -41,7 +42,7 @@ class CodeGeneratorServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->commands(
+        $commands = [
             'CrestApps\CodeGenerator\Commands\CreateControllerCommand',
             'CrestApps\CodeGenerator\Commands\CreateModelCommand',
             'CrestApps\CodeGenerator\Commands\CreateIndexViewCommand',
@@ -63,12 +64,20 @@ class CodeGeneratorServiceProvider extends ServiceProvider
             'CrestApps\CodeGenerator\Commands\ResourceFileDeleteCommand',
             'CrestApps\CodeGenerator\Commands\ResourceFileAppendCommand',
             'CrestApps\CodeGenerator\Commands\ResourceFileReduceCommand',
-            'CrestApps\CodeGenerator\Commands\Migrations\MigrateAllCommand',
-            'CrestApps\CodeGenerator\Commands\Migrations\RefreshAllCommand',
-            'CrestApps\CodeGenerator\Commands\Migrations\ResetAllCommand',
-            'CrestApps\CodeGenerator\Commands\Migrations\RollbackAllCommand',
-            'CrestApps\CodeGenerator\Commands\Migrations\StatusAllCommand'
-        );
+        ];
+
+        if (Helpers::isNewerThanOrEqualTo()) {
+
+            $commands = array_merge($commands, [
+                'CrestApps\CodeGenerator\Commands\Migrations\MigrateAllCommand',
+                'CrestApps\CodeGenerator\Commands\Migrations\RefreshAllCommand',
+                'CrestApps\CodeGenerator\Commands\Migrations\ResetAllCommand',
+                'CrestApps\CodeGenerator\Commands\Migrations\RollbackAllCommand',
+                'CrestApps\CodeGenerator\Commands\Migrations\StatusAllCommand',
+            ]);
+        }
+
+        $this->commands($commands);
     }
 
     /**
@@ -83,5 +92,19 @@ class CodeGeneratorServiceProvider extends ServiceProvider
         if (!File::exists($path)) {
             File::makeDirectory($path, 0777, true);
         }
+    }
+
+    /**
+     * Get the laravel-code-generator base path
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    protected function codeGeneratorBase($path = null)
+    {
+        $base = base_path('resources/laravel-code-generator');
+
+        return Helpers::getPathWithSlash($base) . $path;
     }
 }

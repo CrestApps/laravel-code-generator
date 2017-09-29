@@ -119,7 +119,7 @@ class CreateLanguageCommand extends Command
      */
     protected function getTranslator()
     {
-        if (!Helpers::isNewerThan('5.3')) {
+        if (!Helpers::isNewerThanOrEqualTo()) {
             return CrestAppsTranslator::getTranslator();
         }
 

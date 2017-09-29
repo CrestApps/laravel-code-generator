@@ -117,14 +117,20 @@ class MigrationTrackerCapsule implements JsonWriter
     protected function getFieldsDelta(array $fieldsA, array $fieldsB)
     {
         $currentFields = Collect($fieldsB)->keyBy('name');
-        $currentFieldNames = $currentFields->keys();
+        $currentFieldNames = $currentFields->keys()->toArray();
 
         $requestedFields = Collect($fieldsA)->keyBy('name');
-        $requestedFieldNames = $requestedFields->keys();
+        $requestedFieldNames = $requestedFields->keys()->toArray();
 
         $updatedFields = $currentFields->whereIn('name', $requestedFieldNames)->all();
-        $addedFields = $requestedFields->whereNotIn('name', $currentFieldNames)->all();
-        $deletedFields = $currentFields->whereNotIn('name', $requestedFieldNames)->all();
+
+        $addedFields = $requestedFields->reject(function ($requestedField) use ($currentFieldNames) {
+            return in_array($requestedField->name, $currentFieldNames);
+        })->all();
+
+        $deletedFields = $currentFields->reject(function ($currentFields) use ($requestedFieldNames) {
+            return in_array($currentFields->name, $requestedFieldNames);
+        })->all();
 
         $fieldChanges = [];
 
@@ -160,11 +166,14 @@ class MigrationTrackerCapsule implements JsonWriter
         $requestedIndexNames = $requestedIndexes->pluck('name');
 
         $updatedIndexes = $currentIndexes->whereIn('name', $requestedIndexNames)->all();
-        $addedIndexes = $requestedIndexes->whereNotIn('name', $currentIndexNames)
-            ->union($requestedIndexes->whereStrict('name', null))
-            ->all();
 
-        $deletedIndexes = $currentIndexes->whereNotIn('name', $requestedIndexNames)->all();
+        $addedIndexes = $requestedIndexes->reject(function ($requestedIndex) use ($currentIndexNames) {
+            return !is_null($requestedIndex->name) && in_array($requestedIndex->name, $currentIndexNames);
+        })->all();
+
+        $deletedIndexes = $currentIndexes->reject(function ($currentIndex) use ($requestedIndexNames) {
+            return in_array($currentIndex->name, $requestedIndexNames);
+        })->all();
 
         $indexChanges = [];
 

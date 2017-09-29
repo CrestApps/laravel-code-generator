@@ -169,9 +169,9 @@ class Helpers
      *
      * @return bool
      */
-    public static function isNewerThan($version = '5.3')
+    public static function isNewerThanOrEqualTo($version = '5.3')
     {
-        return version_compare(App::VERSION(), $version) > 0;
+        return version_compare(App::VERSION(), $version) >= 0;
     }
 
     /**
