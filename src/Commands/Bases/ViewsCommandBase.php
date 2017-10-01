@@ -158,6 +158,32 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
+     * Replace the create_form_id
+     *
+     * @param string $stub
+     * @param string $name
+     *
+     * @return $this
+     */
+    protected function replaceFormId(&$stub, $name)
+    {
+        return $this->replaceTemplate('form_id', $name, $stub);
+    }
+
+    /**
+     * Replace the create_form_name
+     *
+     * @param string $stub
+     * @param string $name
+     *
+     * @return $this
+     */
+    protected function replaceFormName(&$stub, $name)
+    {
+        return $this->replaceTemplate('form_name', $name, $stub);
+    }
+
+    /**
      * Get the view's name of a giving file.
      *
      * @param string $fillname

@@ -59,8 +59,34 @@ class CreateEditViewCommand extends ViewsCommandBase
                 ->replaceFileUpload($stub, $resources->fields)
                 ->replacePrimaryKey($stub, $this->getPrimaryKeyName($resources->fields))
                 ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($resources->fields, $input->modelName))
+                ->replaceFormId($stub, $this->getFormId($input->modelName))
+                ->replaceFormName($stub, $this->getFormName($input->modelName))
                 ->createFile($destenationFile, $stub)
                 ->info('Edit view was crafted successfully.');
         }
+    }
+
+    /**
+     * Gets te create form name
+     *
+     * @param string $modelName
+     *
+     * @return string
+     */
+    protected function getFormName($modelName)
+    {
+        return sprintf('edit_%s_form', snake_case($modelName));
+    }
+
+    /**
+     * Gets te create form id
+     *
+     * @param string $modelName
+     *
+     * @return string
+     */
+    protected function getFormId($modelName)
+    {
+        return sprintf('edit_%s_form', snake_case($modelName));
     }
 }

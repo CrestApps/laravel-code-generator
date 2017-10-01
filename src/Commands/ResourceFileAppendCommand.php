@@ -3,6 +3,7 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Commands\Bases\ResourceFileCreatorCommandBase;
+use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Models\Index;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Helpers;
@@ -121,7 +122,7 @@ class ResourceFileAppendCommand extends ResourceFileCreatorCommandBase
         }
         $mergeRelations = 0;
         foreach ($input->relations as $relation) {
-            $newRelation = $this->getRelation($relation);
+            $newRelation = ForeignRelationship::fromString($relation);
 
             if (is_null($newRelation)) {
                 continue;
@@ -157,7 +158,7 @@ class ResourceFileAppendCommand extends ResourceFileCreatorCommandBase
         }
         $mergeIndexes = 0;
         foreach ($input->indexes as $index) {
-            $newIndex = $this->getIndex($index);
+            $newIndex = Index::fromString($index);
             if (!empty($newIndex->getName()) && in_array($newIndex->getName(), $existingNames)) {
                 $this->warn('The index "' . $newIndex->getName() . '" already exists in the file.');
                 continue;

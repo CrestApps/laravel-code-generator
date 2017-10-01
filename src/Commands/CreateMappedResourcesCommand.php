@@ -81,16 +81,12 @@ class CreateMappedResourcesCommand extends Command
                     '--form-request-directory' => $validInput->formRequestDirectory,
                     '--with-auth' => $validInput->withAuth,
                     '--table-name' => $validInput->table,
-                    '--fillable' => $validInput->fillable,
                     '--primary-key' => $validInput->primaryKey,
                     '--with-soft-delete' => $validInput->withSoftDelete,
                     '--without-timestamps' => $validInput->withoutTimeStamps,
-                    '--relationships' => $validInput->relationships,
                     '--with-migration' => $validInput->withMigration,
                     '--migration-class-name' => $validInput->migrationClass,
                     '--connection-name' => $validInput->connectionName,
-                    '--indexes' => $validInput->indexes,
-                    '--foreign-keys' => $validInput->foreignKeys,
                     '--engine-name' => $validInput->engineName,
                     '--layout-name' => $validInput->layoutName,
                     '--template-name' => $validInput->template,
@@ -144,15 +140,11 @@ class CreateMappedResourcesCommand extends Command
             $input->withMigration = $this->getValue($object, 'with-migration', $input->withMigration);
             $input->force = $this->getValue($object, 'force', $input->force);
             $input->modelDirectory = $this->getValue($object, 'model-directory', $input->modelDirectory);
-            $input->fillable = $this->getValue($object, 'fillable', $input->fillable);
             $input->primaryKey = $this->getValue($object, 'primary-key', $input->primaryKey);
-            $input->relationships = $this->getValue($object, 'relationships', $input->relationships);
             $input->withSoftDelete = $this->getValue($object, 'with-soft-delete', $input->withSoftDelete);
             $input->withoutTimeStamps = $this->getValue($object, 'without-timestamps', $input->withoutTimeStamps);
             $input->migrationClass = $this->getValue($object, 'migration-class-name', $input->migrationClass);
             $input->connectionName = $this->getValue($object, 'connection-name', $input->connectionName);
-            $input->indexes = $this->getValue($object, 'indexes', $input->indexes);
-            $input->foreignKeys = $this->getValue($object, 'foreign-keys', $input->foreignKeys);
             $input->engineName = $this->getValue($object, 'engine-name', $input->engineName);
             $input->template = $this->getValue($object, 'template-name', $input->template);
             $input->layoutName = $this->getValue($object, 'layout-name', $input->layoutName);
@@ -161,9 +153,6 @@ class CreateMappedResourcesCommand extends Command
             $input->withAuth = $this->getValue($object, 'with-auth', $input->withAuth);
             $input->formRequestDirectory = $this->getValue($object, 'form-request-directory', $input->formRequestDirectory);
 
-            $fields = $this->getFields($input->fields, $input->languageFileName, $input->resourceFile);
-
-            $this->validateField($fields);
             $validInputs[] = $input;
         }
 

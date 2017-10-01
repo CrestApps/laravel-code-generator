@@ -33,6 +33,8 @@
             {!! Form::open([
                 'route' => '[% store_route_name %]',
                 'class' => 'form-horizontal',
+                'name' => '[% form_name %]',
+                'id' => '[% form_id %]',
                 [% upload_files %]
                 ])
             !!}

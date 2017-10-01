@@ -59,8 +59,34 @@ class CreateCreateViewCommand extends ViewsCommandBase
                 ->replaceCommonTemplates($stub, $input, $resources->fields)
                 ->replaceFileUpload($stub, $resources->fields)
                 ->replaceModelHeader($stub, $headers)
+                ->replaceFormId($stub, $this->getFormId($input->modelName))
+                ->replaceFormName($stub, $this->getFormName($input->modelName))
                 ->createFile($destenationFile, $stub)
                 ->info('Create view was crafted successfully.');
         }
+    }
+
+    /**
+     * Gets te create form name
+     *
+     * @param string $modelName
+     *
+     * @return string
+     */
+    protected function getFormName($modelName)
+    {
+        return sprintf('create_%s_form', snake_case($modelName));
+    }
+
+    /**
+     * Gets te create form id
+     *
+     * @param string $modelName
+     *
+     * @return string
+     */
+    protected function getFormId($modelName)
+    {
+        return sprintf('create_%s_form', snake_case($modelName));
     }
 }

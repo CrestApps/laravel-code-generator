@@ -65,6 +65,24 @@ trait CommonCommand
     }
 
     /**
+     * Replaces a template variable in the giving subject.
+     *
+     * @param string $search
+     * @param string $replace
+     * @param string $subject
+     *
+     * @return $this
+     */
+    protected function replaceTemplate($search, $replace, &$subject)
+    {
+        $template = $this->getTemplateVariable($search);
+
+        $subject = str_replace($template, $replace, $subject);
+
+        return $this;
+    }
+
+    /**
      * convert a key to a template variable.
      *
      * @return string

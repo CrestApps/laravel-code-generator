@@ -3,6 +3,8 @@
 namespace CrestApps\CodeGenerator\Commands;
 
 use CrestApps\CodeGenerator\Commands\Bases\ResourceFileCreatorCommandBase;
+use CrestApps\CodeGenerator\Models\ForeignRelationship;
+use CrestApps\CodeGenerator\Models\Index;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
@@ -79,7 +81,7 @@ class ResourceFileCreateCommand extends ResourceFileCreatorCommandBase
         $existingNames = [];
         $finalRelations = [];
         foreach ($relations as $relation) {
-            $newRelation = $this->getRelation($relation);
+            $newRelation = ForeignRelationship::fromString($relation);
             if (is_null($newRelation)) {
                 continue;
             }
@@ -107,7 +109,7 @@ class ResourceFileCreateCommand extends ResourceFileCreatorCommandBase
         $existingNames = [];
         $finalIndexes = [];
         foreach ($indexes as $index) {
-            $newIndex = $this->getIndex($index);
+            $newIndex = Index::fromString($index);
             if (!empty($newIndex->getName()) && in_array($newIndex->getName(), $existingNames)) {
                 continue;
             }

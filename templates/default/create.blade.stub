@@ -28,7 +28,7 @@
                 </ul>
             @endif
 
-            <form method="POST" action="{{ route('[% store_route_name %]') }}" accept-charset="UTF-8" class="form-horizontal"[% upload_files %]>
+            <form method="POST" action="{{ route('[% store_route_name %]') }}" accept-charset="UTF-8" id="[% form_id %]" name="[% form_name %]" class="form-horizontal"[% upload_files %]>
             {{ csrf_field() }}
             @include ('[% form_view_name %]')
 

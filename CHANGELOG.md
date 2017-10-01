@@ -43,6 +43,8 @@
  - The content of the `schema-up.stub` changed to allow for alter operation.
  - The stub `schema-down.stub` was renamed to `migration-schema-down.stub`.
  - The stub `schema-up.stub` was renamed to `migration-schema-up.stub`.
+ - The `edit.blade.stub` has been modified
+ - The `create.blade.stub` has been modified
 
 ## Command Changes
 The following command have been renamed

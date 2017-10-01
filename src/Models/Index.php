@@ -248,4 +248,28 @@ class Index implements JsonWriter
 
         return $index;
     }
+
+    /**
+     * Gets an index from a raw string.
+     *
+     * @var CrestApps\CodeGenerator\Models\Index
+     */
+    public static function fromString($rawIndex)
+    {
+        // The expected string format is this
+        //name:some_name;columns:full_name|last_name;type:index,
+
+        $parts = explode(';', $rawIndex);
+
+        foreach ($parts as $part) {
+            if (!str_contains($part, ':')) {
+                continue;
+            }
+
+            list($key, $value) = explode(':', $part);
+            $collection[$key] = $value;
+        }
+
+        return self::get($collection);
+    }
 }

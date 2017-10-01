@@ -323,6 +323,21 @@ class ForeignRelationship implements JsonWriter
     }
 
     /**
+     * Gets the relation in an array format.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'name' => $this->name,
+            'type' => $this->getType(),
+            'params' => $this->parameters,
+            'field' => $this->getField(),
+        ];
+    }
+
+    /**
      * Get a foreign relationship from giving array
      *
      * @param array $options
@@ -346,17 +361,36 @@ class ForeignRelationship implements JsonWriter
     }
 
     /**
-     * Gets the relation in an array format.
+     * Get a foreign relationship from giving string
      *
-     * @return array
+     * @param string $rawRelation
+     *
+     * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
      */
-    public function toArray()
+    public static function fromString($rawRelation)
     {
-        return [
-            'name' => $this->name,
-            'type' => $this->getType(),
-            'params' => $this->parameters,
-            'field' => $this->getField(),
-        ];
+        //name:assets;type:hasMany;params:App\\Models\\Asset|category_id|id,
+        // expected string
+        //name|type|params|field
+        //assets|hasMany|App\\Models\\Asset,category_id,id|title
+
+        $parts = explode(';', $rawRelation);
+        $collection = [];
+        foreach ($parts as $part) {
+            if (!str_contains($part, ':')) {
+                continue;
+            }
+
+            list($key, $value) = explode(':', $part);
+
+            if ($key == 'params' || str_contains($value, '|')) {
+                $value = explode('|', $value);
+            }
+
+            $collection[$key] = $value;
+        }
+
+        return self::get($collection);
     }
+
 }
