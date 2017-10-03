@@ -39,8 +39,7 @@
                 ])
             !!}
 
-            @include ('[% form_view_name %]')
-
+            @include ('[% form_view_name %]', ['[% model_name_singular_variable %]' => null,])
             <div class="form-group">
                 <div class="col-md-offset-2 col-md-10">
                     {!! Form::submit([% add %], ['class' => 'btn btn-primary']) !!}

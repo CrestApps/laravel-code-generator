@@ -4,6 +4,7 @@ namespace CrestApps\CodeGenerator\HtmlGenerators;
 
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\Label;
+use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ValidationParser;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
@@ -275,8 +276,12 @@ abstract class HtmlGeneratorBase
 
         if ($field->hasForeignRelation() && $field->isOnView($view)) {
             $relation = $field->getForeignRelation();
-            $fieldAccessor = sprintf('$%s->%s->%s', $this->getSingularVariable($this->modelName), $relation->name, $relation->getField());
-            $fieldAccessor = sprintf(" isset(%s) ? %s : '' ", $fieldAccessor, $fieldAccessor);
+            if (Helpers::isNewerThanOrEqualTo('5.5')) {
+                $fieldAccessor = sprintf('optional($%s->%s)->%s', $this->getSingularVariable($this->modelName), $relation->name, $relation->getField());
+            } else {
+                $fieldAccessor = sprintf('$%s->%s->%s', $this->getSingularVariable($this->modelName), $relation->name, $relation->getField());
+                $fieldAccessor = sprintf(" isset(%s) ? %s : '' ", $fieldAccessor, $fieldAccessor);
+            }
         }
 
         if ($field->isBoolean()) {

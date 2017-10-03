@@ -90,7 +90,7 @@ return [
     | "date-format" property of the field.
     |
      */
-    'datetime_out_format' => 'm/d/Y H:i A',
+    'datetime_out_format' => 'j/n/Y g:i A',
 
     /*
     |--------------------------------------------------------------------------
@@ -363,7 +363,7 @@ return [
             'match' => ['*_date', 'date_*'],
             'set' => [
                 'data-type' => 'date',
-                'date-format' => 'm/d/Y',
+                'date-format' => 'j/n/Y',
             ],
         ],
         [
