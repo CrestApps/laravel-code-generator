@@ -209,9 +209,7 @@ class CreateFormRequestCommand extends ControllerCommandBase
      */
     protected function replaceNamespace(&$stub, $snippet)
     {
-        $stub = $this->strReplace('class_namespace', $snippet, $stub);
-
-        return $this;
+        return $this->replaceTemplate('class_namespace', $snippet, $stub);
     }
 
     /**
@@ -224,9 +222,7 @@ class CreateFormRequestCommand extends ControllerCommandBase
      */
     protected function replaceTypeHintedRequestName(&$stub, $code)
     {
-        $stub = $this->strReplace('type_hinted_request_name', $code, $stub);
-
-        return $this;
+        return $this->replaceTemplate('type_hinted_request_name', $code, $stub);
     }
 
     /**
@@ -239,9 +235,7 @@ class CreateFormRequestCommand extends ControllerCommandBase
      */
     protected function replaceAuthBoolean(&$stub, $code)
     {
-        $stub = $this->strReplace('autherized_boolean', $code, $stub);
-
-        return $this;
+        return $this->replaceTemplate('autherized_boolean', $code, $stub);
     }
 
     /**
@@ -254,9 +248,7 @@ class CreateFormRequestCommand extends ControllerCommandBase
      */
     protected function replaceRequestVariable(&$stub, $variable)
     {
-        $stub = $this->strReplace('request_variable', $variable, $stub);
-
-        return $this;
+        return $this->replaceTemplate('request_variable', $variable, $stub);
     }
 
     /**
@@ -269,9 +261,7 @@ class CreateFormRequestCommand extends ControllerCommandBase
      */
     protected function replaceFileMethod(&$stub, $method)
     {
-        $stub = $this->strReplace('upload_method', $method, $stub);
-
-        return $this;
+        return $this->replaceTemplate('upload_method', $method, $stub);
     }
 
     /**
@@ -284,9 +274,7 @@ class CreateFormRequestCommand extends ControllerCommandBase
      */
     protected function replaceFormRequestClass(&$stub, $name)
     {
-        $stub = $this->strReplace('form_request_class', $name, $stub);
-
-        return $this;
+        return $this->replaceTemplate('form_request_class', $name, $stub);
     }
 
     /**
@@ -299,8 +287,6 @@ class CreateFormRequestCommand extends ControllerCommandBase
      */
     protected function replaceClassNamespace(&$stub, $snippet)
     {
-        $stub = $this->strReplace('class_namespace', $snippet, $stub);
-
-        return $this;
+        return $this->replaceTemplate('class_namespace', $snippet, $stub);
     }
 }

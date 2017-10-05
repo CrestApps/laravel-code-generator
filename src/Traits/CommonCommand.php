@@ -75,9 +75,7 @@ trait CommonCommand
      */
     protected function replaceTemplate($search, $replace, &$subject)
     {
-        $template = $this->getTemplateVariable($search);
-
-        $subject = str_replace($template, $replace, $subject);
+        $subject = $this->strReplace($search, $replace, $subject);
 
         return $this;
     }
@@ -450,6 +448,7 @@ trait CommonCommand
 
         return $this;
     }
+
     /**
      * Determine the primary field in a giving array
      *

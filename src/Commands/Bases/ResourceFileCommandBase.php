@@ -23,6 +23,7 @@ class ResourceFileCommandBase extends Command
     {
         return Resource::fromJson($this->getFileContent($file), 'crestapps');
     }
+
     /**
      * Gets the destenation filename.
      *

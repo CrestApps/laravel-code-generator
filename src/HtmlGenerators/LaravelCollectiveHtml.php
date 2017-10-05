@@ -218,9 +218,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
 
         $valueString = is_null($value) ? 'null' : sprintf("'%s'", $value);
 
-        $accessor = $this->getDefaultValueAccessor($modelVariable, $name, $valueString);
-
-        return sprintf("old('%s', %s)", $name, $accessor);
+        return sprintf("old('%s', isset(\$%s->%s) ? \$%s->%s : %s)", $name, $modelVariable, $name, $modelVariable, $name, $valueString);
     }
 
     /**
@@ -248,33 +246,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
             $defaultValueString = sprintf('[%s]', $joinedValues);
         }
 
-        $accessor = $this->getDefaultValueAccessor($modelVariable, $name, $defaultValueString);
-
-        return sprintf("in_array(%s, old('%s', %s))", $valueString, $name, $accessor);
-    }
-
-    /**
-     * Gets the best value accessor for the view
-     *
-     * @param string $modelVariable
-     * @param string $property
-     * @param string $value
-     *
-     * @return string
-     */
-    protected function getDefaultValueAccessor($modelVariable, $property, $value)
-    {
-        if (Helpers::isNewerThanOrEqualTo('5.5')) {
-            $template = sprintf('optional($%s)->%s', $modelVariable, $property);
-
-            if (is_null($value) || in_array($value, ['null', '[]'])) {
-                return $template;
-            }
-
-            return $template . ' ?: ' . $value;
-        }
-
-        return sprintf("isset(\$%s->%s) ? \$%s->%s : %s", $modelVariable, $property, $modelVariable, $property, $value);
+        return sprintf("in_array(%s, old('%s', isset(\$%s->%s) ? \$%s->%s : %s))", $valueString, $name, $modelVariable, $name, $modelVariable, $name, $defaultValueString);
     }
 
     /**

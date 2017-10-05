@@ -74,8 +74,6 @@ class CreateFormViewCommand extends ViewsCommandBase
      */
     protected function replaceFields(&$stub, $fields)
     {
-        $stub = $this->strReplace('form_fields_html', $fields, $stub);
-
-        return $this;
+        return $this->replaceTemplate('form_fields_html', $fields, $stub);
     }
 }

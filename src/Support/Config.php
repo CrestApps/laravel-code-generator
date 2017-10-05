@@ -113,7 +113,7 @@ class Config
      */
     public static function getDateTimeFormat()
     {
-        return self::getStringBaseValue('datetime_out_format', 'j/n/Y g:i A');
+        return self::getStringBaseValue('datetime_out_format', 'n/j/Y H:i A');
     }
 
     /**

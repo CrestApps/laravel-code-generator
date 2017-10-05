@@ -74,9 +74,7 @@ class CreateIndexViewCommand extends ViewsCommandBase
      */
     protected function replaceHeaderCells(&$stub, $header)
     {
-        $stub = $this->strReplace('header_cells', $header, $stub);
-
-        return $this;
+        return $this->replaceTemplate('header_cells', $header, $stub);
     }
 
     /**
@@ -89,8 +87,6 @@ class CreateIndexViewCommand extends ViewsCommandBase
      */
     protected function replaceBodyCells(&$stub, $body)
     {
-        $stub = $this->strReplace('body_cells', $body, $stub);
-
-        return $this;
+        return $this->replaceTemplate('body_cells', $body, $stub);
     }
 }

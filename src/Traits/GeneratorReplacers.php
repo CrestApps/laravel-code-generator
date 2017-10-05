@@ -100,9 +100,7 @@ trait GeneratorReplacers
      */
     protected function replacePrimaryKey(&$stub, $primaryKey)
     {
-        $stub = $this->strReplace('primary_key', $primaryKey, $stub);
-
-        return $this;
+        return $this->replaceTemplate('primary_key', $primaryKey, $stub);
     }
 
     /**
@@ -115,9 +113,7 @@ trait GeneratorReplacers
      */
     protected function replaceAppName(&$stub, $name)
     {
-        $stub = $this->strReplace('app_name', $name, $stub);
-
-        return $this;
+        return $this->replaceTemplate('app_name', $name, $stub);
     }
 
     /**
@@ -130,9 +126,7 @@ trait GeneratorReplacers
      */
     protected function replaceNamespace(&$stub, $namespace)
     {
-        $stub = $this->strReplace('namespace', $namespace, $stub);
-
-        return $this;
+        return $this->replaceTemplate('namespace', $namespace, $stub);
     }
 
     /**
@@ -145,9 +139,7 @@ trait GeneratorReplacers
      */
     protected function replaceValidationRules(&$stub, $rules)
     {
-        $stub = $this->strReplace('validation_rules', $rules, $stub);
-
-        return $this;
+        return $this->replaceTemplate('validation_rules', $rules, $stub);
     }
 
     /**
@@ -160,9 +152,7 @@ trait GeneratorReplacers
      */
     protected function replaceFieldName(&$stub, $name)
     {
-        $stub = $this->strReplace('field_name', $name, $stub);
-
-        return $this;
+        return $this->replaceTemplate('field_name', $name, $stub);
     }
 
     /**

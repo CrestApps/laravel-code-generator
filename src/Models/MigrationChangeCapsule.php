@@ -2,9 +2,10 @@
 
 namespace CrestApps\CodeGenerator\Models;
 
+use CrestApps\CodeGenerator\Support\Contracts\ChangeDetector;
 use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
 
-class MigrationChangeCapsule implements JsonWriter
+class MigrationChangeCapsule implements JsonWriter, ChangeDetector
 {
     /**
      * Collection of the field changes
@@ -19,6 +20,34 @@ class MigrationChangeCapsule implements JsonWriter
      * @var string
      */
     public $indexChanges = [];
+
+    /**
+     * Should timestamps be added
+     *
+     * @var bool
+     */
+    public $addTimestamps = false;
+
+    /**
+     * Should soft-delete fields be added
+     *
+     * @var bool
+     */
+    public $addSoftDelete = false;
+
+    /**
+     * Should timestamps be dropped
+     *
+     * @var bool
+     */
+    public $dropTimestamps = false;
+
+    /**
+     * Should soft-delete fields be dropped
+     *
+     * @var bool
+     */
+    public $dropSoftDelete = false;
 
     /**
      * Create a new migration change capsule instance.
@@ -68,6 +97,26 @@ class MigrationChangeCapsule implements JsonWriter
         return [
             'field-changes' => $this->fieldChanges,
             'index-changes' => $this->indexChanges,
+            'add-timestamp' => $this->addTimestamps,
+            'add-soft-delete' => $this->addSoftDelete,
+            'drop-timestamp' => $this->dropTimestamps,
+            'drop-soft-delete' => $this->dropSoftDelete,
         ];
+    }
+
+    /**
+     * Checks if an object has change
+     *
+     * @return bool
+     */
+    public function hasChange()
+    {
+        return (
+            count($this->getFieldsWithUpdate()) > 0
+            || count($this->getIndexesWithUpdate()) > 0
+            || $this->addSoftDelete
+            || $this->dropSoftDelete
+            || $this->addTimestamps
+            || $this->dropTimestamps);
     }
 }

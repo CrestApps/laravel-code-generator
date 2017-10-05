@@ -11,15 +11,12 @@ use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\MigrationHistoryTracker;
 use CrestApps\CodeGenerator\Support\ResourceMapper;
-use CrestApps\CodeGenerator\Traits\Migration;
 use DB;
 use Exception;
 use File;
 
 class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
 {
-    use Migration;
-
     /**
      * The name and signature of the console command.
      *
@@ -224,7 +221,45 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
         $migration->className = $this->makeCreateTableClassName(Helpers::makeTableName($tableName));
         $migration->isCreate = true;
         $migration->isVirtual = true;
+        $migration->withSoftDelete = $this->hasSoftDelete();
+        $migration->withoutTimestamps = !$this->hasTimeStamps();
 
         return $migration;
+    }
+
+    /**
+     * Checks if the resource contains a soft delete
+     *
+     * @param array $fields
+     *
+     * @return bool
+     */
+    protected function hasSoftDelete($fields)
+    {
+        foreach ($fields as $field) {
+            if ($field->isAutoManagedOnDelete()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the resource contains a time stamps
+     *
+     * @param array $fields
+     *
+     * @return bool
+     */
+    protected function hasTimeStamps($fields)
+    {
+        foreach ($fields as $field) {
+            if ($field->isAutoManagedOnUpdate()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

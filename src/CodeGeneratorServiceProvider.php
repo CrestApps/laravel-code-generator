@@ -67,7 +67,6 @@ class CodeGeneratorServiceProvider extends ServiceProvider
         ];
 
         if (Helpers::isNewerThanOrEqualTo()) {
-
             $commands = array_merge($commands, [
                 'CrestApps\CodeGenerator\Commands\Migrations\MigrateAllCommand',
                 'CrestApps\CodeGenerator\Commands\Migrations\RefreshAllCommand',

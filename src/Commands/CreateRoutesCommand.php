@@ -131,9 +131,7 @@ class CreateRoutesCommand extends Command
      */
     protected function replaceRoutes(&$stub, $routes)
     {
-        $stub = $this->strReplace('routes', $routes, $stub);
-
-        return $this;
+        return $this->replaceTemplate('routes', $routes, $stub);
     }
 
     /**
@@ -146,9 +144,7 @@ class CreateRoutesCommand extends Command
      */
     protected function replacePrefix(&$stub, $prefix)
     {
-        $stub = $this->strReplace('prefix', $prefix, $stub);
-
-        return $this;
+        return $this->replaceTemplate('prefix', $prefix, $stub);
     }
 
     /**

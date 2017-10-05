@@ -513,9 +513,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceDateFormat(&$stub, $format)
     {
-        $stub = $this->strReplace('date_format', $format, $stub);
-
-        return $this;
+        return $this->replaceTemplate('date_format', $format, $stub);
     }
 
     /**
@@ -528,9 +526,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceFieldContent(&$stub, $content)
     {
-        $stub = $this->strReplace('content', $content, $stub);
-
-        return $this;
+        return $this->replaceTemplate('content', $content, $stub);
     }
 
     /**
@@ -543,9 +539,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceTable(&$stub, $table)
     {
-        $stub = $this->strReplace('table', $table, $stub);
-
-        return $this;
+        return $this->replaceTemplate('table', $table, $stub);
     }
 
     /**
@@ -558,9 +552,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceAccessors(&$stub, $accessors)
     {
-        $stub = $this->strReplace('accessors', $accessors, $stub);
-
-        return $this;
+        return $this->replaceTemplate('accessors', $accessors, $stub);
     }
 
     /**
@@ -573,9 +565,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceDateFields(&$stub, $dates)
     {
-        $stub = $this->strReplace('dates', $dates, $stub);
-
-        return $this;
+        return $this->replaceTemplate('dates', $dates, $stub);
     }
 
     /**
@@ -588,9 +578,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceCasts(&$stub, $casts)
     {
-        $stub = $this->strReplace('casts', $casts, $stub);
-
-        return $this;
+        return $this->replaceTemplate('casts', $casts, $stub);
     }
 
     /**
@@ -603,9 +591,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceDelimiter(&$stub, $delimiter)
     {
-        $stub = $this->strReplace('delimiter', $delimiter, $stub);
-
-        return $this;
+        return $this->replaceTemplate('delimiter', $delimiter, $stub);
     }
 
     /**
@@ -618,9 +604,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceMutators(&$stub, $mutators)
     {
-        $stub = $this->strReplace('mutators', $mutators, $stub);
-
-        return $this;
+        return $this->replaceTemplate('mutators', $mutators, $stub);
     }
 
     /**
@@ -672,9 +656,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceFillable(&$stub, $fillable)
     {
-        $stub = $this->strReplace('fillable', $fillable, $stub);
-
-        return $this;
+        return $this->replaceTemplate('fillable', $fillable, $stub);
     }
 
     /**
@@ -687,9 +669,7 @@ class CreateModelCommand extends Command
      */
     protected function replacePrimaryKey(&$stub, $primaryKey)
     {
-        $stub = $this->strReplace('primary_key', $primaryKey, $stub);
-
-        return $this;
+        return $this->replaceTemplate('primary_key', $primaryKey, $stub);
     }
 
     /**
@@ -702,10 +682,9 @@ class CreateModelCommand extends Command
      */
     protected function replaceRelationshipPlaceholder(&$stub, array $relationMethods)
     {
-        $stub = $this->strReplace('relationships', implode("\r\n", $relationMethods), $stub);
-
-        return $this;
+        return $this->replaceTemplate('relationships', implode("\r\n", $relationMethods), $stub);
     }
+
     /**
      * Replaces the replation type for the giving stub.
      *
@@ -716,9 +695,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceRelationType(&$stub, $type)
     {
-        $stub = $this->strReplace('relation_type', $type, $stub);
-
-        return $this;
+        return $this->replaceTemplate('relation_type', $type, $stub);
     }
 
     /**
@@ -731,9 +708,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceRelationName(&$stub, $name)
     {
-        $stub = $this->strReplace('relation_name', $name, $stub);
-
-        return $this;
+        return $this->replaceTemplate('relation_name', $name, $stub);
     }
 
     /**
@@ -746,9 +721,7 @@ class CreateModelCommand extends Command
      */
     protected function replaceRelationParams(&$stub, $params)
     {
-        $stub = $this->strReplace('relation_params', $params, $stub);
-
-        return $this;
+        return $this->replaceTemplate('relation_params', $params, $stub);
     }
 
     /**
@@ -761,8 +734,6 @@ class CreateModelCommand extends Command
      */
     protected function replaceTimestamps(&$stub, $timestamp)
     {
-        $stub = $this->strReplace('time_stamps', $timestamp, $stub);
-
-        return $this;
+        return $this->replaceTemplate('time_stamps', $timestamp, $stub);
     }
 }

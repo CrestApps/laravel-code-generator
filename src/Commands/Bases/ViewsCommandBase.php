@@ -207,9 +207,7 @@ abstract class ViewsCommandBase extends Command
      */
     protected function replaceLayoutName(&$stub, $layout)
     {
-        $stub = $this->strReplace('layout_name', $layout, $stub);
-
-        return $this;
+        return $this->replaceTemplate('layout_name', $layout, $stub);
     }
 
     /**
@@ -224,9 +222,7 @@ abstract class ViewsCommandBase extends Command
     {
         $code = $this->containsfile($fields) ? $this->getFileUploadAttribute($this->getTemplateName()) : '';
 
-        $stub = $this->strReplace('upload_files', $code, $stub);
-
-        return $this;
+        return $this->replaceTemplate('upload_files', $code, $stub);
     }
 
     /**
@@ -386,8 +382,6 @@ abstract class ViewsCommandBase extends Command
      */
     protected function replaceModelHeader(&$stub, $title)
     {
-        $stub = $this->strReplace('model_header', $title, $stub);
-
-        return $this;
+        return $this->replaceTemplate('model_header', $title, $stub);
     }
 }

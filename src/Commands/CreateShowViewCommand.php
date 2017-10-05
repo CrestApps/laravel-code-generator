@@ -73,8 +73,6 @@ class CreateShowViewCommand extends ViewsCommandBase
      */
     protected function replaceTableRows(&$stub, $rows)
     {
-        $stub = $this->strReplace('table_rows', $rows, $stub);
-
-        return $this;
+        return $this->replaceTemplate('table_rows', $rows, $stub);
     }
 }

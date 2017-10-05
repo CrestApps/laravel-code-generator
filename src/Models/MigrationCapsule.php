@@ -4,11 +4,15 @@ namespace CrestApps\CodeGenerator\Models;
 
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Contracts\ChangeDetector;
 use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
+use CrestApps\CodeGenerator\Traits\Migration;
 use Exception;
 
-class MigrationCapsule implements JsonWriter
+class MigrationCapsule implements JsonWriter, ChangeDetector
 {
+    use Migration;
+
     /**
      * The migration filename without the extension
      *
@@ -53,6 +57,20 @@ class MigrationCapsule implements JsonWriter
     public $isOrganized = false;
 
     /**
+     * This migration with soft-delete
+     *
+     * @var bool
+     */
+    public $withSoftDelete = false;
+
+    /**
+     * This migration without-timestamps
+     *
+     * @var bool
+     */
+    public $withoutTimestamps = false;
+
+    /**
      * The resources associated with the migration
      *
      * @var CrestApps\CodeGenerator\Models\Resource
@@ -69,6 +87,8 @@ class MigrationCapsule implements JsonWriter
         if (!isset($properties['name']) || empty($properties['name'])) {
             throw new Exception('A migration name is required to construct a migration capsule!');
         }
+
+        $this->setMigrator();
 
         $this->name = str_replace('.php', '', $properties['name']);
 
@@ -97,6 +117,14 @@ class MigrationCapsule implements JsonWriter
         if (isset($properties['class-name'])) {
             $this->className = $properties['class-name'];
         }
+
+        if (isset($properties['with-soft-delete'])) {
+            $this->withSoftDelete = (bool) $properties['with-soft-delete'];
+        }
+
+        if (isset($properties['without-timestamps'])) {
+            $this->withoutTimestamps = (bool) $properties['without-timestamps'];
+        }
     }
 
     /**
@@ -123,8 +151,35 @@ class MigrationCapsule implements JsonWriter
             'is-create' => $this->isCreate,
             'is-virtual' => $this->isVirtual,
             'is-organized' => $this->isOrganized,
+            'with-soft-delete' => $this->withSoftDelete,
+            'without-timestamps' => $this->withoutTimestamps,
             'resource' => ($this->resource ?: new Resource())->toArray(),
         ];
+    }
+
+    /**
+     * Checks if this migrated is migrated or not.
+     *
+     * @param  array $ran = null
+     * @return \Illuminate\Support\Collection
+     */
+    public function isMigrated(array $ran = null)
+    {
+        if (is_null($ran)) {
+            $ran = $this->getRan();
+        }
+
+        return in_array($this->name, $ran);
+    }
+
+    /**
+     * Checks if an object has change
+     *
+     * @return bool
+     */
+    public function hasChange()
+    {
+        return !is_null($this->resource) && ($this->resource->hasFields() || $this->resource->hasIndexes());
     }
 
     /**
@@ -138,5 +193,4 @@ class MigrationCapsule implements JsonWriter
     {
         return new MigrationCapsule(['name' => $name]);
     }
-
 }

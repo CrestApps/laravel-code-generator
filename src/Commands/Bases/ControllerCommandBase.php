@@ -320,9 +320,7 @@ EOF;
      */
     protected function replaceFileSnippet(&$stub, $snippet)
     {
-        $stub = $this->strReplace('file_snippet', $snippet, $stub);
-
-        return $this;
+        return $this->replaceTemplate('file_snippet', $snippet, $stub);
     }
 
     /**
@@ -334,9 +332,7 @@ EOF;
      */
     protected function replaceFillables(&$stub, $fillable)
     {
-        $stub = $this->strReplace('fillable', $fillable, $stub);
-
-        return $this;
+        return $this->replaceTemplate('fillable', $fillable, $stub);
     }
 
     /**
@@ -349,9 +345,8 @@ EOF;
      */
     protected function replaceBooleadSnippet(&$stub, $snippet)
     {
-        $stub = $this->strReplace('boolean_snippet', $snippet, $stub);
+        return $this->replaceTemplate('boolean_snippet', $snippet, $stub);
 
-        return $this;
     }
 
     /**
@@ -364,9 +359,7 @@ EOF;
      */
     protected function replaceUseCommandPlaceholder(&$stub, $commands)
     {
-        $stub = $this->strReplace('use_command_placeholder', $commands, $stub);
-
-        return $this;
+        return $this->replaceTemplate('use_command_placeholder', $commands, $stub);
     }
 
     /**
@@ -379,9 +372,7 @@ EOF;
      */
     protected function replaceStringToNullSnippet(&$stub, $snippet)
     {
-        $stub = $this->strReplace('string_to_null_snippet', $snippet, $stub);
-
-        return $this;
+        return $this->replaceTemplate('string_to_null_snippet', $snippet, $stub);
     }
 
     /**
@@ -394,9 +385,7 @@ EOF;
      */
     protected function replaceRequestNameComment(&$stub, $comment)
     {
-        $stub = $this->strReplace('request_name_comment', $comment, $stub);
-
-        return $this;
+        return $this->replaceTemplate('request_name_comment', $comment, $stub);
     }
 
     /**
@@ -421,9 +410,7 @@ EOF;
      */
     protected function replaceMethodVisibilityLevel(&$stub, $level)
     {
-        $stub = $this->strReplace('visibility_level', $level, $stub);
-
-        return $this;
+        return $this->replaceTemplate('visibility_level', $level, $stub);
     }
 
     /**
@@ -436,9 +423,7 @@ EOF;
      */
     protected function replaceGetDataMethod(&$stub, $code)
     {
-        $stub = $this->strReplace('get_data_method', $code, $stub);
-
-        return $this;
+        return $this->replaceTemplate('get_data_method', $code, $stub);
     }
 
 }

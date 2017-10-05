@@ -6,12 +6,15 @@ use CrestApps\CodeGenerator\Models\FieldMigrationChange;
 use CrestApps\CodeGenerator\Models\IndexMigrationChange;
 use CrestApps\CodeGenerator\Models\MigrationCapsule;
 use CrestApps\CodeGenerator\Models\MigrationChangeCapsule;
+use CrestApps\CodeGenerator\Models\MigrationInput;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
+use CrestApps\CodeGenerator\Support\MigrationHistoryTracker;
 use File;
 
 class MigrationTrackerCapsule implements JsonWriter
 {
+
     /**
      * The provided modelName
      *
@@ -94,16 +97,33 @@ class MigrationTrackerCapsule implements JsonWriter
      *
      * @param CrestApps\CodeGenerator\Models\Resource $resourceA
      * @param CrestApps\CodeGenerator\Models\Resource $resourceB
+     * @param CrestApps\CodeGenerator\Models\MigrationInput $input
      *
      * @return CrestApps\CodeGenerator\Models\MigrationChangeCapsule
      */
-    public function getDelta(Resource $resourceA, Resource $resourceB)
+    public function getDelta(Resource $resourceA, Resource $resourceB, MigrationInput $input)
     {
         $fieldChanges = $this->getFieldsDelta($resourceA->fields, $resourceB->fields);
-
         $indexChanges = $this->getIndexesDelta($resourceA->indexes, $resourceB->indexes);
 
-        return new MigrationChangeCapsule($fieldChanges, $indexChanges);
+        $changeCapsule = new MigrationChangeCapsule($fieldChanges, $indexChanges);
+
+        $tracker = new MigrationHistoryTracker();
+        $capsule = $tracker->get($input->tableName);
+
+        if ($input->withoutTimestamps && $capsule->migrationHasTimestamps()) {
+            $changeCapsule->dropTimestamps = true;
+        } else if (!$input->withoutTimestamps && !$capsule->migrationHasTimestamps()) {
+            $changeCapsule->addTimestamps = true;
+        }
+        //dd($input->withSoftDelete, $capsule->migrationHasSoftDelete());
+        if (!$input->withSoftDelete && $capsule->migrationHasSoftDelete()) {
+            $changeCapsule->dropSoftDelete = true;
+        } else if ($input->withSoftDelete && !$capsule->migrationHasSoftDelete()) {
+            $changeCapsule->addSoftDelete = true;
+        }
+
+        return $changeCapsule;
     }
 
     /**
@@ -229,7 +249,7 @@ class MigrationTrackerCapsule implements JsonWriter
      *
      * @return int
      */
-    protected function getMigrationIndex($name)
+    public function getMigrationIndex($name)
     {
         foreach ($this->getMigrations() as $key => $migration) {
             if ($migration->name == $name) {
@@ -302,6 +322,18 @@ class MigrationTrackerCapsule implements JsonWriter
     }
 
     /**
+     * Checks if the giving migration name is the current one
+     *
+     * @return bool
+     */
+    public function isCurrentMigration($name)
+    {
+        $current = $this->getCurrentMigration();
+
+        return (!is_null($current) && $current->name == $name);
+    }
+
+    /**
      * Gets the last before current migration in the
      * collection which is the one we are using
      *
@@ -324,6 +356,70 @@ class MigrationTrackerCapsule implements JsonWriter
     public function hasMigration()
     {
         return isset($this->migrations[0]);
+    }
+
+    /**
+     * Checks the migration history to see if the migration
+     * has a soft-delete not.
+     *
+     * @return bool
+     */
+    public function migrationHasSoftDelete()
+    {
+        $hasSoftDelete = false;
+
+        foreach ($this->getMigrations() as $migration) {
+
+            if ($this->isCurrentMigration($migration->name) && !$migration->isMigrated()) {
+                // At this point we know the migration is the current one
+                // and has not been migrated, so ignore it
+                continue;
+            }
+
+            if ($hasSoftDelete && !$migration->withSoftDelete) {
+                // At this point we know that the migration had soft-delete
+                // previously, but it was dropped
+                $hasSoftDelete = false;
+            }
+            if ($migration->withSoftDelete) {
+                // At this point we know that the migraton has soft-delete
+                $hasSoftDelete = true;
+            }
+        }
+
+        return $hasSoftDelete;
+    }
+
+    /**
+     * Checks the migration history to see if the migration
+     * has a timestamps not.
+     *
+     * @return bool
+     */
+    public function migrationHasTimestamps()
+    {
+        $hasTimestamps = false;
+
+        foreach ($this->getMigrations() as $migration) {
+
+            if ($this->isCurrentMigration($migration->name) && !$migration->isMigrated()) {
+                // At this point we know the migration is the current one
+                // and has not been migrated, so ignore it
+                continue;
+            }
+
+            if ($hasTimestamps && $migration->withoutTimestamps) {
+                // At this point we know that the migration had soft-delete
+                // previously, but it was dropped
+                $hasTimestamps = false;
+            }
+            if (!$migration->withoutTimestamps) {
+                // At this point we know that the migraton has soft-delete
+                $hasTimestamps = true;
+            }
+        }
+
+        return $hasTimestamps;
     }
 
     /**

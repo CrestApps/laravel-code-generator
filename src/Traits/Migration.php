@@ -64,22 +64,6 @@ trait Migration
     }
 
     /**
-     * Get the status for the given ran migrations.
-     *
-     * @param string $name
-     * @param  array $ran = null
-     * @return \Illuminate\Support\Collection
-     */
-    protected function isMigrated($name, array $ran = null)
-    {
-        if (is_null($ran)) {
-            $ran = $this->getRan();
-        }
-
-        return in_array($name, $ran);
-    }
-
-    /**
      * Create a new index instance.
      *
      * @param string $name

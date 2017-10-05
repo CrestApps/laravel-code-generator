@@ -813,9 +813,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceAffirmMethod(&$stub, $name)
     {
-        $stub = $this->strReplace('affirm_method', $name, $stub);
-
-        return $this;
+        return $this->replaceTemplate('affirm_method', $name, $stub);
     }
 
     /**
@@ -828,9 +826,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceAuthMiddlewear(&$stub, $middleware)
     {
-        $stub = $this->strReplace('auth_middleware', $middleware, $stub);
-
-        return $this;
+        return $this->replaceTemplate('auth_middleware', $middleware, $stub);
     }
 
     /**
@@ -843,9 +839,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceCallAffirm(&$stub, $name)
     {
-        $stub = $this->strReplace('call_affirm', $name, $stub);
-
-        return $this;
+        return $this->replaceTemplate('call_affirm', $name, $stub);
     }
 
     /**
@@ -858,9 +852,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceCallDataMethod(&$stub, $code)
     {
-        $stub = $this->strReplace('call_get_data', $code, $stub);
-
-        return $this;
+        return $this->replaceTemplate('call_get_data', $code, $stub);
     }
 
     /**
@@ -873,9 +865,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceConstructor(&$stub, $contructor)
     {
-        $stub = $this->strReplace('constructor', $contructor, $stub);
-
-        return $this;
+        return $this->replaceTemplate('constructor', $contructor, $stub);
     }
 
     /**
@@ -888,9 +878,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceControllerExtends(&$stub, $commands)
     {
-        $stub = $this->strReplace('controller_extends', $commands, $stub);
-
-        return $this;
+        return $this->replaceTemplate('controller_extends', $commands, $stub);
     }
 
     /**
@@ -903,9 +891,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceDataVariable(&$stub, $commands)
     {
-        $stub = $this->strReplace('data_variable', $commands, $stub);
-
-        return $this;
+        return $this->replaceTemplate('data_variable', $commands, $stub);
     }
 
     /**
@@ -918,9 +904,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceFileMethod(&$stub, $method)
     {
-        $stub = $this->strReplace('upload_method', $method, $stub);
-
-        return $this;
+        return $this->replaceTemplate('upload_method', $method, $stub);
     }
 
     /**
@@ -933,9 +917,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceOnStoreAction(&$stub, $commands)
     {
-        $stub = $this->strReplace('on_store_setter', $commands, $stub);
-
-        return $this;
+        return $this->replaceTemplate('on_store_setter', $commands, $stub);
     }
 
     /**
@@ -948,9 +930,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceOnUpdateAction(&$stub, $commands)
     {
-        $stub = $this->strReplace('on_update_setter', $commands, $stub);
-
-        return $this;
+        return $this->replaceTemplate('on_update_setter', $commands, $stub);
     }
 
     /**
@@ -963,9 +943,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replacePaginationNumber(&$stub, $total)
     {
-        $stub = $this->strReplace('models_per_page', $total, $stub);
-
-        return $this;
+        return $this->replaceTemplate('models_per_page', $total, $stub);
     }
 
     /**
@@ -978,9 +956,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceRelationCollections(&$stub, $collections)
     {
-        $stub = $this->strReplace('relation_collections', $collections, $stub);
-
-        return $this;
+        return $this->replaceTemplate('relation_collections', $collections, $stub);
     }
 
     /**
@@ -993,9 +969,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceRequestFullName(&$stub, $name)
     {
-        $stub = $this->strReplace('request_fullname', $name, $stub);
-
-        return $this;
+        return $this->replaceTemplate('request_fullname', $name, $stub);
     }
 
     /**
@@ -1008,9 +982,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceRequestName(&$stub, $name)
     {
-        $stub = $this->strReplace('request_name', $name, $stub);
-
-        return $this;
+        return $this->replaceTemplate('request_name', $name, $stub);
     }
 
     /**
@@ -1023,9 +995,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceRequestVariable(&$stub, $variable)
     {
-        $stub = $this->strReplace('request_variable', $variable, $stub);
-
-        return $this;
+        return $this->replaceTemplate('request_variable', $variable, $stub);
     }
 
     /**
@@ -1058,9 +1028,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceTypeHintedRequestName(&$stub, $code)
     {
-        $stub = $this->strReplace('type_hinted_request_name', $code, $stub);
-
-        return $this;
+        return $this->replaceTemplate('type_hinted_request_name', $code, $stub);
     }
 
     /**
@@ -1073,9 +1041,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceViewVariablesForCreate(&$stub, $variables)
     {
-        $stub = $this->strReplace('view_variables_for_create', $variables, $stub);
-
-        return $this;
+        return $this->replaceTemplate('view_variables_for_create', $variables, $stub);
     }
 
     /**
@@ -1088,9 +1054,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceViewVariablesForEdit(&$stub, $variables)
     {
-        $stub = $this->strReplace('view_variables_for_edit', $variables, $stub);
-
-        return $this;
+        return $this->replaceTemplate('view_variables_for_edit', $variables, $stub);
     }
 
     /**
@@ -1103,9 +1067,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceViewVariablesForIndex(&$stub, $variables)
     {
-        $stub = $this->strReplace('view_variables_for_index', $variables, $stub);
-
-        return $this;
+        return $this->replaceTemplate('view_variables_for_index', $variables, $stub);
     }
 
     /**
@@ -1118,9 +1080,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceViewVariablesForShow(&$stub, $variables)
     {
-        $stub = $this->strReplace('view_variables_for_show', $variables, $stub);
-
-        return $this;
+        return $this->replaceTemplate('view_variables_for_show', $variables, $stub);
     }
 
     /**
@@ -1133,9 +1093,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceWithRelationsForIndex(&$stub, $relations)
     {
-        $stub = $this->strReplace('with_relations_for_index', $relations, $stub);
-
-        return $this;
+        return $this->replaceTemplate('with_relations_for_index', $relations, $stub);
     }
 
     /**
@@ -1148,8 +1106,6 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function replaceWithRelationsForShow(&$stub, $relations)
     {
-        $stub = $this->strReplace('with_relations_for_show', $relations, $stub);
-
-        return $this;
+        return $this->replaceTemplate('with_relations_for_show', $relations, $stub);
     }
 }

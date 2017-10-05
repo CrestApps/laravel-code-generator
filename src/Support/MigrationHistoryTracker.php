@@ -236,4 +236,31 @@ class MigrationHistoryTracker
         return $this;
     }
 
+    /**
+     * Remove a migration entry from the file giving the table name and migration name.
+     *
+     * @param string $tableName
+     * @param string $name
+     *
+     * @return array
+     */
+    public function forgetMigration($tableName, $name)
+    {
+        $capsules = $this->all();
+        $keep = [];
+
+        foreach ($capsules as $capsule) {
+            if ($capsule->tableName == $tableName) {
+                $key = $capsule->getMigrationIndex($name);
+                $capsule->forgetMigration($key);
+            }
+
+            $keep[] = $capsule;
+        }
+
+        $this->write($keep);
+
+        return $keep;
+    }
+
 }
