@@ -116,7 +116,7 @@ class MigrationTrackerCapsule implements JsonWriter
         } else if (!$input->withoutTimestamps && !$capsule->migrationHasTimestamps()) {
             $changeCapsule->addTimestamps = true;
         }
-        //dd($input->withSoftDelete, $capsule->migrationHasSoftDelete());
+
         if (!$input->withSoftDelete && $capsule->migrationHasSoftDelete()) {
             $changeCapsule->dropSoftDelete = true;
         } else if ($input->withSoftDelete && !$capsule->migrationHasSoftDelete()) {

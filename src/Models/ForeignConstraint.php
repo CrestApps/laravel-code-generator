@@ -4,6 +4,7 @@ namespace CrestApps\CodeGenerator\Models;
 
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
+use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 
@@ -165,5 +166,25 @@ class ForeignConstraint implements JsonWriter
             'on-update' => $this->onUpdate,
             'references-model' => $this->getReferencesModel(),
         ];
+    }
+
+    /**
+     * Get the foreign constraints
+     *
+     * @param array $properties
+     * @param string $fieldName
+     *
+     * @return null || CrestApps\CodeGenerator\Models\ForeignConstraint
+     */
+    public static function fromArray(array $constraint, $fieldName)
+    {
+        $onUpdate = Helpers::isKeyExists($constraint, 'on-update') ? $constraint['on-update'] : null;
+        $onDelete = Helpers::isKeyExists($constraint, 'on-delete') ? $constraint['on-delete'] : null;
+        $model = Helpers::isKeyExists($constraint, 'references-model') ? $constraint['references-model'] :
+        Helpers::guessModelFullName($fieldName, Helpers::getModelsPath());
+
+        return new self($constraint['field'], $constraint['references'], $constraint['on'], $onDelete, $onUpdate, $model);
+
+        return null;
     }
 }

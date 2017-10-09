@@ -28,6 +28,25 @@ class Helpers
     }
 
     /**
+     * Checks an array for the first value that starts with a giving pattern
+     *
+     * @param array $subjects
+     * @param string $search
+     *
+     * @return bool
+     */
+    public static function inArraySearch(array $subjects, $search)
+    {
+        foreach ($subjects as $subject) {
+            if (str_is($search . '*', $subject)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Converts array to a pretty JSON string.
      *
      * @param array $object
@@ -37,6 +56,18 @@ class Helpers
     public static function prettifyJson(array $object)
     {
         return json_encode($object, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * Gets a label from a giving name
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    public static function convertNameToLabel($name)
+    {
+        return ucwords(str_replace('_', ' ', $name));
     }
 
     /**
@@ -91,6 +122,54 @@ class Helpers
         }
 
         return $items;
+    }
+
+    /**
+     * Guesses the model full name using the giving field's name
+     *
+     * @param string $name
+     * @param string $modelsPath
+     *
+     * @return string
+     */
+    public static function guessModelFullName($name, $modelsPath)
+    {
+        $model = $modelsPath . ucfirst(self::extractModelName($name));
+
+        return self::convertSlashToBackslash($model);
+    }
+
+    /**
+     * Extracts the model name from the giving field's name.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    public static function extractModelName($name)
+    {
+        return ucfirst(studly_case(Str::singular(str_replace('_id', '', $name))));
+    }
+
+    /**
+     * Checks if a key exists in a giving array
+     *
+     * @param array $properties
+     * @param string $name
+     *
+     * @return bool
+     */
+    public static function isKeyExists(array $properties, ...$name)
+    {
+        $args = func_get_args();
+
+        for ($i = 1; $i < count($args); $i++) {
+            if (!array_key_exists($args[$i], $properties)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -421,6 +500,9 @@ class Helpers
     /**
      * It splits a giving string by a giving seperator after trimming each part
      * from whitespaces and single/double quotes. Any empty string is eliminated.
+     *
+     * @param string $str
+     * @param string $seperator
      *
      * @return array
      */

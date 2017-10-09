@@ -369,7 +369,7 @@ class CreateModelCommand extends Command
         $accessors = [];
 
         foreach ($fields as $field) {
-            if ($field->isMultipleAnswers) {
+            if ($field->isMultipleAnswers()) {
                 $content = $this->getStubContent('model-accessor-multiple-answers');
 
                 $accessors[] = $this->getAccessor($field, $content);
@@ -402,7 +402,7 @@ class CreateModelCommand extends Command
                 continue;
             }
 
-            if ($field->isMultipleAnswers) {
+            if ($field->isMultipleAnswers()) {
                 $content = $this->getStubContent('model-mutator-multiple-answers');
                 $this->replaceFieldName($content, $field->name);
 

@@ -760,7 +760,7 @@ class CreateControllerCommand extends ControllerCommandBase
     protected function isContainMultipleAnswers(array $fields)
     {
         $filtered = array_filter($fields, function ($field) {
-            return $field->isMultipleAnswers;
+            return $field->isMultipleAnswers();
         });
 
         return count($filtered) > 0;

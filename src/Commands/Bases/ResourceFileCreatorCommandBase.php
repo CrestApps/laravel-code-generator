@@ -15,12 +15,12 @@ class ResourceFileCreatorCommandBase extends ResourceFileCommandBase
     protected function getCommandOptions($input)
     {
         return [
-            'model-name' => $input->modelName,
-            '--resource-filename' => $input->file,
-            '--fields' => implode(',', $input->fieldNames),
-            '--translation-for' => $input->translationFor,
-            '--relations' => implode(',', $input->relations),
-            '--indexes' => implode(',', $input->indexes),
+            'model-name' => $this->argument('model-name'),
+            '--resource-filename' => $this->option('resource-filename'),
+            '--fields' => $this->option('fields'),
+            '--translation-for' => $this->option('translation-for'),
+            '--relations' => $this->option('relations'),
+            '--indexes' => $this->option('indexes'),
         ];
     }
 
@@ -36,8 +36,8 @@ class ResourceFileCreatorCommandBase extends ResourceFileCommandBase
         $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
         $translationFor = array_unique(Helpers::convertStringToArray($this->option('translation-for')));
         $fieldNames = array_unique(Helpers::convertStringToArray($this->option('fields')));
-        $relations = Helpers::convertStringToArray(trim($this->option('relations')));
-        $indexes = Helpers::convertStringToArray(trim($this->option('indexes')));
+        $relations = Helpers::convertStringToArray($this->option('relations'));
+        $indexes = Helpers::convertStringToArray($this->option('indexes'));
 
         return (object) compact(
             'modelName',

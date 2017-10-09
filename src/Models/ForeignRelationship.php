@@ -393,4 +393,27 @@ class ForeignRelationship implements JsonWriter
         return self::get($collection);
     }
 
+    /**
+     * Get a predictable foreign relation using the giving field's name
+     *
+     * @param string $fieldName
+     * @param string $modelPath
+     *
+     * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
+     */
+    public static function predict($fieldName, $modelPath)
+    {
+        $patterns = Config::getKeyPatterns();
+
+        if (Helpers::strIs($patterns, $fieldName)) {
+            $relationName = camel_case(Helpers::extractModelName($fieldName));
+            $model = Helpers::guessModelFullName($fieldName, $modelPath);
+            $parameters = [$model, $fieldName];
+
+            return new self('belongsTo', $parameters, $relationName);
+        }
+
+        return null;
+    }
+
 }

@@ -82,7 +82,6 @@ class CreateMigrationCommand extends MigrationCommandBase
         } elseif (!Config::useSmartMigration() || (!$migration->isMigrated() && $migration->isCreate && !$migration->isVirtual)) {
             //At this point the current migration is the first one and is not migrated
             //Create update the migration using the current resource then recreate the migration file
-
             $migration->setResource($resource);
             $migration->path = $this->getMigrationFullName($migration->name, $input->tableName); // make sure we use the same path
             $tracker->updateMigration($capsule->tableName, $migration);
@@ -281,8 +280,9 @@ class CreateMigrationCommand extends MigrationCommandBase
     /**
      * Creates the table properties.
      *
-     * @param array $fields
+     * @param CrestApps\CodeGenerator\Models\Resource $resource
      * @param CrestApps\CodeGenerator\Models\MigrationInput $input
+     *
      * @return string
      */
     protected function getCreateTableBlueprint(Resource $resource, MigrationInput $input)
@@ -296,12 +296,35 @@ class CreateMigrationCommand extends MigrationCommandBase
             ->addTimestamps($properties, $input->withoutTimestamps)
             ->addSoftDelete($properties, $input->withSoftDelete)
             ->addFieldProperties($properties, $resource->fields, $input->withoutTimestamps, $input->withSoftDelete)
-            ->addIndexes($properties, $resource->indexes)
+            ->addIndexes($properties, $resource->indexes, $this->getColumnsUsedInMigration($resource, $input))
             ->addForeignConstraints($properties, $constraints);
 
         return $properties;
     }
 
+    /**
+     * Gets a list of all column that are used in the giving migration
+     *
+     * @param CrestApps\CodeGenerator\Models\Resource $resource
+     * @param CrestApps\CodeGenerator\Models\MigrationInput $input
+     *
+     * @return string
+     */
+    protected function getColumnsUsedInMigration(Resource $resource, MigrationInput $input)
+    {
+        $columns = collect($resource->fields)->pluck('name')->toArray();
+
+        if (!$input->withoutTimestamps) {
+            $columns[] = 'created_at';
+            $columns[] = 'updated_at';
+        }
+
+        if ($input->withSoftDelete) {
+            $columns[] = 'deleted_at';
+        }
+
+        return $columns;
+    }
     /**
      * Adds foreign key constraint to a giving properties.
      *
@@ -430,7 +453,7 @@ class CreateMigrationCommand extends MigrationCommandBase
      * @param array $indexes
      * @return $this
      */
-    protected function addIndexes(&$properties, array $indexes)
+    protected function addIndexes(&$properties, array $indexes, array $validColumns)
     {
         foreach ($indexes as $index) {
             if (!$index->hasColumns()) {
@@ -443,10 +466,22 @@ class CreateMigrationCommand extends MigrationCommandBase
             }
 
             if ($index->hasMultipleColumns()) {
+                $invalidColumns = array_diff($index->getColumns(), $validColumns);
+
+                if (count($invalidColumns) > 0) {
+                    throw new Exception('Non-Existing columns are being using an index. Invalid columns are "' . implode(',', $invalidColumns) . '"');
+                }
+
                 $columns = Helpers::wrapItems($index->getColumns());
+
                 $indexColumn = sprintf('[%s]', implode(',', $columns));
             } else {
-                $indexColumn = sprintf("'%s'", $index->getFirstColumn());
+                $column = $index->getFirstColumn();
+
+                if (!in_array($column, $validColumns)) {
+                    throw new Exception('Non-Existing column is being using an index. Invalid columns is ' . $column);
+                }
+                $indexColumn = sprintf("'%s'", $column);
             }
 
             $properties .= sprintf('%s(%s%s)', $this->getPropertyBase($index->getType()), $indexColumn, $indexName);
@@ -472,7 +507,8 @@ class CreateMigrationCommand extends MigrationCommandBase
         $primaryField = $this->getPrimaryField($fields);
 
         foreach ($fields as $field) {
-            if ($field instanceof Field && $field != $primaryField && !is_null($primaryField)) {
+
+            if ($field instanceof Field && $field != $primaryField) {
                 if (!$withoutTimestamps && $field->isAutoManagedOnUpdate()) {
                     continue;
                 }
@@ -1116,6 +1152,8 @@ class CreateMigrationCommand extends MigrationCommandBase
             $eloquentMethodName = $this->getPrimaryMethodName($field->getEloquentDataMethod());
             $property .= sprintf("%s('%s')", $this->getPropertyBase($eloquentMethodName), $field->name);
             $this->addFieldPropertyClousure($property);
+        } else {
+            $this->warn('Generating a migration without a primary key.');
         }
 
         return $this;

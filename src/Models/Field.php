@@ -8,9 +8,28 @@ use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use Exception;
 
 class Field implements JsonWriter
 {
+    use CommonCommand, GeneratorReplacers;
+
+    /**
+     * The apps default language
+     *
+     * @var string
+     */
+    protected $defaultLang;
+
+    /**
+     * The name of the file where labels will reside
+     *
+     * @var string
+     */
+    protected $localeGroup;
+
     /**
      * Fields that are auto managed by Laravel on update.
      *
@@ -35,7 +54,78 @@ class Field implements JsonWriter
      *
      * @var array
      */
-    protected $notChangableTypes = ['char', 'double', 'enum', 'mediumInteger', 'timestamp', 'tinyInteger', 'ipAddress', 'json', 'jsonb', 'macAddress', 'mediumIncrements', 'morphs', 'nullableMorphs', 'nullableTimestamps', 'softDeletes', 'timeTz', 'timestampTz', 'timestamps', 'timestampsTz', 'unsignedMediumInteger', 'unsignedTinyInteger', 'uuid'];
+    protected $notChangableTypes = [
+        'char',
+        'double',
+        'enum',
+        'mediumInteger',
+        'timestamp',
+        'tinyInteger',
+        'ipAddress',
+        'json',
+        'jsonb',
+        'macAddress',
+        'mediumIncrements',
+        'morphs',
+        'nullableMorphs',
+        'nullableTimestamps',
+        'softDeletes',
+        'timeTz',
+        'timestampTz',
+        'timestamps',
+        'timestampsTz',
+        'unsignedMediumInteger',
+        'unsignedTinyInteger',
+        'uuid',
+    ];
+
+    /**
+     * List of the html types that collect multiple answers
+     *
+     * @var array
+     */
+    protected $multipleAnswerTypes = [
+        'checkbox',
+        'multipleSelect',
+    ];
+
+    /**
+     * List of data types that would make a field unsigned.
+     *
+     * @return array
+     */
+    protected $unsignedTypes = [
+        'bigIncrements',
+        'bigInteger',
+        'increments',
+        'mediumIncrements',
+        'smallIncrements',
+        'unsignedBigInteger',
+        'unsignedInteger',
+        'unsignedMediumInteger',
+        'unsignedSmallInteger',
+        'unsignedTinyInteger',
+    ];
+
+    /**
+     * Array of the valid html-types
+     *
+     * @return array
+     */
+    protected $validHtmlTypes = [
+        'text',
+        'password',
+        'email',
+        'file',
+        'checkbox',
+        'radio',
+        'number',
+        'select',
+        'multipleSelect',
+        'textarea',
+        'selectMonth',
+        'selectRange',
+    ];
 
     /**
      * The name of the field
@@ -177,13 +267,6 @@ class Field implements JsonWriter
     public $isInlineOptions = false;
 
     /**
-     * Checks if the field will result in array when a request is made
-     *
-     * @var bool
-     */
-    public $isMultipleAnswers = false;
-
-    /**
      * Makes the field bahaves as a header.
      *
      * @var bool
@@ -247,13 +330,6 @@ class Field implements JsonWriter
     private $foreignConstraint;
 
     /**
-     * The app's default language.
-     *
-     * @var string
-     */
-    protected $defaultLang;
-
-    /**
      * raw php command to execute when the model is created.
      *
      * @var string
@@ -288,9 +364,10 @@ class Field implements JsonWriter
      *
      * @return void
      */
-    public function __construct($name)
+    public function __construct($name, $localeGroup)
     {
         $this->name = $name;
+        $this->localeGroup = $localeGroup;
         $this->defaultLang = App::getLocale();
     }
 
@@ -452,33 +529,30 @@ class Field implements JsonWriter
      * Adds a label to the labels collection
      *
      * @param string $text
-     * @param string $localeGroup
      * @param bool $isPlain
      * @param string $lang
      *
      * @return void
      */
-    public function addLabel($text, $localeGroup, $isPlain = true, $lang = 'en')
+    public function addLabel($text, $isPlain = true, $lang = 'en')
     {
-        $this->labels[$lang] = new Label($text, $this->getLocaleKey($localeGroup), $isPlain, $lang, $this->name);
+        $this->labels[$lang] = new Label($text, $this->getLocaleKey(), $isPlain, $lang, $this->name);
     }
 
     /**
      * Adds a label to the placeholders collection
      *
      * @param string $text
-     * @param string $localeGroup
      * @param bool $isPlain
      * @param string $lang
      *
      * @return void
      */
-    public function addPlaceholder($text, $localeGroup, $isPlain = true, $lang = 'en')
+    public function addPlaceholder($text, $isPlain = true, $lang = 'en')
     {
         $value = '__placeholder';
-        $localKey = $this->getLocaleKey($localeGroup, '_placeholder');
 
-        $this->placeholders[$lang] = new Label($text, $localKey, $isPlain, $lang, $this->name . $value);
+        $this->placeholders[$lang] = new Label($text, $this->getLocaleKey('_placeholder'), $isPlain, $lang, $this->name . $value);
     }
 
     /**
@@ -503,6 +577,127 @@ class Field implements JsonWriter
     public function setForeignConstraint(ForeignConstraint $constraint = null)
     {
         $this->foreignConstraint = $constraint;
+    }
+
+    /**
+     * It set the placeholder property for a giving field
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param array $properties
+     *
+     * @return $this
+     */
+    protected function setPlaceholder(array $properties)
+    {
+        $labels = $this->getPlaceholderFromArray($properties, $this->defaultLang, $this->localeGroup);
+
+        foreach ($labels as $label) {
+            $this->addPlaceholder($label->text, $label->isPlain, $label->lang);
+        }
+
+        return $this;
+    }
+
+    /**
+     * It get the labels from a giving array
+     *
+     * @param array $items
+     *
+     * @return $this
+     */
+    protected function getLabelsFromArray(array $items)
+    {
+        $labels = [];
+
+        foreach ($items as $key => $label) {
+            $lang = empty($key) || is_numeric($key) ? $this->defaultLang : $key;
+            $labels[] = new Label($label, $this->localeGroup, false, $lang);
+        }
+
+        return $labels;
+    }
+
+    /**
+     * It will get the provided labels for the placeholder
+     *
+     * @param array $properties
+     *
+     * @return array
+     */
+    protected function getPlaceholderFromArray(array $properties)
+    {
+        if (isset($properties['placeholder']) && !empty($properties['placeholder'])) {
+            if (is_array($properties['placeholder'])) {
+                //At this point we know this the label
+                return $this->getLabelsFromArray($properties['placeholder']);
+            }
+
+            return [
+                new Label($properties['placeholder'], $this->localeGroup, true, $this->defaultLang),
+            ];
+        }
+
+        $labels = [];
+
+        if (!isset($properties['placeholder'])) {
+            $templates = Config::getPlaceholderByHtmlType();
+
+            foreach ($templates as $type => $title) {
+                if ($this->htmlType == $type) {
+                    $fieldName = $this->hasForeignRelation() ? $this->getForeignRelation()->name : $this->name;
+                    $this->replaceModelName($title, $fieldName, $prefix = 'field_');
+                    $langs = $this->getAvailableLanguages();
+
+                    if (count($langs) == 0) {
+                        return [
+                            new Label($title, $this->localeGroup, true, $this->defaultLang),
+                        ];
+                    }
+
+                    foreach ($langs as $lang) {
+                        $labels[] = new Label($title, $this->localeGroup, false, $lang);
+                    }
+                }
+            }
+        }
+
+        return $labels;
+    }
+
+    /**
+     * Get the properties after applying the predefined keys.
+     *
+     * @param array $properties
+     *
+     * @return array
+     */
+    public function presetProperties(array $properties)
+    {
+        if (!$this->isValidHtmlType($properties)) {
+            unset($properties['html-type']);
+        }
+
+        $definitions = Config::getCommonDefinitions();
+
+        foreach ($definitions as $definition) {
+            $patterns = Helpers::isKeyExists($definition, 'match') ? (array) $definition['match'] : [];
+            $configs = Helpers::isKeyExists($definition, 'set') ? (array) $definition['set'] : [];
+
+            if (Helpers::strIs($patterns, $properties['name'])) {
+                //auto add any config from the master config
+                foreach ($configs as $key => $config) {
+                    if (!Helpers::isKeyExists($properties, $key)) {
+                        $properties[$key] = $config;
+                    }
+                }
+            }
+
+            if (!isset($properties['is-header']) && Helpers::strIs(Config::getHeadersPatterns(), $properties['name'])) {
+                $properties['is-header'] = true;
+            }
+        }
+
+        return $properties;
     }
 
     /**
@@ -574,19 +769,17 @@ class Field implements JsonWriter
      * Adds a label to the options collection
      *
      * @param string $value
-     * @param string $localeGroup
      * @param bool $isPlain
      * @param string $lang
      * @param string $value
      *
      * @return object
      */
-    public function addOption($text, $localeGroup, $isPlain = true, $lang = 'en', $value = null)
+    public function addOption($text, $isPlain = true, $lang = 'en', $value = null)
     {
-        $localKey = $this->getLocaleKey($localeGroup, $value);
         $id = $this->getFieldId($value);
 
-        $this->options[$lang][] = new Label($text, $localKey, $isPlain, $lang, $id, $value);
+        $this->options[$lang][] = new Label($text, $this->getLocaleKey($value), $isPlain, $lang, $id, $value);
     }
 
     /**
@@ -648,7 +841,7 @@ class Field implements JsonWriter
      */
     public function isBoolean()
     {
-        return $this->dataType == 'boolean';
+        return $this->getEloquentDataMethod() == 'boolean';
     }
 
     /**
@@ -694,9 +887,9 @@ class Field implements JsonWriter
      *
      * @return string
      */
-    protected function getLocaleKey($localeGroup, $postFix = null)
+    protected function getLocaleKey($postFix = null)
     {
-        return sprintf('%s.%s', $localeGroup, $this->getFieldId($postFix));
+        return sprintf('%s.%s', $this->localeGroup, $this->getFieldId($postFix));
     }
 
     /**
@@ -789,9 +982,426 @@ class Field implements JsonWriter
      */
     protected function getRawDataType()
     {
-        $type = array_search($this->dataType, Config::dataTypeMap());
+        $type = array_search($this->getEloquentDataMethod(), Config::dataTypeMap());
 
         return $type !== false ? $type : $this->dataType;
+    }
+
+    /**
+     * Sets the raw php command to execute on create.
+     *
+     * @param array $properties
+     *
+     * @return $this
+     */
+    public function setOnStore(array $properties)
+    {
+        if (array_key_exists('on-store', $properties)) {
+            $this->onStore = $this->getOnAction($properties['on-store']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sets the range for a giving field
+     *
+     * @param array $properties
+     *
+     * @return $this
+     */
+    public function setRange(array $properties)
+    {
+        if ($this->isValidSelectRangeType($properties)) {
+            $this->range = explode(':', substr($properties['html-type'], 12));
+        }
+
+        if (Helpers::isKeyExists($properties, 'range') && is_array($properties['range'])) {
+            $this->range = $properties['range'];
+        }
+
+        return $this;
+    }
+
+    /**
+     * It set the options property for a giving field
+     *
+     * @param array $properties
+
+     *
+     * @return $this
+     */
+    public function setOptionsProperty(array $properties)
+    {
+        if (Helpers::isKeyExists($properties, 'options') && is_array($properties['options'])) {
+
+            $labels = $this->transferOptionsToLabels($properties['options'], $this->defaultLang, $this->localeGroup);
+
+            foreach ($labels as $label) {
+                $this->addOption($label->text, $label->isPlain, $label->lang, $label->value);
+            }
+
+        }
+
+        return $this;
+    }
+
+    /**
+     * Transfers options array to array on Labels
+     *
+     * @param array $options
+     * @param string $lang
+     *
+     * @return array
+     */
+    protected function transferOptionsToLabels(array $options, $lang)
+    {
+        $finalOptions = [];
+        $index = 0;
+
+        foreach ($options as $value => $option) {
+            if ($this->isBoolean()) {
+                // Since we know this field is a boolean type,
+                // we should allow only two options and it must 0 or 1
+
+                if ($index > 1) {
+                    continue;
+                }
+
+                $value = $index;
+            }
+
+            ++$index;
+
+            if (!is_array($option)) {
+                // At this point the options are plain text without locale
+                $finalOptions[] = new Label($option, $this->localeGroup, true, $lang, null, $value);
+                continue;
+            }
+
+            $optionLang = $value;
+
+            foreach ($option as $optionValue => $text) {
+                // At this point the options are in array which mean they need translation.
+                $finalOptions[] = new Label($text, $this->localeGroup, false, $optionLang, null, $optionValue);
+            }
+        }
+
+        return $finalOptions;
+    }
+    /**
+     * Sets the raw php command to execute on update.
+     *
+     * @param array $properties
+     *
+     * @return $this
+     */
+    public function setOnUpdate(array $properties)
+    {
+        if (array_key_exists('on-update', $properties)) {
+            $this->onUpdate = $this->getOnAction($properties['on-update']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Cleans up a giving action
+     *
+     * @param string $action
+     *
+     * @return string
+     */
+    public function getOnAction($action)
+    {
+        $action = trim($action);
+
+        if (empty($action)) {
+            return null;
+        }
+
+        return Helpers::postFixWith($action, ';');
+    }
+
+    /**
+     * Sets the DataTypeParam for a giving field
+     *
+     * @param array $properties
+     *
+     * @return $this
+     */
+    public function setDataTypeParams(array $properties)
+    {
+        if (Helpers::isKeyExists($properties, 'data-type-params') && is_array($properties['data-type-params'])) {
+            $this->methodParams = $this->getDataTypeParams((array) $properties['data-type-params']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Gets the data type parameters for the giving type.
+     *
+     * @param array $params
+     *
+     * @return array
+     */
+    public function getDataTypeParams(array $params)
+    {
+        $type = $this->getEloquentDataMethod();
+
+        if (in_array($type, ['char', 'string']) && isset($params[0]) && ($length = intval($params[0])) > 0) {
+            return [$length];
+        }
+
+        if (in_array($type, ['decimal', 'double', 'float'])
+            && isset($params[0]) && ($length = intval($params[0])) > 0 && isset($params[1]) && ($decimal = intval($params[1])) > 0) {
+            return [$length, $decimal];
+        }
+
+        if ($type == 'enum') {
+            return $params;
+        }
+
+        return [];
+    }
+
+    /**
+     * It set the labels property for a giving field
+     *
+     * @param array $properties
+     *
+     * @return $this
+     */
+    protected function setLabelsProperty(array $properties)
+    {
+        $labels = $this->getLabelsFromProperties($properties, $this->defaultLang, $this->localeGroup);
+
+        foreach ($labels as $label) {
+            $this->addLabel($label->text, $label->isPlain, $label->lang);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Check is the field has multiple answers
+     *
+     * @return bool
+     */
+    public function isMultipleAnswers()
+    {
+        return in_array($this->htmlType, $this->multipleAnswerTypes) && !$this->isBoolean();
+    }
+
+    /**
+     * It will get the provided labels from with the $properties's 'label' or 'labels' property
+     *
+     * @param array $properties
+     *
+     * @return array
+     */
+    protected function getLabelsFromProperties(array $properties)
+    {
+        if (isset($properties['label'])) {
+            if (is_array($properties['label'])) {
+                //At this point we know this the label
+                return $this->getLabelsFromArray($properties['label']);
+            }
+
+            return [
+                new Label($properties['label'], $this->localeGroup, true, $this->defaultLang),
+            ];
+        }
+
+        if (isset($properties['labels'])) {
+            if (is_array($properties['labels'])) {
+                //At this point we know this the label
+                return $this->getLabelsFromArray($properties['labels']);
+            }
+
+            return [
+                new Label($properties['labels'], $this->localeGroup, true, $this->defaultLang),
+            ];
+        }
+
+        $label = Helpers::convertNameToLabel($properties['name']);
+
+        return [
+            new Label($label, $this->localeGroup, true, $this->defaultLang),
+        ];
+    }
+
+    /**
+     * It set the validationRules property for a giving field
+     *
+     * @param array $properties
+     *
+     * @return $this
+     */
+    public function setValidationProperty(array $properties)
+    {
+        if (Helpers::isKeyExists($properties, 'validation')) {
+            $this->validationRules = is_array($properties['validation']) ? $properties['validation'] : Helpers::removeEmptyItems(explode('|', $properties['validation']));
+        }
+
+        if (Helpers::isNewerThanOrEqualTo('5.2') && $this->isNullable && !in_array('nullable', $this->validationRules)) {
+            $this->validationRules[] = 'nullable';
+        }
+
+        if ($this->isBoolean() && !in_array('boolean', $this->validationRules)) {
+            $this->validationRules[] = 'boolean';
+        }
+
+        if ($this->isFile() && !in_array('file', $this->validationRules)) {
+            $this->validationRules[] = 'file';
+        }
+        if ($this->isMultipleAnswers() && !in_array('array', $this->validationRules)) {
+            $this->validationRules[] = 'array';
+        }
+
+        if (in_array($this->getEloquentDataMethod(), ['char', 'string']) && in_array($this->htmlType, ['text', 'textarea'])) {
+            if (!in_array('string', $this->validationRules)) {
+                $this->validationRules[] = 'string';
+            }
+
+            if (!Helpers::inArraySearch($this->validationRules, 'min')) {
+                $this->validationRules[] = sprintf('min:%s', $this->getMinLength());
+            }
+
+            if (!Helpers::inArraySearch($this->validationRules, 'max') && !is_null($this->getMaxLength())) {
+                $this->validationRules[] = sprintf('max:%s', $this->getMaxLength());
+            }
+        }
+
+        $params = [];
+
+        if (Helpers::isKeyExists($properties, 'data-type-params')) {
+            $params = $this->getDataTypeParams((array) $properties['data-type-params']);
+        }
+
+        if ($this->htmlType == 'number' || (in_array($this->getEloquentDataMethod(), ['decimal', 'double', 'float'])
+            && isset($params[0]) && ($length = intval($params[0])) > 0
+            && isset($params[1]) && ($decimal = intval($params[1])) > 0)) {
+            if (!in_array('numeric', $this->validationRules)) {
+                $this->validationRules[] = 'numeric';
+            }
+
+            if (!Helpers::inArraySearch($this->validationRules, 'min') && !is_null($minValue = $this->getMinValue())) {
+                $this->validationRules[] = sprintf('min:%s', $minValue);
+            }
+
+            if (!Helpers::inArraySearch($this->validationRules, 'max') && !is_null($maxValue = $this->getMaxValue())) {
+                $this->validationRules[] = sprintf('max:%s', $maxValue);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sets the isUnsigned for a giving field
+     *
+     * @param array $properties
+     *
+     * @return $this
+     */
+    public function setUnsigned(array $properties)
+    {
+        $this->isUnsigned = (Helpers::isKeyExists($properties, 'is-unsigned') && $properties['is-unsigned'])
+        || in_array($this->getEloquentDataMethod(), $this->unsignedTypes);
+
+        return $this;
+    }
+
+    /**
+     * Sets the foreign relations for a giving field
+     *
+     * @param array $properties
+     *
+     * @return $this
+     */
+    protected function setForeignRelationFromArray(array $properties)
+    {
+        if (Helpers::isKeyExists($properties, 'is-foreign-relation') && !$properties['is-foreign-relation']) {
+            return $this;
+        }
+
+        if (Helpers::isKeyExists($properties, 'foreign-relation')) {
+            $relation = ForeignRelationship::get((array) $properties['foreign-relation']);
+
+            if (!is_null($relation)) {
+                $this->setOnStore($properties);
+                $this->setOnUpdate($properties);
+            }
+
+        } else {
+            $relation = ForeignRelationship::predict($this->name, $this->getModelsPath());
+        }
+
+        $this->setForeignRelation($relation);
+
+        return $this;
+    }
+
+    /**
+     * Gets the model full path.
+     *
+     * @return string
+     */
+    protected function getModelsPath()
+    {
+        return $this->getAppNamespace() . Config::getModelsPath();
+    }
+
+    /**
+     * Sets the foreign key for a giving field
+     *
+     * @param array $properties
+     *
+     * @return $this
+     */
+    protected function setForeignConstraintFromArray(array $properties)
+    {
+        $foreignConstraint = $this->getForeignConstraintFromArray($properties);
+
+        $this->setForeignConstraint($foreignConstraint);
+
+        if ($this->hasForeignConstraint() && !$this->hasForeignRelation()) {
+            $this->setForeignRelation($foreignConstraint->getForeignRelation());
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get the foreign constraints
+     *
+     * @param array $properties
+     *
+     * @return null || CrestApps\CodeGenerator\Models\ForeignConstraint
+     */
+    protected function getForeignConstraintFromArray(array $properties)
+    {
+        if ($this->containsForeignConstraint($properties)) {
+            return ForeignConstraint::fromArray($properties['foreign-constraint'], $properties['name']);
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if giving properties contains a valid foreign key object
+     *
+     * @param array $properties
+     *
+     * @return bool
+     */
+    protected function containsForeignConstraint(array $properties)
+    {
+        return Helpers::isKeyExists($properties, 'foreign-constraint')
+        && is_array($properties['foreign-constraint'])
+        && Helpers::isKeyExists($properties['foreign-constraint'], 'field', 'references', 'on');
     }
 
     /**
@@ -848,7 +1458,7 @@ class Field implements JsonWriter
      */
     public function isDateTime()
     {
-        return in_array($this->dataType, ['dateTime', 'dateTimeTz'])
+        return in_array($this->getEloquentDataMethod(), ['dateTime', 'dateTimeTz'])
         || in_array($this->name, ['created_at', 'updated_at', 'deleted_at']);
     }
 
@@ -869,7 +1479,7 @@ class Field implements JsonWriter
      */
     public function isTime()
     {
-        return in_array($this->dataType, ['time', 'timeTz']);
+        return in_array($this->getEloquentDataMethod(), ['time', 'timeTz']);
     }
 
     /**
@@ -879,7 +1489,7 @@ class Field implements JsonWriter
      */
     public function isNumeric()
     {
-        return $this->isDecimal() || in_array($this->dataType, ['bigIncrements', 'bigInteger', 'increments', 'integer', 'mediumIncrements', 'mediumInteger', 'smallIncrements', 'smallInteger', 'tinyInteger', 'unsignedBigInteger', 'unsignedInteger', 'unsignedMediumInteger', 'unsignedSmallInteger', 'unsignedTinyInteger']);
+        return $this->isDecimal() || in_array($this->getEloquentDataMethod(), ['bigIncrements', 'bigInteger', 'increments', 'integer', 'mediumIncrements', 'mediumInteger', 'smallIncrements', 'smallInteger', 'tinyInteger', 'unsignedBigInteger', 'unsignedInteger', 'unsignedMediumInteger', 'unsignedSmallInteger', 'unsignedTinyInteger']);
     }
 
     /**
@@ -889,7 +1499,7 @@ class Field implements JsonWriter
      */
     public function isString()
     {
-        return in_array($this->dataType, ['char', 'string']);
+        return in_array($this->getEloquentDataMethod(), ['char', 'string']);
     }
 
     /**
@@ -899,7 +1509,7 @@ class Field implements JsonWriter
      */
     public function isTimeStamp()
     {
-        return in_array($this->dataType, ['timestamp', 'timestampTz']);
+        return in_array($this->getEloquentDataMethod(), ['timestamp', 'timestampTz']);
     }
 
     /**
@@ -937,7 +1547,7 @@ class Field implements JsonWriter
      */
     public function isDecimal()
     {
-        return in_array($this->dataType, ['float', 'decimal', 'double']);
+        return in_array($this->getEloquentDataMethod(), ['float', 'decimal', 'double']);
     }
 
     /**
@@ -1038,6 +1648,7 @@ class Field implements JsonWriter
         if (!$this->isNumeric()) {
             return null;
         }
+        $dataType = $this->getEloquentDataMethod();
 
         if ($this->isDecimal()) {
             $length = $this->getMethodParam(0) ?: 1;
@@ -1048,15 +1659,15 @@ class Field implements JsonWriter
                 $max = substr_replace($max, '.', $declimal * -1, 0);
             }
             $max = floatval($max);
-        } elseif ($this->dataType == 'integer') {
+        } elseif ($dataType == 'integer') {
             $max = $this->isUnsigned ? 4294967295 : 2147483647;
-        } elseif ($this->dataType == 'mediumInteger') {
+        } elseif ($dataType == 'mediumInteger') {
             $max = $this->isUnsigned ? 16777215 : 8388607;
-        } elseif ($this->dataType == 'smallInteger') {
+        } elseif ($dataType == 'smallInteger') {
             $max = $this->isUnsigned ? 65535 : 32767;
-        } elseif ($this->dataType == 'tinyInteger') {
+        } elseif ($dataType == 'tinyInteger') {
             $max = $this->isUnsigned ? 255 : 127;
-        } elseif ($this->dataType == 'bigInteger') {
+        } elseif ($dataType == 'bigInteger') {
             $max = $this->isUnsigned ? 18446744073709551615 : 9223372036854775807;
         }
 
@@ -1144,4 +1755,139 @@ class Field implements JsonWriter
         return (object) $finals;
     }
 
+    /**
+     * Checks if a field contains a valid html-type name
+     *
+     * @param array $properties
+     *
+     * @return bool
+     */
+    protected function isValidHtmlType(array $properties)
+    {
+        return Helpers::isKeyExists($properties, 'html-type') &&
+            (
+            in_array($properties['html-type'], $this->validHtmlTypes)
+            || $this->isValidSelectRangeType($properties)
+        );
+    }
+
+    /**
+     * Checks if a properties contains a valid "selectRange" html-type element.
+     *
+     * @param array $properties
+     *
+     * @return bool
+     */
+    protected function isValidSelectRangeType(array $properties)
+    {
+        return Helpers::isKeyExists($properties, 'html-type')
+        && starts_with($properties['html-type'], 'selectRange|');
+    }
+
+    /**
+     * Mapps the user input to a valid property name in the field object
+     *
+     * @return array
+     */
+    protected $predefinedKeyMapping =
+        [
+        'html-type' => 'htmlType',
+        'html-value' => 'htmlValue',
+        'value' => [
+            'dataValue',
+            'htmlValue',
+        ],
+        'is-on-views' => [
+            'isOnIndexView',
+            'isOnFormView',
+            'isOnShowView',
+        ],
+        'is-on-index' => 'isOnIndexView',
+        'is-on-form' => 'isOnFormView',
+        'is-on-show' => 'isOnShowView',
+        'data-value' => 'dataValue',
+        'data-type' => 'dataType',
+        'is-primary' => 'isPrimary',
+        'is-index' => 'isIndex',
+        'is-unique' => 'isUnique',
+        'comment' => 'comment',
+        'is-nullable' => 'isNullable',
+        'is-auto-increment' => 'isAutoIncrement',
+        'is-inline-options' => 'isInlineOptions',
+        'delimiter' => 'optionsDelimiter',
+        'is-header' => 'isHeader',
+        'class' => 'cssClass',
+        'css-class' => 'cssClass',
+        'date-format' => 'dateFormat',
+        'cast-as' => 'castAs',
+        'cast' => 'castAs',
+        'is-date' => 'isDate',
+    ];
+
+    /**
+     * It set the predefined property for a giving field.
+     * it uses the predefinedKeyMapping array
+     *
+     * @param array $properties
+     *
+     * @return $this
+     */
+    public function setPredefindProperties(array $properties)
+    {
+        foreach ($this->predefinedKeyMapping as $key => $property) {
+            if (Helpers::isKeyExists($properties, $key)) {
+                if (is_array($property)) {
+                    foreach ($property as $name) {
+                        $this->{$name} = $properties[$key];
+                    }
+                } else {
+                    $this->{$property} = $properties[$key];
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * It set the predefined property for a giving field.
+     * it uses the predefinedKeyMapping array
+     *
+     * @param array $properties
+     *
+     * @return $this
+     */
+    public static function fromArray(array $properties, $localeGroup)
+    {
+        if (!Helpers::isKeyExists($properties, 'name') || empty(Helpers::removeNonEnglishChars($properties['name']))) {
+            throw new Exception("The field 'name' was not provided!");
+        }
+
+        $field = new self(Helpers::removeNonEnglishChars($properties['name']), $localeGroup);
+
+        $properties = $field->presetProperties($properties);
+
+        $field->setPredefindProperties($properties)
+            ->setDataTypeParams($properties)
+            ->setLabelsProperty($properties)
+            ->setOptionsProperty($properties)
+            ->setUnsigned($properties)
+            ->setRange($properties)
+            ->setForeignRelationFromArray($properties)
+            ->setForeignConstraintFromArray($properties)
+            ->setValidationProperty($properties)
+            ->setPlaceholder($properties) // this must come after setForeignRelation
+            ->setOnStore($properties)
+            ->setOnUpdate($properties);
+
+        if ($field->isValidSelectRangeType($properties)) {
+            $field->htmlType = 'selectRange';
+        }
+
+        if ($field->getEloquentDataMethod() == 'enum' && empty($field->getOptions())) {
+            throw new Exception('To construct an enum data-type field, options must be set. ' . $field->name);
+        }
+
+        return $field;
+    }
 }

@@ -3,21 +3,21 @@
 namespace CrestApps\CodeGenerator\Support;
 
 use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\ValidationParser;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Support\Config;
 
 class FieldOptimizer
 {
     use CommonCommand;
-    
+
     /**
      * The field to optimize
      *
      * @var CrestApps\CodeGenerator\Models\Field
      */
     protected $field;
-    
+
     /**
      * The validation parser instance.
      *
@@ -61,17 +61,17 @@ class FieldOptimizer
      * Optimizes the field.
      *
      * @return $this
-    */
+     */
     public function optimize()
     {
         $this->optimizeStringField()
-             ->optimizeRequiredField()
-             ->optimizeDateFields()
-             ->optimizeBoolean()
-             ->optimizePrimaryKey()
-             ->optimizeValidations()
-             ->optimizeHtmlType()
-             ->addPlaceHolder();
+            ->optimizeRequiredField()
+            ->optimizeDateFields()
+            ->optimizeBoolean()
+            ->optimizePrimaryKey()
+            ->optimizeValidations()
+            ->optimizeHtmlType()
+            ->addPlaceHolder();
 
         return $this;
     }
@@ -82,10 +82,10 @@ class FieldOptimizer
      *
      *
      * @return $this
-    */
+     */
     protected function optimizeStringField()
     {
-        if (empty($this->field->methodParams) && in_array($this->field->dataType, ['string','char']) && ! empty($this->parser->getMaxLength())) {
+        if (empty($this->field->methodParams) && in_array($this->field->dataType, ['string', 'char']) && !empty($this->parser->getMaxLength())) {
             $this->field->methodParams[] = $this->parser->getMaxLength();
         }
 
@@ -96,7 +96,7 @@ class FieldOptimizer
      * If the field is not required, well make it nullable
      *
      * @return $this
-    */
+     */
     protected function optimizeRequiredField()
     {
         if (!array_key_exists('is-nullable', $this->meta) && ($this->parser->isNullable() || !$this->parser->isRequired() || $this->parser->isConditionalRequired())) {
@@ -110,7 +110,7 @@ class FieldOptimizer
      * If the field is date, datetime or time, set the output format.
      *
      * @return $this
-    */
+     */
     protected function optimizeDateFields()
     {
         if (empty($this->field->dateFormat) && $this->field->isDateOrTime()) {
@@ -124,7 +124,7 @@ class FieldOptimizer
      * If the field has a relation and the placeholder is missing, add generic one.
      *
      * @return $this
-    */
+     */
     protected function addPlaceHolder()
     {
         if (empty($this->field->placeHolder) && $this->field->hasForeignRelation()) {
@@ -138,7 +138,7 @@ class FieldOptimizer
      * If the field is not visible on the form view, clear the validation.
      *
      * @return $this
-    */
+     */
     protected function optimizeValidations()
     {
         if (!$this->field->isNullable && !in_array('required', $this->field->validationRules)) {
@@ -149,7 +149,7 @@ class FieldOptimizer
             $this->field->validationRules[] = $rule;
         }
 
-        if (! $this->field->isOnFormView) {
+        if (!$this->field->isOnFormView) {
             // At this point we know the field is not going to be on any request form
             // remove all validation rules if any exists.
             $this->field->validationRules = [];
@@ -170,7 +170,7 @@ class FieldOptimizer
      * If the field is not visible on the form view, clear the validation.
      *
      * @return $this
-    */
+     */
     protected function optimizeHtmlType()
     {
         if ($this->field->hasForeignRelation()) {
@@ -187,17 +187,15 @@ class FieldOptimizer
      * If the data-type is boolean, make the field boolean as well.
      *
      * @return $this
-    */
+     */
     protected function optimizeBoolean()
     {
         if ($this->field->dataType == 'boolean') {
             $this->field->isBoolean = true;
-            $this->isMultipleAnswers = false;
         }
 
         return $this;
     }
-
 
     /**
      * If the property name is "id" or if the field is primary or autoincrement.
@@ -207,7 +205,7 @@ class FieldOptimizer
      * @param CrestApps\CodeGenerator\Models\Field $this->field
      *
      * @return $this
-    */
+     */
     protected function optimizePrimaryKey()
     {
         if ($this->field->isPrimary()) {

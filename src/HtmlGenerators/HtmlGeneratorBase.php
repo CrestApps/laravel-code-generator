@@ -288,7 +288,7 @@ abstract class HtmlGeneratorBase
             return sprintf("(%s) ? '%s' : '%s'", $fieldAccessor, $field->getTrueBooleanOption()->text, $field->getFalseBooleanOption()->text);
         }
 
-        if ($field->isMultipleAnswers) {
+        if ($field->isMultipleAnswers()) {
             return sprintf("implode('%s', %s)", $field->optionsDelimiter, $fieldAccessor);
         }
 
@@ -424,8 +424,8 @@ abstract class HtmlGeneratorBase
     {
         $filename = sprintf('form-pickitems%s-field.blade', $field->isInlineOptions ? '-inline' : '');
         $stub = $this->getStubContent($filename, $this->template);
-        $fieldName = ($field->isMultipleAnswers) ? $this->getFieldNameAsArray($field->name) : $field->name;
-        $checkedItem = $this->getCheckedItemForPickItem($option->value, $field->name, $field->isMultipleAnswers, $field->htmlValue);
+        $fieldName = ($field->isMultipleAnswers()) ? $this->getFieldNameAsArray($field->name) : $field->name;
+        $checkedItem = $this->getCheckedItemForPickItem($option->value, $field->name, $field->isMultipleAnswers(), $field->htmlValue);
         $this->replaceFieldType($stub, $field->htmlType)
             ->replaceFieldName($stub, $fieldName)
             ->replaceOptionValue($stub, $option->value)
@@ -462,12 +462,12 @@ abstract class HtmlGeneratorBase
     {
         $stub = $this->getStubContent('form-selectmenu-field.blade', $this->template);
 
-        $fieldName = ($field->isMultipleAnswers) ? $this->getFieldNameAsArray($field->name) : $field->name;
+        $fieldName = ($field->isMultipleAnswers()) ? $this->getFieldNameAsArray($field->name) : $field->name;
         $optionValue = $this->getFieldValue($field->htmlValue, $field->name);
 
         $this->replaceFieldName($stub, $fieldName)
             ->replaceFieldItems($stub, $this->getFieldItems($field))
-            ->replaceFieldMultiple($stub, $field->isMultipleAnswers)
+            ->replaceFieldMultiple($stub, $field->isMultipleAnswers())
             ->replaceFieldValue($stub, $optionValue)
             ->replaceSelectedValue($stub, $this->getSelectedValueForMenu($field))
             ->replaceFieldItem($stub, $this->getFieldItem($field))
@@ -554,7 +554,7 @@ abstract class HtmlGeneratorBase
     {
         $valueAccessor = $this->getFieldValueAccessor($field);
 
-        if ($field->isMultipleAnswers) {
+        if ($field->isMultipleAnswers()) {
             return $this->getMultipleSelectedValue($field->name, $valueAccessor, $field->htmlValue);
         }
 

@@ -9,6 +9,7 @@ use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Models\Index;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
+use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Str;
 use DB;
 use Exception;
@@ -186,7 +187,7 @@ class MysqlParser extends ParserBase
     protected function getRealtion($foreignTableName, $foreignColumn, $localColumn)
     {
         $modelName = $this->getModelName($foreignTableName);
-        $model = FieldTransformer::guessModelFullName($modelName, $this->getModelNamespace());
+        $model = Helpers::guessModelFullName($modelName, $this->getModelNamespace());
 
         $params = [
             $model,

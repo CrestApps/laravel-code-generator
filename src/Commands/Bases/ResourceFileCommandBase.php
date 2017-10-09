@@ -5,6 +5,7 @@ namespace CrestApps\CodeGenerator\Commands\Bases;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
+use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use Illuminate\Console\Command;
 
@@ -68,7 +69,6 @@ class ResourceFileCommandBase extends Command
 
                     if (str_contains($part, ':')) {
                         list($key, $value) = explode(':', $part);
-
                         $properties[$key] = $value;
 
                         if ($key == 'options') {
@@ -77,7 +77,7 @@ class ResourceFileCommandBase extends Command
                             $properties['options'] = [];
 
                             foreach ($options as $option) {
-                                $optionTitle = FieldTransformer::convertNameToLabel($option);
+                                $optionTitle = Helpers::convertNameToLabel($option);
 
                                 if (count($transaltionFor) == 0) {
                                     $properties['options'][$option] = $optionTitle;
@@ -90,6 +90,8 @@ class ResourceFileCommandBase extends Command
                                     $properties['options'][$lang][$option] = $optionTitle;
                                 }
                             }
+                        } else {
+                            $properties[$key] = $value;
                         }
                     } else {
                         $properties['name'] = $part;
@@ -101,7 +103,7 @@ class ResourceFileCommandBase extends Command
                 $properties['name'] = $fieldName;
             }
 
-            $label = FieldTransformer::convertNameToLabel($properties['name']);
+            $label = Helpers::convertNameToLabel($properties['name']);
 
             foreach ($transaltionFor as $lang) {
                 $properties['label'][$lang] = $label;
