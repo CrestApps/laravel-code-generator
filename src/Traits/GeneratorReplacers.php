@@ -1,9 +1,7 @@
 <?php
-
 namespace CrestApps\CodeGenerator\Traits;
 
 use CrestApps\CodeGenerator\Support\Str;
-
 trait GeneratorReplacers
 {
     /**
@@ -18,7 +16,6 @@ trait GeneratorReplacers
     {
         $englishSingle = $this->modelNamePlainEnglish($modelName);
         $plural = Str::plural($englishSingle);
-
         $stub = $this->strReplace($prefix . 'name', $englishSingle, $stub);
         $stub = $this->strReplace($prefix . 'name_flat', strtolower($modelName), $stub);
         $stub = $this->strReplace($prefix . 'name_sentence', ucfirst($englishSingle), $stub);
@@ -34,10 +31,8 @@ trait GeneratorReplacers
         $stub = $this->strReplace($prefix . 'name_class', $modelName, $stub);
         $stub = $this->strReplace($prefix . 'name_plural_variable', $this->getPluralVariable($modelName), $stub);
         $stub = $this->strReplace($prefix . 'name_singular_variable', $this->getSingularVariable($modelName), $stub);
-
         return $this;
     }
-
     /**
      * It Replaces the templates of the givin $labels
      *
@@ -51,18 +46,14 @@ trait GeneratorReplacers
         foreach ($items as $labels) {
             foreach ($labels as $label) {
                 $text = $label->isPlain ? $label->text : sprintf("{{ trans('%s') }}", $label->localeGroup);
-
                 if ($label->isInFunction) {
                     $text = $label->isPlain ? sprintf("'%s'", $label->text) : sprintf("trans('%s')", $label->localeGroup);
                 }
-
                 $stub = $this->strReplace($label->template, $text, $stub);
             }
         }
-
         return $this;
     }
-
     /**
      * Gets the
      *
@@ -74,7 +65,6 @@ trait GeneratorReplacers
     {
         return str_replace('_', ' ', snake_case($modelName));
     }
-
     /**
      * Replace the controller_name fo the given stub.
      *
@@ -86,10 +76,8 @@ trait GeneratorReplacers
     protected function replaceControllerName(&$stub, $name)
     {
         $stub = $this->strReplace('controller_name', $name, $stub);
-
         return $this;
     }
-
     /**
      * It Replaces the primary key in a giving stub
      *
@@ -102,7 +90,6 @@ trait GeneratorReplacers
     {
         return $this->replaceTemplate('primary_key', $primaryKey, $stub);
     }
-
     /**
      * Replace the app_name fo the given stub.
      *
@@ -115,7 +102,6 @@ trait GeneratorReplacers
     {
         return $this->replaceTemplate('app_name', $name, $stub);
     }
-
     /**
      * Replace the namespace fo the given stub.
      *
@@ -128,7 +114,6 @@ trait GeneratorReplacers
     {
         return $this->replaceTemplate('namespace', $namespace, $stub);
     }
-
     /**
      * Replace the validation rules for the given stub.
      *
@@ -141,7 +126,6 @@ trait GeneratorReplacers
     {
         return $this->replaceTemplate('validation_rules', $rules, $stub);
     }
-
     /**
      * Replaces the field's name for the given stub.
      *
@@ -154,7 +138,6 @@ trait GeneratorReplacers
     {
         return $this->replaceTemplate('field_name', $name, $stub);
     }
-
     /**
      * Gets a model.
      *
@@ -166,7 +149,6 @@ trait GeneratorReplacers
     {
         return ucwords($name);
     }
-
     /**
      * Gets a model name.
      *
@@ -178,7 +160,6 @@ trait GeneratorReplacers
     {
         return snake_case($name);
     }
-
     /**
      * Gets a model name in a plural formal.
      *
@@ -190,7 +171,6 @@ trait GeneratorReplacers
     {
         return Str::plural(strtolower($name));
     }
-
     /**
      * Gets a model name in a plural formal "Caps".
      *
