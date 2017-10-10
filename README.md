@@ -8,28 +8,33 @@ A clean code generator for Laravel framework that will save you time! This aweso
 
 ## Features
 
-* Create very clean, reusable and highly readable code to build on.
-* Create full resources using a single command with/without **migration** or from **existing database**.
-* Create standard CRUD controllers with simple or form-request validation.
-* Utilizes JSON based resource-file to allow you to define your resources. Resource-file allows you to easily regenerate the resource at any time even when the business rules change.
-* Smart migration generator and migration organizer!
-* Create model with relations.
-* Create named routes.
-* Create standard CRUD views.
-* Customizable view’s templates to enable you to change the standard look and feel of your application.
-* Change the template at run time to generate different views.
-* Client-side validation.
-* Create view's layouts with and without client-side validation.
-* Very flexible and rich with configurable options.
-* It auto create the code to allow you to completly upload files from the client to the server.
-* Auto multiple-response storing in the database.
-* Create form-request for complex validation.
-* Ability to generate views with and without Laravel-Collective.
-* Nicely deals with and format datetime, date or time field.
-* Auto handles any boolean field.
-* Auto add foreign relations to the model.
-* Auto use foreign relation in the controller and the views when needed.
-* Lots of documentation.
+<ul>
+	<li>Create very clean, reusable and highly readable code to build on.</li>
+	<li>Create full resources using a single command with <strong>migration</strong> or from <strong>existing database</strong>.</li>
+	<li>Creates full resources for all of the existing tables in the database using one command.</li>
+	<li>Allows you to save the fields in a JSON file and recreate resources when the business needs changes.</li>
+	<li>Utilizes JSON based resource-file to allow you to define your resources. Resource-file allows you to easily regenerate the resource at any time even when the business rules change.</li>
+	<li>Create standard CRUD controllers with simple or form-request validation.</li>
+	<li>Customizable view’s templates to enable you to change the standard look and feel of your application.</li>
+    <li>Create model with relations.</li>
+    <li>Create named routes with and without group.</li>
+    <li>Create standard CRUD views.</li>
+    <li>Smart migration engine! Keeps track of all generated migrations to only create the needed migration.</li>
+    <li>Intelligent enough to automatically handles the relations between the models.</li>
+    <li>Very flexible and rich with configurable options.</li>
+    <li>Easy commands to create resource-file; additionally, add or reduce existing resource-file.</li>
+    <li>Full capability to generate multi-languages applications.</li>
+    <li>Client-side validation.</li>
+    <li>File uploading handling.</li>
+    <li>Auto store multiple-response in the database.</li>
+    <li>Create form-request to clean up your controller and increase your code reusability.</li>
+    <li>Create view's layouts with and without client-side validation.</li>
+    <li>Change the template at run time to generate different views.</li>
+    <li>Ability to generate views with and without Laravel-Collective.</li>
+    <li>Nicely handles any date, time or datetime field.</li>
+    <li>Auto handles any boolean field.</li>
+    <li>Very easy to use with lots of documentation.</li>
+</ul>
 
 ## Installation
 
@@ -58,28 +63,55 @@ php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServ
 
 ## Available Commands
 
-> The command in between the square brackets [] must be replaced with a variable of your choice.
+> The command in between the square brackets **[]** must be replaced with a variable of your choice.
 
-* php artisan create:layout [application-name]
-* php artisan create:resources [model-name]
-* php artisan create:mapped-resources
-* php artisan create:controller [model-name]
-* php artisan create:model [model-name]
-* php artisan create:routes [model-name]
-* php artisan create:views [model-name]
-* php artisan create:create-view [model-name]
-* php artisan create:edit-view [model-name]
-* php artisan create:index-view [model-name]
-* php artisan create:show-view [model-name]
-* php artisan create:form-view [model-name]
-* php artisan create:migration [model-name]
-* php artisan create:form-request [model-name]
-* php artisan create:language [model-name]
-* php artisan resource-file:from-database [model-name]
-* php artisan resource-file:create [model-name]
-* php artisan resource-file:append [model-name]
-* php artisan resource-file:reduce [model-name]
-* php artisan resource-file:delete [model-name]
+<ul>
+	<li>
+		<strong>Main commands</strong>
+		<ul>
+			<li>php artisan create:layout [application-name]</li>
+		    <li>php artisan create:resources [model-name]</li>
+		    <li>php artisan create:controller [model-name]</li>
+		    <li>php artisan create:model [model-name]</li>
+		    <li>php artisan create:form-request [model-name]</li>
+		    <li>php artisan create:routes [model-name]</li>
+		    <li>php artisan create:migration [model-name]</li>
+		    <li>php artisan create:language [model-name]</li>
+		    <li>php artisan create:mapped-resources</li>
+	    </ul>
+	</li>
+	<li>
+		<strong>Views commands</strong>
+		<ul>
+			<li>php artisan create:views [model-name]</li>
+			<li>php artisan create:index-view [model-name]</li>
+		    <li>php artisan create:create-view [model-name]</li>
+		    <li>php artisan create:edit-view [model-name]</li>
+		    <li>php artisan create:show-view [model-name]</li>
+		    <li>php artisan create:form-view [model-name]</li>
+	    </ul>
+	</li>
+    <li>
+		<strong>Resource's files commands</strong>
+		<ul>
+		    <li>php artisan resource-file:from-database [model-name]</li>
+		    <li>php artisan resource-file:create [model-name]</li>
+		    <li>php artisan resource-file:append [model-name]</li>
+		    <li>php artisan resource-file:reduce [model-name]</li>
+		    <li>php artisan resource-file:delete [model-name]</li>
+	    </ul>
+	</li>
+	<li>
+		<strong>Migration commands</strong>
+		<ul>
+		    <li>php artisan migrate-all</li>
+		    <li>php artisan migrate:rollback-all</li>
+		    <li>php artisan migrate:reset-all</li>
+		    <li>php artisan migrate:refresh-all</li>
+		    <li>php artisan migrate:status-all</li>
+	    </ul>
+	</li>
+</ul>
 
 > Full documentation available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/docs/2.2 "Laravel Code Generator Documentation"). 
 
