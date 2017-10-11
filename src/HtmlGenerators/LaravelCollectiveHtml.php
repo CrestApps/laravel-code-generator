@@ -1,5 +1,4 @@
 <?php
-
 namespace CrestApps\CodeGenerator\HtmlGenerators;
 
 use CrestApps\CodeGenerator\HtmlGenerators\HtmlGeneratorBase;
@@ -21,7 +20,6 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         return is_null($minValue) ? '' : sprintf(" 'min' => '%s',", $minValue);
     }
-
     /**
      * Gets the maxValue attribute.
      *
@@ -33,7 +31,6 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         return is_null($maxValue) ? '' : sprintf(" 'max' => '%s',", $maxValue);
     }
-
     /**
      * Get the minLength attribute.
      *
@@ -45,7 +42,6 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         return empty($minLength) ? '' : sprintf(" 'minlength' => '%s',", $minLength);
     }
-
     /**
      * Gets the maxLength attribute.
      *
@@ -57,7 +53,6 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         return empty($maxLength) ? '' : sprintf(" 'maxlength' => '%s',", $maxLength);
     }
-
     /**
      * Gets the required attribute.
      *
@@ -69,7 +64,6 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         return $required ? sprintf(" 'required' => %s,", ($required ? 'true' : 'false')) : '';
     }
-
     /**
      * Get the placeholder attribute.
      *
@@ -81,7 +75,6 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         return is_null($placeholder) ? '' : sprintf(" 'placeholder' => %s,", $this->getTitle($placeholder));
     }
-
     /**
      * Get the placeholder attribute for a menu.
      *
@@ -94,7 +87,6 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         return $this->getFieldPlaceHolder($placeholder);
     }
-
     /**
      * Get the multiple attribute.
      *
@@ -106,7 +98,6 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         return $isMulti ? "'multiple' => 'multiple'," : '';
     }
-
     /**
      * It gets converts an array to a stringbase array for the views.
      *
@@ -119,12 +110,9 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
         if ($field->hasForeignRelation() && $field->isOnFormView) {
             return sprintf('$%s', $field->getForeignRelation()->getCollectionName());
         }
-
         $labels = $field->getOptionsByLang();
-
         return sprintf('[%s]', implode(',' . PHP_EOL, $this->getKeyValueStringsFromLabels($labels)));
     }
-
     /**
      * Gets a plain title from a giving label.
      *
@@ -137,7 +125,6 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         return sprintf(!$raw ? "'%s'" : "%s", $label->text);
     }
-
     /**
      * Gets the fields value
      *
@@ -151,13 +138,10 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         if (!is_null($value)) {
             $modelVariable = $this->getSingularVariable($this->modelName);
-
             return sprintf("(!isset(\$%s->%s) ? '%s' : null)", $modelVariable, $name, $value);
         }
-
         return 'null';
     }
-
     /**
      * Gets checked item attribute.
      *
@@ -175,7 +159,6 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
             $value
         );
     }
-
     /**
      * Gets selected value attribute.
      *
@@ -187,7 +170,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      */
     protected function getSelectedValue($name, $valueAccessor, $defaultValue)
     {
-        return sprintf(" (%s == %s ? true : null) ", $this->getRawOptionValue($name, $defaultValue), $valueAccessor);
+        return sprintf(" (%s == %s ? true : null) ", $this->getRawOptionValue($name, 'null'), 'null');
     }
 
     /**
@@ -203,7 +186,6 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         return sprintf(" (%s ? true : null) ", $this->getMultipleRawOptionValue($name, $value, $defaultValue));
     }
-
     /**
      * Gets a raw value for a giving field's name.
      *
@@ -215,12 +197,10 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     protected function getRawOptionValue($name, $value)
     {
         $modelVariable = $this->getSingularVariable($this->modelName);
-
-        $valueString = is_null($value) ? 'null' : sprintf("'%s'", $value);
-
-        return sprintf("old('%s', isset(\$%s->%s) ? \$%s->%s : %s)", $name, $modelVariable, $name, $modelVariable, $name, $valueString);
+        $valueString = is_null($value) || $value == 'null' ? 'null' : sprintf("'%s'", $value);
+        $accessor = $this->getDefaultValueAccessor($modelVariable, $name, $valueString);
+        return sprintf("old('%s', %s)", $name, $accessor);
     }
-
     /**
      * Gets a raw value for a giving field's name.
      *
@@ -234,21 +214,37 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         $modelVariable = $this->getSingularVariable($this->modelName);
         $valueString = 'null';
-
         if (!is_null($value)) {
             $valueString = starts_with('$', $value) ? sprintf("%s", $value) : sprintf("'%s'", $value);
         }
-
         $defaultValueString = '[]';
-
         if (!empty($defaultValue)) {
             $joinedValues = implode(',', Helpers::wrapItems((array) $defaultValue));
             $defaultValueString = sprintf('[%s]', $joinedValues);
         }
-
-        return sprintf("in_array(%s, old('%s', isset(\$%s->%s) ? \$%s->%s : %s))", $valueString, $name, $modelVariable, $name, $modelVariable, $name, $defaultValueString);
+        $accessor = $this->getDefaultValueAccessor($modelVariable, $name, $defaultValueString);
+        return sprintf("in_array(%s, old('%s', %s))", $valueString, $name, $accessor);
     }
-
+    /**
+     * Gets the best value accessor for the view
+     *
+     * @param string $modelVariable
+     * @param string $property
+     * @param string $value
+     *
+     * @return string
+     */
+    protected function getDefaultValueAccessor($modelVariable, $property, $value)
+    {
+        if (Helpers::isNewerThanOrEqualTo('5.5')) {
+            $template = sprintf('optional($%s)->%s', $modelVariable, $property);
+            if (is_null($value) || in_array($value, ['null', '[]'])) {
+                return $template;
+            }
+            return $template . ' ?: ' . $value;
+        }
+        return sprintf("isset(\$%s->%s) ? \$%s->%s : %s", $modelVariable, $property, $modelVariable, $property, $value);
+    }
     /**
      * Gets selected value attribute.
      *
@@ -262,7 +258,6 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         return sprintf(" (%s ? true : null) ", $name);
     }
-
     /**
      * Gets the html steps attribute.
      *
@@ -274,7 +269,6 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     {
         return ($value) > 0 ? "'step' => \"any\"," : '';
     }
-
     /**
      * Gets an instance of ViewLabelsGenerator
      *

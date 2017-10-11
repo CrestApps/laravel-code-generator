@@ -541,7 +541,7 @@ trait CommonCommand
         $path = Helpers::getPathWithSlash($basePath);
 
         if (!$this->isFileExists($path)) {
-            throw new Exception('Invalid template name or the templates is invalid. Make sure the following path exists: "' . $path . '"');
+            throw new Exception('Invalid template. Make sure the following path exists: "' . $path . '"');
         }
 
         return $path;
