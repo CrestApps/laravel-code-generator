@@ -289,11 +289,7 @@ class StandardHtml extends HtmlGeneratorBase
 
         $accessor = $this->getDefaultValueAccessor($modelVariable, $name, $defaultValueString);
 
-        if (Helpers::isNewerThanOrEqualTo('5.5')) {
-            return sprintf("in_array(%s, old('%s', %s) ?? [])", $valueString, $name, $accessor);
-        }
-
-        return sprintf("in_array(%s, (array) old('%s', %s))", $valueString, $name, $accessor);
+        return sprintf("in_array(%s, old('%s', %s) ?: [])", $valueString, $name, $accessor);
     }
 
     /**
