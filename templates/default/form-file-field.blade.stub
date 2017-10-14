@@ -10,13 +10,11 @@
         @if (isset($[% model_name_singular_variable %]->[% field_name %]) && !empty($[% model_name_singular_variable %]->[% field_name %]))
             <div class="input-group input-width-input">
                 <span class="input-group-addon">
-                    <input type="checkbox" class="custom-delete-file"> Delete
+                    <input type="checkbox" name="custom_delete_[% field_name %]" class="custom-delete-file" value="1" {{ old('custom_delete_[% field_name %]', '0') == '1' ? 'checked' : '' }}> Delete
                 </span>
 
                 <span class="input-group-addon custom-delete-file-name">
                     {{ [% field_value %] }}
                 </span>
-                
-                <input type="checkbox" name="custom_delete_[% field_name %]" class="custom-delete-flag hidden">
             </div>
         @endif

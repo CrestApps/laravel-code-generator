@@ -18,6 +18,7 @@ class CreateFormRequestCommand extends ControllerCommandBase
                             {model-name : The model name.}
                             {--class-name= : The name of the form-request class.}
                             {--resource-file= : The name of the resource-file to import from.}
+                            {--routes-prefix=default-form : Prefix of the route group.}
                             {--template-name= : The template name to use when generating the code.}
                             {--with-auth : Generate the form-request with Laravel auth middlewear. }
                             {--form-request-directory= : The directory of the form-request.}
@@ -52,8 +53,9 @@ class CreateFormRequestCommand extends ControllerCommandBase
         }
         $this->replaceFormRequestClass($stub, $input->fileName)
             ->replaceValidationRules($stub, $validations)
+            ->replaceFileValidationSnippet($stub, $this->getFileValidationSnippet($resources->fields, $input))
             ->replaceClassNamespace($stub, $this->getRequestsNamespace($input->formRequestDirectory))
-            ->replaceGetDataMethod($stub, $this->getDataMethod($resources->fields))
+            ->replaceGetDataMethod($stub, $this->getDataMethod($resources->fields, $input))
             ->replaceRequestVariable($stub, '$this')
             ->replaceAuthBoolean($stub, $this->getAuthBool($input->withAuth))
             ->replaceUseCommandPlaceholder($stub, $this->getRequiredUseClasses($resources->fields, $input->withAuth))
@@ -183,6 +185,8 @@ class CreateFormRequestCommand extends ControllerCommandBase
         $modelName = trim($this->argument('model-name'));
         $fileName = trim($this->option('class-name')) ?: Helpers::makeFormRequestName($modelName);
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
+        $prefix = ($this->option('routes-prefix') == 'default-form') ? Helpers::makeRouteGroup($modelName) : $this->option('routes-prefix');
+
         $force = $this->option('force');
         $withAuth = $this->option('with-auth');
         $template = $this->option('template-name');
@@ -192,6 +196,7 @@ class CreateFormRequestCommand extends ControllerCommandBase
             'formRequestDirectory',
             'withAuth',
             'modelName',
+            'prefix',
             'fileName',
             'resourceFile',
             'force',

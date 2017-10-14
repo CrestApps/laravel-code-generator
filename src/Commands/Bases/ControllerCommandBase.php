@@ -64,13 +64,18 @@ class ControllerCommandBase extends Command
 
             if (!empty($rules)) {
 
-                if (!empty($customRules)) {
+                if ($field->isFile()) {
+                    $rules = array_filter($rules, function ($rule) {
+                        return $rule != 'required';
+                    });
+                }
+
+                if (!empty($customRules) || $field->isFile()) {
 
                     $standardRules = array_diff($rules, $customRules);
                     $shortCustomRules = $this->extractCustomValidationShortName($customRules);
 
                     $wrappedRules = array_merge(Helpers::wrapItems($standardRules), $shortCustomRules);
-
                     $validations .= sprintf("        '%s' => [%s],\n    ", $field->name, implode(',', $wrappedRules));
                 } else {
                     $validations .= sprintf("        '%s' => '%s',\n    ", $field->name, implode('|', $rules));
@@ -227,6 +232,40 @@ class ControllerCommandBase extends Command
     }
 
     /**
+     * Gets the validation rules for the attachment files
+     *
+     * @param array $fields
+     * @param object $input
+     * @param string $requestVariable
+     *
+     * @return string
+     */
+    protected function getFileValidationSnippet(array $fields, $input, $requestVariable = '$this')
+    {
+        $validation = [];
+
+        $stub = <<<EOF
+        if ([% request_variable %]->route()->getAction()['as'] == '[% store_route_name %]' || [% request_variable %]->has('custom_delete_[% field_name %]')) {
+            array_push(\$rules['[% field_name %]'], 'required');
+        }
+EOF;
+
+        foreach ($fields as $field) {
+            if ($field->isFile() && $field->isRequired()) {
+                $stubCopy = $stub;
+
+                $this->replaceTemplate('field_name', $field->name, $stubCopy)
+                    ->replaceRouteNames($stubCopy, $this->getModelName($input->modelName), $input->prefix)
+                    ->replaceRequestVariable($stubCopy, $requestVariable);
+
+                $validation[] = $stubCopy;
+            }
+        }
+
+        return implode(PHP_EOL, $validation);
+    }
+
+    /**
      * Gets the code that call the file-upload's method.
      *
      * @param array $fields
@@ -321,6 +360,19 @@ EOF;
     protected function replaceFileSnippet(&$stub, $snippet)
     {
         return $this->replaceTemplate('file_snippet', $snippet, $stub);
+    }
+
+    /**
+     * Replaces the file_validation_snippet for the given stub.
+     *
+     * @param $stub
+     * @param $snippet
+     *
+     * @return $this
+     */
+    protected function replaceFileValidationSnippet(&$stub, $snippet)
+    {
+        return $this->replaceTemplate('file_validation_snippet', $snippet, $stub);
     }
 
     /**

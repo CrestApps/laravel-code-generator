@@ -8,7 +8,10 @@
      */
     protected function affirm(Request $request)
     {
-        return $this->validate($request, [
-    [% validation_rules %]            
-        ]);
+        $rules = [
+    [% validation_rules %] 
+        ];
+[% file_validation_snippet %]
+
+        return $this->validate($request, $rules);
     }

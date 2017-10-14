@@ -110,10 +110,10 @@ class CreateControllerCommand extends ControllerCommandBase
         $viewVariablesForShow = $this->getCompactVariablesFor($fields, $this->getSingularVariable($input->modelName), 'show');
         $viewVariablesForEdit = $this->getCompactVariablesFor($fields, $this->getSingularVariable($input->modelName), 'form');
         $modelNamespace = $this->getModelNamespace($input->modelName, $input->modelDirectory);
-        $affirmMethod = $this->getAffirmMethod($input->withFormRequest, $fields, $requestNameSpace);
+        $affirmMethod = $this->getAffirmMethod($input->withFormRequest, $fields, $requestNameSpace, $input);
         $classToExtendFullname = $this->getFullClassToExtend($input->extends);
         $namespacesToUse = $this->getRequiredUseClasses($fields, [$modelNamespace, $requestNameSpace, $classToExtendFullname]);
-        $dataMethod = $this->getDataMethod($fields, $requestNameSpace . '\\' . $requestName, $input->withFormRequest);
+        $dataMethod = $this->getDataMethod($fields, $requestNameSpace . '\\' . $requestName, $input);
         $stub = $this->getStubContent('controller');
         $languages = array_keys(Helpers::getLanguageItems($fields));
         $viewLabels = new ViewLabelsGenerator($input->modelName, $fields, $this->isCollectiveTemplate());
@@ -187,12 +187,13 @@ class CreateControllerCommand extends ControllerCommandBase
      * @param array  $fields
      * @param string $requestFullname
      * @param bool   $withFormRequest
+     * @param object $input
      *
      * @return string
      */
-    protected function getDataMethod(array $fields, $requestFullname, $withFormRequest)
+    protected function getDataMethod(array $fields, $requestFullname, $input)
     {
-        if ($withFormRequest) {
+        if ($input->withFormRequest) {
             return '';
         }
 
@@ -201,6 +202,7 @@ class CreateControllerCommand extends ControllerCommandBase
         $this->replaceFileSnippet($stub, $this->getFileSnippet($fields, $this->requestVariable))
             ->replaceValidationRules($stub, $this->getValidationRules($fields))
             ->replaceFillables($stub, $this->getFillables($fields))
+            ->replaceFileValidationSnippet($stub, $this->getFileValidationSnippet($fields, $input, $this->requestVariable))
             ->replaceBooleadSnippet($stub, $this->getBooleanSnippet($fields, $this->requestVariable))
             ->replaceStringToNullSnippet($stub, $this->getStringToNullSnippet($fields))
             ->replaceRequestNameComment($stub, $this->getRequestNameComment($requestFullname))
@@ -238,10 +240,12 @@ class CreateControllerCommand extends ControllerCommandBase
      *
      * @param bool $withFormRequest
      * @param array $fields
+     * @param string $requestNamespace
+     * @param (ibject) $input
      *
      * @return string
      */
-    protected function getAffirmMethod($withFormRequest, array $fields, $requestNamespace)
+    protected function getAffirmMethod($withFormRequest, array $fields, $requestNamespace, $input)
     {
         if ($withFormRequest || Helpers::isNewerThanOrEqualTo('5.5')) {
             return '';
@@ -250,6 +254,7 @@ class CreateControllerCommand extends ControllerCommandBase
         $stub = $this->getStubContent('controller-affirm-method');
 
         $this->replaceValidationRules($stub, $this->getValidationRules($fields))
+            ->replaceFileValidationSnippet($stub, $this->getFileValidationSnippet($fields, $input, $this->requestVariable))
             ->replaceRequestFullName($stub, $requestNamespace);
 
         return $stub;
@@ -795,6 +800,7 @@ class CreateControllerCommand extends ControllerCommandBase
                 '--with-auth' => $input->withAuth,
                 '--resource-file' => $input->resourceFile,
                 '--template-name' => $input->template,
+                '--routes-prefix' => $this->option('routes-prefix'),
                 '--form-request-directory' => $input->formRequestDirectory,
                 '--force' => $input->force,
             ]

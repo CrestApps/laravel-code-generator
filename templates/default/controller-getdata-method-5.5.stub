@@ -7,9 +7,12 @@
      */
     [% visibility_level %] function getData([% type_hinted_request_name %])
     {
-        $data = [% request_variable %]->validate([
-    [% validation_rules %]            
-        ]);
+        $rules = [
+    [% validation_rules %] 
+        ];
+
+        [% file_validation_snippet %]
+        $data = [% request_variable %]->validate($rules);
 
 [% file_snippet %]
 [% boolean_snippet %]
