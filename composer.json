@@ -2,7 +2,7 @@
     "name": "crestapps/laravel-code-generator",
     "license": "MIT",
     "description": "A clean code generator for Laravel framework that will save you time! This awesome tool will help you generate resources like views, controllers, routes, migrations, languages or request-forms! It is extremely flexible and customizable to cover many use cases. It is shipped with cross-browsers compatible template, along with a client-side validation to modernize your application.",
-    "version": "v2.2.1",
+    "version": "v2.2.2",
     "keywords": [
         "laravel","crud","crud generator",
         "laravel crud generator","laravel crud builder",
