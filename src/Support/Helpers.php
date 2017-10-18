@@ -68,8 +68,13 @@ class Helpers
     public static function convertNameToLabel($name)
     {
         $title = ucwords(str_replace('_', ' ', $name));
+        $idString = ' Id';
 
-        return rtrim($title, ' Id');
+        if (ends_with($title, $idString)) {
+            return rtrim($title, $idString);
+        }
+
+        return $title;
     }
 
     /**

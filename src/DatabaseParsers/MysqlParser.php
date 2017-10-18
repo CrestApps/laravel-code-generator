@@ -251,7 +251,7 @@ class MysqlParser extends ParserBase
             $properties['labels'] = $this->getLabel($column->COLUMN_NAME);
             $properties['is-nullable'] = ($column->IS_NULLABLE == 'YES');
             $properties['data-value'] = $column->COLUMN_DEFAULT;
-            $properties['data-type'] = $this->getDataType($column->DATA_TYPE);
+            $properties['data-type'] = $this->getDataType($column->DATA_TYPE, $column->COLUMN_TYPE);
             $properties['data-type-params'] = $this->getPrecision($column->CHARACTER_MAXIMUM_LENGTH, $column->DATA_TYPE, $column->COLUMN_TYPE);
             $properties['is-primary'] = ($column->COLUMN_KEY == 'PRIMARY KEY');
             $properties['is-index'] = ($column->COLUMN_KEY == 'MUL');
@@ -313,12 +313,17 @@ class MysqlParser extends ParserBase
      * Gets the data type for a giving field.
      *
      * @param string $type
+     * @param string $columnType
      *
      * @return $this
      */
-    protected function getDataType($type)
+    protected function getDataType($type, $columnType)
     {
         $map = Config::dataTypeMap();
+
+        if ($columnType == 'tinyint(1)') {
+            return 'boolean';
+        }
 
         if (!array_key_exists($type, $map)) {
             throw new Exception("The type " . $type . " is not mapped in the 'eloquent_type_to_method' key in the config file.");
@@ -361,7 +366,7 @@ class MysqlParser extends ParserBase
      */
     protected function getHtmlOptions($dataType, $columnType)
     {
-        if ($dataType == 'tinyint(1)') {
+        if ($columnType == 'tinyint(1)') {
             return $this->getBooleanOptions();
         }
 

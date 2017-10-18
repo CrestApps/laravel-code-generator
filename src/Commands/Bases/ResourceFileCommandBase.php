@@ -7,6 +7,7 @@ use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use Exception;
 use Illuminate\Console\Command;
 
 class ResourceFileCommandBase extends Command
