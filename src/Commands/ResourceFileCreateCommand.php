@@ -7,6 +7,7 @@ use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Models\Index;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ResourceMapper;
 
@@ -59,7 +60,7 @@ class ResourceFileCreateCommand extends ResourceFileCreatorCommandBase
             $mapper->append($input->modelName, $input->file);
         }
 
-        $fields = $this->getFields($input->fieldNames, $input->translationFor);
+        $fields = FieldTransformer::fromString($this->option('fields'), 'generic', $input->translationFor);
         $relations = $this->getRelations($input->relations);
         $indexes = $this->getIndexes($input->indexes);
 

@@ -112,7 +112,7 @@ class Field implements JsonWriter
      *
      * @return array
      */
-    protected $validHtmlTypes = [
+    protected static $validHtmlTypes = [
         'text',
         'password',
         'email',
@@ -140,6 +140,13 @@ class Field implements JsonWriter
      * @var array
      */
     private $labels = [];
+
+    /**
+     * The languages for the labels
+     *
+     * @var array
+     */
+    private $languages = [];
 
     /**
      * The html-type of the field
@@ -361,13 +368,16 @@ class Field implements JsonWriter
      * Creates a new field instance.
      *
      * @param string $name
+     * @param string $localeGroup
+     * @param array $languages
      *
      * @return void
      */
-    public function __construct($name, $localeGroup)
+    public function __construct($name, $localeGroup, $languages)
     {
         $this->name = $name;
         $this->localeGroup = $localeGroup;
+        $this->languages = $languages;
         $this->defaultLang = App::getLocale();
     }
 
@@ -399,32 +409,6 @@ class Field implements JsonWriter
     public function getPlaceholders()
     {
         return $this->placeholders;
-    }
-
-    /**
-     * Gets the languages available in the labels.
-     *
-     * @return array
-     */
-    public function getAvailableLanguages()
-    {
-        $langs = [];
-
-        foreach ($this->getLabels() as $label) {
-            if (!$label->isPlain) {
-                $langs[] = $label->lang;
-            }
-        }
-
-        foreach ($this->getOptions() as $labels) {
-            foreach ($labels as $label) {
-                if (!$label->isPlain) {
-                    $langs[] = $label->lang;
-                }
-            }
-        }
-
-        return array_unique($langs);
     }
 
     /**
@@ -589,7 +573,7 @@ class Field implements JsonWriter
      */
     protected function setPlaceholder(array $properties)
     {
-        $labels = $this->getPlaceholderFromArray($properties, $this->defaultLang, $this->localeGroup);
+        $labels = $this->getPlaceholderFromArray($properties);
 
         foreach ($labels as $label) {
             $this->addPlaceholder($label->text, $label->isPlain, $label->lang);
@@ -637,67 +621,7 @@ class Field implements JsonWriter
             ];
         }
 
-        $labels = [];
-
-        if (!isset($properties['placeholder'])) {
-            $templates = Config::getPlaceholderByHtmlType();
-
-            foreach ($templates as $type => $title) {
-                if ($this->htmlType == $type) {
-                    $fieldName = $this->hasForeignRelation() ? $this->getForeignRelation()->name : $this->name;
-                    $this->replaceModelName($title, $fieldName, $prefix = 'field_');
-                    $langs = $this->getAvailableLanguages();
-
-                    if (count($langs) == 0) {
-                        return [
-                            new Label($title, $this->localeGroup, true, $this->defaultLang),
-                        ];
-                    }
-
-                    foreach ($langs as $lang) {
-                        $labels[] = new Label($title, $this->localeGroup, false, $lang);
-                    }
-                }
-            }
-        }
-
-        return $labels;
-    }
-
-    /**
-     * Get the properties after applying the predefined keys.
-     *
-     * @param array $properties
-     *
-     * @return array
-     */
-    public function presetProperties(array $properties)
-    {
-        if (!$this->isValidHtmlType($properties)) {
-            unset($properties['html-type']);
-        }
-
-        $definitions = Config::getCommonDefinitions();
-
-        foreach ($definitions as $definition) {
-            $patterns = Helpers::isKeyExists($definition, 'match') ? (array) $definition['match'] : [];
-            $configs = Helpers::isKeyExists($definition, 'set') ? (array) $definition['set'] : [];
-
-            if (Helpers::strIs($patterns, $properties['name'])) {
-                //auto add any config from the master config
-                foreach ($configs as $key => $config) {
-                    if (!Helpers::isKeyExists($properties, $key)) {
-                        $properties[$key] = $config;
-                    }
-                }
-            }
-
-            if (!isset($properties['is-header']) && Helpers::strIs(Config::getHeadersPatterns(), $properties['name'])) {
-                $properties['is-header'] = true;
-            }
-        }
-
-        return $properties;
+        return [];
     }
 
     /**
@@ -1012,7 +936,7 @@ class Field implements JsonWriter
      */
     public function setRange(array $properties)
     {
-        if ($this->isValidSelectRangeType($properties)) {
+        if (self::isValidSelectRangeType($properties)) {
             $this->range = explode(':', substr($properties['html-type'], 12));
         }
 
@@ -1034,8 +958,7 @@ class Field implements JsonWriter
     public function setOptionsProperty(array $properties)
     {
         if (Helpers::isKeyExists($properties, 'options') && is_array($properties['options'])) {
-
-            $labels = $this->transferOptionsToLabels($properties['options'], $this->defaultLang, $this->localeGroup);
+            $labels = $this->transferOptionsToLabels($properties['options']);
 
             foreach ($labels as $label) {
                 $this->addOption($label->text, $label->isPlain, $label->lang, $label->value);
@@ -1050,37 +973,23 @@ class Field implements JsonWriter
      * Transfers options array to array on Labels
      *
      * @param array $options
-     * @param string $lang
      *
      * @return array
      */
-    protected function transferOptionsToLabels(array $options, $lang)
+    protected function transferOptionsToLabels(array $options)
     {
         $finalOptions = [];
         $index = 0;
 
         foreach ($options as $value => $option) {
-            if ($this->isBoolean()) {
-                // Since we know this field is a boolean type,
-                // we should allow only two options and it must 0 or 1
-
-                if ($index > 1) {
-                    continue;
-                }
-
-                $value = $index;
-            }
-
-            ++$index;
 
             if (!is_array($option)) {
                 // At this point the options are plain text without locale
-                $finalOptions[] = new Label($option, $this->localeGroup, true, $lang, null, $value);
+                $finalOptions[] = new Label($option, $this->localeGroup, true, $this->defaultLang, null, $value);
                 continue;
             }
 
             $optionLang = $value;
-
             foreach ($option as $optionValue => $text) {
                 // At this point the options are in array which mean they need translation.
                 $finalOptions[] = new Label($text, $this->localeGroup, false, $optionLang, null, $optionValue);
@@ -1089,6 +998,7 @@ class Field implements JsonWriter
 
         return $finalOptions;
     }
+
     /**
      * Sets the raw php command to execute on update.
      *
@@ -1175,7 +1085,7 @@ class Field implements JsonWriter
      */
     protected function setLabelsProperty(array $properties)
     {
-        $labels = $this->getLabelsFromProperties($properties, $this->defaultLang, $this->localeGroup);
+        $labels = $this->getLabelsFromProperties($properties);
 
         foreach ($labels as $label) {
             $this->addLabel($label->text, $label->isPlain, $label->lang);
@@ -1203,33 +1113,24 @@ class Field implements JsonWriter
      */
     protected function getLabelsFromProperties(array $properties)
     {
-        if (isset($properties['label'])) {
-            if (is_array($properties['label'])) {
-                //At this point we know this the label
-                return $this->getLabelsFromArray($properties['label']);
-            }
-
-            return [
-                new Label($properties['label'], $this->localeGroup, true, $this->defaultLang),
-            ];
+        if (is_array($properties['labels'])) {
+            //At this point we know this the label
+            return $this->getLabelsFromArray($properties['labels']);
         }
-
-        if (isset($properties['labels'])) {
-            if (is_array($properties['labels'])) {
-                //At this point we know this the label
-                return $this->getLabelsFromArray($properties['labels']);
-            }
-
-            return [
-                new Label($properties['labels'], $this->localeGroup, true, $this->defaultLang),
-            ];
-        }
-
-        $label = Helpers::convertNameToLabel($properties['name']);
 
         return [
-            new Label($label, $this->localeGroup, true, $this->defaultLang),
+            new Label($properties['labels'], $this->localeGroup, true, $this->defaultLang),
         ];
+    }
+
+    /**
+     * Checks if the field has languages
+     *
+     * @return bool
+     */
+    protected function isMultiLingual()
+    {
+        return !empty($this->langauges);
     }
 
     /**
@@ -1762,12 +1663,12 @@ class Field implements JsonWriter
      *
      * @return bool
      */
-    protected function isValidHtmlType(array $properties)
+    public static function isValidHtmlType(array $properties)
     {
         return Helpers::isKeyExists($properties, 'html-type') &&
             (
-            in_array($properties['html-type'], $this->validHtmlTypes)
-            || $this->isValidSelectRangeType($properties)
+            in_array($properties['html-type'], self::$validHtmlTypes)
+            || self::isValidSelectRangeType($properties)
         );
     }
 
@@ -1778,7 +1679,7 @@ class Field implements JsonWriter
      *
      * @return bool
      */
-    protected function isValidSelectRangeType(array $properties)
+    public static function isValidSelectRangeType(array $properties)
     {
         return Helpers::isKeyExists($properties, 'html-type')
         && starts_with($properties['html-type'], 'selectRange|');
@@ -1850,26 +1751,47 @@ class Field implements JsonWriter
     }
 
     /**
+     * It gets the name of the field from a giving array
+     *
+     * @param array $properties
+     * @throws Exception
+     *
+     * @return $this
+     */
+    public static function getNameFromArray(array $properties)
+    {
+        if (!Helpers::isKeyExists($properties, 'name')
+            || empty($fieldName = Helpers::removeNonEnglishChars($properties['name']))
+        ) {
+            throw new Exception("The field 'name' was not provided!");
+        }
+
+        return $fieldName;
+    }
+
+    /**
      * It set the predefined property for a giving field.
      * it uses the predefinedKeyMapping array
      *
      * @param array $properties
+     * @param string $localeGroup
+     * @param array $languages
      *
      * @return $this
      */
-    public static function fromArray(array $properties, $localeGroup)
+    public static function fromArray(array $properties, $localeGroup, $languages = [])
     {
-        if (!Helpers::isKeyExists($properties, 'name') || empty(Helpers::removeNonEnglishChars($properties['name']))) {
-            throw new Exception("The field 'name' was not provided!");
+        $fieldName = self::getNameFromArray($properties);
+
+        if (!Field::isValidHtmlType($properties)) {
+            unset($properties['html-type']);
         }
 
-        $field = new self(Helpers::removeNonEnglishChars($properties['name']), $localeGroup);
-
-        $properties = $field->presetProperties($properties);
+        $field = new self($fieldName, $localeGroup, $languages);
 
         $field->setPredefindProperties($properties)
-            ->setDataTypeParams($properties)
             ->setLabelsProperty($properties)
+            ->setDataTypeParams($properties)
             ->setOptionsProperty($properties)
             ->setUnsigned($properties)
             ->setRange($properties)
@@ -1880,7 +1802,7 @@ class Field implements JsonWriter
             ->setOnStore($properties)
             ->setOnUpdate($properties);
 
-        if ($field->isValidSelectRangeType($properties)) {
+        if (Field::isValidSelectRangeType($properties)) {
             $field->htmlType = 'selectRange';
         }
 

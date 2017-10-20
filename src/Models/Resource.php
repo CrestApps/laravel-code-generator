@@ -173,14 +173,15 @@ class Resource implements JsonWriter
      *
      * @param string|json $json
      * @param string $localeGroup
+     * @param array $languages
      *
      * @return CrestApps\CodeGenerator\Models\Resource
      */
-    public static function fromFile($filename, $localeGroup)
+    public static function fromFile($filename, $localeGroup, array $languages = [])
     {
         $content = self::jsonFileContent($filename);
 
-        return self::fromJson($content, $localeGroup);
+        return self::fromJson($content, $localeGroup, $languages);
     }
 
     /**
@@ -188,10 +189,11 @@ class Resource implements JsonWriter
      *
      * @param string|json $json
      * @param string $localeGroup
+     * @param array $languages
      *
      * @return CrestApps\CodeGenerator\Models\Resource
      */
-    public static function fromJson($json, $localeGroup)
+    public static function fromJson($json, $localeGroup, array $languages = [])
     {
         if (empty($json) || ($capsule = json_decode($json, true)) === null) {
             throw new Exception("The provided string is not a valid json.");
@@ -200,7 +202,7 @@ class Resource implements JsonWriter
         if (is_array($capsule) && !Helpers::isAssociative($capsule)) {
             // At this point we know the resource file is using old convention
             // Set the fields
-            $fields = FieldTransformer::fromArray($capsule, $localeGroup);
+            $fields = FieldTransformer::fromArray($capsule, $localeGroup, $languages, true);
 
             return new Resource($fields);
         }
@@ -208,7 +210,7 @@ class Resource implements JsonWriter
         $resource = new Resource();
 
         if (array_key_exists('fields', $capsule)) {
-            $resource->fields = FieldTransformer::fromArray($capsule['fields'], $localeGroup);
+            $resource->fields = FieldTransformer::fromArray($capsule['fields'], $localeGroup, $languages, true);
         }
 
         if (array_key_exists('relations', $capsule)) {
@@ -227,15 +229,16 @@ class Resource implements JsonWriter
      *
      * @param array $properties
      * @param string $localeGroup
+     * @param array $languages
      *
      * @return CrestApps\CodeGenerator\Models\Resource
      */
-    public static function fromArray(array $properties, $localeGroup)
+    public static function fromArray(array $properties, $localeGroup, array $languages = [])
     {
         $resource = new Resource();
 
         if (array_key_exists('fields', $properties) && is_array($properties['fields'])) {
-            $resource->fields = FieldTransformer::fromArray($properties['fields'], $localeGroup);
+            $resource->fields = FieldTransformer::fromArray($properties['fields'], $localeGroup, $languages, true);
         }
 
         if (array_key_exists('relations', $properties) && is_array($properties['relations'])) {

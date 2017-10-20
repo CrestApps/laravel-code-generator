@@ -6,6 +6,7 @@ use CrestApps\CodeGenerator\Commands\Bases\ResourceFileCreatorCommandBase;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Models\Index;
 use CrestApps\CodeGenerator\Models\Resource;
+use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Support\Helpers;
 
 class ResourceFileAppendCommand extends ResourceFileCreatorCommandBase
@@ -53,7 +54,7 @@ class ResourceFileAppendCommand extends ResourceFileCreatorCommandBase
             return false;
         }
 
-        $resource = $this->getResources($file);
+        $resource = $this->getResources($file, $input->translationFor);
 
         $totalAddedFields = $this->mergeFields($resource, $input);
         $totalAddedRelations = $this->mergeRelations($resource, $input);
@@ -89,7 +90,7 @@ class ResourceFileAppendCommand extends ResourceFileCreatorCommandBase
     protected function mergeFields(&$resource, $input)
     {
         $existingNames = Collect($resource->fields)->pluck('name')->all();
-        $fields = $this->getFields($input->fieldNames, $input->translationFor);
+        $fields = FieldTransformer::fromString($this->option('fields'), 'generic', $input->translationFor);
         $mergeFields = 0;
         foreach ($fields as $field) {
             if (in_array($field->name, $existingNames)) {

@@ -215,6 +215,8 @@ return [
         'name',
         'label',
         'header',
+        'subject',
+        'head',
     ],
 
     /*
@@ -279,6 +281,12 @@ return [
     |
      */
     'common_definitions' => [
+        [
+            'match' => '*',
+            'set' => [
+                'labels' => '[% field_name_title %]',
+            ],
+        ],
         [
             'match' => 'id',
             'set' => [
@@ -372,6 +380,7 @@ return [
                 'data-type' => 'boolean',
                 'html-type' => 'checkbox',
                 'is-nullable' => false,
+                'options' => ["No", "Yes"],
             ],
         ],
         [

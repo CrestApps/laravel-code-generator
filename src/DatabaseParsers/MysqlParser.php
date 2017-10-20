@@ -273,8 +273,8 @@ class MysqlParser extends ParserBase
 
             $collection[] = $properties;
         }
-        $localeGroup = Str::plural(strtolower($this->tableName));
-        $fields = FieldTransformer::fromArray($collection, $localeGroup);
+        $localeGroup = Helpers::makeLocaleGroup($this->tableName);
+        $fields = FieldTransformer::fromArray($collection, $localeGroup, $this->languages);
 
         return $fields;
     }
@@ -366,36 +366,11 @@ class MysqlParser extends ParserBase
      */
     protected function getHtmlOptions($dataType, $columnType)
     {
-        if ($columnType == 'tinyint(1)') {
-            return $this->getBooleanOptions();
-        }
-
         if (($options = $this->getEnumOptions($columnType)) !== null) {
             return $options;
         }
 
         return [];
-    }
-
-    /**
-     * Get boolean options
-     *
-     * @return array
-     */
-    protected function getBooleanOptions()
-    {
-        $options = [];
-        if (!$this->hasLanguages()) {
-            return $this->booleanOptions;
-        }
-
-        foreach ($this->booleanOptions as $key => $title) {
-            foreach ($this->languages as $language) {
-                $options[$key][$language] = $title;
-            }
-        }
-
-        return $options;
     }
 
     /**
@@ -422,13 +397,6 @@ class MysqlParser extends ParserBase
         $finals = [];
 
         foreach ($options as $option) {
-            if ($this->hasLanguages()) {
-                foreach ($this->languages as $language) {
-                    $finals[$language][$option] = $option;
-                }
-                continue;
-            }
-
             $finals[$option] = $option;
         }
 

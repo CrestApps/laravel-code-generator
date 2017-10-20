@@ -2,6 +2,7 @@
 namespace CrestApps\CodeGenerator\Traits;
 
 use CrestApps\CodeGenerator\Support\Str;
+
 trait GeneratorReplacers
 {
     /**
@@ -31,8 +32,10 @@ trait GeneratorReplacers
         $stub = $this->strReplace($prefix . 'name_class', $modelName, $stub);
         $stub = $this->strReplace($prefix . 'name_plural_variable', $this->getPluralVariable($modelName), $stub);
         $stub = $this->strReplace($prefix . 'name_singular_variable', $this->getSingularVariable($modelName), $stub);
+
         return $this;
     }
+
     /**
      * It Replaces the templates of the givin $labels
      *
