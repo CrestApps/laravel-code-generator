@@ -68,6 +68,72 @@ class Resource implements JsonWriter
     }
 
     /**
+     * Get the first header field if available
+     *
+     * @return min (null | CrestApps\CodeGenerator\Models\Field)
+     */
+    public function getHeaderField()
+    {
+        return collect($this->fields)->first(function ($field) {
+            return $field->isHeader();
+        });
+    }
+
+    /**
+     * Get the first primary field if available
+     *
+     * @return min (null | CrestApps\CodeGenerator\Models\Field)
+     */
+    public function getPrimaryField()
+    {
+        return collect($this->fields)->first(function ($field) {
+            return $field->isPrimary();
+        });
+    }
+
+    /**
+     * Extracts the giving property name from the fields
+     *
+     * @return array
+     */
+    public function pluckFields($property = 'name')
+    {
+        $names = [];
+
+        if ($this->hasFields()) {
+            foreach ($this->getFields() as $field) {
+
+                if (property_exists($field, $property)) {
+                    $names[] = $field->{$property};
+                }
+            }
+        }
+
+        return $names;
+    }
+
+    /**
+     * Extracts the giving property name from the fields
+     *
+     * @return array
+     */
+    public function pluckKey($property = 'name')
+    {
+        $names = [];
+
+        if ($this->hasFields()) {
+            foreach ($this->getFields() as $field) {
+
+                if (property_exists($field, $property)) {
+                    $names[] = $field->{$property};
+                }
+            }
+        }
+
+        return $names;
+    }
+
+    /**
      * Checks if the resources has relations
      *
      * @return int
@@ -130,6 +196,16 @@ class Resource implements JsonWriter
             'relations' => $this->getRelationsToArray(),
             'indexes' => $this->getIndexesToArray(),
         ];
+    }
+
+    /**
+     * Get the fields
+     *
+     * @return array
+     */
+    public function getFields()
+    {
+        return $this->fields ?: [];
     }
 
     /**

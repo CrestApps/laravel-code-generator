@@ -392,6 +392,16 @@ class Field implements JsonWriter
     }
 
     /**
+     * Checks if the field is a header or not
+     *
+     * @return bool
+     */
+    public function isHeader()
+    {
+        return $this->isHeader;
+    }
+
+    /**
      * Checks if the field is nullable or not.
      *
      * @return bool

@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 class ResourceMapper
 {
     /**
-     * * @param Illuminate\Console\Command
+     * @param Illuminate\Console\Command
      */
     protected $command;
 
@@ -27,6 +27,48 @@ class ResourceMapper
     }
 
     /**
+     * Gets the first map with the giving model name
+     *
+     * @param string $modelName
+     *
+     * @return mix (null | array)
+     */
+    public static function first($modelName)
+    {
+        $file = self::getMapper();
+
+        if (File::Exists($file)) {
+
+            $maps = self::getMaps($file);
+
+            return Collect($maps)->first(function ($map) use ($modelName) {
+                return $map['model-name'] == $modelName;
+            });
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets the first map with the giving model name then get a specific property/key
+     *
+     * @param string $modelName
+     * @param string $propertyName
+     *
+     * @return string
+     */
+    public static function pluckFirst($modelName, $propertyName = 'resource-file')
+    {
+        $first = self::first($modelName);
+
+        if (!is_null($first) && isset($first[$propertyName])) {
+            return $first[$propertyName];
+        }
+
+        return null;
+    }
+
+    /**
      * Removes mapping entry from the default mapping file.
      *
      * @param string $modelName
@@ -35,13 +77,13 @@ class ResourceMapper
      */
     public function reduce($modelName)
     {
-        $file = $this->getMapper();
+        $file = self::getMapper();
 
         $finalMaps = [];
 
         if (File::Exists($file)) {
 
-            $maps = $this->getMaps($file);
+            $maps = self::getMaps($file);
 
             $existingMaps = Collect($maps)->filter(function ($map) use ($modelName) {
                 return !$this->mapExists($map, $modelName);
@@ -65,12 +107,12 @@ class ResourceMapper
      */
     public function append($modelName, $fieldsFileName, $tableName = null)
     {
-        $file = $this->getMapper();
+        $file = self::getMapper();
 
         $finalMaps = [];
 
         if (File::Exists($file)) {
-            $maps = $this->getMaps($file);
+            $maps = self::getMaps($file);
 
             $existingMaps = Collect($maps)->filter(function ($map) use ($modelName, $tableName) {
                 return !$this->mapExists($map, $modelName, $tableName);
@@ -95,6 +137,11 @@ class ResourceMapper
         File::put($file, Helpers::prettifyJson($finalMaps));
     }
 
+    /**
+     * Gets the resources
+     *
+     * @return CrestApps\CodeGenerator\Models\Resource
+     */
     protected function getResources()
     {
         $content = File::get($file);
@@ -102,6 +149,15 @@ class ResourceMapper
         return Resource::fromJson($content, 'crestapps');
     }
 
+    /**
+     * Checks if a map exists
+     *
+     * @param array $map
+     * @param string $modelName
+     * @param string $tableName
+     *
+     * @return bool
+     */
     protected function mapExists(array $map, $modelName, $tableName = null)
     {
         // First we try to find an entry by model-name
@@ -115,20 +171,29 @@ class ResourceMapper
         return $found;
     }
 
-    protected function getMapper()
+    /**
+     * Get the full mapper file
+     *
+     * @return string
+     */
+    protected static function getMapper()
     {
         $filename = Config::getDefaultMapperFileName();
 
         return base_path(Config::getResourceFilePath($filename));
     }
 
-    protected function getMaps($file)
+    /**
+     * Get mapps
+     *
+     * @return array
+     */
+    protected static function getMaps($file)
     {
         $maps = json_decode(File::get($file), true);
 
         if (is_null($maps)) {
-            $this->command->error('The existing mapping file contains invalid json string. Please fix the file then try again');
-            throw new Exception();
+            throw new Exception('The existing mapping file contains invalid json string. Please fix the file then try again');
         }
 
         return $maps;

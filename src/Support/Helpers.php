@@ -68,13 +68,8 @@ class Helpers
     public static function convertNameToLabel($name)
     {
         $title = ucwords(str_replace('_', ' ', $name));
-        $idString = ' Id';
 
-        if (ends_with($title, $idString)) {
-            return rtrim($title, $idString);
-        }
-
-        return $title;
+        return self::removePostFixWith($title, ' Id');
     }
 
     /**

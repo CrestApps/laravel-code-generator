@@ -5,9 +5,11 @@ namespace CrestApps\CodeGenerator\Models;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\ResourceMapper;
 use CrestApps\CodeGenerator\Support\Str;
 use DB;
 use Exception;
+use File;
 use Illuminate\Database\Eloquent\Model;
 
 class ForeignRelationship implements JsonWriter
@@ -179,13 +181,13 @@ class ForeignRelationship implements JsonWriter
 
         $primary = $this->getPrimaryKeyForForeignModel();
         $idPatterns = Config::getKeyPatterns();
-
         $columns = array_filter($columns, function ($column) use ($primary, $idPatterns) {
+
             return $column != $primary && !Helpers::strIs($idPatterns, $column);
         });
 
-        if (count($columns) == 1) {
-            return $columns[0];
+        if (count($columns) > 0) {
+            return current($columns);
         }
 
         return $primary;
@@ -278,7 +280,7 @@ class ForeignRelationship implements JsonWriter
             return $model->getKeyName();
         }
 
-        return 'id';
+        return $this->getKeyNameFromResource() ?: 'id';
     }
 
     /**
@@ -289,13 +291,77 @@ class ForeignRelationship implements JsonWriter
     public function getModelColumns()
     {
         $model = $this->getForeignModelInstance();
-
+        $columns = [];
         if ($this->isModel($model)) {
             $tableName = $model->getTable();
-            return DB::getSchemaBuilder()->getColumnListing($tableName);
+            $columns = DB::getSchemaBuilder()->getColumnListing($tableName);
+        }
+
+        if (count($columns) == 0) {
+            $columns = $this->getFieldNamesFromResource();
+        }
+
+        return $columns;
+    }
+
+    /**
+     * Gets the foreign model columns from the resource file if one exists
+     *
+     * @return null | string
+     */
+    protected function getKeyNameFromResource()
+    {
+        $resource = $this->getForeignResource();
+
+        if (!is_null($resource) && (($field = $resource->getPrimaryField()) != null)) {
+            return $field->name;
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets the foreign model columns from the resource file if one exists
+     *
+     * @return array
+     */
+    protected function getFieldNamesFromResource()
+    {
+        $resource = $this->getForeignResource();
+
+        if (!is_null($resource)) {
+            return $resource->pluckFields();
         }
 
         return [];
+    }
+
+    /**
+     * Gets the foreign model fields from resource file
+     *
+     * @return mix (null | CrestApps\CodeGenerator\Models\Resource)
+     */
+    protected function getForeignResource()
+    {
+        $modelName = $this->getForeignModelName();
+        $resourceFile = ResourceMapper::pluckFirst($modelName) ?: Helpers::makeJsonFileName($modelName);
+        $resourceFileFullName = Config::getResourceFilePath($resourceFile);
+
+        if (File::exists($resourceFileFullName)) {
+            return Resource::fromFile($resourceFile, 'crestapps');
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets the foreign model's class name
+     *
+     * @return string
+     */
+    protected function getForeignModelName()
+    {
+        return class_basename($this->getFullForeignModel());
     }
 
     /**

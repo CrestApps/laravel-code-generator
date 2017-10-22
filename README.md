@@ -61,6 +61,12 @@ php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServ
 
 > A layout is required for the default views! The code generator allows you to create a layout using the command-line. Of cource you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/ "CSS bootstrap framework") in your layout for the default templates to work properly. Additionally, you can chose to you design your own templetes using a different or no css framework. 
 
+## Lessons
+Checkout our YouTube channel 
+> https://youtu.be/l21qNcsMAWg
+> https://youtu.be/infoecfXOCw
+
+
 ## Available Commands
 
 > The command in between the square brackets **[]** must be replaced with a variable of your choice.

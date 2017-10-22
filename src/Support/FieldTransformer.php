@@ -299,6 +299,8 @@ class FieldTransformer
             $title = $this->getFirstElement($title);
         }
 
+        $name = Helpers::removePostFixWith($name, '_id');
+
         $this->replaceModelName($title, $name, 'field_');
 
         if ($this->hasLanguages()) {
