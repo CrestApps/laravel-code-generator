@@ -142,13 +142,6 @@ class Field implements JsonWriter
     private $labels = [];
 
     /**
-     * The languages for the labels
-     *
-     * @var array
-     */
-    private $languages = [];
-
-    /**
      * The html-type of the field
      *
      * @var string
@@ -369,15 +362,13 @@ class Field implements JsonWriter
      *
      * @param string $name
      * @param string $localeGroup
-     * @param array $languages
      *
      * @return void
      */
-    public function __construct($name, $localeGroup, $languages)
+    public function __construct($name, $localeGroup)
     {
         $this->name = $name;
         $this->localeGroup = $localeGroup;
-        $this->languages = $languages;
         $this->defaultLang = App::getLocale();
     }
 
@@ -1134,16 +1125,6 @@ class Field implements JsonWriter
     }
 
     /**
-     * Checks if the field has languages
-     *
-     * @return bool
-     */
-    protected function isMultiLingual()
-    {
-        return !empty($this->langauges);
-    }
-
-    /**
      * It set the validationRules property for a giving field
      *
      * @param array $properties
@@ -1785,11 +1766,10 @@ class Field implements JsonWriter
      *
      * @param array $properties
      * @param string $localeGroup
-     * @param array $languages
      *
      * @return $this
      */
-    public static function fromArray(array $properties, $localeGroup, $languages = [])
+    public static function fromArray(array $properties, $localeGroup)
     {
         $fieldName = self::getNameFromArray($properties);
 
@@ -1797,7 +1777,7 @@ class Field implements JsonWriter
             unset($properties['html-type']);
         }
 
-        $field = new self($fieldName, $localeGroup, $languages);
+        $field = new self($fieldName, $localeGroup);
 
         $field->setPredefindProperties($properties)
             ->setLabelsProperty($properties)

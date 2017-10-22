@@ -1,5 +1,6 @@
 ### Upgrade
- - If you are upgrading from v2.0 or v2.1 to v2.3 make sure you publish the vendor resource. There are some changes to the templates that required to be updated.
+ - If you are upgrading from v2.0, v2.1 or v2.2 to v2.3 make sure you publish the vendor resource. There are some updates to the config file.
+ - If you are upgrading from v2.0 or v2.1 to v2.2 make sure you publish the vendor resource. There are some changes to the templates that required to be updated.
 -- If you are upgrading any version prior v2.2 follow the upgrate instruction on https://crestapps.com/laravel-code-generator/docs/2.2#upgrade-guide
 
 ### Options Changes

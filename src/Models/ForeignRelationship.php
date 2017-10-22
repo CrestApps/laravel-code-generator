@@ -169,25 +169,24 @@ class ForeignRelationship implements JsonWriter
      */
     protected function guessForeignField()
     {
+        // First we try to find a column that match the header pattern
         $columns = $this->getModelColumns();
         $names = Config::getHeadersPatterns();
-
         foreach ($columns as $column) {
-            $matchedPattern = '';
-            if (Helpers::strIs($names, $column, $matchedPattern)) {
+            if (Helpers::strIs($names, $column)) {
+                // At this point a column that match the header patter was found
                 return $column;
             }
         }
 
+        // At this point we know no column that match the header patters found.
+        // Second we try to find a non-primary/non-foreign key column
         $primary = $this->getPrimaryKeyForForeignModel();
         $idPatterns = Config::getKeyPatterns();
-        $columns = array_filter($columns, function ($column) use ($primary, $idPatterns) {
-
-            return $column != $primary && !Helpers::strIs($idPatterns, $column);
-        });
-
-        if (count($columns) > 0) {
-            return current($columns);
+        foreach ($columns as $column) {
+            if ($column != $primary && !Helpers::strIs($idPatterns, $column)) {
+                return $column;
+            }
         }
 
         return $primary;
@@ -293,11 +292,17 @@ class ForeignRelationship implements JsonWriter
         $model = $this->getForeignModelInstance();
         $columns = [];
         if ($this->isModel($model)) {
+            // At this point we know a model class exists
+            // Try to get the database column listing from the database directly
             $tableName = $model->getTable();
             $columns = DB::getSchemaBuilder()->getColumnListing($tableName);
         }
 
         if (count($columns) == 0) {
+            // At this poing we know the column have not yet been identified
+            // which also mean that the model does not exists or the table
+            // does not existing in the database.
+            // Try to find the columns from the resource-file if one found.
             $columns = $this->getFieldNamesFromResource();
         }
 
@@ -344,10 +349,10 @@ class ForeignRelationship implements JsonWriter
     protected function getForeignResource()
     {
         $modelName = $this->getForeignModelName();
+        // Find the resource file from the resource-map or make a standard name.
         $resourceFile = ResourceMapper::pluckFirst($modelName) ?: Helpers::makeJsonFileName($modelName);
-        $resourceFileFullName = Config::getResourceFilePath($resourceFile);
 
-        if (File::exists($resourceFileFullName)) {
+        if (File::exists(Config::getResourceFilePath($resourceFile))) {
             return Resource::fromFile($resourceFile, 'crestapps');
         }
 

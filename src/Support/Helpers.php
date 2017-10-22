@@ -18,7 +18,8 @@ class Helpers
      */
     public static function makeControllerName($modelName)
     {
-        $case = ucfirst(camel_case(self::getProperCaseFor($modelName, 'controller-name')));
+        $name = self::getProperCaseFor($modelName, 'controller-name');
+        $case = ucfirst(camel_case($name));
 
         if (!empty($postFix = Config::getControllerNamePostFix())) {
             return str_finish($case, $postFix);
@@ -81,7 +82,8 @@ class Helpers
      */
     public static function makeFormRequestName($modelName)
     {
-        $case = ucfirst(camel_case(self::getProperCaseFor($modelName, 'request-form-name')));
+        $name = self::getProperCaseFor($modelName, 'request-form-name');
+        $case = ucfirst(camel_case($name));
 
         if (!empty($postFix = Config::getFormRequestNamePostFix())) {
             return str_finish($case, $postFix);
@@ -150,7 +152,9 @@ class Helpers
      */
     public static function extractModelName($name)
     {
-        return ucfirst(studly_case(Str::singular(str_replace('_id', '', $name))));
+        $name = self::removePostFixWith($name, '_id');
+
+        return ucfirst(studly_case(Str::singular($name)));
     }
 
     /**
@@ -266,9 +270,9 @@ class Helpers
      */
     public static function strReplaceOnce($pattern, $replacment, $subject)
     {
-        if (strpos($subject, $pattern) !== false) {
-            $occurrence = strpos($subject, $pattern);
-            return substr_replace($subject, $replacment, strpos($subject, $pattern), strlen($pattern));
+        $index = strpos($subject, $pattern);
+        if ($index !== false) {
+            return substr_replace($subject, $replacment, $index, strlen($pattern));
         }
 
         return $subject;
@@ -392,14 +396,16 @@ class Helpers
      * Removes a string from the end of another giving string if it already ends with it.
      *
      * @param  string  $name
-     * @param  string  $postFix
+     * @param  string  $fix
      *
      * @return string
      */
-    public static function removePostFixWith($name, $postFix = '/')
+    public static function removePostFixWith($name, $fix = '/')
     {
-        if (ends_with($name, $postFix)) {
-            return strstr($name, $postFix, true);
+        $position = strripos($name, $fix);
+
+        if ($position !== false) {
+            return substr($name, 0, $position);
         }
 
         return $name;
@@ -409,14 +415,14 @@ class Helpers
      * Adds a postFix string at the end of another giving string if it does not already ends with it.
      *
      * @param  string  $name
-     * @param  string  $postFix
+     * @param  string  $fix
      *
      * @return string
      */
-    public static function postFixWith($name, $postFix = '/')
+    public static function postFixWith($name, $fix = '/')
     {
-        if (!ends_with($name, $postFix)) {
-            return $name . $postFix;
+        if (!ends_with($name, $fix)) {
+            return $name . $fix;
         }
 
         return $name;
@@ -426,14 +432,14 @@ class Helpers
      * Adds a preFix string at the begining of another giving string if it does not already ends with it.
      *
      * @param  string  $name
-     * @param  string  $preFix
+     * @param  string  $fix
      *
      * @return string
      */
-    public static function preFixWith($name, $preFix = '/')
+    public static function preFixWith($name, $fix = '/')
     {
-        if (!starts_with($name, $preFix)) {
-            return $preFix . $name;
+        if (!starts_with($name, $fix)) {
+            return $fix . $name;
         }
 
         return $name;

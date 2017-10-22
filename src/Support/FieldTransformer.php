@@ -355,10 +355,6 @@ class FieldTransformer
 
             // At this point we are just formatting the labels
             foreach ($options as $key => $option) {
-                if (is_array($option)) {
-                    dd($option, $this->hasLanguages(), $this->languages);
-                }
-
                 $labels[$key] = Helpers::convertNameToLabel($option);
             }
         }

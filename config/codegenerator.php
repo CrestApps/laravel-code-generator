@@ -209,14 +209,16 @@ return [
     | used for header.
     |--------------------------------------------------------------------------
     |
+    | You may use * as a while card in the name. For example, "head*" will
+    | match any field name that starts with the word "head"
+    |
      */
     'common_header_patterns' => [
         'title',
         'name',
         'label',
-        'header',
         'subject',
-        'head',
+        'head*',
     ],
 
     /*
@@ -284,6 +286,7 @@ return [
         [
             'match' => '*',
             'set' => [
+                // You may use any of the field templates to create the label
                 'labels' => '[% field_name_title %]',
             ],
         ],
@@ -302,7 +305,7 @@ return [
             ],
         ],
         [
-            'match' => ['title', 'name', 'label', 'header'],
+            'match' => ['title', 'name', 'label', 'subject', 'head*'],
             'set' => [
                 'is-nullable' => false,
                 'data-type' => 'string',

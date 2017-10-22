@@ -1,10 +1,8 @@
-# An awesome code generator for laravel framework - with client-side validation
-
-For full documentation and live demo please visit <a href="https://crestapps.com/laravel-code-generator/docs/2.2" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
-
 ## Introduction
 
-A clean code generator for Laravel framework that will save you time! This awesome tool will help you generate resources like views, controllers, routes, migrations, languages or request-forms! It is extremely flexible and customizable to cover many on the use cases. It is shipped with cross-browsers compatible template, along with a client-side validation to modernize your application.
+An intelligent code generator for Laravel framework that will save you time! This awesome tool will help you generate resources like views, controllers, routes, migrations, languages and/or form-requests! It is extremely flexible and customizable to cover many on the use cases. It is shipped with cross-browsers compatible template, along with a client-side validation to modernize your application.
+
+For full documentation and live demo please visit <a href="https://crestapps.com/laravel-code-generator/docs/2.2" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
 
 ## Features
 
@@ -40,31 +38,32 @@ A clean code generator for Laravel framework that will save you time! This aweso
 
 1. To download this package into your laravel project, use the command-line to execute the following command
 
-```
-composer require crestapps/laravel-code-generator --dev
-```
+	```
+	composer require crestapps/laravel-code-generator --dev
+	```
  
 2. **(You may skip this step when using Laravel >= 5.5)** To bootstrap the packages into your project while using command-line only, open the app/Providers/AppServiceProvider.php file in your project. Then, add the following code to the register() method.
 
-Add the following line to bootstrap laravel-code-generator to the framework.
+	Add the following line to bootstrap laravel-code-generator to the framework.
 
-```
-if ($this->app->runningInConsole()) {
-    $this->app->register('CrestApps\CodeGenerator\CodeGeneratorServiceProvider');
-}
-```
+	```
+	if ($this->app->runningInConsole()) {
+	    $this->app->register('CrestApps\CodeGenerator\CodeGeneratorServiceProvider');
+	}
+	```
 
 3. Execute the following command from the command-line to publish the package's config and the default template to start generating awesome code.
-```
-php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServiceProvider" --tag=default
-```
+
+	```
+	php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServiceProvider" --tag=default
+	```
 
 > A layout is required for the default views! The code generator allows you to create a layout using the command-line. Of cource you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/ "CSS bootstrap framework") in your layout for the default templates to work properly. Additionally, you can chose to you design your own templetes using a different or no css framework. 
 
 ## Lessons
-Checkout our YouTube channel 
-> https://youtu.be/l21qNcsMAWg
-> https://youtu.be/infoecfXOCw
+Checkout our YouTube channel on <a href="https://www.youtube.com/channel/UCkEd0nOoRf3o0ahspAu7Y9w/videos" target="_blank" title="CrestApps YouTube Channel">YouTube.com</a> 
+* https://youtu.be/l21qNcsMAWg
+* https://youtu.be/infoecfXOCw
 
 
 ## Available Commands
