@@ -229,7 +229,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
         $modelVariable = $this->getSingularVariable($this->modelName);
         $valueString = 'null';
         if (!is_null($value)) {
-            $valueString = starts_with('$', $value) ? sprintf("%s", $value) : sprintf("'%s'", $value);
+            $valueString = starts_with($value, '$') ? sprintf("%s", $value) : sprintf("'%s'", $value);
         }
         $defaultValueString = '[]';
         if (!empty($defaultValue)) {
@@ -273,7 +273,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
      */
     protected function getMultipleSelectedValue($name, $valueAccessor, $defaultValue)
     {
-        return sprintf(" (%s ? true : null) ", $name);
+        return sprintf(" (%s ? true : null) ", $this->getMultipleRawOptionValue($name, $valueAccessor, $defaultValue));
     }
 
     /**

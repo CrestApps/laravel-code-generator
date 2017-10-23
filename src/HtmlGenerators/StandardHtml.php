@@ -112,7 +112,7 @@ class StandardHtml extends HtmlGeneratorBase
      */
     protected function getFieldMultiple($isMulti)
     {
-        return $isMulti ? 'multiple="multiple"' : '';
+        return $isMulti ? ' multiple="multiple"' : '';
     }
 
     /**
@@ -188,6 +188,7 @@ class StandardHtml extends HtmlGeneratorBase
      */
     protected function getMultipleCheckedItem($value, $name, $defaultValue)
     {
+
         return sprintf(" {{ %s ? 'checked' : '' }}", $this->getMultipleRawOptionValue($name, $value, $defaultValue));
     }
 
@@ -226,7 +227,7 @@ class StandardHtml extends HtmlGeneratorBase
      */
     protected function getMultipleSelectedValue($name, $valueAccessor, $defaultValue)
     {
-        return sprintf(" {{ %s ? 'selected' : '' }}", $name);
+        return sprintf(" {{ %s ? 'selected' : '' }}", $this->getMultipleRawOptionValue($name, $valueAccessor, $defaultValue));
     }
 
     /**
@@ -277,7 +278,7 @@ class StandardHtml extends HtmlGeneratorBase
         $valueString = 'null';
 
         if (!is_null($value)) {
-            $valueString = starts_with('$', $value) ? sprintf("%s", $value) : sprintf("'%s'", $value);
+            $valueString = starts_with($value, '$') ? sprintf("%s", $value) : sprintf("'%s'", $value);
         }
 
         $defaultValueString = '[]';

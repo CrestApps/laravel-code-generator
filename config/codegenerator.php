@@ -252,6 +252,7 @@ return [
         'password' => 'Enter [% field_name %] here...',
         'email' => 'Enter [% field_name %] here...',
         'select' => 'Select [% field_name %]',
+        'multipleSelect' => 'Select [% field_name %]',
     ],
 
     /*
