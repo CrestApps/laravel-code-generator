@@ -248,7 +248,6 @@ class MysqlParser extends ParserBase
 
         foreach ($columns as $column) {
             $properties['name'] = $column->COLUMN_NAME;
-            $properties['labels'] = $this->getLabel($column->COLUMN_NAME);
             $properties['is-nullable'] = ($column->IS_NULLABLE == 'YES');
             $properties['data-value'] = $column->COLUMN_DEFAULT;
             $properties['data-type'] = $this->getDataType($column->DATA_TYPE, $column->COLUMN_TYPE);
@@ -260,7 +259,6 @@ class MysqlParser extends ParserBase
             $properties['comment'] = $column->COLUMN_COMMENT ?: null;
             $properties['options'] = $this->getHtmlOptions($column->DATA_TYPE, $column->COLUMN_TYPE);
             $properties['is-unsigned'] = (strpos($column->COLUMN_TYPE, 'unsigned') !== false);
-            $properties['html-type'] = $this->getHtmlType($column->DATA_TYPE);
 
             $constraint = $this->getForeignConstraint($column->COLUMN_NAME);
 
@@ -275,6 +273,7 @@ class MysqlParser extends ParserBase
         }
         $localeGroup = Helpers::makeLocaleGroup($this->tableName);
         $fields = FieldTransformer::fromArray($collection, $localeGroup, $this->languages);
+        $this->setHtmlType($fields);
 
         return $fields;
     }

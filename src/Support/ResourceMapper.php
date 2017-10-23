@@ -29,11 +29,12 @@ class ResourceMapper
     /**
      * Gets the first map with the giving model name
      *
-     * @param string $modelName
+     * @param string $value
+     * @param string $key
      *
      * @return mix (null | array)
      */
-    public static function first($modelName)
+    public static function first($value, $key = 'model-name')
     {
         $file = self::getMapper();
 
@@ -41,8 +42,8 @@ class ResourceMapper
 
             $maps = self::getMaps($file);
 
-            return Collect($maps)->first(function ($map) use ($modelName) {
-                return $map['model-name'] == $modelName;
+            return Collect($maps)->first(function ($map) use ($key, $value) {
+                return $map[$key] == $value;
             });
         }
 
@@ -52,14 +53,15 @@ class ResourceMapper
     /**
      * Gets the first map with the giving model name then get a specific property/key
      *
-     * @param string $modelName
+     * @param string $value
+     * @param string $key
      * @param string $propertyName
      *
      * @return string
      */
-    public static function pluckFirst($modelName, $propertyName = 'resource-file')
+    public static function pluckFirst($value, $key = 'model-name', $propertyName = 'resource-file')
     {
-        $first = self::first($modelName);
+        $first = self::first($value, $key);
 
         if (!is_null($first) && isset($first[$propertyName])) {
             return $first[$propertyName];

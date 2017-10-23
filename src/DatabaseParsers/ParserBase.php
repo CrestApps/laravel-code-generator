@@ -8,6 +8,8 @@ use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldsOptimizer;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\ResourceMapper;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use Exception;
 
@@ -117,9 +119,7 @@ abstract class ParserBase
     public function getResource()
     {
         $resource = new Resource($this->getFields());
-
         $resource->indexes = $this->getIndexes();
-
         $resource->relations = $this->getRelations();
 
         return $resource;
@@ -156,7 +156,7 @@ abstract class ParserBase
     }
 
     /**
-     * Set the html type for a giving field.
+     * Get the html type for a giving field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
@@ -171,39 +171,22 @@ abstract class ParserBase
             return $map[$type];
         }
 
-        return 'string';
+        return 'text';
     }
 
     /**
-     * Checks if the request requires languages.
+     * Set the html type for a giving field.
      *
-     * @return bool
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param string $type
+     *
+     * @return string
      */
-    protected function hasLanguages()
+    protected function setHtmlType(array &$fields)
     {
-        return !empty($this->languages);
-    }
-
-    /**
-     * Gets the label(s) from a giving name
-     *
-     * @param string $name
-     *
-     * @return mix (string | array)
-     */
-    protected function getLabel($name)
-    {
-        if (!$this->hasLanguages()) {
-            return $this->getLabelName($name);
+        foreach ($fields as $field) {
+            $field->htmlType = $this->getHtmlType($field->getEloquentDataMethod());
         }
-        $labels = [];
-        $title = $this->getLabelName($name);
-
-        foreach ($this->languages as $language) {
-            $labels[$language] = $title;
-        }
-
-        return $labels;
     }
 
     /**
@@ -225,39 +208,9 @@ abstract class ParserBase
      */
     protected function getModelName($tableName)
     {
-        $file = base_path(Config::getResourceFilePath(Config::getDefaultMapperFileName()));
+        $modelName = ResourceMapper::pluckFirst($tableName, 'table-name', 'model-name');
 
-        $fields = [];
-
-        if ($this->isFileExists($file)) {
-            $content = $this->getFileContent($file);
-
-            $maps = json_decode($content, true);
-
-            if (is_array($maps)) {
-                foreach ($maps as $map) {
-                    if (array_key_exists('table-name', $map)
-                        && $map['table-name'] == $tableName
-                        && array_key_exists('model-name', $map)
-                        && !empty($map['model-name'])
-                    ) {
-                        return $map['model-name'];
-                    }
-                }
-            }
-        }
-
-        return $tableName;
-    }
-
-    /**
-     * Gets a labe field's label from a giving name.
-     *
-     * @return string
-     */
-    protected function getLabelName($name)
-    {
-        return trim(ucwords(str_replace(['-', '_'], ' ', $name)));
+        return $modelName ?: ucfirst(camel_case(Str::singular($tableName)));
     }
 
     /**
