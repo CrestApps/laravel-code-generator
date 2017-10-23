@@ -30,16 +30,6 @@ abstract class ParserBase
     ];
 
     /**
-     * The default boolean options to use.
-     *
-     * @var array
-     */
-    protected $booleanOptions = [
-        '0' => 'No',
-        '1' => 'Yes',
-    ];
-
-    /**
      * The table name.
      *
      * @var array
@@ -180,13 +170,15 @@ abstract class ParserBase
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
      *
-     * @return string
+     * @return $this
      */
     protected function setHtmlType(array &$fields)
     {
         foreach ($fields as $field) {
             $field->htmlType = $this->getHtmlType($field->getEloquentDataMethod());
         }
+
+        return $this;
     }
 
     /**
@@ -210,7 +202,21 @@ abstract class ParserBase
     {
         $modelName = ResourceMapper::pluckFirst($tableName, 'table-name', 'model-name');
 
-        return $modelName ?: ucfirst(camel_case(Str::singular($tableName)));
+        return $modelName ?: $this->makeModelName($tableName);
+    }
+
+    /**
+     * Make a model name from the giving table name
+     *
+     * @param string $tableName
+     *
+     * @return string
+     */
+    protected function makeModelName($tableName)
+    {
+        $name = Str::singular($tableName);
+
+        return ucfirst(camel_case($name));
     }
 
     /**

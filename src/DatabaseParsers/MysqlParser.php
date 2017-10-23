@@ -110,13 +110,13 @@ class MysqlParser extends ParserBase
     {
         $result = DB::select(
             'SELECT
-                               INDEX_NAME AS name
-                              ,COUNT(1) AS TotalColumns
-                              ,GROUP_CONCAT(DISTINCT COLUMN_NAME ORDER BY SEQ_IN_INDEX ASC SEPARATOR \'|||\') AS columns
-                              FROM INFORMATION_SCHEMA.STATISTICS AS s
-                              WHERE TABLE_NAME = ? AND TABLE_SCHEMA = ?
-                              GROUP BY INDEX_NAME
-                              HAVING COUNT(1) > 1;',
+              INDEX_NAME AS name
+             ,COUNT(1) AS TotalColumns
+             ,GROUP_CONCAT(DISTINCT COLUMN_NAME ORDER BY SEQ_IN_INDEX ASC SEPARATOR \'|||\') AS columns
+             FROM INFORMATION_SCHEMA.STATISTICS AS s
+             WHERE TABLE_NAME = ? AND TABLE_SCHEMA = ?
+             GROUP BY INDEX_NAME
+             HAVING COUNT(1) > 1;',
             [$this->tableName, $this->databaseName]
         );
 
@@ -247,6 +247,9 @@ class MysqlParser extends ParserBase
         $collection = [];
 
         foreach ($columns as $column) {
+            // While constructing the array for each field
+            // there is no need to set translations for options
+            // or even labels. This step is handled using the FieldTransformer
             $properties['name'] = $column->COLUMN_NAME;
             $properties['is-nullable'] = ($column->IS_NULLABLE == 'YES');
             $properties['data-value'] = $column->COLUMN_DEFAULT;
@@ -262,7 +265,7 @@ class MysqlParser extends ParserBase
 
             $constraint = $this->getForeignConstraint($column->COLUMN_NAME);
 
-            $properties['foreign-constraint'] = is_null($constraint) ? null : $constraint->toArray();
+            $properties['foreign-constraint'] = !is_null($constraint) ? $constraint->toArray() : null;
 
             if (intval($column->CHARACTER_MAXIMUM_LENGTH) > 255
                 || in_array($column->DATA_TYPE, $this->largeDataTypes)) {
@@ -273,6 +276,9 @@ class MysqlParser extends ParserBase
         }
         $localeGroup = Helpers::makeLocaleGroup($this->tableName);
         $fields = FieldTransformer::fromArray($collection, $localeGroup, $this->languages);
+
+        // At this point we constructed the fields collection with the default html-type
+        // We need to set the html-type using the config::getEloquentToHtmlMap() setting
         $this->setHtmlType($fields);
 
         return $fields;
