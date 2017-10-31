@@ -6,6 +6,7 @@ use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
@@ -169,7 +170,7 @@ class CreateModelCommand extends Command
      */
     protected function getNewDeletedAtField()
     {
-        $field = new Field('deleted_at');
+        $field = current(FieldTransformer::fromString('deleted_at'));
         $field->isDate = true;
         $field->dataType = 'datetime';
         $field->dateFormat = Config::getDateTimeFormat();
