@@ -18,7 +18,7 @@ abstract class ParserBase
     use CommonCommand;
 
     /**
-     * List of the field to exclude from all views.
+     * List of fields to be excluded from all views.
      *
      * @var array
      */
@@ -58,18 +58,18 @@ abstract class ParserBase
     protected $fields;
 
     /**
-     * The langugaes to create labels form.
+     * The languages to create labels form.
      *
      * @var array
      */
-    protected $langugaes;
+    protected $languages;
 
     /**
      * Creates a new field instance.
      *
      * @param string $tableName
      * @param string $databaseName
-     * @param array $langugaes
+     * @param array $languages
      *
      * @return void
      */
