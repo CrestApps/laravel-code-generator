@@ -606,6 +606,7 @@ return [
         'binary' => 'binary',
         'bool' => 'boolean',
         'boolean' => 'boolean',
+        'bit' => 'boolean',
         'decimal' => 'decimal',
         'double' => 'double',
         'enum' => 'enum',

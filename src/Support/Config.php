@@ -380,6 +380,7 @@ class Config
             'longblob' => 'binary',
             'binary' => 'binary',
             'bool' => 'boolean',
+            'bit' => 'boolean',
             'boolean' => 'boolean',
             'decimal' => 'decimal',
             'double' => 'double',
