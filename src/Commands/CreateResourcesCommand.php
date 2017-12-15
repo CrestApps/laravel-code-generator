@@ -167,6 +167,7 @@ class CreateResourcesCommand extends Command
      */
     protected function createResourceFile($input)
     {
+
         $this->call(
             'resource-file:from-database',
             [

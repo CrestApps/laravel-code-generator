@@ -39,11 +39,11 @@ class MysqlParser extends ParserBase
     protected $largeDataTypes = ['varbinary', 'blob', 'mediumblob', 'longblob', 'text', 'mediumtext', 'longtext'];
 
     /**
-     * Gets column meta info from the information schema.
+     * Gets columns meta info from the information schema.
      *
      * @return array
      */
-    protected function getColumn()
+    protected function getColumns()
     {
         return DB::select(
             'SELECT
@@ -94,6 +94,7 @@ class MysqlParser extends ParserBase
                    ,r.DELETE_RULE AS `onDelete`
                    ,u.referenced_column_name AS `on`
                    ,u.column_name AS `foreign`
+                   ,CASE WHEN u.TABLE_NAME = r.referenced_table_name THEN 1 ELSE 0 END selfReferences
                    FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS r
                    INNER JOIN information_schema.key_column_usage AS u ON u.CONSTRAINT_NAME = r.CONSTRAINT_NAME
                                                                        AND u.table_schema = r.constraint_schema
@@ -132,9 +133,8 @@ class MysqlParser extends ParserBase
     {
         $relations = [];
         $rawRelations = $this->getRawRelations();
-
         foreach ($rawRelations as $rawRelation) {
-            $relations[] = $this->getRealtion($rawRelation->foreignTable, $rawRelation->foreignKey, $rawRelation->localKey);
+            $relations[] = $this->getRealtion($rawRelation->foreignTable, $rawRelation->foreignKey, $rawRelation->localKey, $rawRelation->selfReferences);
         }
 
         return $relations;
@@ -153,6 +153,7 @@ class MysqlParser extends ParserBase
                  u.referenced_column_name AS `localKey`
                 ,u.column_name AS `foreignKey`
                 ,r.table_name AS `foreignTable`
+                ,CASE WHEN u.TABLE_NAME = r.referenced_table_name THEN 1 ELSE 0 END selfReferences
                 FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS r
                 INNER JOIN information_schema.key_column_usage AS u ON u.CONSTRAINT_NAME = r.CONSTRAINT_NAME
                                                                    AND u.table_schema = r.constraint_schema
@@ -184,10 +185,10 @@ class MysqlParser extends ParserBase
      *
      * @return CrestApps\CodeGenerator\Models\ForeignRelationship
      */
-    protected function getRealtion($foreignTableName, $foreignColumn, $localColumn)
+    protected function getRealtion($foreignTableName, $foreignColumn, $localColumn, $selfReferences)
     {
         $modelName = $this->getModelName($foreignTableName);
-        $model = Helpers::guessModelFullName($modelName, $this->getModelNamespace());
+        $model = Helpers::guessModelFullName($modelName, Helpers::getModelsPath());
 
         $params = [
             $model,
@@ -195,11 +196,13 @@ class MysqlParser extends ParserBase
             $localColumn,
         ];
 
+        $relationName = ($selfReferences ? 'child_' : '');
+
         if ($this->isOneToMany($foreignTableName, $foreignColumn)) {
-            return new ForeignRelationship('hasMany', $params, camel_case(Str::plural($foreignTableName)));
+            return new ForeignRelationship('hasMany', $params, camel_case($relationName . Str::plural($foreignTableName)));
         }
 
-        return new ForeignRelationship('hasOne', $params, camel_case(Str::singular($foreignTableName)));
+        return new ForeignRelationship('hasOne', $params, camel_case($relationName . Str::singular($foreignTableName)));
     }
 
     /**
@@ -255,7 +258,7 @@ class MysqlParser extends ParserBase
             $properties['data-value'] = $column->COLUMN_DEFAULT;
             $properties['data-type'] = $this->getDataType($column->DATA_TYPE, $column->COLUMN_TYPE);
             $properties['data-type-params'] = $this->getPrecision($column->CHARACTER_MAXIMUM_LENGTH, $column->DATA_TYPE, $column->COLUMN_TYPE);
-            $properties['is-primary'] = ($column->COLUMN_KEY == 'PRIMARY KEY');
+            $properties['is-primary'] = in_array($column->COLUMN_KEY, ['PRIMARY KEY', 'PRI']);
             $properties['is-index'] = ($column->COLUMN_KEY == 'MUL');
             $properties['is-unique'] = ($column->COLUMN_KEY == 'UNI');
             $properties['is-auto-increment'] = ($column->EXTRA == 'AUTO_INCREMENT');
@@ -274,7 +277,9 @@ class MysqlParser extends ParserBase
 
             $collection[] = $properties;
         }
+
         $localeGroup = Helpers::makeLocaleGroup($this->tableName);
+
         $fields = FieldTransformer::fromArray($collection, $localeGroup, $this->languages);
 
         // At this point we constructed the fields collection with the default html-type
@@ -326,7 +331,7 @@ class MysqlParser extends ParserBase
     {
         $map = Config::dataTypeMap();
 
-        if ($columnType == 'tinyint(1)') {
+        if (in_array($columnType, ['bit', 'tinyint(1)']) {
             return 'boolean';
         }
 
@@ -353,11 +358,13 @@ class MysqlParser extends ParserBase
         }
 
         return new ForeignConstraint(
-            strtolower($raw->foreign),
-            strtolower($raw->references),
-            strtolower($raw->on),
+            $raw->foreign,
+            $raw->references,
+            $raw->on,
             strtolower($raw->onDelete),
-            strtolower($raw->onUpdate)
+            strtolower($raw->onUpdate),
+            null,
+            $raw->selfReferences
         );
     }
 

@@ -8,7 +8,6 @@ use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Str;
 use Exception;
 use File;
-use Illuminate\Container\Container;
 
 trait CommonCommand
 {
@@ -356,10 +355,12 @@ trait CommonCommand
      *
      * @return string
      */
+    /*
     protected function getAppNamespace()
     {
-        return Container::getInstance()->getNamespace();
+    return Container::getInstance()->getNamespace();
     }
+     */
 
     /**
      * Gets the app folder name,
@@ -368,7 +369,7 @@ trait CommonCommand
      */
     protected function getAppName()
     {
-        return rtrim($this->getAppNamespace(), '\\');
+        return rtrim(Helpers::getAppNamespace(), '\\');
     }
 
     /**

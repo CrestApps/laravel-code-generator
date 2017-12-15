@@ -6,6 +6,7 @@ use App;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Str;
 use File;
+use Illuminate\Container\Container;
 
 class Helpers
 {
@@ -26,6 +27,45 @@ class Helpers
         }
 
         return $case;
+    }
+
+    /**
+     * Eliminate a duplicate giving phrase from a giving string
+     *
+     * @param string $subject
+     * @param string $eliminate
+     *
+     * @return string
+     */
+    public static function eliminateDupilcates($subject, $eliminate = "\\")
+    {
+        $pattern = $eliminate . $eliminate;
+
+        while (strpos($subject, $pattern) !== false) {
+            $subject = str_replace($pattern, $eliminate, $subject);
+        }
+
+        return $subject;
+    }
+
+    /**
+     * Gets the model full path.
+     *
+     * @return string
+     */
+    public static function getModelsPath()
+    {
+        return self::getAppNamespace() . Config::getModelsPath();
+    }
+
+    /**
+     * Gets the app namespace.
+     *
+     * @return string
+     */
+    public static function getAppNamespace()
+    {
+        return Container::getInstance()->getNamespace();
     }
 
     /**
@@ -309,20 +349,34 @@ class Helpers
      *
      * @param string|array $patterns
      * @param string $subject
+     * @param string $matchedPattern
+     * @param bool $caseSensitive
      *
      * @return bool
      */
-    public static function strIs($patterns, $subject, &$matchedPattern = '')
+    public static function strIs($patterns, $subject, &$matchedPattern = '', $caseSensitive = false)
     {
         if (!is_array($patterns)) {
             $patterns = (array) $patterns;
         }
 
+        $lowerSubject = strtolower($subject);
+
         foreach ($patterns as $pattern) {
-            if (str_is($pattern, $subject)) {
-                $matchedPattern = $pattern;
-                return true;
+
+            if ($caseSensitive) {
+                if (str_is($pattern, $subject)) {
+                    $matchedPattern = $pattern;
+                    return true;
+                }
+            } else {
+                $lowerPattern = strtolower($pattern);
+                if (str_is($lowerPattern, $lowerSubject)) {
+                    $matchedPattern = $pattern;
+                    return true;
+                }
             }
+
         }
 
         return false;
