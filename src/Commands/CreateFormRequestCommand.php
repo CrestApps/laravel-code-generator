@@ -170,7 +170,7 @@ class CreateFormRequestCommand extends ControllerCommandBase
     {
         $path = str_finish($path, '\\');
 
-        $path = $this->getAppNamespace() . Config::getRequestsPath($path);
+        $path = Helpers::getAppNamespace() . Config::getRequestsPath($path);
 
         return rtrim(Helpers::convertSlashToBackslash($path), '\\');
     }

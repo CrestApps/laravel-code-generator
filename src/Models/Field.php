@@ -497,7 +497,7 @@ class Field implements JsonWriter
      */
     public function isAutoManagedOnUpdate()
     {
-        return in_array($this->name, $this->autoManagedFieldsOnUpdate);
+        return in_array(strtolower($this->name), $this->autoManagedFieldsOnUpdate);
     }
 
     /**
@@ -507,7 +507,7 @@ class Field implements JsonWriter
      */
     public function isAutoManagedOnDelete()
     {
-        return in_array($this->name, $this->autoManagedFieldsOnDelete);
+        return in_array(strtolower($this->name), $this->autoManagedFieldsOnDelete);
     }
 
     /**
@@ -1219,6 +1219,8 @@ class Field implements JsonWriter
             return $this;
         }
 
+        $relation = ForeignRelationship::predict($this->name, Helpers::getModelsPath());
+
         if (Helpers::isKeyExists($properties, 'foreign-relation')) {
             $relation = ForeignRelationship::get((array) $properties['foreign-relation']);
 
@@ -1227,23 +1229,17 @@ class Field implements JsonWriter
                 $this->setOnUpdate($properties);
             }
 
-        } else {
-            $relation = ForeignRelationship::predict($this->name, $this->getModelsPath());
+        } else if (Helpers::isKeyExists($properties, 'foreign-constraint')) {
+            $constraint = $this->getForeignConstraintFromArray((array) $properties);
+
+            if (!is_null($constraint)) {
+                $relation = $constraint->getForeignRelation();
+            }
         }
 
         $this->setForeignRelation($relation);
 
         return $this;
-    }
-
-    /**
-     * Gets the model full path.
-     *
-     * @return string
-     */
-    protected function getModelsPath()
-    {
-        return $this->getAppNamespace() . Config::getModelsPath();
     }
 
     /**

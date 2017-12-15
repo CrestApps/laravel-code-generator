@@ -55,6 +55,13 @@ class ForeignConstraint implements JsonWriter
     protected $referencesModel;
 
     /**
+     * If the model references itself.
+     *
+     * @var string
+     */
+    protected $isSelfReference;
+
+    /**
      * Creates a new field instance.
      *
      * @param string $column
@@ -66,7 +73,7 @@ class ForeignConstraint implements JsonWriter
      *
      * @return void
      */
-    public function __construct($column, $references, $on, $onDelete = null, $onUpdate = null, $model = null)
+    public function __construct($column, $references, $on, $onDelete = null, $onUpdate = null, $model = null, $isSelfReference = false)
     {
         $this->column = $column;
         $this->references = $references;
@@ -74,6 +81,7 @@ class ForeignConstraint implements JsonWriter
         $this->onUpdate = $onUpdate;
         $this->onDelete = $onDelete;
         $this->referencesModel = $model;
+        $this->isSelfReference = $isSelfReference;
     }
 
     /**
@@ -84,10 +92,20 @@ class ForeignConstraint implements JsonWriter
     public function getReferencesModel()
     {
         if (empty($this->referencesModel)) {
-            $this->referencesModel = $this->getModelNamespace() . '\\' . ucfirst($this->getForeignModelName());
+            $this->referencesModel = $this->getModelNamespace(ucfirst($this->getForeignModelName()));
         }
 
         return $this->referencesModel;
+    }
+
+    /**
+     * Checks if this constraint reference itself as parent-child relation
+     *
+     * @return bool
+     */
+    public function isSelfReference()
+    {
+        return $this->isSelfReference;
     }
 
     /**
@@ -103,32 +121,41 @@ class ForeignConstraint implements JsonWriter
             $this->on,
         ];
 
-        return new ForeignRelationship(
+        $prefix = $this->isSelfReference() ? 'parent_' : '';
+
+        $relation = new ForeignRelationship(
             'belongsTo',
             $params,
-            $this->getForeignModelName(),
-            $this->on
+            $this->getForeignModelName($prefix)
         );
+
+        return $relation;
     }
 
     /**
      * Get the namecpase of the foreign model.
      *
+     * @param string $modelName
+     *
      * @return string
      */
-    protected function getModelNamespace()
+    protected function getModelNamespace($modelName)
     {
-        return $this->getAppNamespace() . rtrim(Config::getModelsPath(), '/');
+        $path = Helpers::getAppNamespace() . rtrim(Config::getModelsPath(), '\\');
+
+        return $path . '\\' . $modelName;
     }
 
     /**
      * Get the name of the foreign model.
      *
+     * @param string $prefix
+     *
      * @return string
      */
-    protected function getForeignModelName()
+    protected function getForeignModelName($prefix = '')
     {
-        return camel_case(Str::singular($this->references));
+        return camel_case($prefix . Str::singular($this->references));
     }
 
     /**
@@ -165,6 +192,7 @@ class ForeignConstraint implements JsonWriter
             'on-delete' => $this->onDelete,
             'on-update' => $this->onUpdate,
             'references-model' => $this->getReferencesModel(),
+            'is-self-reference' => $this->isSelfReference(),
         ];
     }
 
@@ -182,9 +210,16 @@ class ForeignConstraint implements JsonWriter
         $onDelete = Helpers::isKeyExists($constraint, 'on-delete') ? $constraint['on-delete'] : null;
         $model = Helpers::isKeyExists($constraint, 'references-model') ? $constraint['references-model'] :
         Helpers::guessModelFullName($fieldName, Helpers::getModelsPath());
+        $isSelfReference = Helpers::isKeyExists($constraint, 'is-self-reference') ? (bool) $constraint['is-self-reference'] : false;
 
-        return new self($constraint['field'], $constraint['references'], $constraint['on'], $onDelete, $onUpdate, $model);
-
-        return null;
+        return new self(
+            $constraint['field'],
+            $constraint['references'],
+            $constraint['on'],
+            $onDelete,
+            $onUpdate,
+            $model,
+            $isSelfReference
+        );
     }
 }

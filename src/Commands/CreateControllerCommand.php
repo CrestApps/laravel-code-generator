@@ -468,7 +468,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected function getControllersNamespace($path)
     {
-        $path = $this->getAppNamespace() . Config::getControllersPath($path);
+        $path = Helpers::getAppNamespace() . Config::getControllersPath($path);
 
         return rtrim(Helpers::convertSlashToBackslash($path), '\\');
     }
@@ -502,7 +502,7 @@ class CreateControllerCommand extends ControllerCommandBase
         if (empty($extend)) {
             return '';
         }
-        $appNamespace = $this->getAppNamespace();
+        $appNamespace = Helpers::getAppNamespace();
 
         if (starts_with($extend, $appNamespace)) {
             $extend = str_replace($appNamespace, '', $extend);
@@ -525,7 +525,7 @@ class CreateControllerCommand extends ControllerCommandBase
             $modelDirectory = str_finish($modelDirectory, '\\');
         }
 
-        $namespace = $this->getAppNamespace() . Config::getModelsPath($modelDirectory . $modelName);
+        $namespace = Helpers::getAppNamespace() . Config::getModelsPath($modelDirectory . $modelName);
 
         return rtrim(Helpers::convertSlashToBackslash($namespace), '\\');
     }
@@ -626,7 +626,7 @@ class CreateControllerCommand extends ControllerCommandBase
             $path = str_finish($path, '\\');
         }
 
-        $path = $this->getAppNamespace() . Config::getRequestsPath($path);
+        $path = Helpers::getAppNamespace() . Config::getRequestsPath($path);
 
         return Helpers::convertSlashToBackslash($path) . $name;
     }

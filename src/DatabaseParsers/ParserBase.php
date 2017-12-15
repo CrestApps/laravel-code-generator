@@ -89,7 +89,7 @@ abstract class ParserBase
     protected function getFields()
     {
         if (is_null($this->fields)) {
-            $columns = $this->getColumn();
+            $columns = $this->getColumns();
 
             if (empty($columns)) {
                 throw new Exception('The table ' . $this->tableName . ' was not found in the ' . $this->databaseName . ' database.');
@@ -108,13 +108,26 @@ abstract class ParserBase
      */
     public function getResource()
     {
-        $resource = new Resource($this->getFields());
-        $resource->indexes = $this->getIndexes();
-        $resource->relations = $this->getRelations();
+        $fields = $this->getFields();
+        $autoManage = $this->containsUpdateAtAndCreatedAt($fields);
+        $resource = new Resource($fields, $this->getRelations(), $this->getIndexes(), $autoManage);
 
         return $resource;
     }
 
+    /**
+     * Check if the giving fields contains autoManagedFields
+     *
+     * @return CrestApps\CodeGenerator\Models\Resource
+     */
+    protected function containsUpdateAtAndCreatedAt($fields)
+    {
+        $autoManagedFields = array_filter($fields, function ($field) {
+            return $field->isAutoManagedOnUpdate();
+        });
+
+        return count($autoManagedFields) == 2;
+    }
     /**
      * Gets the final resource.
      *
@@ -130,17 +143,17 @@ abstract class ParserBase
     /**
      * Gets array of field after transfering each column meta into field.
      *
-     * @param array $columns
+     * @param array $fields
      *
      * @return array
      */
-    protected function transfer(array $columns)
+    protected function transfer(array $fields)
     {
-        $fields = array_map(function ($field) {
+        $mappers = array_map(function ($field) {
             return new FieldMapper($field);
-        }, $this->getTransfredFields($columns));
+        }, $this->getTransfredFields($fields));
 
-        $optimizer = new FieldsOptimizer($fields);
+        $optimizer = new FieldsOptimizer($mappers);
 
         return $optimizer->optimize()->getFields();
     }
@@ -188,7 +201,7 @@ abstract class ParserBase
      */
     protected function getModelNamespace()
     {
-        return $this->getAppNamespace() . Config::getModelsPath();
+        return Helpers::getAppNamespace() . Config::getModelsPath();
     }
 
     /**
@@ -224,7 +237,7 @@ abstract class ParserBase
      *
      * @return array
      */
-    abstract protected function getColumn();
+    abstract protected function getColumns();
 
     /**
      * Transfers every column in the giving array to a collection of fields.

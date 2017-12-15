@@ -43,7 +43,7 @@ class ResourceMapper
             $maps = self::getMaps($file);
 
             return Collect($maps)->first(function ($map) use ($key, $value) {
-                return $map[$key] == $value;
+                return isset($map[$key]) && $map[$key] == $value;
             });
         }
 

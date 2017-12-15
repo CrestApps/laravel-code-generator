@@ -19,8 +19,7 @@ class ForeignRelationship implements JsonWriter
      *
      * @var array
      */
-    public static $allowedTypes =
-        [
+    public static $allowedTypes = [
         'hasOne',
         'belongsTo',
         'hasMany',
@@ -79,9 +78,23 @@ class ForeignRelationship implements JsonWriter
     public function __construct($type, $parameters, $name, $field = null)
     {
         $this->setType($type);
-        $this->parameters = (array) $parameters;
+        $this->setParameters((array) $parameters);
         $this->name = $name;
         $this->setField($field);
+    }
+
+    /**
+     * Sets the parameters for the relation
+     *
+     * @return void
+     */
+    public function setParameters(array $parameters)
+    {
+        $this->parameters = [];
+
+        foreach ($parameters as $parameter) {
+            $this->parameters[] = Helpers::eliminateDupilcates($parameter, "\\");
+        }
     }
 
     /**
@@ -172,6 +185,7 @@ class ForeignRelationship implements JsonWriter
         // First we try to find a column that match the header pattern
         $columns = $this->getModelColumns();
         $names = Config::getHeadersPatterns();
+
         foreach ($columns as $column) {
             if (Helpers::strIs($names, $column)) {
                 // At this point a column that match the header patter was found
@@ -486,5 +500,4 @@ class ForeignRelationship implements JsonWriter
 
         return null;
     }
-
 }

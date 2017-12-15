@@ -70,7 +70,6 @@ class CreateModelCommand extends Command
             $fields = $this->upsertDeletedAt($fields);
         }
 
-        $primaryKey = $this->getNewPrimaryKey($this->getPrimaryKeyName($fields, $input->primaryKey));
         $destenationFile = $this->getDestenationFile($input->modelName, $input->modelDirectory);
 
         if ($this->alreadyExists($destenationFile)) {
@@ -80,16 +79,16 @@ class CreateModelCommand extends Command
         }
 
         $relations = $this->getRelationMethods($resources->relations, $fields);
-
+        $primaryField = $this->getPrimaryField($fields);
         return $this->replaceTable($stub, $input->table)
             ->replaceModelName($stub, $input->modelName)
             ->replaceNamespace($stub, $this->getNamespace($input->modelName, $input->modelDirectory))
             ->replaceSoftDelete($stub, $input->useSoftDelete)
-            ->replaceTimestamps($stub, $this->getTimeStampsStub($input->useTimeStamps))
+            ->replaceTimestamps($stub, $this->getTimeStampsStub($input->useTimeStamps, $resources->isCreateAndUpdateAtManaged()))
             ->replaceFillable($stub, $this->getFillables($stub, $fields))
             ->replaceDateFields($stub, $this->getDateFields($stub, $fields))
             ->replaceCasts($stub, $this->getCasts($stub, $fields))
-            ->replacePrimaryKey($stub, $primaryKey)
+            ->replacePrimaryKey($stub, $this->getNewPrimaryKey($primaryField, $input->primaryKey))
             ->replaceRelationshipPlaceholder($stub, $relations)
             ->replaceAccessors($stub, $this->getAccessors($fields))
             ->replaceMutators($stub, $this->getMutators($fields))
@@ -124,7 +123,7 @@ class CreateModelCommand extends Command
      */
     protected function getNamespace($modelName, $modelDirectory)
     {
-        $namespace = $this->getAppNamespace() . Config::getModelsPath($modelDirectory);
+        $namespace = Helpers::getAppNamespace() . Config::getModelsPath($modelDirectory);
 
         return rtrim(Helpers::convertSlashToBackslash($namespace), '\\');
     }
@@ -132,15 +131,13 @@ class CreateModelCommand extends Command
     /**
      * Gets the correct primary key name.
      *
-     * @param array $fields
+     * @param CreatApps\CodeGenerator\Models\Field $primaryField
      * @param string $primaryKey
      *
      * @return string
      */
-    protected function getPrimaryKeyName(array $fields, $primaryKey)
+    protected function getPrimaryKeyName(Field $primaryField, $primaryKey)
     {
-        $primaryField = $this->getPrimaryField($fields);
-
         return !is_null($primaryField) ? $primaryField->name : $primaryKey;
     }
 
@@ -154,12 +151,13 @@ class CreateModelCommand extends Command
     protected function upsertDeletedAt(array $fields)
     {
         foreach ($fields as $field) {
-            if ($field->name == 'deleted_at') {
+            if ($field->isAutoManagedOnDelete()) {
                 return $fields;
             }
         }
 
         $fields[] = $this->getNewDeletedAtField();
+
         return $fields;
     }
 
@@ -480,11 +478,19 @@ class CreateModelCommand extends Command
      * @param  string  $rootNamespace
      * @return string
      */
-    protected function getNewPrimaryKey($primaryKey)
+    protected function getNewPrimaryKey(Field $primaryKey = null, $defaultName = 'id')
     {
         $stub = $this->getStubContent('model-primary-key');
 
-        $this->replacePrimaryKey($stub, $primaryKey);
+        $this->replacePrimaryKey($stub, $this->getPrimaryKeyName($primaryKey, $defaultName));
+
+        if (!is_null($primaryKey) && !$primaryKey->isNumeric()) {
+            $lines = explode("\n", $stub);
+            $last = end($lines);
+            $spaces = str_repeat(' ', $this->getIndent($last, 'p'));
+            $stub .= PHP_EOL . $spaces . 'protected $keyType = \'string\';' . PHP_EOL;
+            $stub .= $spaces . 'public $incrementing = false;' . PHP_EOL;
+        }
 
         return $stub;
     }
@@ -493,15 +499,17 @@ class CreateModelCommand extends Command
      * Gets the timestamp block.
      *
      * @param  bool  $shouldUseTimeStamps
+     * @param  bool  $hasUpdatedAt
      *
      * @return string
      */
-    protected function getTimeStampsStub($shouldUseTimeStamps)
+    protected function getTimeStampsStub($shouldUseTimeStamps, $hasUpdatedAt)
     {
-        if ($shouldUseTimeStamps) {
-            return null;
+        if (!$shouldUseTimeStamps || !$hasUpdatedAt) {
+            return $this->getStubContent('model-timestamps');
         }
-        return $this->getStubContent('model-timestamps');
+
+        return null;
     }
 
     /**

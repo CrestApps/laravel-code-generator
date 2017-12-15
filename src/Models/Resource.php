@@ -36,15 +36,45 @@ class Resource implements JsonWriter
     public $indexes;
 
     /**
+     * Should eloquent auto manage the created_at and updated_at fields or not.
+     *
+     * @var bool
+     */
+    protected $manageCreateAndUpdateAt = true;
+
+    /**
      * Create a new input instance.
      *
      * @return void
      */
-    public function __construct(array $fields = [], array $relations = [], array $indexes = [])
+    public function __construct(array $fields = [], array $relations = [], array $indexes = [], $manageCreateAndUpdateAt = true)
     {
         $this->fields = $fields;
         $this->relations = $relations;
         $this->indexes = $indexes;
+        $this->manageCreateAndUpdateAt = $manageCreateAndUpdateAt;
+    }
+
+    /**
+     * Checks if created_at and updated_at are auto managed by eloquent or not.
+     *
+     * @return bool
+     */
+    public function isCreateAndUpdateAtManaged()
+    {
+        return $this->manageCreateAndUpdateAt;
+    }
+
+    /**
+     * Checks if created_at and updated_at are auto managed by eloquent or not.
+     *
+     * @param bool $autoManage
+     *
+     * @return void
+     */
+    public function setCreateAndUpdateAtManaged($autoManage)
+    {
+        return $this->manageCreateAndUpdateAt = (bool) $autoManage;
     }
 
     /**
@@ -102,7 +132,6 @@ class Resource implements JsonWriter
 
         if ($this->hasFields()) {
             foreach ($this->getFields() as $field) {
-
                 if (property_exists($field, $property)) {
                     $names[] = $field->{$property};
                 }
@@ -123,7 +152,6 @@ class Resource implements JsonWriter
 
         if ($this->hasFields()) {
             foreach ($this->getFields() as $field) {
-
                 if (property_exists($field, $property)) {
                     $names[] = $field->{$property};
                 }
@@ -195,6 +223,7 @@ class Resource implements JsonWriter
             'fields' => $this->getFieldsToArray(),
             'relations' => $this->getRelationsToArray(),
             'indexes' => $this->getIndexesToArray(),
+            'auto-manage-created-and-updated-at' => $this->isCreateAndUpdateAtManaged(),
         ];
     }
 
@@ -297,6 +326,10 @@ class Resource implements JsonWriter
             $resource->indexes = self::getIndexes($capsule['indexes']);
         }
 
+        if (array_key_exists('auto-manage-created-and-updated-at', $capsule)) {
+            $resource->setCreateAndUpdateAtManaged($capsule['auto-manage-created-and-updated-at']);
+        }
+
         return $resource;
     }
 
@@ -323,6 +356,10 @@ class Resource implements JsonWriter
 
         if (array_key_exists('indexes', $properties) && is_array($properties['indexes'])) {
             $resource->indexes = self::getIndexes($properties['indexes']);
+        }
+
+        if (array_key_exists('auto-manage-created-and-updated-at', $properties)) {
+            $resource->setCreateAndUpdateAtManaged($properties['auto-manage-created-and-updated-at']);
         }
 
         return $resource;
