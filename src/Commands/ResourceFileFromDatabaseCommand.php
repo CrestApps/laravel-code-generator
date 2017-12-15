@@ -124,7 +124,7 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
 
         $class = sprintf('CrestApps\CodeGenerator\DatabaseParsers\%sParser', ucfirst($driver));
 
-        return new $class($this->getTableName(), $this->getDatabaseName(), $this->getLangugaes());
+        return new $class($this->getTableName(), $this->getDatabaseName(), $this->getLanguages());
     }
 
     /**
@@ -184,7 +184,7 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
      *
      * @return array
      */
-    protected function getLangugaes()
+    protected function getLanguages()
     {
         return Helpers::convertStringToArray($this->option('translation-for'));
     }
