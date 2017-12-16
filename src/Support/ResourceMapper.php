@@ -4,8 +4,9 @@ namespace CrestApps\CodeGenerator\Support;
 
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Helpers;
-use File;
 use Illuminate\Console\Command;
+use File;
+use Exception;
 
 class ResourceMapper
 {
