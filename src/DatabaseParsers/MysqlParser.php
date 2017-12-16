@@ -331,7 +331,7 @@ class MysqlParser extends ParserBase
     {
         $map = Config::dataTypeMap();
 
-        if (in_array($columnType, ['bit', 'tinyint(1)']) {
+        if (in_array($columnType, ['bit', 'tinyint(1)'])) {
             return 'boolean';
         }
 

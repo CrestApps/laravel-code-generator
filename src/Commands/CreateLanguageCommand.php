@@ -10,6 +10,7 @@ use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use Illuminate\Console\Command;
+use Exception;
 
 class CreateLanguageCommand extends Command
 {
