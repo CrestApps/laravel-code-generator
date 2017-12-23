@@ -1,3 +1,10 @@
+## v2.2.7
+ - Added capability to lock down resource from with in the resource file. This is helpful if you make code changes to a file and you want the code generator to protect the file from accidentally overriding it when using --force
+ - When creating resources from existing database, the table name is stored in the resource-file. This step will save you from having to provide the table name via command line each time you create model.
+
+
+
+## v2.2.0 - v2.2.6
 ### Upgrade
  - If you are upgrading from v2.0, v2.1, v2.2, v2.3 to v2.4 or v2.5 make sure you publish the vendor resource. There are some updates to the config file.
  - If you are upgrading from v2.0, v2.1 or v2.2 to v2.3 make sure you publish the vendor resource. There are some updates to the config file.

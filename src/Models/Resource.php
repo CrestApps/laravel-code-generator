@@ -43,6 +43,37 @@ class Resource implements JsonWriter
     protected $manageCreateAndUpdateAt = true;
 
     /**
+     * The name of the database's table name.
+     *
+     * @var string
+     */
+    private $tableName;
+
+    /**
+     * Array of the protected resources.
+     *
+     * @var array
+     */
+    private $protection = [];
+
+    /**
+     * Array of the protectable resource names.
+     *
+     * @var array
+     */
+    protected $protectableResources = [
+        'model',
+        'controller',
+        'form-request',
+        'languages',
+        'form-view',
+        'index-view',
+        'create-view',
+        'edit-view',
+        'show-view',
+    ];
+
+    /**
      * Create a new input instance.
      *
      * @return void
@@ -63,6 +94,83 @@ class Resource implements JsonWriter
     public function isCreateAndUpdateAtManaged()
     {
         return $this->manageCreateAndUpdateAt;
+    }
+
+    /**
+     * Sets the database's table name.
+     *
+     * @return void
+     */
+    public function setTableName($name)
+    {
+        $this->tableName = $name;
+    }
+
+    /**
+     * Gets the database's table name if one otherwise it returns the default value
+     *
+     * @param string $default
+     *
+     * @return string
+     */
+    public function getTableName($default = null)
+    {
+        return $this->tableName ?: $default;
+    }
+
+    /**
+     * Sets the database's table name.
+     *
+     * @param string $name
+     * @param bool $isProtected
+     *
+     * @return void
+     */
+    public function setProtection($name, $isProtected)
+    {
+        $key = $this->getProtectionKey($name);
+
+        $this->protection[$key] = (bool) $isProtected;
+    }
+
+    /**
+     * Gets a valid protection key
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    protected function getProtectionKey($name)
+    {
+        $key = str_is('is-*-protected', $name) ? $name : sprintf('is-%s-protected', $name);
+
+        return $key;
+    }
+
+    /**
+     * Get the protections collection.
+     *
+     * @return array
+     */
+    public function getProtections()
+    {
+        return $this->protection ?: [];
+    }
+
+    /**
+     * Checks if the giving resource is protected or not.
+     *
+     * @return bool
+     */
+    public function isProtected($name)
+    {
+        $key = $this->getProtectionKey($name);
+
+        if (array_key_exists($key, $this->getProtections())) {
+            return (bool) $this->getProtections()[$key];
+        }
+
+        return false;
     }
 
     /**
@@ -112,13 +220,23 @@ class Resource implements JsonWriter
     /**
      * Get the first primary field if available
      *
-     * @return min (null | CrestApps\CodeGenerator\Models\Field)
+     * @return mix (null | CrestApps\CodeGenerator\Models\Field)
      */
     public function getPrimaryField()
     {
         return collect($this->fields)->first(function ($field) {
             return $field->isPrimary();
         });
+    }
+
+    /**
+     * Checks if a primary field is available or not.
+     *
+     * @return bool
+     */
+    public function hasPrimaryField()
+    {
+        return !is_null($this->getPrimaryField());
     }
 
     /**
@@ -224,9 +342,28 @@ class Resource implements JsonWriter
             'relations' => $this->getRelationsToArray(),
             'indexes' => $this->getIndexesToArray(),
             'auto-manage-created-and-updated-at' => $this->isCreateAndUpdateAtManaged(),
+            'table-name' => $this->getTableName(),
+            'protection' => $this->getRawProtections(),
         ];
     }
 
+    /**
+     * Converts the protection into a json-ready array
+     *
+     * @return array
+     */
+    protected function getRawProtections()
+    {
+        $protected = [];
+
+        foreach ($this->protectableResources as $name) {
+            $key = $this->getProtectionKey($name);
+
+            $protected[$key] = $this->isProtected($key);
+        }
+
+        return $protected;
+    }
     /**
      * Get the fields
      *
@@ -305,32 +442,14 @@ class Resource implements JsonWriter
         }
 
         if (is_array($capsule) && !Helpers::isAssociative($capsule)) {
-            // At this point we know the resource file is using old convention
+            // At this point we know the resource file is` using old convention
             // Set the fields
             $fields = FieldTransformer::fromArray($capsule, $localeGroup, $languages, true);
 
             return new Resource($fields);
         }
 
-        $resource = new Resource();
-
-        if (array_key_exists('fields', $capsule)) {
-            $resource->fields = FieldTransformer::fromArray($capsule['fields'], $localeGroup, $languages, true);
-        }
-
-        if (array_key_exists('relations', $capsule)) {
-            $resource->relations = self::getRelations($capsule['relations']);
-        }
-
-        if (array_key_exists('indexes', $capsule)) {
-            $resource->indexes = self::getIndexes($capsule['indexes']);
-        }
-
-        if (array_key_exists('auto-manage-created-and-updated-at', $capsule)) {
-            $resource->setCreateAndUpdateAtManaged($capsule['auto-manage-created-and-updated-at']);
-        }
-
-        return $resource;
+        return self::fromArray($capsule, $localeGroup, $languages);
     }
 
     /**
@@ -360,6 +479,18 @@ class Resource implements JsonWriter
 
         if (array_key_exists('auto-manage-created-and-updated-at', $properties)) {
             $resource->setCreateAndUpdateAtManaged($properties['auto-manage-created-and-updated-at']);
+        }
+
+        if (array_key_exists('table-name', $properties)) {
+            $resource->setTableName($properties['table-name']);
+        }
+
+        if (array_key_exists('protection', $properties) && is_array($properties['protection'])) {
+
+            foreach ($properties['protection'] as $name => $value) {
+                $resource->setProtection($name, $value);
+            }
+
         }
 
         return $resource;

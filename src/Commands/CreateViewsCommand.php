@@ -51,7 +51,7 @@ class CreateViewsCommand extends ViewsCommandBase
         $input = $this->getCommandInput();
         $resources = Resource::fromFile($input->resourceFile, $input->languageFileName);
 
-        if ($this->isMetRequirements($resources->fields)) {
+        if ($this->metRequirements($resources)) {
             $this->info('Crafting views...');
 
             foreach ($this->getOnlyViews() as $view) {
@@ -63,21 +63,21 @@ class CreateViewsCommand extends ViewsCommandBase
     /**
      * It checks if a view file exists and the --force option is not present
      *
-     * @param string $file
-     * @param bool $force
-     * @param array $fields
+     * @param CrestApp\CodeGenerator\Models\Resource $resource
      *
      * @return bool
      */
-    protected function isMetRequirements(array $fields = null)
+    protected function metRequirements(Resource $resource)
     {
-        if (is_null($fields) || !isset($fields[0])) {
+        if (!$resource->hasFields()) {
             $this->error('You must provide at least one field to generate the views!');
+
             return false;
         }
 
-        if (is_null($this->getPrimaryKeyName($fields))) {
+        if (!$resource->hasPrimaryField()) {
             $this->error('None of the fields is set primary! You must assign on of the fields to be a primary field.');
+
             return false;
         }
 

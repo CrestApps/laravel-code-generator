@@ -4,6 +4,7 @@ namespace CrestApps\CodeGenerator\Commands\Bases;
 
 use CrestApps\CodeGenerator\HtmlGenerators\LaravelCollectiveHtml;
 use CrestApps\CodeGenerator\HtmlGenerators\StandardHtml;
+use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Models\ViewInput;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
@@ -38,6 +39,26 @@ abstract class ViewsCommandBase extends Command
     protected function getStub()
     {
         return $this->getStubContent($this->getStubName(), $this->getTemplateName());
+    }
+
+    /**
+     * Get the view type
+     *
+     * @return string
+     */
+    protected function getViewType()
+    {
+        return Helpers::removePostFixWith($this->getStubName(), '.blade');
+    }
+
+    /**
+     * Get the view name
+     *
+     * @return string
+     */
+    protected function getViewName()
+    {
+        return sprintf('%s-view', $this->getViewType());
     }
 
     /**
@@ -82,15 +103,18 @@ abstract class ViewsCommandBase extends Command
      * It generate the view including the full path
      *
      * @param string $viewsDirectory
-     * @param string $action
+     * @param string $routesPrefix
+     * @param string $viewName
      *
      * @return string
      */
-    protected function getDestinationViewFullname($viewsDirectory, $routesPrefix, $action)
+    protected function getDestinationViewFullname($viewsDirectory, $routesPrefix, $viewName = null)
     {
         $viewsPath = $this->getFullViewsPath($viewsDirectory, $routesPrefix);
 
-        return $this->getDestinationPath($viewsPath) . $this->getDestinationViewName($action);
+        $filename = $this->getDestinationViewName($viewName ?: $this->getViewType());
+
+        return $this->getDestinationPath($viewsPath) . $filename;
     }
 
     /**
@@ -133,24 +157,35 @@ abstract class ViewsCommandBase extends Command
      *
      * @param string $file
      * @param bool $force
-     * @param array $fields
+     * @param CrestApps\CodeGenerator\Models\Resource
      *
      * @return bool
      */
-    protected function canCreateView($file, $force, array $fields = null)
+    protected function canCreateView($file, $force, Resource $resource)
     {
+        $viewName = $this->getViewName();
+
+        if ($resource->isProtected($viewName)) {
+            $this->warn('The ' . $viewName . ' is protected and cannot be regenerated. To regenerate the file, unprotect it from the resource file.');
+
+            return false;
+        }
+
         if ($this->alreadyExists($file) && !$force) {
             $this->error($this->getViewNameFromFile($file) . ' view already exists.');
+
             return false;
         }
 
-        if (!is_null($fields) && !isset($fields[0])) {
+        if (!$resource->hasFields()) {
             $this->error('You must provide at least one field to generate the views!');
+
             return false;
         }
 
-        if (!is_null($fields) && is_null($this->getPrimaryKeyName($fields))) {
+        if (!$resource->hasPrimaryField()) {
             $this->error('None of the fields is set primary! You must assign on of the fields to be a primary field.');
+
             return false;
         }
 
@@ -276,13 +311,16 @@ abstract class ViewsCommandBase extends Command
      * It checks of a destination view exists or not
      *
      * @param string $viewsDirectory
+     * @param string $routesPrefix
      * @param string $viewName
      *
      * @return bool
      */
     protected function isViewExists($viewsDirectory, $routesPrefix, $viewName)
     {
-        return $this->alreadyExists($this->getDestinationViewFullname($viewsDirectory, $routesPrefix, $viewName));
+        $destenatioFile = $this->getDestinationViewFullname($viewsDirectory, $routesPrefix, $viewName);
+
+        return $this->alreadyExists($destenatioFile);
     }
 
     /**

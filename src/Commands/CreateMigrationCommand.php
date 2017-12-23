@@ -47,6 +47,13 @@ class CreateMigrationCommand extends MigrationCommandBase
     protected $description = 'Create a migration file for the model.';
 
     /**
+     * The database's table name
+     *
+     * @var string
+     */
+    protected $tableName;
+
+    /**
      * Executes the console command.
      *
      * @return void
@@ -54,15 +61,17 @@ class CreateMigrationCommand extends MigrationCommandBase
     public function handle()
     {
         $input = new MigrationInput($this->arguments(), $this->options());
-        $tracker = new MigrationHistoryTracker();
-        $capsule = $tracker->get($input->tableName);
         $resource = $this->getCurrentResource($input->resourceFile);
+        $this->tableName = $resource->getTableName($input->tableName);
+
+        $tracker = new MigrationHistoryTracker();
+        $capsule = $tracker->get($this->tableName);
 
         if (is_null($capsule)) {
             // At this point there are no capsule or migration associated with this table.
 
             $capsule = $this->getMigrationTrackerCapsule($input);
-            $migration = $this->getMigrationCapsule($input, $resource, $this->getCreateMigrationName($input->tableName));
+            $migration = $this->getMigrationCapsule($input, $resource, $this->getCreateMigrationName($this->tableName));
             $tracker->add($capsule, $migration);
             $this->makeCreateMigration($input, $migration);
 
@@ -75,15 +84,15 @@ class CreateMigrationCommand extends MigrationCommandBase
             // At this point, there are no migration with this current capsule
             // add it, then create create migration
 
-            $migration = $this->getMigrationCapsule($input, $resource, $this->getCreateMigrationName($input->tableName));
-            $tracker->addMigration($input->tableName, $migration);
+            $migration = $this->getMigrationCapsule($input, $resource, $this->getCreateMigrationName($this->tableName));
+            $tracker->addMigration($this->tableName, $migration);
             $this->makeCreateMigration($input, $migration);
 
         } elseif (!Config::useSmartMigration() || (!$migration->isMigrated() && $migration->isCreate && !$migration->isVirtual)) {
             //At this point the current migration is the first one and is not migrated
             //Create update the migration using the current resource then recreate the migration file
             $migration->setResource($resource);
-            $migration->path = $this->getMigrationFullName($migration->name, $input->tableName); // make sure we use the same path
+            $migration->path = $this->getMigrationFullName($migration->name); // make sure we use the same path
             $tracker->updateMigration($capsule->tableName, $migration);
             $this->makeCreateMigration($input, $migration);
 
@@ -93,12 +102,12 @@ class CreateMigrationCommand extends MigrationCommandBase
             $delta = $capsule->getDelta($resource, $migration->resource, $input);
 
             if ($delta->hasChange()) {
-                $migrationName = $this->getAlterMigrationName($input->tableName, $capsule->totalMigrations());
+                $migrationName = $this->getAlterMigrationName($this->tableName, $capsule->totalMigrations());
                 $newMigration = $this->getMigrationCapsule($input, $resource, $migrationName, false);
-                $newMigration->className = $this->makeAlterTableClassName($input->tableName, $capsule->totalMigrations());
+                $newMigration->className = $this->makeAlterTableClassName($this->tableName, $capsule->totalMigrations());
 
                 $this->makeAlterMigration($input, $newMigration, $delta);
-                $tracker->addMigration($input->tableName, $newMigration);
+                $tracker->addMigration($this->tableName, $newMigration);
             }
 
         } else {
@@ -117,7 +126,7 @@ class CreateMigrationCommand extends MigrationCommandBase
                 $migration->setResource($resource);
                 $migration->withSoftDelete = $input->withSoftDelete;
                 $migration->withoutTimestamps = $input->withoutTimestamps;
-                $migration->path = $this->getMigrationFullName($migration->name, $input->tableName); // make sure we use the same path
+                $migration->path = $this->getMigrationFullName($migration->name); // make sure we use the same path
                 $tracker->updateMigration($capsule->tableName, $migration);
 
                 $this->makeAlterMigration($input, $migration, $delta);
@@ -125,7 +134,7 @@ class CreateMigrationCommand extends MigrationCommandBase
                 // At this point we know the migration is not migrated and is empty
                 // Delete it
 
-                $tracker->forgetMigration($input->tableName, $migration->name);
+                $tracker->forgetMigration($this->tableName, $migration->name);
             }
         }
     }
@@ -159,7 +168,7 @@ class CreateMigrationCommand extends MigrationCommandBase
      */
     protected function getMigrationTrackerCapsule(MigrationInput $input)
     {
-        return MigrationTrackerCapsule::get($input->tableName, $input->modelName, $input->resourceFile);
+        return MigrationTrackerCapsule::get($this->tableName, $input->modelName, $input->resourceFile);
     }
 
     /**
@@ -175,9 +184,9 @@ class CreateMigrationCommand extends MigrationCommandBase
     protected function getMigrationCapsule(MigrationInput $input, $resource, $name, $isCreate = true)
     {
         $migration = MigrationCapsule::get($name);
-        $migration->path = $this->getMigrationFullName($name, $input->tableName);
+        $migration->path = $this->getMigrationFullName($name);
         $migration->resource = $resource;
-        $migration->className = $this->makeCreateTableClassName(Helpers::makeTableName($input->tableName));
+        $migration->className = $this->makeCreateTableClassName(Helpers::makeTableName($this->tableName));
         $migration->isCreate = $isCreate;
         $migration->withoutTimestamps = $input->withoutTimestamps;
         $migration->withSoftDelete = $input->withSoftDelete;
@@ -193,12 +202,12 @@ class CreateMigrationCommand extends MigrationCommandBase
      *
      * @return string
      */
-    protected function getMigrationFullName($name, $tableName)
+    protected function getMigrationFullName($name)
     {
         $folder = '';
 
         if (Config::organizeMigrations()) {
-            $folder = $tableName;
+            $folder = $this->tableName;
         }
 
         return str_finish($this->getMigrationPath($folder) . DIRECTORY_SEPARATOR . $name, '.php');
@@ -245,36 +254,6 @@ class CreateMigrationCommand extends MigrationCommandBase
             ->replaceMigationClassName($stub, $migration->className)
             ->createFile($migration->path, $stub)
             ->info('A migration was crafted successfully.');
-    }
-
-    /**
-     * Gets name of the folder to put the migration in
-     *
-     * @param string  $tableName
-     *
-     * @return string
-     */
-    protected function getFolderName($tableName)
-    {
-        if (Config::organizeMigrations()) {
-            return $tableName;
-        }
-
-        return null;
-    }
-
-    /**
-     * Gets the destenation file to be created.
-     *
-     * @param string  $tableName
-     *
-     * @return string
-     */
-    protected function getDestenationFile($tableName)
-    {
-        $file = $this->getCreateMigrationName($tableName);
-
-        return base_path(Config::getMigrationsPath()) . $file;
     }
 
     /**
@@ -675,7 +654,7 @@ class CreateMigrationCommand extends MigrationCommandBase
         $stub = $this->getStubContent('migration-schema-down', $input->template);
 
         $this->replaceConnectionName($stub, $input->connectionName)
-            ->replaceTableName($stub, $input->tableName);
+            ->replaceTableName($stub, $this->tableName);
 
         return $stub;
     }
@@ -860,7 +839,7 @@ class CreateMigrationCommand extends MigrationCommandBase
         $stub = $this->getStubContent('migration-schema-up', $input->template);
 
         $this->replaceConnectionName($stub, $input->connectionName)
-            ->replaceTableName($stub, $input->tableName)
+            ->replaceTableName($stub, $this->tableName)
             ->replaceOperationName($stub, 'table')
             ->replaceBlueprintBodyName($stub, $blueprintBody);
 
@@ -879,7 +858,7 @@ class CreateMigrationCommand extends MigrationCommandBase
         $stub = $this->getStubContent('migration-schema-up', $input->template);
 
         $this->replaceConnectionName($stub, $input->connectionName)
-            ->replaceTableName($stub, $input->tableName)
+            ->replaceTableName($stub, $this->tableName)
             ->replaceOperationName($stub, $operationName)
             ->replaceBlueprintBodyName($stub, $blueprintBody);
 

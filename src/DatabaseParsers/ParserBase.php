@@ -111,6 +111,7 @@ abstract class ParserBase
         $fields = $this->getFields();
         $autoManage = $this->containsUpdateAtAndCreatedAt($fields);
         $resource = new Resource($fields, $this->getRelations(), $this->getIndexes(), $autoManage);
+        $resource->setTableName($this->tableName);
 
         return $resource;
     }

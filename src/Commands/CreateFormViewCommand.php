@@ -48,9 +48,9 @@ class CreateFormViewCommand extends ViewsCommandBase
     {
         $input = $this->getCommandInput();
         $resources = Resource::fromFile($input->resourceFile, $input->languageFileName);
-        $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'form');
+        $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix);
 
-        if ($this->canCreateView($destenationFile, $input->force, $resources->fields)) {
+        if ($this->canCreateView($destenationFile, $input->force, $resources)) {
             $stub = $this->getStub();
             $htmlCreator = $this->getHtmlGenerator($resources->fields, $input->modelName, $this->getTemplateName());
             $headers = $this->getHeaderFieldAccessor($resources->fields, $input->modelName);

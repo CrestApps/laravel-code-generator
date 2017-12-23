@@ -9,8 +9,8 @@ use CrestApps\CodeGenerator\Support\CrestAppsTranslator;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
-use Illuminate\Console\Command;
 use Exception;
+use Illuminate\Console\Command;
 
 class CreateLanguageCommand extends Command
 {
@@ -43,10 +43,14 @@ class CreateLanguageCommand extends Command
     public function handle()
     {
         $input = $this->getCommandInput();
-        $resources = Resource::fromFile($input->resourceFile, $input->fileName);
+        $resource = Resource::fromFile($input->resourceFile, $input->fileName);
 
-        $languages = Helpers::getLanguageItems($resources->fields);
-        $viewLabels = new ViewLabelsGenerator($input->modelName, $resources->fields, $this->isCollectiveTemplate());
+        if ($resource->isProtected('languages')) {
+            return $this->warn('The language file(s) is protected and cannot be regenerated. To regenerate the file, unprotect it from the resource file.');
+        }
+
+        $languages = Helpers::getLanguageItems($resource->fields);
+        $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields, $this->isCollectiveTemplate());
 
         $standardLabels = $viewLabels->getTranslatedLabels(array_keys($languages));
 

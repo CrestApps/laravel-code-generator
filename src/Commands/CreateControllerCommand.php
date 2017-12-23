@@ -84,11 +84,12 @@ class CreateControllerCommand extends ControllerCommandBase
     public function handle()
     {
         $input = $this->getCommandInput();
+
+        $resources = Resource::fromFile($input->resourceFile, $input->langFile);
+
         $destenationFile = $this->getDestenationFile($input->controllerName, $input->controllerDirectory);
 
-        if ($this->alreadyExists($destenationFile)) {
-            $this->error('The controller already exists!');
-
+        if ($this->hasErrors($resources, $destenationFile)) {
             return false;
         }
 
@@ -104,7 +105,6 @@ class CreateControllerCommand extends ControllerCommandBase
             }
         }
 
-        $resources = Resource::fromFile($input->resourceFile, $input->langFile);
         $fields = $resources->fields;
         $viewVariablesForIndex = $this->getCompactVariablesFor($fields, $this->getPluralVariable($input->modelName), 'index');
         $viewVariablesForShow = $this->getCompactVariablesFor($fields, $this->getSingularVariable($input->modelName), 'show');
@@ -151,6 +151,33 @@ class CreateControllerCommand extends ControllerCommandBase
             ->replaceStandardLabels($stub, $standardLabels)
             ->createFile($destenationFile, $stub)
             ->info('A controller was crafted successfully.');
+    }
+
+    /**
+     * Build the model class with the given name.
+     *
+     * @param  CrestApps\CodeGenerator\Models\Resource $resource
+     * @param string $destenationFile
+     *
+     * @return bool
+     */
+    protected function hasErrors(Resource $resource, $destenationFile)
+    {
+        $hasErrors = false;
+
+        if ($resource->isProtected('controller')) {
+            $this->warn('The controller is protected and cannot be regenerated. To regenerate the file, unprotect it from the resource file.');
+
+            $hasErrors = true;
+        }
+
+        if ($this->alreadyExists($destenationFile)) {
+            $this->error('The controller already exists!');
+
+            $hasErrors = true;
+        }
+
+        return $hasErrors;
     }
 
     /**

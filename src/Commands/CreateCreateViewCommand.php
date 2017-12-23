@@ -48,9 +48,9 @@ class CreateCreateViewCommand extends ViewsCommandBase
     {
         $input = $this->getCommandInput();
         $resources = Resource::fromFile($input->resourceFile, $input->languageFileName);
-        $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'create');
+        $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix);
 
-        if ($this->canCreateView($destenationFile, $input->force, $resources->fields)) {
+        if ($this->canCreateView($destenationFile, $input->force, $resources)) {
             $stub = $this->getStub();
             $headers = $this->getHeaderFieldAccessor($resources->fields, $input->modelName);
 

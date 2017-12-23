@@ -61,30 +61,30 @@ class CreateModelCommand extends Command
      */
     public function handle()
     {
-        $stub = $this->getStubContent('model');
         $input = $this->getCommandInput();
 
-        $resources = Resource::fromFile($input->resourceFile, $input->languageFileName);
-        $fields = $resources->fields;
+        $resource = Resource::fromFile($input->resourceFile, $input->languageFileName);
+
+        $destenationFile = $this->getDestenationFile($input->modelName, $input->modelDirectory);
+
+        if ($this->hasErrors($resource, $destenationFile)) {
+            return false;
+        }
+
+        $fields = $resource->fields;
         if ($input->useSoftDelete) {
             $fields = $this->upsertDeletedAt($fields);
         }
 
-        $destenationFile = $this->getDestenationFile($input->modelName, $input->modelDirectory);
-
-        if ($this->alreadyExists($destenationFile)) {
-            $this->error('The model already exists!');
-
-            return false;
-        }
-
-        $relations = $this->getRelationMethods($resources->relations, $fields);
+        $stub = $this->getStubContent('model');
         $primaryField = $this->getPrimaryField($fields);
-        return $this->replaceTable($stub, $input->table)
+        $relations = $this->getRelationMethods($resource->relations, $fields);
+
+        return $this->replaceTable($stub, $resource->getTableName($input->table))
             ->replaceModelName($stub, $input->modelName)
             ->replaceNamespace($stub, $this->getNamespace($input->modelName, $input->modelDirectory))
             ->replaceSoftDelete($stub, $input->useSoftDelete)
-            ->replaceTimestamps($stub, $this->getTimeStampsStub($input->useTimeStamps, $resources->isCreateAndUpdateAtManaged()))
+            ->replaceTimestamps($stub, $this->getTimeStampsStub($input->useTimeStamps, $resource->isCreateAndUpdateAtManaged()))
             ->replaceFillable($stub, $this->getFillables($stub, $fields))
             ->replaceDateFields($stub, $this->getDateFields($stub, $fields))
             ->replaceCasts($stub, $this->getCasts($stub, $fields))
@@ -94,6 +94,33 @@ class CreateModelCommand extends Command
             ->replaceMutators($stub, $this->getMutators($fields))
             ->createFile($destenationFile, $stub)
             ->info('A model was crafted successfully.');
+    }
+
+    /**
+     * Checks for basic errors
+     *
+     * @param  CrestApps\CodeGenerator\Models\Resource $resource
+     * @param string $destenationFile
+     *
+     * @return bool
+     */
+    protected function hasErrors(Resource $resource, $destenationFile)
+    {
+        $hasErrors = false;
+
+        if ($resource->isProtected('model')) {
+            $this->warn('The model is protected and cannot be regenerated. To regenerate the file, unprotect it from the resource file.');
+
+            $hasErrors = true;
+        }
+
+        if ($this->alreadyExists($destenationFile)) {
+            $this->error('The model already exists!');
+
+            $hasErrors = true;
+        }
+
+        return $hasErrors;
     }
 
     /**

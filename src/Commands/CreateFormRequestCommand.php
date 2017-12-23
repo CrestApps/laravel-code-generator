@@ -40,17 +40,18 @@ class CreateFormRequestCommand extends ControllerCommandBase
     {
         $input = $this->getCommandInput();
 
-        $stub = $this->getStubContent('form-request', $input->template);
         $resources = Resource::fromFile($input->resourceFile, 'crestapps');
+
         $destenationFile = $this->getDestenationFile($input->fileName, $input->formRequestDirectory);
+
+        if ($this->hasErrors($resources, $destenationFile)) {
+            return false;
+        }
+
+        $stub = $this->getStubContent('form-request', $input->template);
 
         $validations = $this->getValidationRules($resources->fields, $input->modelName, $input->formRequestDirectory);
 
-        if ($this->alreadyExists($destenationFile)) {
-            $this->error('The form-request already exists! To override the existing file, use --force option.');
-
-            return false;
-        }
         $this->replaceFormRequestClass($stub, $input->fileName)
             ->replaceValidationRules($stub, $validations)
             ->replaceFileValidationSnippet($stub, $this->getFileValidationSnippet($resources->fields, $input))
@@ -65,6 +66,33 @@ class CreateFormRequestCommand extends ControllerCommandBase
             ->info('A new form-request have been crafted!');
     }
 
+    /**
+     * Build the model class with the given name.
+     *
+     * @param  CrestApps\CodeGenerator\Models\Resource $resource
+     * @param string $destenationFile
+     *
+     * @return bool
+     */
+    protected function hasErrors(Resource $resource, $destenationFile)
+    {
+        $hasErrors = false;
+
+        if ($resource->isProtected('form-request')) {
+            $this->warn('The form-request is protected and cannot be regenerated. To regenerate the file, unprotect it from the resource file.');
+
+            $hasErrors = true;
+        }
+
+        if ($this->alreadyExists($destenationFile)) {
+            $this->error('The form-request already exists! To override the existing file, use --force option.');
+
+            $hasErrors = true;
+        }
+
+        return $hasErrors;
+
+    }
     /**
      * Gets the signature of the getData method.
      *
