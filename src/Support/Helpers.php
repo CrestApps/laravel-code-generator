@@ -49,6 +49,16 @@ class Helpers
     }
 
     /**
+     * Gets the app folder name,
+     *
+     * @return string
+     */
+    public static function getAppName()
+    {
+        return rtrim(self::getAppNamespace(), '\\');
+    }
+
+    /**
      * Gets the model full path.
      *
      * @return string

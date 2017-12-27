@@ -191,7 +191,7 @@ trait CommonCommand
      *
      * @return string
      */
-    protected function Indent($multiplier)
+    protected function indent($multiplier)
     {
         if ($multiplier < 1) {
             return '';
@@ -217,6 +217,8 @@ trait CommonCommand
     /**
      * Override Laravel's option method
      *
+     * @param string $key
+     *
      * @return string
      */
     public function generatorOption($key)
@@ -237,17 +239,16 @@ trait CommonCommand
      *
      * @param string $stub
      * @param string $viewDirectory
+     * @param string $routesPrefix
      * @param array $views
      *
      * @return $this
      */
     protected function replaceViewNames(&$stub, $viewDirectory, $routesPrefix, array $views = null)
     {
-        $views = empty($views) ? $this->views : $views;
-
-        foreach ($views as $view) {
+        foreach (($views ?: $this->views) as $view) {
             $viewName = $this->getDotNotationName($viewDirectory, $routesPrefix, $view);
-            $viewTemplate = $this->getViewName($view);
+            $viewTemplate = $this->getViewTemplateName($view);
             $stub = $this->strReplace($viewTemplate, $viewName, $stub);
         }
 
@@ -302,9 +303,7 @@ trait CommonCommand
      */
     protected function replaceRouteNames(&$stub, $modelName, $routesPrefix, array $actions = null)
     {
-        $actions = empty($actions) ? $this->actions : $actions;
-
-        foreach ($actions as $action) {
+        foreach (($actions ?: $this->actions) as $action) {
             $routeName = $this->getDotNotationName($modelName, $routesPrefix, $action);
             $routeTemplate = $this->getRouteName($action);
             $stub = $this->strReplace($routeTemplate, $routeName, $stub);
@@ -326,13 +325,13 @@ trait CommonCommand
     }
 
     /**
-     * Gets a view name
+     * Gets a view template name
      *
-     * @param string $action
+     * @param string $view
      *
      * @return string
      */
-    protected function getViewName($view)
+    protected function getViewTemplateName($view)
     {
         return sprintf('%s_view_name', $view);
     }
@@ -348,28 +347,6 @@ trait CommonCommand
     protected function getStubContent($name, $template = null)
     {
         return $this->getFileContent($this->getStubByName($name, $template));
-    }
-
-    /**
-     * Gets the app namespace.
-     *
-     * @return string
-     */
-    /*
-    protected function getAppNamespace()
-    {
-    return Container::getInstance()->getNamespace();
-    }
-     */
-
-    /**
-     * Gets the app folder name,
-     *
-     * @return string
-     */
-    protected function getAppName()
-    {
-        return rtrim(Helpers::getAppNamespace(), '\\');
     }
 
     /**

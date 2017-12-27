@@ -141,7 +141,7 @@ class CreateControllerCommand extends ControllerCommandBase
             ->replaceRelationCollections($stub, $this->getRequiredRelationCollections($fields))
             ->replaceOnStoreAction($stub, $this->getOnStoreAction($fields))
             ->replaceOnUpdateAction($stub, $this->getOnUpdateAction($fields))
-            ->replaceAppName($stub, $this->getAppName())
+            ->replaceAppName($stub, Helpers::getAppName())
             ->replaceControllerName($stub, $input->controllerName)
             ->replaceDataVariable($stub, 'data')
             ->replaceRequestName($stub, $requestName)
