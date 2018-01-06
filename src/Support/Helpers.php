@@ -30,6 +30,18 @@ class Helpers
     }
 
     /**
+     * Convert the slash and backslashes to the current system directory seperator.
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function fixPathSeparator($path)
+    {
+        return str_replace(["\\", "/"], DIRECTORY_SEPARATOR, $path);
+    }
+
+    /**
      * Eliminate a duplicate giving phrase from a giving string
      *
      * @param string $subject

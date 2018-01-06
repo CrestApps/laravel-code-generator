@@ -89,7 +89,7 @@ class [% controller_name %] [% controller_extends %]
     /**
      * Update the specified [% model_name %] in the storage.
      *
-     * @param  int $id
+     * @param int $id
      * @param [% request_fullname %] [% request_variable %]
      *
      * @return Illuminate\Http\RedirectResponse | Illuminate\Routing\Redirector
@@ -116,7 +116,7 @@ class [% controller_name %] [% controller_extends %]
     /**
      * Remove the specified [% model_name %] from the storage.
      *
-     * @param  int $id
+     * @param int $id
      *
      * @return Illuminate\Http\RedirectResponse | Illuminate\Routing\Redirector
      */

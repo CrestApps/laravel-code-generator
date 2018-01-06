@@ -44,6 +44,7 @@ class CodeGeneratorServiceProvider extends ServiceProvider
     {
         $commands = [
             'CrestApps\CodeGenerator\Commands\CreateControllerCommand',
+            'CrestApps\CodeGenerator\Commands\CreateApiControllerCommand',
             'CrestApps\CodeGenerator\Commands\CreateModelCommand',
             'CrestApps\CodeGenerator\Commands\CreateIndexViewCommand',
             'CrestApps\CodeGenerator\Commands\CreateCreateViewCommand',

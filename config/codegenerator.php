@@ -59,30 +59,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Should the moveFile method be generated for every resources when needed
-    |--------------------------------------------------------------------------
-    |
-    | The code-generator will generate a method called "moveFile" method each
-    | time a file upload is required (i.e. protected function moveFile($file).)
-    | This method is needed to move the file from the request to a permanent
-    | place on your server.
-    |
-    | However, if you want to generate multiple CRUDs that handles file
-    | uploading, you may wish to put this method in a higher level of your code
-    | to prevent redundancy and your code is kept clean.
-    |
-    | If you decided to move this method to a higher level like
-    | App\Http\Controllers\Controller base class
-    | a new App\Http\Requests\FormRequest base class, you can set this option to
-    | `false` to prevent the generator from creating this method
-    | for every CRUD. Should you set it to `false` it is your responsibility to
-    | ensure that this method exists otherwise a MethodNotFound exception thrown.
-    |
-     */
-    'create_move_file_method' => true,
-
-    /*
-    |--------------------------------------------------------------------------
     | The default output format for datetime fields.
     |--------------------------------------------------------------------------
     |
@@ -165,11 +141,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The default path of where the controllers will be generated into.
+    | The default path of where the api-based controllers will be generated into.
     |--------------------------------------------------------------------------
     |
      */
     'controllers_path' => 'Http/Controllers',
+
+    /*
+    |--------------------------------------------------------------------------
+    | The default path of where the controllers will be generated into.
+    |--------------------------------------------------------------------------
+    |
+     */
+    'api_controllers_path' => 'Http/Controllers/Api',
 
     /*
     |--------------------------------------------------------------------------
@@ -297,6 +281,7 @@ return [
                 'is-on-form' => false,
                 'is-on-index' => false,
                 'is-on-show' => false,
+                'is-api-visible' => false,
                 'html-type' => 'hidden',
                 'data-type' => 'integer',
                 'is-primary' => true,
@@ -367,6 +352,7 @@ return [
             'set' => [
                 'data-type' => 'datetime',
                 'is-on-form' => false,
+                'is-api-visible' => false,
                 'is-on-index' => false,
                 'is-on-show' => true,
             ],

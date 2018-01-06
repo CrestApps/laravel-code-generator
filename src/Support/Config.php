@@ -8,17 +8,6 @@ use CrestApps\CodeGenerator\Support\Helpers;
 class Config
 {
     /**
-     * Gets the default value for whether to generate the moveFile method
-     * or not.
-     *
-     * @return bool
-     */
-    public static function createMoveFileMethod()
-    {
-        return self::getBoolBaseValue('create_move_file_method', true);
-    }
-
-    /**
      * Gets the default value for whether to use smart migrations or not
      *
      * @return bool
@@ -286,6 +275,20 @@ class Config
     public static function getControllersPath($file = '')
     {
         $path = self::getStringBaseValue('controllers_path', 'Http/Controllers');
+
+        return Helpers::getPathWithSlash($path) . $file;
+    }
+
+    /**
+     * Gets the path to API based controllers
+     *
+     * @param string $file
+     *
+     * @return string
+     */
+    public static function getApiControllersPath($file = '')
+    {
+        $path = self::getStringBaseValue('api_controllers_path', 'Http/Controllers/Api');
 
         return Helpers::getPathWithSlash($path) . $file;
     }

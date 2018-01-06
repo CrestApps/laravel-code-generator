@@ -358,6 +358,20 @@ class Field implements JsonWriter
     public $flaggedForDelete = false;
 
     /**
+     * The name to be used by the public when accessing the API.
+     *
+     * @var string
+     */
+    public $apiKey;
+
+    /**
+     * Should this field be visible to API
+     *
+     * @var string
+     */
+    public $isApiVisible = true;
+
+    /**
      * Creates a new field instance.
      *
      * @param string $name
@@ -581,6 +595,16 @@ class Field implements JsonWriter
         }
 
         return $this;
+    }
+
+    /**
+     * Get the api-key value
+     *
+     * @return $this
+     */
+    public function getApiKey()
+    {
+        return $this->apiKey ?: $this->name;
     }
 
     /**
@@ -897,6 +921,8 @@ class Field implements JsonWriter
             'foreign-constraint' => $this->getForeignConstraintToRaw(),
             'on-store' => $this->onStore,
             'on-update' => $this->onUpdate,
+            'api-key' => $this->getApiKey(),
+            'is-api-visible' => $this->isApiVisible,
         ];
     }
 
@@ -1710,6 +1736,8 @@ class Field implements JsonWriter
         'cast-as' => 'castAs',
         'cast' => 'castAs',
         'is-date' => 'isDate',
+        'api-key' => 'apiKey',
+        'is-api-visible' => 'isApiVisible',
     ];
 
     /**

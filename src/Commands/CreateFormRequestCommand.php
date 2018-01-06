@@ -2,12 +2,12 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
-use CrestApps\CodeGenerator\Commands\Bases\ControllerCommandBase;
+use CrestApps\CodeGenerator\Commands\Bases\ControllerRequestCommandBase;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 
-class CreateFormRequestCommand extends ControllerCommandBase
+class CreateFormRequestCommand extends ControllerRequestCommandBase
 {
     /**
      * The name and signature of the console command.
