@@ -8,6 +8,6 @@
     protected function transform([% model_name_class %] $[% model_name_singular_variable %])
     {
         return [
-    [% model_api_array %]
+[% model_api_array %]
         ];
     }

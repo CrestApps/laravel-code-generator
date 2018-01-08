@@ -30,6 +30,63 @@ class Helpers
     }
 
     /**
+     * Makes an api-resource name from a giving model name
+     *
+     * @param string $modelName
+     *
+     * @return string
+     */
+    public static function makeApiResourceName($modelName)
+    {
+        $name = self::getProperCaseFor($modelName, 'api-resource-name');
+        $case = ucfirst(camel_case($name));
+
+        if (!empty($postFix = Config::getApiResourceNamePostFix())) {
+            return str_finish($case, $postFix);
+        }
+
+        return $case;
+    }
+
+    /**
+     * Makes an api-resource-collection name from a giving model name
+     *
+     * @param string $modelName
+     *
+     * @return string
+     */
+    public static function makeApiResourceCollectionName($modelName)
+    {
+        $name = self::getProperCaseFor($modelName, 'api-resource-collection-name');
+        $case = ucfirst(camel_case($name));
+
+        if (!empty($postFix = Config::getApiResourceCollectionNamePostFix())) {
+            return str_finish($case, $postFix);
+        }
+
+        return $case;
+    }
+
+    /**
+     * Gets the namespace of the model
+     *
+     * @param  string $modelName
+     * @param  string $modelDirectory
+     *
+     * @return string
+     */
+    public static function getModelNamespace($modelName, $modelDirectory)
+    {
+        if (!empty($modelDirectory)) {
+            $modelDirectory = str_finish($modelDirectory, '\\');
+        }
+
+        $namespace = Helpers::getAppNamespace() . Config::getModelsPath($modelDirectory . $modelName);
+
+        return rtrim(Helpers::convertSlashToBackslash($namespace), '\\');
+    }
+
+    /**
      * Convert the slash and backslashes to the current system directory seperator.
      *
      * @param string $path
@@ -482,6 +539,25 @@ class Helpers
 
         if ($position !== false) {
             return substr($name, 0, $position);
+        }
+
+        return $name;
+    }
+
+    /**
+     * Removes a string from the begining of another giving string if it already ends with it.
+     *
+     * @param  string  $name
+     * @param  string  $fix
+     *
+     * @return string
+     */
+    public static function removePreFixWith($name, $fix = '/')
+    {
+        $length = strlen($fix);
+
+        if (substr($name, 0, $length) == $fix) {
+            return substr($name, $length);
         }
 
         return $name;

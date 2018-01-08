@@ -9,7 +9,7 @@
     protected function getValidator(Request $request)
     {
         $rules = [
-    [% validation_rules %] 
+[% validation_rules %] 
         ];
 [% file_validation_snippet %]
         return Validator::make($request->all(), $rules);

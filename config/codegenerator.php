@@ -165,6 +165,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | The default path of where the api-resource will be generated into.
+    |--------------------------------------------------------------------------
+    |
+     */
+    'api_resources_path' => 'Http/Resources',
+
+    /*
+    |--------------------------------------------------------------------------
+    | The default path of where the collection-api-resource will be generated into.
+    |--------------------------------------------------------------------------
+    |
+     */
+    'api_resources_collection_path' => 'Http/Resources/Collections',
+
+    /*
+    |--------------------------------------------------------------------------
     | The default path of where the languages will be generated into.
     |--------------------------------------------------------------------------
     |
@@ -417,6 +433,8 @@ return [
      */
     'plural_names_for' => [
         'controller-name' => true,
+        'api-resource-name' => true,
+        'api-resource-collection-name' => true,
         'request-form-name' => true,
         'route-group' => true,
         'language-file-name' => true,
@@ -434,6 +452,29 @@ return [
     |
      */
     'controller_name_postfix' => 'Controller',
+
+    /*
+    |--------------------------------------------------------------------------
+    | A string to postfix the api-resource name with.
+    |--------------------------------------------------------------------------
+    |
+    | If you don't like to post fix the api-resource with "Resource" you can
+    | set this value to an empty string. Or, you can set it to any other value.
+    |
+     */
+    'api_resource_name_postfix' => 'Resource',
+
+    /*
+    |--------------------------------------------------------------------------
+    | A string to postfix the collection-api-resource name with.
+    |--------------------------------------------------------------------------
+    |
+    | If you don't like to post fix the collection-api-resource with "Collection"
+    | you can set this value to an empty string. Or, you can set it to any other
+    | value.
+    |
+     */
+    'api_resource_collection_name_postfix' => 'Collection',
 
     /*
     |--------------------------------------------------------------------------
@@ -537,12 +578,12 @@ return [
             'in-function-with-collective' => true,
         ],
         'confirm_delete' => [
-            'text' => 'Delete [% model_name_title %]?',
+            'text' => 'Click Ok to delete [% model_name_title %].',
             'template' => 'confirm_delete',
             'in-function-with-collective' => true,
         ],
         'none_available' => [
-            'text' => 'No [% model_name_plural_title %] Available!',
+            'text' => 'No [% model_name_plural_title %] Available.',
             'template' => 'no_models_available',
         ],
         'model_plural' => [
@@ -550,19 +591,27 @@ return [
             'template' => 'model_plural',
         ],
         'model_was_added' => [
-            'text' => '[% model_name_title %] was successfully added!',
+            'text' => '[% model_name_title %] was successfully added.',
             'template' => 'model_was_added',
         ],
+        'model_was_retrieved' => [
+            'text' => '[% model_name_title %] was successfully retrieved.',
+            'template' => 'model_was_retrieved',
+        ],
+        'models_were_retrieved' => [
+            'text' => '[% model_name_plural_title %] were successfully retrieved.',
+            'template' => 'models_were_retrieved',
+        ],
         'model_was_updated' => [
-            'text' => '[% model_name_title %] was successfully updated!',
+            'text' => '[% model_name_title %] was successfully updated.',
             'template' => 'model_was_updated',
         ],
         'model_was_deleted' => [
-            'text' => '[% model_name_title %] was successfully deleted!',
+            'text' => '[% model_name_title %] was successfully deleted.',
             'template' => 'model_was_deleted',
         ],
         'unexpected_error' => [
-            'text' => 'Unexpected error occurred while trying to process your request!',
+            'text' => 'Unexpected error occurred while trying to process your request.',
             'template' => 'unexpected_error',
         ],
     ],

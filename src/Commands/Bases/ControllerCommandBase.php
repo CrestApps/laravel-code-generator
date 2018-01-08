@@ -19,6 +19,13 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     protected $requestName = 'Request';
 
     /**
+     * The name of the data variable.
+     *
+     * @var string
+     */
+    protected $dataVariable = 'data';
+
+    /**
      * The request object's namespace to use in the controller.
      *
      * @var string
@@ -290,7 +297,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     {
         $stub = $this->getStubContent('controller-constructor');
 
-        $middleware = $withAuth ? '$this->middleware(\'auth\');' : '';
+        $middleware = $withAuth ? '$this->middleware(\'' . $this->getAuthMiddleware() . '\');' : '';
 
         $this->replaceAuthMiddlewear($stub, $middleware);
 
@@ -305,6 +312,16 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
         }
 
         return '';
+    }
+
+    /**
+     * Gets name of the middleware
+     *
+     * @return string
+     */
+    protected function getAuthMiddleware()
+    {
+        return 'auth';
     }
 
     /**
@@ -405,25 +422,6 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     protected function isExtendsDefault()
     {
         return $this->option('controller-extends') == 'default-controller';
-    }
-
-    /**
-     * Gets the namespace of the model
-     *
-     * @param  string $modelName
-     * @param  string $modelDirectory
-     *
-     * @return string
-     */
-    protected function getModelNamespace($modelName, $modelDirectory)
-    {
-        if (!empty($modelDirectory)) {
-            $modelDirectory = str_finish($modelDirectory, '\\');
-        }
-
-        $namespace = Helpers::getAppNamespace() . Config::getModelsPath($modelDirectory . $modelName);
-
-        return rtrim(Helpers::convertSlashToBackslash($namespace), '\\');
     }
 
     /**
@@ -567,15 +565,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
             $commands[] = $this->getUseClassCommand($addition);
         }
 
-        $collections = $this->getRelationCollections($fields, 'form');
-
-        foreach ($collections as $collection) {
-            $command = $this->getUseClassCommand($collection->getFullForeignModel());
-
-            if (!in_array($command, $commands)) {
-                $commands[] = $this->getUseClassCommand($collection->getFullForeignModel());
-            }
-        }
+        array_merge($commands, $this->getNamespacesForUsedRelations($fields));
 
         // Attempt to include classes that don't start with \\ with using command.
         foreach ($fields as $field) {
@@ -586,19 +576,41 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
             if (!empty($field->onUpdate) && !in_array($field->onUpdate, $commands)) {
                 $commands[] = $this->extractNamespace($field->onUpdate);
             }
-            // Extract the name spaces fromt he custom rules
+
+            // Extract the name spaces from he custom rules
             $customRules = $this->extractCustomValidationRules($field->getValidationRule());
             $namespaces = $this->extractCustomValidationNamespaces($customRules);
             foreach ($namespaces as $namespace) {
                 $commands[] = $this->getUseClassCommand($namespace);
             }
         }
+        $commands = array_unique($commands);
+        sort($commands);
 
-        usort($commands, function ($a, $b) {
-            return strlen($a) - strlen($b);
-        });
+        return implode(PHP_EOL, $commands);
+    }
 
-        return implode(PHP_EOL, array_unique($commands));
+    /**
+     * Get an array of all relations that are used for relations.
+     *
+     * @param array $fields
+     *
+     * @return array
+     */
+    protected function getNamespacesForUsedRelations(array $fields)
+    {
+        $commands = [];
+        $collections = $this->getRelationCollections($fields, 'form');
+
+        foreach ($collections as $collection) {
+            $command = $this->getUseClassCommand($collection->getFullForeignModel());
+
+            if (!in_array($command, $commands)) {
+                $commands[] = $this->getUseClassCommand($collection->getFullForeignModel());
+            }
+        }
+
+        return $commands;
     }
 
     /**
@@ -946,22 +958,18 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     {
         $this->ChangeRequestType($input);
 
-        $modelNamespace = $this->getModelNamespace($input->modelName, $input->modelDirectory);
-
-        $classToExtendFullname = $this->getFullClassToExtend();
-
-        $namespacesToUse = $this->getRequiredUseClasses($resource->fields, [$modelNamespace, $this->requestNameSpace, $classToExtendFullname]);
         $dataMethod = $this->getDataMethod($resource->fields, $this->requestNameSpace . '\\' . $this->requestName, $input);
         $languages = array_keys(Helpers::getLanguageItems($resource->fields));
         $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields, $this->isCollectiveTemplate());
+        $namespacesToUse = $this->getRequiredUseClasses($resource->fields, $this->getAdditionalNamespaces($input));
 
         return $this->replaceViewNames($stub, $input->viewDirectory, $input->prefix)
             ->replaceGetDataMethod($stub, $dataMethod)
             ->replaceCallDataMethod($stub, $this->getCallDataMethod($input->withFormRequest))
+            ->replaceUseCommandPlaceholder($stub, $namespacesToUse)
             ->replaceModelName($stub, $input->modelName)
             ->replaceNamespace($stub, $this->getControllersNamespace($input->controllerDirectory))
             ->replaceControllerExtends($stub, $this->getControllerExtends($this->getFullClassToExtend()))
-            ->replaceUseCommandPlaceholder($stub, $namespacesToUse)
             ->replaceConstructor($stub, $this->getConstructor($input->withAuth))
             ->replacePaginationNumber($stub, $input->perPage)
             ->replaceFileMethod($stub, $this->getUploadFileMethod($resource->fields, $this->getFullClassToExtend(), $input->withFormRequest))
@@ -972,12 +980,28 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
             ->replaceOnUpdateAction($stub, $this->getOnUpdateAction($resource->fields))
             ->replaceAppName($stub, Helpers::getAppName())
             ->replaceControllerName($stub, $input->controllerName)
-            ->replaceDataVariable($stub, 'data')
+            ->replaceDataVariable($stub, $this->dataVariable)
             ->replaceRequestName($stub, $this->requestName)
             ->replaceRequestFullName($stub, $this->requestNameSpace)
             ->replaceRequestVariable($stub, $this->requestVariable)
             ->replaceTypeHintedRequestName($stub, $this->getTypeHintedRequestName($this->requestName))
             ->replaceStandardLabels($stub, $viewLabels->getLabels());
+    }
+
+    /**
+     * Gets any additional classes to include in the use statement
+     *
+     * @param object $input
+     *
+     * @return array
+     */
+    protected function getAdditionalNamespaces($input)
+    {
+        return [
+            Helpers::getModelNamespace($input->modelName, $input->modelDirectory),
+            $this->requestNameSpace,
+            $this->getFullClassToExtend(),
+        ];
     }
 
     /**

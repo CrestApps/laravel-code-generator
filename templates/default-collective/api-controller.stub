@@ -21,28 +21,7 @@ class [% controller_name %] [% controller_extends %]
             return $this->transform($[% model_name_singular_variable %]);
         });
 
-        return $this->successResponse(
-            [% model_was_added %],
-            $[% data_variable %],
-            [
-                'links' => [
-                    'first' => $[% model_name_plural_variable %]->url(1),
-                    'last' => $[% model_name_plural_variable %]->url($[% model_name_plural_variable %]->lastPage()),
-                    'prev' => $[% model_name_plural_variable %]->previousPageUrl(),
-                    'next' => $[% model_name_plural_variable %]->nextPageUrl(),
-                ],
-                'meta' =>
-                [
-                    'current_page' => $[% model_name_plural_variable %]->currentPage(),
-                    'from' => $[% model_name_plural_variable %]->firstItem(),
-                    'last_page' => $[% model_name_plural_variable %]->lastPage(),
-                    'path' => $[% model_name_plural_variable %]->resolveCurrentPath(),
-                    'per_page' => $[% model_name_plural_variable %]->perPage(),
-                    'to' => $[% model_name_plural_variable %]->lastItem(),
-                    'total' => $[% model_name_plural_variable %]->total(),
-                ],
-            ]
-        );
+        [% index_return_success %]
     }
 
     /**
@@ -55,20 +34,12 @@ class [% controller_name %] [% controller_extends %]
     public function store([% type_hinted_request_name %])
     {
         try {
-            $validator = [% call_get_validator %];
-
-            if ($validator->fails()) {
-                return $this->errorResponse($validator->errors()->all());
-            }
-
+            [% validator_request %]
             $[% data_variable %] = [% call_get_data %];
             [% on_store_setter %]
             $[% model_name_singular_variable %] = [% model_name_class %]::create($[% data_variable %]);
 
-            return $this->successResponse(
-                [% model_was_added %],
-                $this->transform($[% model_name_singular_variable %])
-            );
+            [% store_return_success %]
         } catch (Exception $exception) {
             return $this->errorResponse([% unexpected_error %]);
         }
@@ -85,10 +56,7 @@ class [% controller_name %] [% controller_extends %]
     {
         $[% model_name_singular_variable %] = [% model_name_class %]::[% with_relations_for_show %]findOrFail($id);
 
-        return $this->successResponse(
-            [% model_was_retrieved %],
-            $this->transform($[% model_name_singular_variable %])
-        );
+        [% show_return_success %]
     }
 
     /**
@@ -102,21 +70,13 @@ class [% controller_name %] [% controller_extends %]
     public function update($id, [% type_hinted_request_name %])
     {
         try {
-            $validator = [% call_get_validator %];
-
-            if ($validator->fails()) {
-                return $this->errorResponse($validator->errors()->all());
-            }
-
+            [% validator_request %]
             $[% data_variable %] = [% call_get_data %];
             [% on_update_setter %]
             $[% model_name_singular_variable %] = [% model_name_class %]::findOrFail($id);
             $[% model_name_singular_variable %]->update($[% data_variable %]);
 
-            return $this->successResponse(
-                [% model_was_updated %],
-                $this->transform($[% model_name_singular_variable %])
-            );
+            [% update_return_success %]
         } catch (Exception $exception) {
             return $this->errorResponse([% unexpected_error %]);
         }
@@ -135,10 +95,7 @@ class [% controller_name %] [% controller_extends %]
             $[% model_name_singular_variable %] = [% model_name_class %]::findOrFail($id);
             $[% model_name_singular_variable %]->delete();
 
-            return $this->successResponse(
-                [% model_was_deleted %],
-                $id
-            );
+            [% destroy_return_success %]
         } catch (Exception $exception) {
             return $this->errorResponse([% unexpected_error %]);
         }

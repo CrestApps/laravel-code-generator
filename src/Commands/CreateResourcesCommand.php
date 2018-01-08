@@ -2,6 +2,7 @@
 
 namespace CrestApps\CodeGenerator\Commands;
 
+use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Models\ResourceInput;
 use CrestApps\CodeGenerator\Support\Helpers;
@@ -73,13 +74,13 @@ class CreateResourcesCommand extends Command
             $this->createResourceFile($input);
         }
 
-        $resources = Resource::fromFile($input->resourceFile, $input->languageFileName ?: 'generic');
+        $resource = Resource::fromFile($input->resourceFile, $input->languageFileName ?: 'generic');
 
-        $this->validateField($resources->fields)
+        $this->validateField($resource->fields)
             ->printInfo('Scaffolding resources for ' . $this->modelNamePlainEnglish($input->modelName) . '...')
             ->createModel($input)
             ->createController($input)
-            ->createRoutes($input)
+            ->createRoutes($input, $resource->getPrimaryField())
             ->createLanguage($input)
             ->createViews($input)
             ->createMigration($input)
@@ -241,8 +242,10 @@ class CreateResourcesCommand extends Command
      *
      * @return $this
      */
-    protected function createRoutes($input)
+    protected function createRoutes($input, Field $primaryField = null)
     {
+        $withClause = (!is_null($primaryField) && $primaryField->isNumeric());
+
         $this->call(
             'create:routes',
             [
@@ -251,6 +254,7 @@ class CreateResourcesCommand extends Command
                 '--routes-prefix' => $input->prefix,
                 '--template-name' => $input->template,
                 '--controller-directory' => $input->controllerDirectory,
+                '--without-route-clause' => !$withClause,
             ]
         );
 

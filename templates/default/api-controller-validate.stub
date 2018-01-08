@@ -1,0 +1,5 @@
+$validator = $this->getValidator($request);
+
+            if ($validator->fails()) {
+                return $this->errorResponse($validator->errors()->all());
+            }

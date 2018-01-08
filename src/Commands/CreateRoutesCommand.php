@@ -23,6 +23,7 @@ class CreateRoutesCommand extends Command
                             {--controller-name= : The name of the controller where the route should be routing to.}
                             {--routes-prefix=default-form : Prefix of the route group.}
                             {--controller-directory= : The directory where the controller is under.}
+                            {--without-route-clause : Create the routes without where clause for the id.}
                             {--template-name= : The template name to use when generating the code.}';
 
     /**
@@ -60,6 +61,7 @@ class CreateRoutesCommand extends Command
             ->replaceControllerName($stub, $controllnerName)
             ->replaceRouteNames($stub, $this->getModelName($input->modelName), $input->prefix)
             ->processRoutesGroup($stub, $input->prefix, $input->controllerDirectory, $input->template)
+            ->replaceRouteIdClause($stub, $this->getRouteIdClause($input->withoutRouteClause))
             ->appendToRoutesFile($stub, $routesFile)
             ->info('The routes were added successfully.');
     }
@@ -77,14 +79,32 @@ class CreateRoutesCommand extends Command
         $prefix = str_replace('\\', '/', $prefix);
         $template = $this->getTemplateName();
         $controllerDirectory = trim($this->option('controller-directory'));
+        $withoutRouteClause = $this->option('without-route-clause');
 
         return (object) compact(
             'modelName',
             'controllerName',
             'prefix',
             'template',
-            'controllerDirectory'
+            'controllerDirectory',
+            'withoutRouteClause'
         );
+    }
+
+    /**
+     * Gets the where clause for the id
+     *
+     * @param bool $withClause
+     *
+     * @return string
+     */
+    protected function getRouteIdClause($withoutClause)
+    {
+        if (!$withoutClause) {
+            return "->where('id', '[0-9]+')";
+        }
+
+        return '';
     }
 
     /**
@@ -145,6 +165,19 @@ class CreateRoutesCommand extends Command
     protected function replacePrefix(&$stub, $prefix)
     {
         return $this->replaceTemplate('prefix', $prefix, $stub);
+    }
+
+    /**
+     * Replaces the routes' prefix for the given stub.
+     *
+     * @param string $stub
+     * @param string $prefix
+     *
+     * @return $this
+     */
+    protected function replaceRouteIdClause(&$stub, $prefix)
+    {
+        return $this->replaceTemplate('route_id_clause', $prefix, $stub);
     }
 
     /**

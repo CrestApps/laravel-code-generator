@@ -9,7 +9,7 @@
     protected function affirm(Request $request)
     {
         $rules = [
-    [% validation_rules %] 
+[% validation_rules %] 
         ];
 [% file_validation_snippet %]
 

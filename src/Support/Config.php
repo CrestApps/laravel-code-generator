@@ -39,6 +39,26 @@ class Config
     }
 
     /**
+     * Gets the postfix value for a api-resource name
+     *
+     * @return string
+     */
+    public static function getApiResourceNamePostFix()
+    {
+        return self::getStringBaseValue('api_resource_name_postfix', 'Resource');
+    }
+
+    /**
+     * Gets the postfix value for a api-resource name
+     *
+     * @return string
+     */
+    public static function getApiResourceCollectionNamePostFix()
+    {
+        return self::getStringBaseValue('api_resource_collection_name_postfix', 'Collection');
+    }
+
+    /**
      * Gets the default value of the system path
      *
      * @param string $file
@@ -71,6 +91,8 @@ class Config
     {
         $config = self::getArrayBaseValue('plural_names_for', [
             'controller-name' => true,
+            'api-resource-name' => true,
+            'api-resource-collection-name' => true,
             'request-form-name' => true,
             'route-group' => true,
             'language-file-name' => true,
@@ -261,6 +283,30 @@ class Config
     public static function getModelsPath($file = '')
     {
         $path = self::getStringBaseValue('models_path', 'Models');
+
+        return Helpers::getPathWithSlash($path) . $file;
+    }
+
+    /**
+     * Gets the path to api-resource
+     *
+     * @return string
+     */
+    public static function getApiResourcePath($file = '')
+    {
+        $path = self::getStringBaseValue('api_resources_path', 'Http/Resources');
+
+        return Helpers::getPathWithSlash($path) . $file;
+    }
+
+    /**
+     * Gets the path to api-resource-collection
+     *
+     * @return string
+     */
+    public static function getApiResourceCollectionPath($file = '')
+    {
+        $path = self::getStringBaseValue('api_resources_collection_path', 'Http/Resources/Collections');
 
         return Helpers::getPathWithSlash($path) . $file;
     }

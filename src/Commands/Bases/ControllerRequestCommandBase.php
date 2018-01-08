@@ -2,6 +2,7 @@
 
 namespace CrestApps\CodeGenerator\Commands\Bases;
 
+use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
@@ -42,7 +43,7 @@ class ControllerRequestCommandBase extends Command
             }
         }
 
-        return sprintf('[%s]', implode(',', $names));
+        return sprintf('[%s]', implode(', ', $names));
     }
 
     /**
@@ -54,7 +55,7 @@ class ControllerRequestCommandBase extends Command
      */
     protected function getValidationRules(array $fields)
     {
-        $validations = '';
+        $validations = [];
 
         foreach ($fields as $field) {
 
@@ -69,22 +70,35 @@ class ControllerRequestCommandBase extends Command
                     });
                 }
 
-                if (!empty($customRules) || $field->isFile()) {
-
-                    $standardRules = array_diff($rules, $customRules);
-                    $shortCustomRules = $this->extractCustomValidationShortName($customRules);
-
-                    $wrappedRules = array_merge(Helpers::wrapItems($standardRules), $shortCustomRules);
-                    $validations .= sprintf("        '%s' => [%s],\n    ", $field->name, implode(',', $wrappedRules));
-                } else {
-                    $validations .= sprintf("        '%s' => '%s',\n    ", $field->name, implode('|', $rules));
-                }
+                $validations[] = $this->getValidationRule($field, $customRules, $rules);
             }
         }
 
-        return $validations;
+        return implode(PHP_EOL, $validations);
     }
 
+    /**
+     * Gets laravel ready field validation format for a giving field
+     *
+     * @param CrestApps\CodeGenerator\Models\Field $field
+     * @param string $customRules
+     *
+     * @return string
+     */
+    protected function getValidationRule(Field $field, $customRules, $rules)
+    {
+        if (!empty($customRules) || $field->isFile()) {
+
+            $standardRules = array_diff($rules, $customRules);
+            $shortCustomRules = $this->extractCustomValidationShortName($customRules);
+
+            $wrappedRules = array_merge(Helpers::wrapItems($standardRules), $shortCustomRules);
+
+            return sprintf("            '%s' => [%s],", $field->name, implode(',', $wrappedRules));
+        }
+
+        return sprintf("            '%s' => '%s',", $field->name, implode('|', $rules));
+    }
     /**
      * Extracts the custom validation rules' short name from the giving rules array.
      *

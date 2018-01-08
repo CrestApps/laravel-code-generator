@@ -5,10 +5,13 @@ namespace CrestApps\CodeGenerator\Commands;
 use CrestApps\CodeGenerator\Commands\Bases\ControllerCommandBase;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
-use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
+use CrestApps\CodeGenerator\Traits\ApiResourceTrait;
 
 class CreateApiControllerCommand extends ControllerCommandBase
 {
+    use ApiResourceTrait;
+
     /**
      * The console command description.
      *
@@ -38,7 +41,19 @@ class CreateApiControllerCommand extends ControllerCommandBase
                             {--form-request-directory= : The directory of the form-request.}
                             {--controller-extends=default-controller : The base controller to be extend.}
                             {--with-response-methods : Generate the controller both successResponse and errorResponse methods.}
+                            {--with-api-resource : Generate the controller with both api-resource and api-resource-collection classes.}
+                            {--api-resource-directory= : The directory where the api-resource should be created.}
+                            {--api-resource-collection-directory= : The directory where the api-resource-collection should be created.}
+                            {--api-resource-name= : The api-resource file name.}
+                            {--api-resource-collection-name= : The api-resource-collection file name.}
                             {--force : This option will override the controller if one already exists.}';
+
+    /**
+     * check if the base class was created during this request
+     *
+     * @var bool
+     */
+    protected $isBaseCreated = false;
 
     /**
      * Build the model class with the given name.
@@ -55,26 +70,78 @@ class CreateApiControllerCommand extends ControllerCommandBase
             return false;
         }
 
-        $getValidatorMethod = $this->getValidatorMethod($input, $resource->fields);
+        if ($input->withApiResource) {
+            if (!$this->isApiResourceSupported()) {
+                $this->info('Api-resource is not supported in the current Laravel version. To use Api-resource, pleae upgrade to Laravel 5.5+.');
+                $this->warn('*** Continuing without create api-resource! ***');
+            } else {
+                $this->makeApiResource($input, false)
+                    ->makeApiResource($input, true);
+            }
+        }
 
         $stub = $this->getControllerStub();
 
         return $this->processCommonTasks($input, $resource, $stub)
-            ->replaceCallGetValidator($stub, $this->getCallGetValidator($input->withFormRequest))
-            ->replaceGetValidatorMethod($stub, $getValidatorMethod)
+            ->replaceGetValidatorMethod($stub, $this->getValidatorMethod($input, $resource->fields))
             ->replaceResponseMethods($stub, $this->getResponseMethods())
             ->replaceTransformMethod($stub, $this->getTransformMethod($input, $resource->fields))
+            ->replaceValidateRequest($stub, $this->getValidateRequest($input->withFormRequest))
+            ->replaceReturnSuccess($stub, $this->getReturnSuccess($input, $resource->fields, 'store'), 'store')
+            ->replaceReturnSuccess($stub, $this->getReturnSuccess($input, $resource->fields, 'index'), 'index')
+            ->replaceReturnSuccess($stub, $this->getReturnSuccess($input, $resource->fields, 'update'), 'update')
+            ->replaceReturnSuccess($stub, $this->getReturnSuccess($input, $resource->fields, 'show'), 'show')
+            ->replaceReturnSuccess($stub, $this->getReturnSuccess($input, $resource->fields, 'destroy'), 'destroy')
             ->createControllerBaseClass($input->controllerDirectory)
             ->createFile($destenationFile, $stub)
             ->info('A ' . $this->getControllerType() . ' was crafted successfully.');
     }
 
     /**
-     * check if the base class was created during this request
+     * Gets any additional classes to include in the use statement
      *
-     * @var bool
+     * @param object $input
+     *
+     * @return array
      */
-    protected $isBaseCreated = false;
+    protected function getAdditionalNamespaces($input)
+    {
+        $additionalNamespaces = parent::getAdditionalNamespaces($input);
+
+        if (!$input->withFormRequest) {
+            $additionalNamespaces[] = 'Illuminate\Support\Facades\Validator';
+        }
+
+        if ($input->withApiResource && $this->isApiResourceSupported()) {
+
+            $additionalNamespaces[] = $this->getApiResourceNamespace(
+                $this->getApiResourceClassName($input->modelName)
+            );
+
+            $additionalNamespaces[] = $this->getApiResourceCollectionNamespace(
+                $this->getApiResourceCollectionClassName($input->modelName)
+            );
+        }
+
+        return $additionalNamespaces;
+    }
+
+    /**
+     * Get an array of all relations that are used for relations.
+     *
+     * @param array $fields
+     *
+     * @return array
+     */
+    /*
+    protected function getNamespacesForUsedRelations(array $fields)
+    {
+    // Since there is no create/edit forms in the API controller,
+    // No need for any relation's namespances.
+
+    return [];
+    }
+     */
 
     /**
      * Gets the type of the controller
@@ -108,7 +175,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
      */
     protected function getValidatorMethod($input, array $fields)
     {
-        if ($input->withFormRequest || Helpers::isNewerThanOrEqualTo('5.5')) {
+        if ($input->withFormRequest || $this->isApiResourceSupported()) {
             return '';
         }
 
@@ -122,19 +189,67 @@ class CreateApiControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Gets the affirm method call.
+     * Gets the return code for a giving method.
      *
-     * @param bool $withFormRequest
+     * @param object $input
+     * @param array $fields
+     * @param string $method
      *
      * @return string
      */
-    protected function getCallGetValidator($withFormRequest)
+    protected function getReturnSuccess($input, array $fields, $method)
     {
-        if ($withFormRequest || Helpers::isNewerThanOrEqualTo('5.5')) {
-            return $this->requestVariable . '->getValidator()';
+        if ($input->withApiResource && $this->isApiResourceSupported()) {
+            return $this->getApiResourceCall($input->modelName, $fields, $method);
         }
 
-        return '$this->getValidator($request)';
+        return $this->getSuccessCall($input->modelName, $fields, $method);
+    }
+
+    /**
+     * Gets the plain success return code for a giving method.
+     *
+     * @param object $input
+     * @param array $fields
+     * @param string $method
+     *
+     * @return string
+     */
+    protected function getSuccessCall($modelName, array $fields, $method)
+    {
+        $stub = $this->getStubContent('api-controller-call-' . $method . '-success-method');
+
+        $viewLabels = new ViewLabelsGenerator($modelName, $fields, $this->isCollectiveTemplate());
+
+        $this->replaceModelName($stub, $modelName)
+            ->replaceStandardLabels($stub, $viewLabels->getLabels())
+            ->replaceDataVariable($stub, $this->dataVariable);
+
+        return $stub;
+    }
+
+    /**
+     * Gets the plain success return code for a giving method.
+     *
+     * @param object $input
+     * @param array $fields
+     * @param string $method
+     *
+     * @return string
+     */
+    protected function getApiResourceCall($modelName, $fields, $method)
+    {
+        $stub = $this->getStubContent('api-controller-call-' . $method . '-api-resource');
+
+        $viewLabels = new ViewLabelsGenerator($modelName, $fields, $this->isCollectiveTemplate());
+
+        $this->replaceModelName($stub, $modelName)
+            ->replaceStandardLabels($stub, $viewLabels->getLabels())
+            ->replaceDataVariable($stub, $this->dataVariable)
+            ->replaceApiResourceClass($stub, $this->getApiResourceClassName($modelName))
+            ->replaceApiResourceCollectionClass($stub, $this->getApiResourceCollectionClassName($modelName));
+
+        return $stub;
     }
 
     /**
@@ -157,25 +272,13 @@ class CreateApiControllerCommand extends ControllerCommandBase
         return $code;
     }
 
-    /**
-     * Gets the transform method.
-     *
-     * @param object $input
-     * @param array $fields
-     *
-     * @return string
-     */
-    protected function getTransformMethod($input, array $fields)
+    protected function getValidateRequest($withFormRequest)
     {
-        $stub = $this->getStubContent('api-controller-transform-method');
+        if (!$withFormRequest) {
+            return $this->getStubContent('api-controller-validate');
+        }
 
-        $modelNamespace = $this->getModelNamespace($input->modelName, $input->modelDirectory);
-
-        $this->replaceModelApiArray($stub, $this->getModelApiArray($fields))
-            ->replaceModelName($stub, $input->modelName)
-            ->replaceModelFullname($stub, $modelNamespace);
-
-        return $stub;
+        return '';
     }
 
     /**
@@ -196,9 +299,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
             // Create a new one
             $this->isBaseCreated = true;
 
-            $stub = $this->getStubContent('api-controller-base-class');
-
-            $this->createFile($destenationFile, $stub)
+            $this->createFile($destenationFile, $this->getBaseClassContent($controllerDirectory))
                 ->info('A new api-controller based class was created!');
         }
 
@@ -206,25 +307,31 @@ class CreateApiControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Gets the field in array ready format.
-     *
-     * @param array $fields
+     * Gets the Controller's base class content.
      *
      * @return string
      */
-    protected function getModelApiArray(array $fields)
+    protected function getBaseClassContent($controllerDirectory)
     {
-        $properties = '';
+        $stub = $this->getStubContent('api-controller-base-class');
 
-        foreach ($fields as $field) {
-            if (!$field->isApiVisible) {
-                continue;
-            }
+        $methods = $this->getStubContent('api-controller-success-response-method') . PHP_EOL . PHP_EOL;
+        $methods .= $this->getStubContent('api-controller-error-response-method');
 
-            $properties .= sprintf("        '%s' => '%s',\n    ", $field->getApiKey(), $field->name);
-        }
+        $this->replaceNamespace($stub, $this->getControllersNamespace($controllerDirectory))
+            ->replaceResponseMethods($stub, $methods);
 
-        return $properties;
+        return $stub;
+    }
+
+    /**
+     * Gets name of the middleware
+     *
+     * @return string
+     */
+    protected function getAuthMiddleware()
+    {
+        return parent::getAuthMiddleware() . ':api';
     }
 
     /**
@@ -239,6 +346,33 @@ class CreateApiControllerCommand extends ControllerCommandBase
         $baseClass = $this->getFullClassToExtend();
 
         return !method_exists($baseClass, $name);
+    }
+
+    /**
+     * Executes the command that generates a migration.
+     *
+     * @param CrestApps\CodeGenerator\Models\ResourceInput $input
+     *
+     * @return $this
+     */
+    protected function makeApiResource($input, $isCollection = false)
+    {
+        $this->call(
+            'create:api-resource',
+            [
+                'model-name' => $input->modelName,
+                '--api-resource-directory' => $input->apiResourceDirectory,
+                '--api-resource-collection-directory' => $input->apiResourceCollectionDirectory,
+                '--api-resource-name' => $input->apiResourceName,
+                '--api-resource-collection-name' => $input->apiResourceCollectionName,
+                '--resource-file' => $input->resourceFile,
+                '--template-name' => $input->template,
+                '--collection' => $isCollection,
+                '--force' => $input->force,
+            ]
+        );
+
+        return $this;
     }
 
     /**
@@ -268,55 +402,47 @@ class CreateApiControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Replaces call get validator for the given stub.
+     * Replaces return_success for the given stub.
      *
      * @param  string  $stub
      * @param  string  $name
+     * @param  string  $method
      *
      * @return $this
      */
-    protected function replaceCallGetValidator(&$stub, $name)
+    protected function replaceReturnSuccess(&$stub, $name, $method)
     {
-        return $this->replaceTemplate('call_get_validator', $name, $stub);
+        return $this->replaceTemplate($method . '_return_success', $name, $stub);
     }
 
     /**
-     * Replaces the transform method for the giving stub,
+     * Replaces the validator_request for the giving stub,
      *
      * @param  string  $stub
      * @param  string  $name
      *
      * @return $this
      */
-    protected function replaceTransformMethod(&$stub, $name)
+    protected function replaceValidateRequest(&$stub, $name)
     {
-        return $this->replaceTemplate('transform_method', $name, $stub);
+        return $this->replaceTemplate('validator_request', $name, $stub);
     }
 
-    /**
-     * Replaces the model fullname for the giving stub,
-     *
-     * @param  string  $stub
-     * @param  string  $name
-     *
-     * @return $this
-     */
-    protected function replaceModelFullname(&$stub, $name)
+/**
+ * Gets a clean command-line arguments and options.
+ *
+ * @return object
+ */
+    protected function getCommandInput()
     {
-        return $this->replaceTemplate('use_full_model_name', $name, $stub);
-    }
+        $input = parent::getCommandInput();
 
-    /**
-     * Replaces the model_api_array for the giving stub,
-     *
-     * @param  string  $stub
-     * @param  string  $name
-     *
-     * @return $this
-     */
-    protected function replaceModelApiArray(&$stub, $name)
-    {
-        return $this->replaceTemplate('model_api_array', $name, $stub);
-    }
+        $input->apiResourceDirectory = trim($this->option('api-resource-directory'));
+        $input->apiResourceCollectionDirectory = trim($this->option('api-resource-collection-directory'));
+        $input->apiResourceName = trim($this->option('api-resource-name'));
+        $input->apiResourceCollectionName = trim($this->option('api-resource-collection-name'));
+        $input->withApiResource = $this->option('with-api-resource');
 
+        return $input;
+    }
 }

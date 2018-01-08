@@ -2,8 +2,12 @@
  - The default value of the option `controller-extends` in the `create:controller` command was changed from `Http\Controllers\Controller` to `default-controller`.
  - A new `create:api-controller` command was created to create API ready controllers.
  - The `create_move_file_method` option in the config have been removed. Now simply if you have `moveFile` method defined in the controller base class, generating the method will be skipped. However, if the method does not extsts, it will be generated.
- - The following subs have been added to the default templates. `api-controller-error-response-method.stub`, `api-controller-get-validator.stub`, `api-controller-success-response-method.stub`, `api-controller-transform-method.stub`, and `api-controller.stub`.
+ - Multiple new stubs have been added to the default templates. Any stub name that starts with `api-` have been added.
+ - The `route.stub` file have been modified.
   - The following two properties `is-api-visible` and `api-key` were added to the Field properties to give you control on which field should be visile to the api output and what should it be called incase you want to give it a name other that what is in the database.
+  - The `create:routes` command now has a new option `without-route-clause` which will create the routes without `there` clause for the id. It may be used when the primary key is not an integer.
+  - added command to create api-resource with/without collection when using Laravel 5.5+.
+
 
 ## v2.2.7
  - Added capability to lock down resource from with in the resource file. This is helpful if you make code changes to a file and you want the code generator to protect the file from accidentally overriding it when using --force

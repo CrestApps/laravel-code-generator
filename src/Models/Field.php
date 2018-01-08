@@ -567,6 +567,43 @@ class Field implements JsonWriter
     }
 
     /**
+     * Gets a value accessor for the field.
+     *
+     * @param string $variable
+     * @param string $view
+     *
+     * @return string
+     */
+    public function getAccessorValue($variable, $view = null)
+    {
+        $fieldAccessor = sprintf('$%s->%s', $variable, $this->name);
+
+        if ($this->hasForeignRelation() && (empty($view) || $this->isOnView($view))) {
+            $relation = $this->getForeignRelation();
+            if (Helpers::isNewerThanOrEqualTo('5.5')) {
+                $fieldAccessor = sprintf('optional($%s->%s)->%s', $variable, $relation->name, $relation->getField());
+            } else {
+                $fieldAccessor = sprintf('$%s->%s->%s', $variable, $relation->name, $relation->getField());
+                $fieldAccessor = sprintf("isset(%s) ? %s : ''", $fieldAccessor, $fieldAccessor);
+            }
+        }
+
+        if ($this->isBoolean()) {
+            return sprintf("(%s) ? '%s' : '%s'", $fieldAccessor, $this->getTrueBooleanOption()->text, $this->getFalseBooleanOption()->text);
+        }
+
+        if ($this->isMultipleAnswers()) {
+            return sprintf("implode('%s', %s)", $this->optionsDelimiter, $fieldAccessor);
+        }
+
+        if ($this->isFile()) {
+            return sprintf("basename(%s)", $fieldAccessor);
+        }
+
+        return $fieldAccessor;
+    }
+
+    /**
      * Sets the foreign key of the field.
      *
      * @param CrestApps\CodeGenerator\Models\ForeignConstraint $foreignConstraint

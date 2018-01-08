@@ -77,6 +77,12 @@ class CodeGeneratorServiceProvider extends ServiceProvider
             ]);
         }
 
+        if (Helpers::isNewerThanOrEqualTo('5.5')) {
+            $commands = array_merge($commands, [
+                'CrestApps\CodeGenerator\Commands\CreateApiResourceCommand',
+            ]);
+        }
+
         $this->commands($commands);
     }
 

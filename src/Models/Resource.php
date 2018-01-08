@@ -64,6 +64,8 @@ class Resource implements JsonWriter
     protected $protectableResources = [
         'model',
         'controller',
+        'api-resource',
+        'api-resource-collection',
         'form-request',
         'languages',
         'form-view',
