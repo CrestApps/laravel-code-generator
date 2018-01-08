@@ -70,6 +70,9 @@ trait ApiResourceTrait
             }
 
             $accessor = $field->getAccessorValue('this->resource');
+            if ($forApiCollectionClass) {
+                $accessor = $field->getAccessorValue($this->getSingularVariable($modelName));
+            }
 
             $properties[] = sprintf("%s'%s' => %s,", $prefix, $field->getApiKey(), $accessor);
         }
@@ -84,7 +87,7 @@ trait ApiResourceTrait
      */
     protected function isApiResourceSupported()
     {
-        return Helpers::isNewerThanOrEqualTo('5.5');
+        return Helpers::isNewerThanOrEqualTo('5.4');
     }
 
     /**
@@ -129,7 +132,7 @@ trait ApiResourceTrait
         $path = trim($this->option('api-resource-directory'));
 
         if (!empty($path)) {
-            $path = Helpers::getPathWithSlash(ucfirst($path));
+            $path = Helpers::getPathWithSlash($path);
         }
 
         $path = Helpers::getAppNamespace() . Config::getApiResourcePath($path);
@@ -147,7 +150,7 @@ trait ApiResourceTrait
         $path = trim($this->option('api-resource-collection-directory'));
 
         if (!empty($path)) {
-            $path = Helpers::getPathWithSlash(ucfirst($path));
+            $path = Helpers::getPathWithSlash($path);
         }
 
         return Helpers::getAppNamespace() . Config::getApiResourceCollectionPath($path);
@@ -158,15 +161,15 @@ trait ApiResourceTrait
      *
      * @param object $input
      * @param array $fields
+     * @param bool $useDefaultAccessor
      *
      * @return string
      */
-    protected function getTransformMethod($input, array $fields)
+    protected function getTransformMethod($input, array $fields, $useDefaultAccessor = false)
     {
         $stub = $this->getStubContent('api-controller-transform-method');
-        $isCollection = property_exists($input, 'isCollection') ? $input->isCollection : false;
 
-        $this->replaceModelApiArray($stub, $this->getModelApiArray($fields, $input->modelName, $isCollection))
+        $this->replaceModelApiArray($stub, $this->getModelApiArray($fields, $input->modelName, $useDefaultAccessor))
             ->replaceModelName($stub, $input->modelName)
             ->replaceModelFullname($stub, Helpers::getModelNamespace($input->modelName, $input->modelDirectory));
 

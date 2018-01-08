@@ -1,6 +1,6 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Commands;
+namespace CrestApps\CodeGenerator\Commands\Framework;
 
 use CrestApps\CodeGenerator\Models\ResourceInput;
 use CrestApps\CodeGenerator\Support\Config;

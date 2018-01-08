@@ -1,6 +1,6 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Commands;
+namespace CrestApps\CodeGenerator\Commands\Framework;
 
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
@@ -24,6 +24,8 @@ class CreateRoutesCommand extends Command
                             {--routes-prefix=default-form : Prefix of the route group.}
                             {--controller-directory= : The directory where the controller is under.}
                             {--without-route-clause : Create the routes without where clause for the id.}
+                            {--for-api : Create the routes for an api instead of a web.}
+                            {--api-version= : The api version to prefix your resurces with.}
                             {--template-name= : The template name to use when generating the code.}';
 
     /**
@@ -47,13 +49,13 @@ class CreateRoutesCommand extends Command
             return;
         }
 
-        $routesFile = $this->getRoutesFileName();
+        $routesFile = $this->getRoutesFileName($input->forApi);
 
         if (!$this->isFileExists($routesFile)) {
             throw new Exception("The routes file does not exists. The expected location was " . $routesFile);
         }
 
-        $stub = $this->getStubContent('routes');
+        $stub = $this->getRoutesStub($input->forApi);
 
         $controllnerName = $this->getControllerName($input->controllerName, $input->controllerDirectory);
 
@@ -64,6 +66,18 @@ class CreateRoutesCommand extends Command
             ->replaceRouteIdClause($stub, $this->getRouteIdClause($input->withoutRouteClause))
             ->appendToRoutesFile($stub, $routesFile)
             ->info('The routes were added successfully.');
+    }
+
+    /**
+     * Gets the stub content for the route
+     *
+     * @return object
+     */
+    protected function getRoutesStub($isApi)
+    {
+        $name = $isApi ? 'api-routes' : 'routes';
+
+        return $this->getStubContent($name);
     }
 
     /**
@@ -80,6 +94,12 @@ class CreateRoutesCommand extends Command
         $template = $this->getTemplateName();
         $controllerDirectory = trim($this->option('controller-directory'));
         $withoutRouteClause = $this->option('without-route-clause');
+        $forApi = $this->option('for-api');
+        $apiVersion = $this->option('api-version');
+
+        if ($apiVersion) {
+            $prefix = Helpers::postFixWith($prefix, '/') . $apiVersion;
+        }
 
         return (object) compact(
             'modelName',
@@ -87,7 +107,9 @@ class CreateRoutesCommand extends Command
             'prefix',
             'template',
             'controllerDirectory',
-            'withoutRouteClause'
+            'withoutRouteClause',
+            'apiVersion',
+            'forApi'
         );
     }
 
@@ -248,5 +270,24 @@ class CreateRoutesCommand extends Command
         }
 
         return false;
+    }
+
+    /**
+     * Gets the correct routes fullname based on current framework version.
+     *
+     * @param bool $isApi
+     *
+     * @return string
+     */
+    protected function getRoutesFileName($isApi = false)
+    {
+        if (Helpers::isNewerThanOrEqualTo()) {
+
+            $file = $isApi ? 'api' : 'web';
+
+            return base_path('routes/' . $file . '.php');
+        }
+
+        return app_path('Http/routes.php');
     }
 }

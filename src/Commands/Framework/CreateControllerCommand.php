@@ -1,6 +1,6 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Commands;
+namespace CrestApps\CodeGenerator\Commands\Framework;
 
 use CrestApps\CodeGenerator\Commands\Bases\ControllerCommandBase;
 use CrestApps\CodeGenerator\Models\Resource;
@@ -61,6 +61,7 @@ class CreateControllerCommand extends ControllerCommandBase
         $stub = $this->getControllerStub();
 
         return $this->processCommonTasks($input, $resource, $stub)
+            ->replaceViewNames($stub, $input->viewDirectory, $input->prefix)
             ->replaceRouteNames($stub, $this->getModelName($input->modelName), $input->prefix)
             ->replaceCallAffirm($stub, $this->getCallAffirm($input->withFormRequest))
             ->replaceAffirmMethod($stub, $affirmMethod)
@@ -70,6 +71,19 @@ class CreateControllerCommand extends ControllerCommandBase
             ->replaceViewVariablesForCreate($stub, $this->getCompactVariablesFor($resource->fields, null, 'form'))
             ->createFile($destenationFile, $stub)
             ->info('A ' . $this->getControllerType() . ' was crafted successfully.');
+    }
+
+    /**
+     * Gets a clean command-line arguments and options.
+     *
+     * @return object
+     */
+    protected function getCommandInput()
+    {
+        $input = parent::getCommandInput();
+        $input->viewDirectory = $this->option('views-directory');
+
+        return $input;
     }
 
     /**

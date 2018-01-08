@@ -1,18 +1,18 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Commands;
+namespace CrestApps\CodeGenerator\Commands\Views;
 
 use CrestApps\CodeGenerator\Commands\Bases\ViewsCommandBase;
 use CrestApps\CodeGenerator\Models\Resource;
 
-class CreateFormViewCommand extends ViewsCommandBase
+class CreateCreateViewCommand extends ViewsCommandBase
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'create:form-view
+    protected $signature = 'create:create-view
                             {model-name : The model name that this view will represent.}
                             {--resource-file= : The name of the resource-file to import from.}
                             {--views-directory= : The name of the directory to create the views under.}
@@ -27,7 +27,7 @@ class CreateFormViewCommand extends ViewsCommandBase
      *
      * @var string
      */
-    protected $description = 'Create a from-view for the model.';
+    protected $description = 'Create a create-views for the model.';
 
     /**
      * Gets the name of the stub to process.
@@ -36,7 +36,7 @@ class CreateFormViewCommand extends ViewsCommandBase
      */
     protected function getStubName()
     {
-        return 'form.blade';
+        return 'create.blade';
     }
 
     /**
@@ -52,28 +52,41 @@ class CreateFormViewCommand extends ViewsCommandBase
 
         if ($this->canCreateView($destenationFile, $input->force, $resources)) {
             $stub = $this->getStub();
-            $htmlCreator = $this->getHtmlGenerator($resources->fields, $input->modelName, $this->getTemplateName());
             $headers = $this->getHeaderFieldAccessor($resources->fields, $input->modelName);
 
             $this->createLanguageFile($input->languageFileName, $input->resourceFile, $input->modelName)
+                ->createMissingViews($input)
                 ->replaceCommonTemplates($stub, $input, $resources->fields)
-                ->replaceFields($stub, $htmlCreator->getHtmlFields())
+                ->replaceFileUpload($stub, $resources->fields)
                 ->replaceModelHeader($stub, $headers)
+                ->replaceFormId($stub, $this->getFormId($input->modelName))
+                ->replaceFormName($stub, $this->getFormName($input->modelName))
                 ->createFile($destenationFile, $stub)
-                ->info('Form view was crafted successfully.');
+                ->info('Create view was crafted successfully.');
         }
     }
 
     /**
-     * Replaces the form field's html code in a giving stub.
+     * Gets te create form name
      *
-     * @param string $stub
-     * @param string $fields
+     * @param string $modelName
      *
-     * @return $this
+     * @return string
      */
-    protected function replaceFields(&$stub, $fields)
+    protected function getFormName($modelName)
     {
-        return $this->replaceTemplate('form_fields_html', $fields, $stub);
+        return sprintf('create_%s_form', snake_case($modelName));
+    }
+
+    /**
+     * Gets te create form id
+     *
+     * @param string $modelName
+     *
+     * @return string
+     */
+    protected function getFormId($modelName)
+    {
+        return sprintf('create_%s_form', snake_case($modelName));
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Commands;
+namespace CrestApps\CodeGenerator\Commands\Framework;
 
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Models\Resource;

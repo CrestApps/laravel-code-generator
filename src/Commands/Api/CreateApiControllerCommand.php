@@ -1,6 +1,6 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Commands;
+namespace CrestApps\CodeGenerator\Commands\Api;
 
 use CrestApps\CodeGenerator\Commands\Bases\ControllerCommandBase;
 use CrestApps\CodeGenerator\Models\Resource;
@@ -29,7 +29,6 @@ class CreateApiControllerCommand extends ControllerCommandBase
                             {--controller-name= : The name of the controler.}
                             {--controller-directory= : The directory where the controller should be created under.}
                             {--model-directory= : The path where the model should be created under.}
-                            {--views-directory= : The path where the views should be created under.}
                             {--resource-file= : The name of the resource-file to import from.}
                             {--routes-prefix=default-form : Prefix of the route group.}
                             {--models-per-page=25 : The amount of models per page for index pages.}
@@ -40,7 +39,6 @@ class CreateApiControllerCommand extends ControllerCommandBase
                             {--template-name= : The template name to use when generating the code.}
                             {--form-request-directory= : The directory of the form-request.}
                             {--controller-extends=default-controller : The base controller to be extend.}
-                            {--with-response-methods : Generate the controller both successResponse and errorResponse methods.}
                             {--with-api-resource : Generate the controller with both api-resource and api-resource-collection classes.}
                             {--api-resource-directory= : The directory where the api-resource should be created.}
                             {--api-resource-collection-directory= : The directory where the api-resource-collection should be created.}
@@ -85,7 +83,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
         return $this->processCommonTasks($input, $resource, $stub)
             ->replaceGetValidatorMethod($stub, $this->getValidatorMethod($input, $resource->fields))
             ->replaceResponseMethods($stub, $this->getResponseMethods())
-            ->replaceTransformMethod($stub, $this->getTransformMethod($input, $resource->fields))
+            ->replaceTransformMethod($stub, $this->getTransformMethod($input, $resource->fields, true))
             ->replaceValidateRequest($stub, $this->getValidateRequest($input->withFormRequest))
             ->replaceReturnSuccess($stub, $this->getReturnSuccess($input, $resource->fields, 'store'), 'store')
             ->replaceReturnSuccess($stub, $this->getReturnSuccess($input, $resource->fields, 'index'), 'index')
@@ -94,7 +92,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
             ->replaceReturnSuccess($stub, $this->getReturnSuccess($input, $resource->fields, 'destroy'), 'destroy')
             ->createControllerBaseClass($input->controllerDirectory)
             ->createFile($destenationFile, $stub)
-            ->info('A ' . $this->getControllerType() . ' was crafted successfully.');
+            ->info('A ' . $this->getControllerType() . ' was successfully crafted.');
     }
 
     /**
@@ -133,15 +131,13 @@ class CreateApiControllerCommand extends ControllerCommandBase
      *
      * @return array
      */
-    /*
     protected function getNamespacesForUsedRelations(array $fields)
     {
-    // Since there is no create/edit forms in the API controller,
-    // No need for any relation's namespances.
+        // Since there is no create/edit forms in the API controller,
+        // No need for any relation's namespances.
 
-    return [];
+        return [];
     }
-     */
 
     /**
      * Gets the type of the controller
@@ -318,8 +314,8 @@ class CreateApiControllerCommand extends ControllerCommandBase
         $methods = $this->getStubContent('api-controller-success-response-method') . PHP_EOL . PHP_EOL;
         $methods .= $this->getStubContent('api-controller-error-response-method');
 
-        $this->replaceNamespace($stub, $this->getControllersNamespace($controllerDirectory))
-            ->replaceResponseMethods($stub, $methods);
+        $this->replaceResponseMethods($stub, $methods)
+            ->replaceNamespace($stub, $this->getControllersNamespace($controllerDirectory));
 
         return $stub;
     }
@@ -351,7 +347,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
     /**
      * Executes the command that generates a migration.
      *
-     * @param CrestApps\CodeGenerator\Models\ResourceInput $input
+     * @param CrestApps\CodeGenerator\Models\ScaffoldInput $input
      *
      * @return $this
      */

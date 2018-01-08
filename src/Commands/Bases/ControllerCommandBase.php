@@ -206,7 +206,6 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
         $modelName = trim($this->argument('model-name'));
         $cName = trim($this->option('controller-name'));
         $controllerName = $cName ? str_finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($modelName);
-        $viewDirectory = $this->option('views-directory');
         $prefix = ($this->option('routes-prefix') == 'default-form') ? Helpers::makeRouteGroup($modelName) : $this->option('routes-prefix');
         $perPage = intval($this->option('models-per-page'));
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
@@ -223,8 +222,6 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
 
         return (object) compact(
             'formRequestDirectory',
-            'viewDirectory',
-            'viewName',
             'modelName',
             'prefix',
             'perPage',
@@ -366,7 +363,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     protected function getDestenationFile($name, $path)
     {
         if (!empty($path)) {
-            $path = Helpers::getPathWithSlash(ucfirst($path));
+            $path = Helpers::getPathWithSlash($path);
         }
 
         $fileName = app_path($this->getControllerPath($path . $name . '.php'));
@@ -565,7 +562,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
             $commands[] = $this->getUseClassCommand($addition);
         }
 
-        array_merge($commands, $this->getNamespacesForUsedRelations($fields));
+        $commands = array_merge($commands, $this->getNamespacesForUsedRelations($fields));
 
         // Attempt to include classes that don't start with \\ with using command.
         foreach ($fields as $field) {
@@ -963,8 +960,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
         $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields, $this->isCollectiveTemplate());
         $namespacesToUse = $this->getRequiredUseClasses($resource->fields, $this->getAdditionalNamespaces($input));
 
-        return $this->replaceViewNames($stub, $input->viewDirectory, $input->prefix)
-            ->replaceGetDataMethod($stub, $dataMethod)
+        return $this->replaceGetDataMethod($stub, $dataMethod)
             ->replaceCallDataMethod($stub, $this->getCallDataMethod($input->withFormRequest))
             ->replaceUseCommandPlaceholder($stub, $namespacesToUse)
             ->replaceModelName($stub, $input->modelName)

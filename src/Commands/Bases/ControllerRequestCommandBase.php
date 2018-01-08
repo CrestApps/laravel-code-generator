@@ -85,7 +85,7 @@ class ControllerRequestCommandBase extends Command
      *
      * @return string
      */
-    protected function getValidationRule(Field $field, $customRules, $rules)
+    protected function getValidationRule(Field $field, $customRules, $rules, $prefix = '            ')
     {
         if (!empty($customRules) || $field->isFile()) {
 
@@ -94,11 +94,12 @@ class ControllerRequestCommandBase extends Command
 
             $wrappedRules = array_merge(Helpers::wrapItems($standardRules), $shortCustomRules);
 
-            return sprintf("            '%s' => [%s],", $field->name, implode(',', $wrappedRules));
+            return sprintf("%s'%s' => [%s],", $prefix, $field->name, implode(',', $wrappedRules));
         }
 
-        return sprintf("            '%s' => '%s',", $field->name, implode('|', $rules));
+        return sprintf("%s'%s' => '%s',", $prefix, $field->name, implode('|', $rules));
     }
+
     /**
      * Extracts the custom validation rules' short name from the giving rules array.
      *
@@ -228,16 +229,18 @@ class ControllerRequestCommandBase extends Command
      * Gets the code that is needed to check for bool property.
      *
      * @param array $fields
+     * @param string $requestVariable
+     * @param string $prefix
      *
      * @return string
      */
-    protected function getBooleanSnippet(array $fields, $requestVariable = '$this')
+    protected function getBooleanSnippet(array $fields, $requestVariable = '$this', $prefix = '        ')
     {
         $code = '';
 
         foreach ($fields as $field) {
             if ($field->isBoolean() && $field->isCheckbox()) {
-                $code .= sprintf("        \$data['%s'] = %s->has('%s');", $field->name, $requestVariable, $field->name) . PHP_EOL;
+                $code .= sprintf("%s\$data['%s'] = %s->has('%s');", $prefix, $field->name, $requestVariable, $field->name) . PHP_EOL;
             }
         }
 

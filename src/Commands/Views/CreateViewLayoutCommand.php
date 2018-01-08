@@ -1,6 +1,6 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Commands;
+namespace CrestApps\CodeGenerator\Commands\Views;
 
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;

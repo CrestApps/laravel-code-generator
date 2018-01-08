@@ -42,45 +42,50 @@ class CodeGeneratorServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $commands = [
-            'CrestApps\CodeGenerator\Commands\CreateControllerCommand',
-            'CrestApps\CodeGenerator\Commands\CreateApiControllerCommand',
-            'CrestApps\CodeGenerator\Commands\CreateModelCommand',
-            'CrestApps\CodeGenerator\Commands\CreateIndexViewCommand',
-            'CrestApps\CodeGenerator\Commands\CreateCreateViewCommand',
-            'CrestApps\CodeGenerator\Commands\CreateFormViewCommand',
-            'CrestApps\CodeGenerator\Commands\CreateEditViewCommand',
-            'CrestApps\CodeGenerator\Commands\CreateShowViewCommand',
-            'CrestApps\CodeGenerator\Commands\CreateViewsCommand',
-            'CrestApps\CodeGenerator\Commands\CreateLanguageCommand',
-            'CrestApps\CodeGenerator\Commands\CreateFormRequestCommand',
-            'CrestApps\CodeGenerator\Commands\CreateRoutesCommand',
-            'CrestApps\CodeGenerator\Commands\CreateMigrationCommand',
-            'CrestApps\CodeGenerator\Commands\CreateResourcesCommand',
-            'CrestApps\CodeGenerator\Commands\CreateMappedResourcesCommand',
-            'CrestApps\CodeGenerator\Commands\CreateViewLayoutCommand',
-            'CrestApps\CodeGenerator\Commands\CreateLayoutCommand',
-            'CrestApps\CodeGenerator\Commands\ResourceFileFromDatabaseCommand',
-            'CrestApps\CodeGenerator\Commands\ResourceFileCreateCommand',
-            'CrestApps\CodeGenerator\Commands\ResourceFileDeleteCommand',
-            'CrestApps\CodeGenerator\Commands\ResourceFileAppendCommand',
-            'CrestApps\CodeGenerator\Commands\ResourceFileReduceCommand',
+        $commands =
+            [
+            'CrestApps\CodeGenerator\Commands\Framework\CreateControllerCommand',
+            'CrestApps\CodeGenerator\Commands\Framework\CreateModelCommand',
+            'CrestApps\CodeGenerator\Commands\Framework\CreateLanguageCommand',
+            'CrestApps\CodeGenerator\Commands\Framework\CreateFormRequestCommand',
+            'CrestApps\CodeGenerator\Commands\Framework\CreateRoutesCommand',
+            'CrestApps\CodeGenerator\Commands\Framework\CreateMigrationCommand',
+            'CrestApps\CodeGenerator\Commands\Framework\CreateScaffoldCommand',
+            'CrestApps\CodeGenerator\Commands\Framework\CreateResourcesCommand',
+            'CrestApps\CodeGenerator\Commands\Framework\CreateMappedResourcesCommand',
+            'CrestApps\CodeGenerator\Commands\Resources\ResourceFileFromDatabaseCommand',
+            'CrestApps\CodeGenerator\Commands\Resources\ResourceFileCreateCommand',
+            'CrestApps\CodeGenerator\Commands\Resources\ResourceFileDeleteCommand',
+            'CrestApps\CodeGenerator\Commands\Resources\ResourceFileAppendCommand',
+            'CrestApps\CodeGenerator\Commands\Resources\ResourceFileReduceCommand',
+            'CrestApps\CodeGenerator\Commands\Views\CreateIndexViewCommand',
+            'CrestApps\CodeGenerator\Commands\Views\CreateCreateViewCommand',
+            'CrestApps\CodeGenerator\Commands\Views\CreateFormViewCommand',
+            'CrestApps\CodeGenerator\Commands\Views\CreateEditViewCommand',
+            'CrestApps\CodeGenerator\Commands\Views\CreateShowViewCommand',
+            'CrestApps\CodeGenerator\Commands\Views\CreateViewsCommand',
+            'CrestApps\CodeGenerator\Commands\Views\CreateViewLayoutCommand',
+            'CrestApps\CodeGenerator\Commands\Views\CreateLayoutCommand',
+            'CrestApps\CodeGenerator\Commands\Api\CreateApiControllerCommand',
+            'CrestApps\CodeGenerator\Commands\Api\CreateApiScaffoldCommand',
         ];
 
         if (Helpers::isNewerThanOrEqualTo()) {
-            $commands = array_merge($commands, [
-                'CrestApps\CodeGenerator\Commands\Migrations\MigrateAllCommand',
-                'CrestApps\CodeGenerator\Commands\Migrations\RefreshAllCommand',
-                'CrestApps\CodeGenerator\Commands\Migrations\ResetAllCommand',
-                'CrestApps\CodeGenerator\Commands\Migrations\RollbackAllCommand',
-                'CrestApps\CodeGenerator\Commands\Migrations\StatusAllCommand',
-            ]);
+            $commands = array_merge($commands,
+                [
+                    'CrestApps\CodeGenerator\Commands\Migrations\MigrateAllCommand',
+                    'CrestApps\CodeGenerator\Commands\Migrations\RefreshAllCommand',
+                    'CrestApps\CodeGenerator\Commands\Migrations\ResetAllCommand',
+                    'CrestApps\CodeGenerator\Commands\Migrations\RollbackAllCommand',
+                    'CrestApps\CodeGenerator\Commands\Migrations\StatusAllCommand',
+                ]);
         }
 
-        if (Helpers::isNewerThanOrEqualTo('5.5')) {
-            $commands = array_merge($commands, [
-                'CrestApps\CodeGenerator\Commands\CreateApiResourceCommand',
-            ]);
+        if (Helpers::isNewerThanOrEqualTo('5.4')) {
+            $commands = array_merge($commands,
+                [
+                    'CrestApps\CodeGenerator\Commands\Api\CreateApiResourceCommand',
+                ]);
         }
 
         $this->commands($commands);

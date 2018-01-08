@@ -1,18 +1,18 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Commands;
+namespace CrestApps\CodeGenerator\Commands\Views;
 
 use CrestApps\CodeGenerator\Commands\Bases\ViewsCommandBase;
 use CrestApps\CodeGenerator\Models\Resource;
 
-class CreateCreateViewCommand extends ViewsCommandBase
+class CreateEditViewCommand extends ViewsCommandBase
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'create:create-view
+    protected $signature = 'create:edit-view
                             {model-name : The model name that this view will represent.}
                             {--resource-file= : The name of the resource-file to import from.}
                             {--views-directory= : The name of the directory to create the views under.}
@@ -27,7 +27,7 @@ class CreateCreateViewCommand extends ViewsCommandBase
      *
      * @var string
      */
-    protected $description = 'Create a create-views for the model.';
+    protected $description = 'Create an edit-views for the model.';
 
     /**
      * Gets the name of the stub to process.
@@ -36,7 +36,7 @@ class CreateCreateViewCommand extends ViewsCommandBase
      */
     protected function getStubName()
     {
-        return 'create.blade';
+        return 'edit.blade';
     }
 
     /**
@@ -52,17 +52,17 @@ class CreateCreateViewCommand extends ViewsCommandBase
 
         if ($this->canCreateView($destenationFile, $input->force, $resources)) {
             $stub = $this->getStub();
-            $headers = $this->getHeaderFieldAccessor($resources->fields, $input->modelName);
 
             $this->createLanguageFile($input->languageFileName, $input->resourceFile, $input->modelName)
                 ->createMissingViews($input)
                 ->replaceCommonTemplates($stub, $input, $resources->fields)
                 ->replaceFileUpload($stub, $resources->fields)
-                ->replaceModelHeader($stub, $headers)
+                ->replacePrimaryKey($stub, $this->getPrimaryKeyName($resources->fields))
+                ->replaceModelHeader($stub, $this->getHeaderFieldAccessor($resources->fields, $input->modelName))
                 ->replaceFormId($stub, $this->getFormId($input->modelName))
                 ->replaceFormName($stub, $this->getFormName($input->modelName))
                 ->createFile($destenationFile, $stub)
-                ->info('Create view was crafted successfully.');
+                ->info('Edit view was crafted successfully.');
         }
     }
 
@@ -75,7 +75,7 @@ class CreateCreateViewCommand extends ViewsCommandBase
      */
     protected function getFormName($modelName)
     {
-        return sprintf('create_%s_form', snake_case($modelName));
+        return sprintf('edit_%s_form', snake_case($modelName));
     }
 
     /**
@@ -87,6 +87,6 @@ class CreateCreateViewCommand extends ViewsCommandBase
      */
     protected function getFormId($modelName)
     {
-        return sprintf('create_%s_form', snake_case($modelName));
+        return sprintf('edit_%s_form', snake_case($modelName));
     }
 }

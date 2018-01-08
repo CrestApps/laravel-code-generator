@@ -1,6 +1,6 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Commands;
+namespace CrestApps\CodeGenerator\Commands\Api;
 
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Helpers;
@@ -70,7 +70,7 @@ class CreateApiResourceCommand extends Command
             ->replaceModelApiArray($stub, $this->getModelApiArray($resource->fields, $input->modelName, $input->isCollection))
             ->replaceApiResourceClass($stub, $apiResourceFileName)
             ->replaceApiResourceCollectionClass($stub, $this->getApiResourceCollectionClassName($input->modelName))
-            ->replaceTransformMethod($stub, $this->getTransformMethod($input, $resource->fields))
+            ->replaceTransformMethod($stub, $this->getTransformMethod($input, $resource->fields, $input->isCollection))
             ->replaceStandardLabels($stub, $viewLabels->getLabels())
             ->replaceModelName($stub, $input->modelName)
             ->replaceModelFullname($stub, Helpers::getModelNamespace($input->modelName, $input->modelDirectory))
@@ -138,7 +138,6 @@ class CreateApiResourceCommand extends Command
      */
     protected function getDestenationFile($name, $isCollection = false)
     {
-
         if ($isCollection) {
             $path = $this->getApiResourceCollectionPath();
         } else {

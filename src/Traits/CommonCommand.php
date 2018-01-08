@@ -102,20 +102,6 @@ trait CommonCommand
     }
 
     /**
-     * Gets the correct routes fullname based on current framework version.
-     *
-     * @return string
-     */
-    protected function getRoutesFileName()
-    {
-        if (Helpers::isNewerThanOrEqualTo()) {
-            return base_path('routes/web.php');
-        }
-
-        return app_path('Http/routes.php');
-    }
-
-    /**
      * Gets all command's arguments depending on the current framework version.
      *
      * @return string

@@ -1,6 +1,6 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Commands;
+namespace CrestApps\CodeGenerator\Commands\Framework;
 
 use CrestApps\CodeGenerator\Commands\Bases\ControllerRequestCommandBase;
 use CrestApps\CodeGenerator\Models\Resource;

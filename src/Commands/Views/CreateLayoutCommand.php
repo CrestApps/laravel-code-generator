@@ -1,13 +1,9 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Commands;
+namespace CrestApps\CodeGenerator\Commands\Views;
 
-use File;
-use Exception;
-use Illuminate\Console\Command;
-use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Support\Config;
+use Illuminate\Console\Command;
 
 class CreateLayoutCommand extends Command
 {
@@ -42,14 +38,14 @@ class CreateLayoutCommand extends Command
     {
         $this->call(
             'create:views-layout',
-                [
-                    'application-name' => $this->argument('application-name'),
-                    '--layout-filename' => $this->option('layout-filename'),
-                    '--layout-directory' => $this->option('layout-directory'),
-                    '--without-validation' => $this->option('without-validation'),
-                    '--template-name' => $this->option('template-name'),
-                    '--force' => $this->option('force')
-                ]
-            );
+            [
+                'application-name' => $this->argument('application-name'),
+                '--layout-filename' => $this->option('layout-filename'),
+                '--layout-directory' => $this->option('layout-directory'),
+                '--without-validation' => $this->option('without-validation'),
+                '--template-name' => $this->option('template-name'),
+                '--force' => $this->option('force'),
+            ]
+        );
     }
 }

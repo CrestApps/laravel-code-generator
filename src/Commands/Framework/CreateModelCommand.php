@@ -1,6 +1,6 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Commands;
+namespace CrestApps\CodeGenerator\Commands\Framework;
 
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
@@ -134,7 +134,7 @@ class CreateModelCommand extends Command
     protected function getDestenationFile($name, $path)
     {
         if (!empty($path)) {
-            $path = Helpers::getPathWithSlash(ucfirst($path));
+            $path = Helpers::getPathWithSlash($path);
         }
 
         return app_path(Config::getModelsPath($path . $name . '.php'));

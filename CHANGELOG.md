@@ -1,12 +1,15 @@
 ## v2.3.0
+ - The `create:resources` command have been renamed to `create:scaffold`.
+ - The `--fields` option was added to the `create:scaffold` to allow you to scaffold everything using a single command. So you can use the `create:scaffold` command to create resource-file and scaffold all at the same time. For example, `php artisan create:scaffold Test --fields=id,first_field,second_field`. The previous command will first create the resource-file before it create your other resources. The `--fields` option should only be used one time only to create the resource-file not every time.
  - The default value of the option `controller-extends` in the `create:controller` command was changed from `Http\Controllers\Controller` to `default-controller`.
  - A new `create:api-controller` command was created to create API ready controllers.
  - The `create_move_file_method` option in the config have been removed. Now simply if you have `moveFile` method defined in the controller base class, generating the method will be skipped. However, if the method does not extsts, it will be generated.
  - Multiple new stubs have been added to the default templates. Any stub name that starts with `api-` have been added.
  - The `route.stub` file have been modified.
   - The following two properties `is-api-visible` and `api-key` were added to the Field properties to give you control on which field should be visile to the api output and what should it be called incase you want to give it a name other that what is in the database.
-  - The `create:routes` command now has a new option `without-route-clause` which will create the routes without `there` clause for the id. It may be used when the primary key is not an integer.
+  - The `create:routes` command now has a new option `without-route-clause` which will create the routes without `there` clause for the id. It may be used when the primary key is not an integer. Additionally, the options `--for-api` and `--api-version` have been added to add support for created api-based routes.
   - added command to create api-resource with/without collection when using Laravel 5.5+.
+  - The `create:api-scaffold` command have been added to allow you to create resources for the api.
 
 
 ## v2.2.7

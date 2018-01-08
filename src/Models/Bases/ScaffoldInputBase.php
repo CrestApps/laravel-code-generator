@@ -1,8 +1,8 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Models;
+namespace CrestApps\CodeGenerator\Models\Bases;
 
-class ResourceInput
+class ScaffoldInputBase
 {
     /**
      * The fields name
@@ -40,13 +40,6 @@ class ResourceInput
     public $table;
 
     /**
-     * The views directory
-     *
-     * @var string
-     */
-    public $viewsDirectory;
-
-    /**
      * Total models per page
      *
      * @var int
@@ -54,11 +47,18 @@ class ResourceInput
     public $perPage = 25;
 
     /**
-     * The fields file
+     * The resource-file name
      *
      * @var string
      */
     public $resourceFile;
+
+    /**
+     * List of fields to create the resource-file from
+     *
+     * @var string
+     */
+    public $fields;
 
     /**
      * With form-request
@@ -150,13 +150,6 @@ class ResourceInput
      * @var string
      */
     public $template;
-
-    /**
-     * The name of the connection
-     *
-     * @var the name of the layout
-     */
-    public $layoutName;
 
     /**
      * Should the resources get generated from existing database.
