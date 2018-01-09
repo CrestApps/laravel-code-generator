@@ -214,6 +214,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
         $force = $this->option('force');
         $modelDirectory = $this->option('model-directory');
         $controllerDirectory = trim($this->option('controller-directory'));
+
         $formRequestName = Helpers::makeFormRequestName($modelName);
         $template = $this->getTemplateName();
         $formRequestDirectory = trim($this->option('form-request-directory'));
@@ -347,9 +348,9 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
      */
     protected function getControllersNamespace($path)
     {
-        $path = Helpers::getAppNamespace() . $this->getControllerPath($path);
+        $path = Helpers::getAppNamespace($this->getControllerPath(), $path);
 
-        return rtrim(Helpers::convertSlashToBackslash($path), '\\');
+        return Helpers::fixNamespace($path);
     }
 
     /**
@@ -384,17 +385,11 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
             return '';
         }
 
-        $appNamespace = Helpers::getAppNamespace();
-
         if ($this->isExtendsDefault()) {
-            $extend = $this->getDefaultClassToExtend();
+            return $this->getDefaultClassToExtend();
         }
 
-        if (starts_with($extend, $appNamespace)) {
-            $extend = str_replace($appNamespace, '', $extend);
-        }
-
-        return $appNamespace . trim($extend, '\\');
+        return Helpers::fixNamespace($extend);
     }
 
     /**
@@ -406,9 +401,11 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
      */
     protected function getDefaultClassToExtend()
     {
-        $appNamespace = Helpers::getAppNamespace();
+        $base = $this->getControllerPath();
 
-        return Helpers::convertSlashToBackslash($appNamespace . $this->getControllerPath('Controller'));
+        $controller = trim($this->option('controller-directory'));
+
+        return Helpers::fixNamespace(Helpers::getAppNamespace($base, $controller, 'Controller'));
     }
 
     /**

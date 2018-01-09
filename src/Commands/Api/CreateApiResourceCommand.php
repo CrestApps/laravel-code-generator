@@ -55,7 +55,7 @@ class CreateApiResourceCommand extends Command
         $input = $this->getCommandInput();
 
         $resource = Resource::fromFile($input->resourceFile, 'CrestApps');
-        $apiResourceFileName = $this->getApiResourceClassName($input->modelName);
+        $apiResourceFileName = $this->getApiFileName($input->modelName, $input->isCollection);
 
         $destenationFile = $this->getDestenationFile($apiResourceFileName, $input->isCollection);
 
@@ -66,7 +66,7 @@ class CreateApiResourceCommand extends Command
         $stub = $this->getStubContent($this->getFileTitle($input->isCollection));
         $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields, $this->isCollectiveTemplate());
 
-        return $this->replaceNamespace($stub, $this->getClassNamepace($input->modelName, $input->isCollection))
+        return $this->replaceNamespace($stub, $this->getClassNamepace($input->isCollection))
             ->replaceModelApiArray($stub, $this->getModelApiArray($resource->fields, $input->modelName, $input->isCollection))
             ->replaceApiResourceClass($stub, $apiResourceFileName)
             ->replaceApiResourceCollectionClass($stub, $this->getApiResourceCollectionClassName($input->modelName))
@@ -81,22 +81,34 @@ class CreateApiResourceCommand extends Command
     /**
      * Gets the namespace for the api class.
      *
+     * @param bool $isCollection
+     *
+     * @return string
+     */
+    protected function getClassNamepace($isCollection)
+    {
+        if ($isCollection) {
+            return $this->getApiResourceCollectionNamespace();
+        }
+
+        return $this->getApiResourceNamespace();
+    }
+
+    /**
+     * Gets the file name for the api class.
+     *
      * @param string $modelName
      * @param bool $isCollection
      *
      * @return string
      */
-    protected function getClassNamepace($modelName, $isCollection)
+    protected function getApiFileName($modelName, $isCollection)
     {
         if ($isCollection) {
-            return $this->getApiResourceCollectionNamespace(
-                $this->getApiResourceCollectionClassName($modelName)
-            );
+            return $this->getApiResourceCollectionClassName($modelName);
         }
 
-        return $this->getApiResourceNamespace(
-            $this->getApiResourceClassName($modelName)
-        );
+        return $this->getApiResourceClassName($modelName);
     }
 
     /**

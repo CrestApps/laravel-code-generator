@@ -6,6 +6,8 @@ use CrestApps\CodeGenerator\Commands\Bases\CreateScaffoldCommandBase;
 use CrestApps\CodeGenerator\Models\ApiScaffoldInput;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\Resource;
+use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Helpers;
 
 class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
 {
@@ -133,7 +135,7 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
     protected function createRoutes(ApiScaffoldInput $input, Field $primaryField = null)
     {
         $withClause = (!is_null($primaryField) && $primaryField->isNumeric());
-
+        $controllerDirectory = $this->getControllerDirectory($input->controllerDirectory);
         $this->call(
             'create:routes',
             [
@@ -141,7 +143,7 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
                 '--controller-name' => $input->controllerName,
                 '--routes-prefix' => $input->prefix,
                 '--template-name' => $input->template,
-                '--controller-directory' => $input->controllerDirectory,
+                '--controller-directory' => $this->appendVerison($controllerDirectory, $input->apiVersion),
                 '--without-route-clause' => !$withClause,
                 '--for-api' => true,
                 '--api-version' => $input->apiVersion,
@@ -151,6 +153,27 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
         return $this;
     }
 
+    /**
+     * Get the Api folder after removing the controllers path.
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    protected function getControllerDirectory($path)
+    {
+        $web = Helpers::fixNamespace(Config::getControllersPath());
+        $apis = Helpers::fixNamespace(Config::getApiControllersPath());
+
+        $directory = trim(Helpers::removePreFixWith($apis, $web), '\\/');
+
+        if (!empty($path)) {
+            return $directory . '\\' . $path;
+        }
+
+        return $directory;
+
+    }
     /**
      * Gets a clean user inputs.
      *

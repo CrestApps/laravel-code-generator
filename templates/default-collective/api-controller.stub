@@ -17,10 +17,6 @@ class [% controller_name %] [% controller_extends %]
     {
         $[% model_name_plural_variable %] = [% model_name_class %]::[% with_relations_for_index %]paginate([% models_per_page %]);
 
-        $[% data_variable %] = $[% model_name_plural_variable %]->transform(function ($[% model_name_singular_variable %]) {
-            return $this->transform($[% model_name_singular_variable %]);
-        });
-
         [% index_return_success %]
     }
 

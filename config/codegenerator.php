@@ -297,7 +297,7 @@ return [
                 'is-on-form' => false,
                 'is-on-index' => false,
                 'is-on-show' => false,
-                'is-api-visible' => false,
+                'is-api-visible' => true,
                 'html-type' => 'hidden',
                 'data-type' => 'integer',
                 'is-primary' => true,

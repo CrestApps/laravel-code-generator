@@ -39,7 +39,7 @@ class [% api_resource_collection_class %] extends ResourceCollection
     {
         return [
             'data' => $this->collection->transform(function ($[% model_name_singular_variable %]) {
-                return $this->transform($[% model_name_singular_variable %]);
+                return $this->transformModel($[% model_name_singular_variable %]);
             }),
             'message' => $this->message,
             'success' => true,

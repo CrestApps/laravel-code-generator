@@ -77,13 +77,9 @@ class Helpers
      */
     public static function getModelNamespace($modelName, $modelDirectory)
     {
-        if (!empty($modelDirectory)) {
-            $modelDirectory = str_finish($modelDirectory, '\\');
-        }
+        $namespace = self::getAppNamespace(Config::getModelsPath(), $modelDirectory, $modelName);
 
-        $namespace = Helpers::getAppNamespace() . Config::getModelsPath($modelDirectory . $modelName);
-
-        return rtrim(Helpers::convertSlashToBackslash($namespace), '\\');
+        return self::fixNamespace($namespace);
     }
 
     /**
@@ -128,23 +124,42 @@ class Helpers
     }
 
     /**
+     * Fixes a path to a namespace
+     *
+     * @return string
+     */
+    public static function fixNamespace($path)
+    {
+        return rtrim(self::convertSlashToBackslash($path), '\\');
+    }
+
+    /**
      * Gets the model full path.
      *
      * @return string
      */
     public static function getModelsPath()
     {
-        return self::getAppNamespace() . Config::getModelsPath();
+        return self::getAppNamespace(Config::getModelsPath());
     }
 
     /**
-     * Gets the app namespace.
+     * Gets the app namespace afer concatenating any giving paths to it
+     *
+     * @param mix $paths
      *
      * @return string
      */
-    public static function getAppNamespace()
+    public static function getAppNamespace(...$paths)
     {
-        return Container::getInstance()->getNamespace();
+        $base = Container::getInstance()->getNamespace();
+        foreach ($paths as $path) {
+            if (!empty($path)) {
+                $base .= self::postFixWith($path, '\\');
+            }
+        }
+
+        return Helpers::convertSlashToBackslash($base);
     }
 
     /**
@@ -606,6 +621,10 @@ class Helpers
      */
     public static function getPathWithSlash($path)
     {
+        if (empty($path)) {
+            return '';
+        }
+
         return self::postFixWith($path, DIRECTORY_SEPARATOR);
     }
 

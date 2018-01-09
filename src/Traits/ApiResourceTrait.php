@@ -97,13 +97,19 @@ trait ApiResourceTrait
      *
      * @return string
      */
-    protected function getApiResourceNamespace($className)
+    protected function getApiResourceNamespace($className = '')
     {
         $cName = trim($this->option('api-resource-name'));
 
         $path = Helpers::convertSlashToBackslash($this->getApiResourcePath());
 
-        return Helpers::getPathWithSlash($path) . $className;
+        $namespace = Helpers::getPathWithSlash($path);
+
+        if (!empty($className)) {
+            $path = Helpers::getPathWithSlash($path) . $className;
+        }
+
+        return Helpers::fixNamespace($path);
     }
 
     /**
@@ -113,13 +119,19 @@ trait ApiResourceTrait
      *
      * @return string
      */
-    protected function getApiResourceCollectionNamespace($className)
+    protected function getApiResourceCollectionNamespace($className = '')
     {
         $cName = trim($this->option('api-resource-collection-name'));
 
         $path = Helpers::convertSlashToBackslash($this->getApiResourceCollectionPath());
 
-        return Helpers::getPathWithSlash($path) . $className;
+        $namespace = Helpers::getPathWithSlash($path);
+
+        if (!empty($className)) {
+            $path = Helpers::getPathWithSlash($path) . $className;
+        }
+
+        return Helpers::fixNamespace($path);
     }
 
     /**
@@ -168,10 +180,12 @@ trait ApiResourceTrait
     protected function getTransformMethod($input, array $fields, $useDefaultAccessor = false)
     {
         $stub = $this->getStubContent('api-controller-transform-method');
+        $methodName = $useDefaultAccessor ? 'transformModel' : 'transform';
 
         $this->replaceModelApiArray($stub, $this->getModelApiArray($fields, $input->modelName, $useDefaultAccessor))
             ->replaceModelName($stub, $input->modelName)
-            ->replaceModelFullname($stub, Helpers::getModelNamespace($input->modelName, $input->modelDirectory));
+            ->replaceModelFullname($stub, Helpers::getModelNamespace($input->modelName, $input->modelDirectory))
+            ->replaceTransformMethodName($stub, $methodName);
 
         return $stub;
     }
@@ -240,4 +254,18 @@ trait ApiResourceTrait
     {
         return $this->replaceTemplate('transform_method', $name, $stub);
     }
+
+    /**
+     * Replaces the transform_method_name for the giving stub,
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    protected function replaceTransformMethodName(&$stub, $name)
+    {
+        return $this->replaceTemplate('transform_method_name', $name, $stub);
+    }
+
 }
