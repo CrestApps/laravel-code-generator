@@ -117,7 +117,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
             return '';
         }
 
-        return $this->getTransformMethod($input, $fields, true);
+        return $this->getTransformMethod($input, $fields, true, false);
     }
 
     /**
@@ -196,7 +196,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
      */
     protected function getValidatorMethod($input, array $fields)
     {
-        if ($input->withFormRequest || $this->isApiResourceSupported()) {
+        if ($input->withFormRequest && $this->isApiResourceSupported()) {
             return '';
         }
 

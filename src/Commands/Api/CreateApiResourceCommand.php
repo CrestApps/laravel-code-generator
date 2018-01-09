@@ -70,7 +70,7 @@ class CreateApiResourceCommand extends Command
             ->replaceModelApiArray($stub, $this->getModelApiArray($resource->fields, $input->modelName, $input->isCollection))
             ->replaceApiResourceClass($stub, $apiResourceFileName)
             ->replaceApiResourceCollectionClass($stub, $this->getApiResourceCollectionClassName($input->modelName))
-            ->replaceTransformMethod($stub, $this->getTransformMethod($input, $resource->fields, $input->isCollection))
+            ->replaceTransformMethod($stub, $this->getTransformMethod($input, $resource->fields, $input->isCollection, $input->isCollection))
             ->replaceStandardLabels($stub, $viewLabels->getLabels())
             ->replaceModelName($stub, $input->modelName)
             ->replaceModelFullname($stub, Helpers::getModelNamespace($input->modelName, $input->modelDirectory))

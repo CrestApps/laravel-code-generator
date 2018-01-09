@@ -103,8 +103,6 @@ trait ApiResourceTrait
 
         $path = Helpers::convertSlashToBackslash($this->getApiResourcePath());
 
-        $namespace = Helpers::getPathWithSlash($path);
-
         if (!empty($className)) {
             $path = Helpers::getPathWithSlash($path) . $className;
         }
@@ -124,8 +122,6 @@ trait ApiResourceTrait
         $cName = trim($this->option('api-resource-collection-name'));
 
         $path = Helpers::convertSlashToBackslash($this->getApiResourceCollectionPath());
-
-        $namespace = Helpers::getPathWithSlash($path);
 
         if (!empty($className)) {
             $path = Helpers::getPathWithSlash($path) . $className;
@@ -147,7 +143,7 @@ trait ApiResourceTrait
             $path = Helpers::getPathWithSlash($path);
         }
 
-        $path = Helpers::getAppNamespace() . Config::getApiResourcePath($path);
+        $path = Helpers::getAppNamespace(Config::getApiResourcePath(), $path);
 
         return Helpers::getPathWithSlash($path);
     }
@@ -165,7 +161,7 @@ trait ApiResourceTrait
             $path = Helpers::getPathWithSlash($path);
         }
 
-        return Helpers::getAppNamespace() . Config::getApiResourceCollectionPath($path);
+        return Helpers::getAppNamespace(Config::getApiResourceCollectionPath(), $path);
     }
 
     /**
@@ -174,13 +170,14 @@ trait ApiResourceTrait
      * @param object $input
      * @param array $fields
      * @param bool $useDefaultAccessor
+     * @param bool $forApiCollection
      *
      * @return string
      */
-    protected function getTransformMethod($input, array $fields, $useDefaultAccessor = false)
+    protected function getTransformMethod($input, array $fields, $useDefaultAccessor = false, $forApiCollection = false)
     {
         $stub = $this->getStubContent('api-controller-transform-method');
-        $methodName = $useDefaultAccessor ? 'transformModel' : 'transform';
+        $methodName = $forApiCollection ? 'transformModel' : 'transform';
 
         $this->replaceModelApiArray($stub, $this->getModelApiArray($fields, $input->modelName, $useDefaultAccessor))
             ->replaceModelName($stub, $input->modelName)
