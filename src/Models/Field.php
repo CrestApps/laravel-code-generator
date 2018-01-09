@@ -1177,7 +1177,7 @@ class Field implements JsonWriter
      */
     protected function getLabelsFromProperties(array $properties)
     {
-        if (!Helpers::isKeyExists($properties, 'labels'))) {
+        if (!Helpers::isKeyExists($properties, 'labels')) {
             throw new Exception('The resource-file is missing the labels entry for the ' . $this->name . ' field.');
         }
 
