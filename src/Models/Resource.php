@@ -214,9 +214,13 @@ class Resource implements JsonWriter
      */
     public function getHeaderField()
     {
-        return collect($this->fields)->first(function ($field) {
-            return $field->isHeader();
-        });
+        foreach ($this->fields as $field) {
+            if ($field->isHeader()) {
+                return $field;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -226,9 +230,13 @@ class Resource implements JsonWriter
      */
     public function getPrimaryField()
     {
-        return collect($this->fields)->first(function ($field) {
-            return $field->isPrimary();
-        });
+        foreach ($this->fields as $field) {
+            if ($field->isPrimary()) {
+                return $field;
+            }
+        }
+
+        return null;
     }
 
     /**

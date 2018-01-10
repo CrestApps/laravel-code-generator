@@ -394,6 +394,18 @@ class Helpers
     }
 
     /**
+     * Evaluates the current version of the framework to see if it < a giving version.
+     *
+     * @param $version
+     *
+     * @return bool
+     */
+    public static function isOlderThan($version)
+    {
+        return version_compare(App::VERSION(), $version) < 0;
+    }
+
+    /**
      * Replaces found pattern in a subject only one time.
      *
      * @param string $pattern

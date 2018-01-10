@@ -62,7 +62,7 @@ class CreateRoutesCommand extends Command
         $this->replaceModelName($stub, $input->modelName)
             ->replaceControllerName($stub, $controllnerName)
             ->replaceRouteNames($stub, $this->getModelName($input->modelName), $input->prefix)
-            ->processRoutesGroup($stub, $input->prefix, $input->controllerDirectory, $input->template)
+            ->processRoutesGroup($stub, $input->prefix, $input->controllerDirectory, $input->template, $input->forApi)
             ->replaceRouteIdClause($stub, $this->getRouteIdClause($input->withoutRouteClause))
             ->appendToRoutesFile($stub, $routesFile)
             ->info('The routes were added successfully.');
@@ -209,12 +209,17 @@ class CreateRoutesCommand extends Command
      * @param string $prefix
      * @param string $namespace
      * @param string $template
+     * @param bool $forApi
      *
      * @return $this
      */
-    protected function processRoutesGroup(&$stub, $prefix, $namespace, $template)
+    protected function processRoutesGroup(&$stub, $prefix, $namespace, $template, $forApi)
     {
         $prefix = trim($prefix);
+
+        if ($forApi && Helpers::isOlderThan('5.3')) {
+            $prefix = Helpers::preFixWith($prefix, 'api/');
+        }
 
         if (!empty($prefix) || !empty($namespace)) {
             $groupStub = $this->getStubContent('routes-group');
@@ -281,7 +286,7 @@ class CreateRoutesCommand extends Command
      */
     protected function getRoutesFileName($isApi = false)
     {
-        if (Helpers::isNewerThanOrEqualTo()) {
+        if (Helpers::isNewerThanOrEqualTo('5.3')) {
 
             $file = $isApi ? 'api' : 'web';
 
