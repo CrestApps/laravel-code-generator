@@ -90,7 +90,7 @@ Checkout our channel on <a href="https://www.youtube.com/channel/UCkEd0nOoRf3o0a
 		    <li>php artisan create:mapped-resources</li>
 	    </ul>
 	</li>
-		<li>
+	<li>
 		<strong>API commands</strong>
 		<ul>
 		    <li>php artisan create:api-scaffold [model-name]</li>
@@ -178,7 +178,7 @@ The following example assumes that we are trying to create a CRUD called <var>As
 <p><small>The above command will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views, the routes, and migration class!</var></small></p>
 </blockquote>
 
-###	Basic example using translations for English and Arabic - with migration
+#### Basic example using translations for English and Arabic - with migration
 
 <blockquote>
 <p><code>php artisan resource-file:create AssetCategory --fields=id,name,description,is_active --translation-for=en,ar</code></p>
@@ -187,7 +187,7 @@ The following example assumes that we are trying to create a CRUD called <var>As
 <p><small>The above command will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views, the routes, and migration class!</var></small></p>
 </blockquote>
 
-### Basic example with form-request
+#### Basic example with form-request
 
 <blockquote>
 <p><code>php artisan resource-file:create AssetCategory --fields=id,name,description,is_active</code></p>
@@ -196,7 +196,7 @@ The following example assumes that we are trying to create a CRUD called <var>As
 <p><small>The above command will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views, the routes, and <var>app/Http/Requests/AssetCategoriesFormRequest</var> class!</var></small></p>
 </blockquote>
 
-### Basic example with soft-delete and migration
+#### Basic example with soft-delete and migration
 
 <blockquote>
 <p><code>php artisan resource-file:create AssetCategory --fields=id,name,description,is_active</code></p>
@@ -205,7 +205,7 @@ The following example assumes that we are trying to create a CRUD called <var>As
 <p><small>The above command will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views, the routes, and migration file!</var></small></p>
 </blockquote>
 
-### Creating resources from existing database
+#### Creating resources from existing database
 
 <blockquote>
 <p><code>php artisan create:scaffold AssetCategory --table-exists</code></p>
@@ -216,7 +216,7 @@ The following example assumes that we are trying to create a CRUD called <var>As
 </blockquote>
 
 
-### Creating resources from existing database with translation for English and Arabic
+#### Creating resources from existing database with translation for English and Arabic
 
 <blockquote>
 <p><code>php artisan create:scaffold AssetCategory --translation-for=en,ar --table-exists</code></p>
@@ -225,7 +225,7 @@ The following example assumes that we are trying to create a CRUD called <var>As
 <p><small>You may also create a resource-file from existing database separately using <code>php artisan resource-file:form-database AssetCategory --translation-for=en,ar</code></small></p>
 </blockquote>
 
-### Creating resources from existing database with translation for English and Arabic in two step for better control over the fields!
+#### Creating resources from existing database with translation for English and Arabic in two step for better control over the fields!
 
 <blockquote>
 <p><code>php artisan resource-file:form-database AssetCategory --translation-for=en,ar</code></p>
@@ -235,7 +235,7 @@ The following example assumes that we are trying to create a CRUD called <var>As
 </blockquote>
 
 
-## Prologue
+## What's new?
 * <a href="https://crestapps.com/laravel-code-generator/docs/2.3#release-notes">Release Notes</a>
 * <a href="https://crestapps.com/laravel-code-generator/docs/2.3#upgrade-guide">Upgrade Guide</a>
 
