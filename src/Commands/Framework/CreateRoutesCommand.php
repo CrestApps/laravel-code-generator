@@ -44,7 +44,9 @@ class CreateRoutesCommand extends Command
     {
         $input = $this->getCommandInput();
 
-        if ($this->isRouteNameExists($this->getDotNotationName($this->getModelName($input->modelName), $input->prefix, 'index'))) {
+        $namePrefix = $input->forApi ? Helpers::preFixWith($input->prefix, 'api/') : $input->prefix;
+
+        if ($this->isRouteNameExists($this->getDotNotationName($this->getModelName($input->modelName), $namePrefix, 'index'))) {
             $this->warn("The routes already registered!");
             return;
         }
@@ -61,7 +63,7 @@ class CreateRoutesCommand extends Command
 
         $this->replaceModelName($stub, $input->modelName)
             ->replaceControllerName($stub, $controllnerName)
-            ->replaceRouteNames($stub, $this->getModelName($input->modelName), $input->prefix)
+            ->replaceRouteNames($stub, $this->getModelName($input->modelName), $namePrefix)
             ->processRoutesGroup($stub, $input->prefix, $input->controllerDirectory, $input->template, $input->forApi)
             ->replaceRouteIdClause($stub, $this->getRouteIdClause($input->withoutRouteClause))
             ->appendToRoutesFile($stub, $routesFile)
