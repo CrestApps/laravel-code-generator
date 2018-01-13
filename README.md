@@ -1,3 +1,4 @@
+[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=An%20intelligent%20code%20generator%20for%20Laravel%20framework%20which%20will%20save%20you%20lots%20of%20time!&url=https://github.com/CrestApps/laravel-code-generator&hashtags=laravel,laravel-code-generator,laravel-crud,code-generator,crud-generator,laravel-crud-generator)
 
 ## Introduction
 
@@ -123,6 +124,15 @@ Checkout our channel on <a href="https://www.youtube.com/channel/UCkEd0nOoRf3o0a
 
 > Live demo is available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/demos/v2-2 "Laravel Code Generator Live Demo"). 
 
+
+## Contribution
+Do you like this project and want to contribute?
+- Please start by *Staring* this package on GitHub.
+- Sharing this projects with others is your way of saying keep improvements and new awesome feature coming.
+- Report any bugs or send us any comments, idea, thought that you may have about this project as an issue on GitHub.
+
+## What did you create with this package?
+I'd love to know if your site was generated using this package and list your logo on the documentation site. Please email using my contact info found in `composer.json` file.
 
 ## Examples
 
