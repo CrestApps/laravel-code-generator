@@ -109,6 +109,20 @@ class CreateControllerCommand extends ControllerCommandBase
     }
 
     /**
+     * Gets the default class name to extend
+     *
+     * @param string $extend
+     *
+     * @return string
+     */
+    protected function getDefaultClassToExtend()
+    {
+        $base = $this->getControllerPath();
+
+        return Helpers::fixNamespace(Helpers::getAppNamespace($base, 'Controller'));
+    }
+
+    /**
      * Gets the affirm method.
      *
      * @param (object) $input

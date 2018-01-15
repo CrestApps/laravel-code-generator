@@ -46,6 +46,8 @@ class CreateRoutesCommand extends Command
 
         $namePrefix = $input->forApi ? Helpers::preFixWith($input->prefix, 'api/') : $input->prefix;
 
+        $controllnerName = $this->getControllerName($input->controllerName, $input->controllerDirectory);
+
         if ($this->isRouteNameExists($this->getDotNotationName($this->getModelName($input->modelName), $namePrefix, 'index'))) {
             $this->warn("The routes already registered!");
             return;
@@ -102,7 +104,6 @@ class CreateRoutesCommand extends Command
         if ($apiVersion) {
             $prefix = Helpers::postFixWith($prefix, '/') . $apiVersion;
         }
-
         return (object) compact(
             'modelName',
             'controllerName',
@@ -162,7 +163,7 @@ class CreateRoutesCommand extends Command
 
         $path = Helpers::postFixWith($namespace, '\\');
 
-        return Helpers::convertSlashToBackslash($path . $name);
+        return Helpers::fixNamespace($path . $name);
     }
 
     /**

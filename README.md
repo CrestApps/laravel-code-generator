@@ -137,10 +137,12 @@ Checkout our channel on <a href="https://www.youtube.com/channel/UCkEd0nOoRf3o0a
 
 ## Contribution
 Do you like this project and want to contribute?
-- *Star* this package on GitHub.
-- Send us any comments, idea, thought that you may have about this project.
-- share this project with others
-- report bugs if any.
+- Please start by *Staring* this package on GitHub.
+- Sharing this projects with others is your way of saying keep improvements and new awesome feature coming.
+- Report any bugs or send us any comments, idea, thought that you may have about this project as an issue on GitHub.
+
+## What did you create with this package?
+I'd love to know if your site was generated using this package and list your logo on the documentation site. Please email using my contact info found in `composer.json` file.
 
 ## Examples
 
