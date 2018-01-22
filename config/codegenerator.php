@@ -478,6 +478,14 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | The default path to store the api-documentation.
+    |--------------------------------------------------------------------------
+    |
+     */
+    'api_docs_path', 'resources/views/api-docs',
+
+    /*
+    |--------------------------------------------------------------------------
     | A string to postfix the form-request name with.
     |--------------------------------------------------------------------------
     |
@@ -509,7 +517,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Non-Field base labels to be replaced in the views.
+    | Non-Field base labels to be replaced in the views and api-documentation.
     |--------------------------------------------------------------------------
     |
     | List of generic non-field labels to be replaced in the views.
@@ -614,6 +622,148 @@ return [
             'text' => 'Unexpected error occurred while trying to process your request.',
             'template' => 'unexpected_error',
         ],
+
+        /* The following keys are used for the api-documentation */
+        'available_resources' => [
+            'text' => 'Available Resources',
+            'template' => 'available_resources',
+        ],
+        'request_title' => [
+            'text' => 'Request',
+            'template' => 'request_title',
+        ],
+        'parameters_title' => [
+            'text' => 'Parameters',
+            'template' => 'parameters_title',
+        ],
+        'response_title' => [
+            'text' => 'Response',
+            'template' => 'response_title',
+        ],
+        'header_title' => [
+            'text' => 'Header',
+            'template' => 'header_title',
+        ],
+        'this_parameter_is_an_http_header' => [
+            'text' => 'This parameter is an HTTP header',
+            'template' => 'this_parameter_is_an_http_header',
+        ],
+        'request_was_successful' => [
+            'text' => 'Request was successfull.',
+            'template' => 'request_was_successful',
+        ],
+        'boolean_title' => [
+            'text' => 'Boolean',
+            'template' => 'boolean_title',
+        ],
+        'string_title' => [
+            'text' => 'String',
+            'template' => 'string_title',
+        ],
+        'integer_title' => [
+            'text' => 'Integer',
+            'template' => 'integer_title',
+        ],
+        'array_title' => [
+            'text' => 'Array',
+            'template' => 'array_title',
+        ],
+        'the_success_message' => [
+            'text' => 'The success message',
+            'template' => 'the_success_message',
+        ],
+        'parameters_title' => [
+            'text' => 'Parameters',
+            'template' => 'parameters_title',
+        ],
+        'key_title' => [
+            'text' => 'Key',
+            'template' => 'key_title',
+        ],
+        'type_title' => [
+            'text' => 'Type',
+            'template' => 'type_title',
+        ],
+        'parameter_title' => [
+            'text' => 'Parameter',
+            'template' => 'parameter_title',
+        ],
+        'request_type_title' => [
+            'text' => 'Request Type',
+            'template' => 'request_type_title',
+        ],
+        'path_title' => [
+            'text' => 'Path',
+            'template' => 'path_title',
+        ],
+        'data_type_title' => [
+            'text' => 'Data Type',
+            'template' => 'data_type_title',
+        ],
+        'description_title' => [
+            'text' => 'Description',
+            'template' => 'description_title',
+        ],
+        'model_definition_title' => [
+            'text' => 'Model Definition',
+            'template' => 'model_definition_title',
+        ],
+        'model_id_camel_case' => [
+            'text' => '[% model_name %]Id',
+            'template' => 'model_id_camel_case',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Labels to use to generate the text in the api-documentation.
+    |--------------------------------------------------------------------------
+    |
+    | Here you can define labels to be used when creating the api-documentation.
+    | You can define how would you like the text to be generated.
+    |
+    | The follwowing templates can be used. Assuming the model name is AssetCategory
+    | [% model_name %]                   <=> "asset category"
+    | [% model_name_sentence %]          <=> "Asset category"
+    | [% model_name_plural %]            <=> "asset categories"
+    | [% model_name_plural_title %]      <=> "Asset Categories"
+    | [% model_name_snake %]             <=> "asset_category"
+    | [% model_name_studly %]            <=> "AssetCategory"
+    | [% model_name_slug %]              <=> "asset-category"
+    | [% model_name_kebab %]             <=> "asset-category"
+    | [% model_name_title %]             <=> "Asset Category"
+    | [% model_name_title_upper %]       <=> "ASSET CATEGORY"
+    | [% model_name_plural_variable %]   <=> "assetCategories"
+    | [% model_name_singular_variable %] <=> "assetCategory"
+    |
+     */
+    'generic_api_documentation_labels' => [
+        'access_token_with_bearer' => 'The access token prefixed with the "Bearer " key word.',
+        'index_route_description' => 'Retrieve existing [% model_name_plural %].',
+        'index_route_response_description' => 'The API\'s response will be JSON based data. The JSON object will be structured as follow',
+        'the_key_is_the_model_property_and_the_value_is_the_model_value' => 'The array\'s key is the [% model_name %] property name where the value is the assigned value to the retrieved [% model_name %].',
+        'link_to_retrieve_first_page' => 'Link to retrieve first page.',
+        'link_to_retrieve_last_page' => 'Link to retrieve last page.',
+        'link_to_retrieve_previous_page' => 'Link to retrieve previous page.',
+        'link_to_retrieve_next_page' => 'Link to retrieve next page.',
+        'the_number_of_current_page' => 'The number of current page.',
+        'the_index_of_the_first_retrieved_item' => 'The index of first retrieved [% model_name %].',
+        'the_number_of_the_last_page' => 'The number of the last page.',
+        'the_base_link_to_the_resource' => 'The base link to the api resource.',
+        'the_number_of_models_per_page' => 'The number of [% model_name_plural %] per page.',
+        'the_index_of_the_last_retrieved_item' => 'The index of last retrieved [% model_name %].',
+        'the_total_of_available_pages' => 'The total of the available pages.',
+        'store_route_description' => 'Create new [% model_name %].',
+        'store_route_response_description' => 'The API\'s response will be JSON based data. The JSON object will be structured as follow',
+        'update_route_description' => 'Update existsing [% model_name %].',
+        'update_route_response_description' => 'The API\'s response will be JSON based data. The JSON object will be structured as follow',
+        'show_route_description' => 'Retrieve existsing [% model_name %].',
+        'show_route_response_description' => 'The API\'s response will be JSON based data. The JSON object will be structured as follow',
+        'the_id_of_model_to_retrieve' => 'The unique id of the [% model_name %] to retrieve',
+        'destroy_route_description' => 'Delete existsing [% model_name %].',
+        'destroy_route_response_description' => 'The API\'s response will be JSON based data. The JSON object will be structured as follow',
+        'the_id_of_model_to_delete' => 'The id of the [% model_name %] to delete.',
+        'general_description' => 'Allows you to list, create, edit, show and delete [% model_name_plural %].',
     ],
 
     /*

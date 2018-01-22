@@ -140,9 +140,7 @@ class ViewLabelsGenerator
 
         $this->replaceModelName($text, $this->modelName);
 
-        $localeKey = sprintf('%s.%s', $this->localeGroup, $key);
-
-        $label = new Label($text, $localeKey, $isPlain, $lang, $key);
+        $label = new Label($text, $this->localeGroup, $isPlain, $lang, $key);
         $label->template = $properties['template'];
         $label->isInFunction = $this->isInFunction($properties);
 

@@ -271,7 +271,7 @@ EOF;
                 $stubCopy = $stub;
 
                 $this->replaceTemplate('field_name', $field->name, $stubCopy)
-                    ->replaceRouteNames($stubCopy, $this->getModelName($input->modelName), $input->prefix)
+                    ->replaceRouteNames($stubCopy, $input->modelName, $input->prefix)
                     ->replaceRequestVariable($stubCopy, $requestVariable);
 
                 $validation[] = $stubCopy;

@@ -535,7 +535,7 @@ class Field implements JsonWriter
      */
     public function addLabel($text, $isPlain = true, $lang = 'en')
     {
-        $this->labels[$lang] = new Label($text, $this->getLocaleKey(), $isPlain, $lang, $this->name);
+        $this->labels[$lang] = new Label($text, $this->localeGroup, $isPlain, $lang, $this->name);
     }
 
     /**
@@ -549,9 +549,9 @@ class Field implements JsonWriter
      */
     public function addPlaceholder($text, $isPlain = true, $lang = 'en')
     {
-        $value = '__placeholder';
+        $id = $this->getFieldId('_placeholder');
 
-        $this->placeholders[$lang] = new Label($text, $this->getLocaleKey('_placeholder'), $isPlain, $lang, $this->name . $value);
+        $this->placeholders[$lang] = new Label($text, $this->localeGroup, $isPlain, $lang, $id);
     }
 
     /**
@@ -765,7 +765,7 @@ class Field implements JsonWriter
     {
         $id = $this->getFieldId($value);
 
-        $this->options[$lang][] = new Label($text, $this->getLocaleKey($value), $isPlain, $lang, $id, $value);
+        $this->options[$lang][] = new Label($text, $this->localeGroup, $isPlain, $lang, $id, $value);
     }
 
     /**
@@ -873,10 +873,12 @@ class Field implements JsonWriter
      *
      * @return string
      */
+    /*
     protected function getLocaleKey($postFix = null)
     {
-        return sprintf('%s.%s', $this->localeGroup, $this->getFieldId($postFix));
+    return sprintf('%s.%s', $this->localeGroup, $this->getFieldId($postFix));
     }
+     */
 
     /**
      * Gets the field Id.
@@ -1526,7 +1528,7 @@ class Field implements JsonWriter
             return $options[0];
         }
 
-        $label = new Label('Yes', $this->getLocaleKey(''), true, $this->defaultLang, $this->getFieldId(1), 1);
+        $label = new Label('Yes', $this->localeGroup, true, $this->defaultLang, $this->getFieldId(1), 1);
 
         return $label;
     }
@@ -1548,7 +1550,7 @@ class Field implements JsonWriter
             return $options[0];
         }
 
-        return new Label('No', $this->getLocaleKey(''), true, 'en', $this->getFieldId(0), 0);
+        return new Label('No', $this->localeGroup, true, 'en', $this->getFieldId(0), 0);
     }
 
     /**

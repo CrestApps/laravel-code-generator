@@ -70,6 +70,8 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
             $mapper->append($this->getModelName(), $this->getNewFilename(), $tableName);
         }
 
+        $resource->setDefaultApiDocLabels($input->modelName, Helpers::makeLocaleGroup($modelName), $input->translationFor);
+
         $this->createVirtualMigration($parser->getResource(), $destenationFile, $tableName);
 
         $this->createFile($destenationFile, $parser->getResourceAsJson())

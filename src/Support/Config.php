@@ -59,6 +59,20 @@ class Config
     }
 
     /**
+     * Gets the default api-documentation labels
+     *
+     * @return array
+     */
+    public static function getApiDocumentationLabels()
+    {
+        $default = [
+            // The default labels should go here...
+        ];
+
+        return self::getArrayBaseValue('generic_api_documentation_labels', $default);
+    }
+
+    /**
      * Gets the default value of the system path
      *
      * @param string $file
@@ -361,6 +375,18 @@ class Config
         $paths = config('view.paths', [0 => 'resources/views']);
 
         return Helpers::getPathWithSlash($paths[0]);
+    }
+
+    /**
+     * Gets the path to api-doc views
+     *
+     * @return string
+     */
+    public static function getApiDocsViewsPath()
+    {
+        $path = self::getStringBaseValue('api_docs_path', 'resources/views/api-docs');
+
+        return Helpers::getPathWithSlash($path);
     }
 
     /**

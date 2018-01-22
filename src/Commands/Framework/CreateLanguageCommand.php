@@ -49,15 +49,7 @@ class CreateLanguageCommand extends Command
             return $this->warn('The language file(s) is protected and cannot be regenerated. To regenerate the file, unprotect it from the resource file.');
         }
 
-        $languages = Helpers::getLanguageItems($resource->fields);
-        $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields, $this->isCollectiveTemplate());
-
-        $standardLabels = $viewLabels->getTranslatedLabels(array_keys($languages));
-
-        //Merge the standard labels to the fields label
-        foreach ($standardLabels as $lang => $standardLabel) {
-            $languages[$lang] = array_merge($languages[$lang], $standardLabel);
-        }
+        $languages = $this->getAvailableLabels($resource, $input->modelName);
 
         foreach ($languages as $language => $labels) {
             $file = $this->getDestenationFile($language, $input->fileName);
@@ -70,6 +62,35 @@ class CreateLanguageCommand extends Command
                     ->registerMessages($messagesToRegister, $language);
             }
         }
+    }
+
+    /**
+     * Gets the destenation file.
+     *
+     * @param CrestApps\CodeGenerator\Models\Resource $resource
+     * @param string $modelName
+     *
+     * @return array
+     */
+    protected function getAvailableLabels(Resource $resource, $modelName)
+    {
+        $languages = Helpers::getLanguageItems($resource->fields);
+
+        //Merge the api-documentation labels to the fields label
+        foreach ($resource->getTranslatedApiDocLabels() as $lang => $docLabels) {
+            $current = isset($languages[$lang]) ? $languages[$lang] : [];
+            $languages[$lang] = array_merge($current, $docLabels);
+        }
+
+        $viewLabels = new ViewLabelsGenerator($modelName, $resource->fields, $this->isCollectiveTemplate());
+        $standardLabels = $viewLabels->getTranslatedLabels(array_keys($languages));
+
+        //Merge the standard labels to the fields label
+        foreach ($standardLabels as $lang => $standardLabel) {
+            $languages[$lang] = array_merge($languages[$lang], $standardLabel);
+        }
+
+        return $languages;
     }
 
     /**
@@ -252,9 +273,10 @@ class CreateLanguageCommand extends Command
         $messages = [];
 
         foreach ($labels as $label) {
-            if (!$this->isMessageExists($label->localeGroup, $label->lang) || $this->option('force')) {
+            if (!$this->isMessageExists($label->getAccessor(), $label->lang) || $this->option('force')) {
                 $messages[] = $this->getMessage($label);
-                $messagesToRegister[$label->localeGroup] = $label->text;
+
+                $messagesToRegister[$label->getAccessor()] = $label->text;
             }
         }
 
@@ -272,7 +294,7 @@ class CreateLanguageCommand extends Command
      */
     protected function getMessage(Label $label)
     {
-        return sprintf("    '%s' => '%s'", $label->id, $label->text);
+        return sprintf("    '%s' => '%s'", $label->id, addcslashes($label->text, "'\\"));
     }
 
     /**

@@ -537,7 +537,7 @@ trait CommonCommand
             return $field->isFile();
         });
 
-        return (count($filtered) > 0);
+        return !empty($filtered);
     }
 
     /**

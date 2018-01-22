@@ -68,6 +68,7 @@ class CodeGeneratorServiceProvider extends ServiceProvider
             'CrestApps\CodeGenerator\Commands\Views\CreateLayoutCommand',
             'CrestApps\CodeGenerator\Commands\Api\CreateApiControllerCommand',
             'CrestApps\CodeGenerator\Commands\Api\CreateApiScaffoldCommand',
+            'CrestApps\CodeGenerator\Commands\Api\CreateApiDocumentationCommand',
         ];
 
         if (Helpers::isNewerThanOrEqualTo()) {

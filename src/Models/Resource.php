@@ -9,11 +9,16 @@ use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use CrestApps\CodeGenerator\Traits\LabelTransformerTrait;
 use Exception;
 use File;
 
 class Resource implements JsonWriter
 {
+    use CommonCommand, GeneratorReplacers, LabelTransformerTrait;
+
     /**
      * The resource fields
      *
@@ -57,6 +62,13 @@ class Resource implements JsonWriter
     private $protection = [];
 
     /**
+     * Array of the protected resources.
+     *
+     * @var array
+     */
+    private $apiDocumentationLabels = [];
+
+    /**
      * Array of the protectable resource names.
      *
      * @var array
@@ -66,6 +78,7 @@ class Resource implements JsonWriter
         'controller',
         'api-resource',
         'api-resource-collection',
+        'api-documentation',
         'form-request',
         'languages',
         'form-view',
@@ -340,21 +353,122 @@ class Resource implements JsonWriter
     }
 
     /**
+     * Sets the api-doc labels.
+     *
+     * @param string $modelName
+     * @param string $localeGroup
+     * @param array $languages
+     *
+     * @return $this
+     */
+    public function setDefaultApiDocLabels($modelName, $localeGroup, array $languages = null)
+    {
+
+        foreach (Config::getApiDocumentationLabels() as $key => $text) {
+
+            $this->replaceModelName($text, $modelName);
+
+            if (!empty($languages)) {
+                foreach ($languages as $language) {
+                    $this->addApiDocLabel($text, $localeGroup, $key, false, $language);
+                }
+
+                continue;
+            }
+
+            $this->addApiDocLabel($text, $localeGroup, $key);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Adds the giving key and value to the apiDocumentationLabels collection
+     *
+     * @param string $key
+     * @param mix (string|array) $text
+     *
+     * @return void
+     */
+    public function addApiDocLabel($text, $localeGroup, $key, $isPlain = true, $lang = 'en')
+    {
+        $this->apiDocumentationLabels[$lang][] = new Label($text, $localeGroup, $isPlain, $lang, $key);
+    }
+
+    /**
+     * Gets current api-doc-labels
+     *
+     * @return array
+     */
+    public function getApiDocLabels()
+    {
+        return $this->apiDocumentationLabels ?: [];
+    }
+
+    /**
+     * Gets translatable api-doc-labels
+     *
+     * @return array
+     */
+    public function getTranslatedApiDocLabels()
+    {
+        $output = [];
+
+        foreach ($this->getApiDocLabels() as $lang => $labels) {
+
+            foreach ($labels as $label) {
+                if (!$label->isPlain) {
+                    $output[$lang][] = $label;
+                }
+            }
+
+        }
+
+        return $output;
+    }
+
+    /**
      * Converts the object into a json-ready array
      *
      * @return array
      */
     public function toArray()
     {
-        return
-            [
+        return [
             'fields' => $this->getFieldsToArray(),
             'relations' => $this->getRelationsToArray(),
             'indexes' => $this->getIndexesToArray(),
             'auto-manage-created-and-updated-at' => $this->isCreateAndUpdateAtManaged(),
             'table-name' => $this->getTableName(),
             'protection' => $this->getRawProtections(),
+            'api-documentation' => $this->getRawApiDocLabels(),
         ];
+    }
+
+    /**
+     * Converts the api-documentation labels object into json-ready array.
+     *
+     * @return array
+     */
+    protected function getRawApiDocLabels()
+    {
+        $output = [];
+
+        foreach ($this->getApiDocLabels() as $lang => $labels) {
+
+            foreach ($labels as $label) {
+                if ($label->isPlain) {
+                    $output[$label->id] = $label->text;
+
+                    continue;
+                }
+
+                $output[$label->id][$label->lang] = $label->text;
+            }
+
+        }
+
+        return $output;
     }
 
     /**
@@ -496,11 +610,23 @@ class Resource implements JsonWriter
         }
 
         if (array_key_exists('protection', $properties) && is_array($properties['protection'])) {
-
             foreach ($properties['protection'] as $name => $value) {
                 $resource->setProtection($name, $value);
             }
+        }
 
+        if (array_key_exists('api-documentation', $properties) && is_array($properties['api-documentation'])) {
+            foreach ($properties['api-documentation'] as $key => $text) {
+                if (is_array($text)) {
+
+                    foreach ($text as $lang => $msg) {
+                        $resource->addApiDocLabel($msg, $localeGroup, $key, false, $lang);
+                    }
+                    continue;
+                }
+
+                $resource->addApiDocLabel($text, $localeGroup, $key);
+            }
         }
 
         return $resource;

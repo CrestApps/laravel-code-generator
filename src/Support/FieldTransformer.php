@@ -7,11 +7,12 @@ use CrestApps\CodeGenerator\Models\FieldMapper;
 use CrestApps\CodeGenerator\Support\FieldsOptimizer;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use CrestApps\CodeGenerator\Traits\LabelTransformerTrait;
 use Exception;
 
 class FieldTransformer
 {
-    use CommonCommand, GeneratorReplacers;
+    use CommonCommand, GeneratorReplacers, LabelTransformerTrait;
 
     /**
      * The name of the file where labels will reside
@@ -132,7 +133,7 @@ class FieldTransformer
      *
      * @return array
      */
-    public static function fromJson($json, $localeGroupm, array $languages = [])
+    public static function fromJson($json, $localeGroup, array $languages = [])
     {
         if (empty($json) || ($fields = json_decode($json, true)) === null) {
             throw new Exception("The provided string is not a valid json.");
@@ -213,7 +214,7 @@ class FieldTransformer
     /**
      * Sets the labels property
      *
-     * @param array $properties
+     * @param array & $properties
      *
      * @return $this
      */
@@ -225,7 +226,7 @@ class FieldTransformer
             $label = $properties['labels'];
         }
 
-        $properties['labels'] = $this->getLabels($label, $properties['name']);
+        $properties['labels'] = $this->getFieldLabels($label, $properties['name'], $this->languages);
 
         return $this;
     }
@@ -233,7 +234,7 @@ class FieldTransformer
     /**
      * Sets the placeholder property
      *
-     * @param array $properties
+     * @param array & $properties
      *
      * @return $this
      */
@@ -246,6 +247,13 @@ class FieldTransformer
         return $this;
     }
 
+    /**
+     * Sets the options property
+     *
+     * @param array & $properties
+     *
+     * @return $this
+     */
     protected function setOptions(&$properties)
     {
         if (Helpers::isKeyExists($properties, 'options')) {
@@ -283,55 +291,6 @@ class FieldTransformer
         }
 
         return $this;
-    }
-
-    /**
-     * Gets labels from a giving title and field name.
-     *
-     * @param string $title
-     * @param string $name
-     *
-     * @return mix (string | array)
-     */
-    protected function getLabels($title, $name)
-    {
-        if (is_array($title)) {
-            $title = $this->getFirstElement($title);
-        }
-
-        $name = Helpers::removePostFixWith($name, '_id');
-
-        $this->replaceModelName($title, $name, 'field_');
-
-        if ($this->hasLanguages()) {
-            $labels = [];
-
-            foreach ($this->languages as $language) {
-                $labels[$language] = $title;
-            }
-
-            return $labels;
-        }
-
-        return $title;
-    }
-
-    /**
-     * Gets options from a giving array of options
-     *
-     * @param string $name
-     *
-     * @return mix (string|array)
-     */
-    protected function getFirstElement(array $array)
-    {
-        $value = reset($array);
-
-        if (is_array($value)) {
-            return $this->getFirstElement($value);
-        }
-
-        return $value;
     }
 
     /**
@@ -375,7 +334,7 @@ class FieldTransformer
 
         foreach ($templates as $type => $template) {
             if ($type == $htmlType) {
-                return $this->getLabels($template, $name);
+                return $this->getFieldLabels($template, $name, $this->languages);
             }
         }
 

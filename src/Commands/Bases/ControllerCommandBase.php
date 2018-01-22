@@ -892,7 +892,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     {
         foreach ($items as $labels) {
             foreach ($labels as $label) {
-                $text = $label->isPlain ? sprintf("'%s'", $label->text) : sprintf("trans('%s')", $label->localeGroup);
+                $text = $label->isPlain ? sprintf("'%s'", $label->text) : sprintf("trans('%s')", $label->getAccessor());
                 $stub = $this->strReplace($label->template, $text, $stub);
             }
         }
