@@ -1,0 +1,38 @@
+<?php
+$showValidation = (isset($withValidation) && $withValidation) ? true : false;
+?>
+<table class="table table-stripped">
+    <thead>
+        <tr>
+            <th>[% name_title %]</th>
+            <th>[% data_type_title %]</th>
+            <th>[% description_title %]</th>
+            @if($showValidation)
+                <th>[% parameter_type_title %]</th>
+                <th>[% validation_title %]</th>
+            @endif
+        </tr>
+    </thead>
+    <tbody>
+
+        @if(isset($withPathId) && $withPathId)
+        <tr>
+            <td>[% model_id_camel_case %]</td>
+            <td>[% primary_key_type_title %]</td>
+            <td>[% the_id_of_the_model %]</td>
+
+            @if($showValidation)
+                <td>[% path_title %]</td>
+                <td>
+                    [% validation_rule_required %]
+                </td>
+            @endif
+        </tr>
+
+        @endif
+
+        [% fields_list_for_body %]
+
+    </tbody>
+
+</table>

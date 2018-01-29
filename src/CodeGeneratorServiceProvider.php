@@ -17,22 +17,20 @@ class CodeGeneratorServiceProvider extends ServiceProvider
     {
         $dir = __DIR__ . '/../';
 
+        // publish the config base file
         $this->publishes([
-            $dir . 'config/codegenerator.php' => config_path('codegenerator.php'),
+            $dir . 'config/codegenerator.php' => config_path('laravel-code-generator.php'),
+        ], 'config');
+
+        // publish the default-template
+        $this->publishes([
             $dir . 'templates/default' => $this->codeGeneratorBase('templates/default'),
-        ], 'default');
+        ], 'default-template');
 
-        if (!File::exists(config_path('codegenerator_custom.php'))) {
-            $this->publishes([
-                $dir . 'config/codegenerator_custom.php' => config_path('codegenerator_custom.php'),
-            ], 'default');
-        }
-
+        // publish the defaultcollective-template
         $this->publishes([
             $dir . 'templates/default-collective' => $this->codeGeneratorBase('templates/default-collective'),
-        ], 'default-collective');
-
-        $this->createDirectory($this->codeGeneratorBase('sources'));
+        ], 'default-collective-template');
     }
 
     /**

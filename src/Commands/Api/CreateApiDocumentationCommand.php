@@ -2,6 +2,7 @@
 
 namespace CrestApps\CodeGenerator\Commands\Api;
 
+use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
@@ -65,6 +66,9 @@ class CreateApiDocumentationCommand extends Command
             ->replaceModelName($stub, $input->modelName)
             ->replaceRouteNames($stub, $input->modelName, $input->prefix)
             ->repaceLayoutName($stub, $input->layoutName)
+            ->repacePathToViewHome($stub, $this->getPathToViewHome($input->viewsDirectory, $input->prefix))
+            ->makeRequiredSubViews($input, $resource->getApiDocLabels(), $viewLabels->getLabels())
+            ->makeFieldsListView($input, $resource, $viewLabels->getLabels())
             ->createFile($destenationFile, $stub)
             ->info('A api-documentation was successfully crafted.');
     }
@@ -78,7 +82,105 @@ class CreateApiDocumentationCommand extends Command
      */
     protected function getDestinationPath($viewsDirectory)
     {
-        $path = base_path(Config::getApiDocsViewsPath());
+        $path = $this->getPathToViews($viewsDirectory);
+
+        return Config::getViewsPath() . $path;
+    }
+
+    /**
+     * It creates the failed-authentication sub-view
+     *
+     * @param object $input
+     * @param array $apiDocLabels
+     * @param array $standardLabels
+     *
+     * @return $this
+     */
+    protected function makeRequiredSubViews($input, array $apiDocLabels, array $standardLabels)
+    {
+        $stub = $this->getStubContent('api-documentation-index-failed-authentication');
+        $this->makeStandardSubView('failed-authentication', $input, $apiDocLabels, $standardLabels)
+            ->makeStandardSubView('failed-to-retrieve', $input, $apiDocLabels, $standardLabels)
+            ->makeStandardSubView('failed-validation', $input, $apiDocLabels, $standardLabels)
+            ->makeStandardSubView('failed-authentication', $input, $apiDocLabels, $standardLabels)
+            ->makeStandardSubView('retrieved', $input, $apiDocLabels, $standardLabels);
+
+        return $this;
+    }
+
+    protected function makeFieldsListView($input, Resource $resource, array $standardLabels = null)
+    {
+        $stub = $this->getStubContent('api-documentation-index-fields-list');
+        $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'fields-list');
+
+        $this->replaceStandardLabels($stub, $standardLabels)
+            ->replaceApiLabels($stub, $resource->getApiDocLabels())
+            ->replaceModelName($stub, $input->modelName)
+            ->repaceValidationRuleRequired($stub, $this->getRequiredRule($resource->getApiDocLabels(), $standardLabels))
+            ->replaceFieldsListForBody($stub, $this->getFieldsListBody($input->modelName, $resource, $standardLabels))
+            ->createFile($destenationFile, $stub);
+
+        return $this;
+    }
+
+    protected function getRequiredRule(array $apiDocLabels, array $standardLabels = null)
+    {
+        $stub = $this->getStubContent('api-documentation-field-validation-required');
+
+        $this->replaceStandardLabels($stub, $standardLabels)
+            ->replaceApiLabels($stub, $apiDocLabels);
+
+        return $stub;
+    }
+
+    /**
+     * It creates the failed-authentication sub-view
+     *
+     * @param object $input
+     * @param array $apiDocLabels
+     * @param array $standardLabels
+     *
+     * @return $this
+     */
+    protected function makeStandardSubView($name, $input, array $apiDocLabels, array $standardLabels)
+    {
+        $stub = $this->getStubContent('api-documentation-index-' . $name);
+        $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, $name);
+
+        $this->replaceStandardLabels($stub, $standardLabels)
+            ->replaceApiLabels($stub, $apiDocLabels)
+            ->replaceModelName($stub, $input->modelName)
+
+            ->createFile($destenationFile, $stub);
+
+        return $this;
+    }
+
+    /**
+     * It path to view home using the dot notation.
+     *
+     * @param string $viewsDirectory
+     * @param string $routesPrefix
+     *
+     * @return string
+     */
+    protected function getPathToViewHome($viewsDirectory, $routesPrefix)
+    {
+        $path = Config::getApiDocsViewsPath() . $this->getFullViewsPath($viewsDirectory, $routesPrefix);
+
+        return Helpers::convertToDotNotation($path);
+    }
+
+    /**
+     * It path to view home using the dot notation.
+     *
+     * @param $viewsDirectory
+     *
+     * @return string
+     */
+    protected function getPathToViews($viewsDirectory)
+    {
+        $path = Config::getApiDocsViewsPath();
 
         if (!empty($viewsDirectory)) {
             $path .= Helpers::getPathWithSlash($viewsDirectory);
@@ -122,6 +224,69 @@ class CreateApiDocumentationCommand extends Command
         return $this->getDestinationPath($viewsPath) . $filename;
     }
 
+    protected function getFieldsListBody($modelName, Resource $resource, array $standardLabels = null)
+    {
+        $final = [];
+        $template = $this->getStubContent('api-documentation-index-fields-list-body-row');
+        foreach ($resource->getFields() as $field) {
+            $stub = $template;
+
+            $requiredTemplate = '';
+
+            if ($field->isRequired()) {
+                $requiredTemplate = $this->getRequiredRule($resource->getApiDocLabels(), $standardLabels);
+            }
+
+            // TO DO
+            // description must be converted into a label instead of a string
+            $this->replaceStandardLabels($stub, $standardLabels)
+                ->replaceApiLabels($stub, $resource->getApiDocLabels())
+                ->replaceModelName($stub, $modelName)
+                ->replaceFieldDescription($stub, $field->description)
+                ->replaceValidationRules($stub, $this->getValidationRules($field))
+                ->replaceModelName($stub, $field->name, 'field_')
+                ->repaceValidationRuleRequired($stub, $requiredTemplate);
+
+            // replace field_description
+            // replace validation_rules
+            // replace field_type_title
+
+            $final[] = $stub;
+        }
+
+        return implode(PHP_EOL, $final);
+    }
+
+    protected function getValidationRules(Field $field)
+    {
+        $updatedRules = array_filter($field->getValidationRules(), function ($rule) {
+            return !in_array($rule, ['required', 'nullable']);
+        });
+
+        $hasString = in_array('string', $field->getValidationRules());
+
+        if ($hasString) {
+            foreach ($field->getValidationRules() as $rule) {
+                if (starts_with($rule, 'min:')) {
+                    $updatedRules[] = 'Minimum Length: ' . Helpers::removePreFixWith($rule, 'min:');
+                }
+
+                if (starts_with($rule, 'max:')) {
+                    $updatedRules[] = 'Maximum Length: ' . Helpers::removePreFixWith($rule, 'max:');
+                }
+            }
+        }
+
+        foreach ($field->getValidationRules() as $rule) {
+            if ($hasString && starts_with($rule, 'min:') && starts_with($rule, 'max:')) {
+                continue;
+            }
+            $updatedRules[] = ucfirst($rule);
+        }
+
+        return implode('; ', $updatedRules);
+    }
+
     /**
      * Gets destenation view path
      *
@@ -153,6 +318,7 @@ class CreateApiDocumentationCommand extends Command
     {
         return sprintf('%s.blade.php', $action);
     }
+
     /**
      * Build the model class with the given name.
      *
@@ -179,303 +345,6 @@ class CreateApiDocumentationCommand extends Command
 
         return $hasErrors;
     }
-    /**
-     * Gets the transform method.
-     *
-     * @param object $input
-     * @param array $fields
-     *
-     * @return string
-     */
-    protected function getTransformMethodForApiController($input, array $fields)
-    {
-        if ($input->withApiResource && $this->isApiResourceSupported()) {
-            // Do not generate the transform method in the controller when the
-            // controller is generated with the api-resource
-
-            return '';
-        }
-
-        return $this->getTransformMethod($input, $fields, true, false);
-    }
-
-    /**
-     * Gets any additional classes to include in the use statement
-     *
-     * @param object $input
-     *
-     * @return array
-     */
-    protected function getAdditionalNamespaces($input)
-    {
-        $additionalNamespaces = parent::getAdditionalNamespaces($input);
-
-        if (!$input->withFormRequest) {
-            $additionalNamespaces[] = 'Illuminate\Support\Facades\Validator';
-        }
-
-        if ($input->withApiResource && $this->isApiResourceSupported()) {
-
-            $additionalNamespaces[] = $this->getApiResourceNamespace(
-                $this->getApiResourceClassName($input->modelName)
-            );
-
-            $additionalNamespaces[] = $this->getApiResourceCollectionNamespace(
-                $this->getApiResourceCollectionClassName($input->modelName)
-            );
-        }
-
-        return $additionalNamespaces;
-    }
-
-    /**
-     * Get an array of all relations that are used for relations.
-     *
-     * @param array $fields
-     *
-     * @return array
-     */
-    protected function getNamespacesForUsedRelations(array $fields)
-    {
-        // Since there is no create/edit forms in the API controller,
-        // No need for any relation's namespances.
-
-        return [];
-    }
-
-    /**
-     * Gets the type of the controller
-     *
-     * @return string
-     */
-    protected function getControllerType()
-    {
-        return 'api-controller';
-    }
-
-    /**
-     * Gets the path to controllers
-     *
-     * @param string $file
-     *
-     * @return string
-     */
-    protected function getControllerPath($file = '')
-    {
-        return Config::getApiControllersPath($file);
-    }
-
-    /**
-     * Gets the affirm method.
-     *
-     * @param (object) $input
-     * @param array $fields
-     *
-     * @return string
-     */
-    protected function getValidatorMethod($input, array $fields)
-    {
-        if ($input->withFormRequest && $this->isApiResourceSupported()) {
-            return '';
-        }
-
-        $stub = $this->getStubContent('api-controller-get-validator');
-
-        $this->replaceValidationRules($stub, $this->getValidationRules($fields))
-            ->replaceFileValidationSnippet($stub, $this->getFileValidationSnippet($fields, $input, $this->requestVariable))
-            ->replaceRequestFullName($stub, $this->requestNameSpace);
-
-        return $stub;
-    }
-
-    /**
-     * Gets the return code for a giving method.
-     *
-     * @param object $input
-     * @param array $fields
-     * @param string $method
-     *
-     * @return string
-     */
-    protected function getReturnSuccess($input, array $fields, $method)
-    {
-        if ($input->withApiResource && $this->isApiResourceSupported()) {
-            return $this->getApiResourceCall($input->modelName, $fields, $method);
-        }
-
-        return $this->getSuccessCall($input->modelName, $fields, $method);
-    }
-
-    /**
-     * Gets the plain success return code for a giving method.
-     *
-     * @param object $input
-     * @param array $fields
-     * @param string $method
-     *
-     * @return string
-     */
-    protected function getSuccessCall($modelName, array $fields, $method)
-    {
-        $stub = $this->getStubContent('api-controller-call-' . $method . '-success-method');
-
-        $viewLabels = new ViewLabelsGenerator($modelName, $fields, $this->isCollectiveTemplate());
-
-        $this->replaceModelName($stub, $modelName)
-            ->replaceStandardLabels($stub, $viewLabels->getLabels())
-            ->replaceDataVariable($stub, $this->dataVariable);
-
-        return $stub;
-    }
-
-    /**
-     * Gets the plain success return code for a giving method.
-     *
-     * @param object $input
-     * @param array $fields
-     * @param string $method
-     *
-     * @return string
-     */
-    protected function getApiResourceCall($modelName, $fields, $method)
-    {
-        $stub = $this->getStubContent('api-controller-call-' . $method . '-api-resource');
-
-        $viewLabels = new ViewLabelsGenerator($modelName, $fields, $this->isCollectiveTemplate());
-
-        $this->replaceModelName($stub, $modelName)
-            ->replaceStandardLabels($stub, $viewLabels->getLabels())
-            ->replaceDataVariable($stub, $this->dataVariable)
-            ->replaceApiResourceClass($stub, $this->getApiResourceClassName($modelName))
-            ->replaceApiResourceCollectionClass($stub, $this->getApiResourceCollectionClassName($modelName));
-
-        return $stub;
-    }
-
-    /**
-     * Gets the response methods.
-     *
-     * @return string
-     */
-    protected function getResponseMethods()
-    {
-        if ($this->isBaseCreated) {
-            return '';
-        }
-
-        $code = '';
-
-        if ($this->mustHaveMethod('successResponse')) {
-            $code .= $this->getStubContent('api-controller-success-response-method');
-        }
-
-        if ($this->mustHaveMethod('errorResponse')) {
-            $code .= $this->getStubContent('api-controller-error-response-method');
-        }
-
-        return $code;
-    }
-
-    protected function getValidateRequest($withFormRequest)
-    {
-        if (!$withFormRequest) {
-            return $this->getStubContent('api-controller-validate');
-        }
-
-        return '';
-    }
-
-    /**
-     * Created a new controller base class if one does not exists
-     *
-     * @param string $controllerDirectory
-     *
-     * @return $this
-     */
-    protected function createControllerBaseClass($controllerDirectory)
-    {
-        $filename = class_basename($this->getFullClassToExtend());
-
-        $destenationFile = $this->getDestenationFile($filename, $controllerDirectory);
-
-        if (!$this->isFileExists($destenationFile)) {
-            // At this point the base class does not exists.
-            // Create a new one
-            $this->isBaseCreated = true;
-
-            $this->createFile($destenationFile, $this->getBaseClassContent($controllerDirectory))
-                ->info('A new api-controller based class was created!');
-        }
-
-        return $this;
-    }
-
-    /**
-     * Gets the Controller's base class content.
-     *
-     * @return string
-     */
-    protected function getBaseClassContent($controllerDirectory)
-    {
-        $stub = $this->getStubContent('api-controller-base-class');
-
-        $methods = $this->getStubContent('api-controller-success-response-method') . PHP_EOL . PHP_EOL;
-        $methods .= $this->getStubContent('api-controller-error-response-method');
-
-        $this->replaceResponseMethods($stub, $methods)
-            ->replaceNamespace($stub, $this->getControllersNamespace($controllerDirectory));
-
-        return $stub;
-    }
-
-    /**
-     * Gets name of the middleware
-     *
-     * @return string
-     */
-    protected function getAuthMiddleware()
-    {
-        return parent::getAuthMiddleware() . ':api';
-    }
-
-    /**
-     * Checks if the controller must have a giving method name
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    protected function mustHaveMethod($name)
-    {
-        return !method_exists($this->getFullClassToExtend(), $name);
-    }
-
-    /**
-     * Executes the command that generates a migration.
-     *
-     * @param CrestApps\CodeGenerator\Models\ScaffoldInput $input
-     *
-     * @return $this
-     */
-    protected function makeApiResource($input, $isCollection = false)
-    {
-        $this->call(
-            'create:api-resource',
-            [
-                'model-name' => $input->modelName,
-                '--api-resource-directory' => $input->apiResourceDirectory,
-                '--api-resource-collection-directory' => $input->apiResourceCollectionDirectory,
-                '--api-resource-name' => $input->apiResourceName,
-                '--api-resource-collection-name' => $input->apiResourceCollectionName,
-                '--resource-file' => $input->resourceFile,
-                '--template-name' => $input->template,
-                '--collection' => $isCollection,
-                '--force' => $input->force,
-            ]
-        );
-
-        return $this;
-    }
 
     /**
      * Replaces get validator method for the given stub.
@@ -487,7 +356,6 @@ class CreateApiDocumentationCommand extends Command
      */
     protected function replaceApiLabels(&$stub, array $labels)
     {
-
         foreach ($labels as $lang => $labelsCollection) {
 
             foreach ($labelsCollection as $label) {
@@ -504,33 +372,6 @@ class CreateApiDocumentationCommand extends Command
     }
 
     /**
-     * Replaces the response methods for the given stub.
-     *
-     * @param  string  $stub
-     * @param  string  $name
-     *
-     * @return $this
-     */
-    protected function replaceResponseMethods(&$stub, $name)
-    {
-        return $this->replaceTemplate('response_methods', $name, $stub);
-    }
-
-    /**
-     * Replaces return_success for the given stub.
-     *
-     * @param  string  $stub
-     * @param  string  $name
-     * @param  string  $method
-     *
-     * @return $this
-     */
-    protected function replaceReturnSuccess(&$stub, $name, $method)
-    {
-        return $this->replaceTemplate($method . '_return_success', $name, $stub);
-    }
-
-    /**
      * Replaces the layout_name for the giving stub,
      *
      * @param  string  $stub
@@ -541,6 +382,58 @@ class CreateApiDocumentationCommand extends Command
     protected function repaceLayoutName(&$stub, $name)
     {
         return $this->replaceTemplate('layout_name', $name, $stub);
+    }
+
+    /**
+     * Replaces the layout_name for the giving stub,
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    protected function repacePathToViewHome(&$stub, $name)
+    {
+        return $this->replaceTemplate('path_to_view_home', $name, $stub);
+    }
+
+    /**
+     * Replaces the layout_name for the giving stub,
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    protected function repaceValidationRuleRequired(&$stub, $name)
+    {
+        return $this->replaceTemplate('validation_rule_required', $name, $stub);
+    }
+
+    /**
+     * Replaces the fields_list_for_body for the giving stub,
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    protected function replaceFieldsListForBody(&$stub, $name)
+    {
+        return $this->replaceTemplate('fields_list_for_body', $name, $stub);
+    }
+
+    /**
+     * Replaces the field_description for the giving stub,
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    protected function replaceFieldDescription(&$stub, $name)
+    {
+        return $this->replaceTemplate('field_description', $name, $stub);
     }
 
     /**

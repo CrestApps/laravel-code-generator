@@ -1,0 +1,12 @@
+<table class="table table-stripped">
+    <thead>
+        <tr>
+            <th>[% name_title %]</th>
+            <th>[% type_title %]</th>
+            <th>[% description_title %]</th>
+        </tr>
+    </thead>
+    <tbody>
+[% fields_list_for_body %]
+    </tbody>
+</table>

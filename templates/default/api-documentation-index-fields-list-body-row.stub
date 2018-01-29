@@ -1,0 +1,12 @@
+        <tr>
+            <td>[% field_name %]</td>
+            <td>[% field_type_title %]</td>
+            <td>[% field_description %]</td>
+            @if($showValidation)
+                <td>[% body_title %]</td>
+                <td>
+                    [% validation_rule_required %]
+                    <span>[% validation_rules %]</span>
+                </td>
+            @endif
+        </tr>

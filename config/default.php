@@ -482,7 +482,7 @@ return [
     |--------------------------------------------------------------------------
     |
      */
-    'api_docs_path', 'resources/views/api-docs',
+    'api_docs_path' => 'api-docs',
 
     /*
     |--------------------------------------------------------------------------
@@ -668,6 +668,10 @@ return [
             'text' => 'Array',
             'template' => 'array_title',
         ],
+        'array_of_strings' => [
+            'text' => 'Array of strings',
+            'template' => 'array_of_strings',
+        ],
         'the_success_message' => [
             'text' => 'The success message',
             'template' => 'the_success_message',
@@ -711,6 +715,34 @@ return [
         'model_id_camel_case' => [
             'text' => '[% model_name %]Id',
             'template' => 'model_id_camel_case',
+        ],
+        'the_error_message' => [
+            'text' => 'The error message.',
+            'template' => 'the_error_message',
+        ],
+        'name_title' => [
+            'text' => 'Name',
+            'template' => 'name_title',
+        ],
+        'parameter_type_title' => [
+            'text' => 'Parameter Type',
+            'template' => 'parameter_type_title',
+        ],
+        'validation_title' => [
+            'text' => 'Validation',
+            'template' => 'validation_title',
+        ],
+        'primary_key_type_title' => [
+            'text' => 'Primary Key',
+            'template' => 'primary_key_type_title',
+        ],
+        'required_title' => [
+            'text' => 'Required',
+            'template' => 'required_title',
+        ],
+        'body_title' => [
+            'text' => 'Body',
+            'template' => 'body_title',
         ],
     ],
 
@@ -764,6 +796,13 @@ return [
         'destroy_route_response_description' => 'The API\'s response will be JSON based data. The JSON object will be structured as follow',
         'the_id_of_model_to_delete' => 'The id of the [% model_name %] to delete.',
         'general_description' => 'Allows you to list, create, edit, show and delete [% model_name_plural %].',
+        'indicate_whether_the_request_was_successful_or_not' => 'Indicate whether the request was successful or not.',
+        'the_id_of_the_model' => 'The id of the [% model_name %].',
+        'this_parameter_must_be_present_in_the_request' => 'This parameter must be present in the request.',
+        'the_request_failed_validation' => 'The request failed validation.',
+        'list_of_the_invalid_errors' => 'List of the invalid errors.',
+        'the_requested_model_does_not_exists' => 'The requested [% model_name %] does not exists.',
+        'the_user_does_not_have_permission_to_access_the_requested_resource' => 'User does not have permission to access the requested resource.',
     ],
 
     /*

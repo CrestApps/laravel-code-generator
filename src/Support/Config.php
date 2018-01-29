@@ -4,9 +4,18 @@ namespace CrestApps\CodeGenerator\Support;
 
 use Config as LaravelConfig;
 use CrestApps\CodeGenerator\Support\Helpers;
+use Exception;
+use Illuminate\Config\Repository;
 
 class Config
 {
+    /**
+     * Gets the default configuration repository
+     *
+     * @var Illuminate\Config\Repository
+     */
+    private static $repository;
+
     /**
      * Gets the default value for whether to use smart migrations or not
      *
@@ -14,7 +23,7 @@ class Config
      */
     public static function useSmartMigration()
     {
-        return self::getBoolBaseValue('use_smart_migrations', true);
+        return self::getBoolBaseValue('use_smart_migrations');
     }
 
     /**
@@ -25,7 +34,7 @@ class Config
      */
     public static function organizeMigrations()
     {
-        return self::getBoolBaseValue('organize_migrations', false);
+        return self::getBoolBaseValue('organize_migrations');
     }
 
     /**
@@ -35,7 +44,7 @@ class Config
      */
     public static function getControllerNamePostFix()
     {
-        return self::getStringBaseValue('controller_name_postfix', 'Controller');
+        return self::getStringBaseValue('controller_name_postfix');
     }
 
     /**
@@ -45,7 +54,7 @@ class Config
      */
     public static function getApiResourceNamePostFix()
     {
-        return self::getStringBaseValue('api_resource_name_postfix', 'Resource');
+        return self::getStringBaseValue('api_resource_name_postfix');
     }
 
     /**
@@ -55,7 +64,7 @@ class Config
      */
     public static function getApiResourceCollectionNamePostFix()
     {
-        return self::getStringBaseValue('api_resource_collection_name_postfix', 'Collection');
+        return self::getStringBaseValue('api_resource_collection_name_postfix');
     }
 
     /**
@@ -65,25 +74,7 @@ class Config
      */
     public static function getApiDocumentationLabels()
     {
-        $default = [
-            // The default labels should go here...
-        ];
-
-        return self::getArrayBaseValue('generic_api_documentation_labels', $default);
-    }
-
-    /**
-     * Gets the default value of the system path
-     *
-     * @param string $file
-     *
-     * @return string
-     */
-    public static function getSystemPath($file = null)
-    {
-        $path = self::getStringBaseValue('system_files_path', 'resources/laravel-code-generator/system');
-
-        return Helpers::getPathWithSlash($path) . $file;
+        return self::getArrayBaseValue('generic_api_documentation_labels');
     }
 
     /**
@@ -93,32 +84,7 @@ class Config
      */
     public static function getFormRequestNamePostFix()
     {
-        return self::getStringBaseValue('request_name_postfix', 'FormRequest');
-    }
-
-    /**
-     * Checks if a giving file type should be a plural or not.
-     *
-     * @return array
-     */
-    public static function shouldBePlural($key)
-    {
-        $config = self::getArrayBaseValue('plural_names_for', [
-            'controller-name' => true,
-            'api-resource-name' => true,
-            'api-resource-collection-name' => true,
-            'request-form-name' => true,
-            'route-group' => true,
-            'language-file-name' => true,
-            'resource-file-name' => true,
-            'table-name' => true,
-        ]);
-
-        if (isset($config[$key])) {
-            return (bool) $config[$key];
-        }
-
-        return ($key != 'model-name');
+        return self::getStringBaseValue('form_request_name_postfix');
     }
 
     /**
@@ -128,7 +94,7 @@ class Config
      */
     public static function getPluralDefinitions()
     {
-        return self::getArrayBaseValue('irregular_plurals', ['software' => 'software']);
+        return self::getArrayBaseValue('irregular_plurals');
     }
 
     /**
@@ -138,7 +104,7 @@ class Config
      */
     public static function getDateTimeFormat()
     {
-        return self::getStringBaseValue('datetime_out_format', 'n/j/Y H:i A');
+        return self::getStringBaseValue('datetime_out_format');
     }
 
     /**
@@ -148,7 +114,7 @@ class Config
      */
     public static function getDefaultMapperFileName()
     {
-        return self::getStringBaseValue('default_mapper_file_name', 'resources_map.json');
+        return self::getStringBaseValue('default_mapper_file_name');
     }
 
     /**
@@ -158,7 +124,7 @@ class Config
      */
     public static function autoManageResourceMapper()
     {
-        return self::getBoolBaseValue('auto_manage_resource_mapper', true);
+        return self::getBoolBaseValue('auto_manage_resource_mapper');
     }
 
     /**
@@ -168,15 +134,7 @@ class Config
      */
     public static function getPlaceholderByHtmlType()
     {
-        $default = [
-            'text' => 'Enter [% field_name %] here...',
-            'number' => 'Enter [% field_name %] here...',
-            'password' => 'Enter [% field_name %] here...',
-            'email' => 'Enter [% field_name %] here...',
-            'select' => 'Select [% field_name %]',
-        ];
-
-        return self::getArrayBaseValue('placeholder_by_html_type', $default);
+        return self::getArrayBaseValue('placeholder_by_html_type');
     }
 
     /**
@@ -186,14 +144,7 @@ class Config
      */
     public static function getHeadersPatterns()
     {
-        $default = [
-            'title',
-            'name',
-            'label',
-            'header',
-        ];
-
-        return self::getArrayBaseValue('common_header_patterns', $default);
+        return self::getArrayBaseValue('common_header_patterns');
     }
 
     /**
@@ -203,12 +154,69 @@ class Config
      */
     public static function getKeyPatterns()
     {
-        $default = [
-            '*_id',
-            '*_by',
-        ];
+        return self::getArrayBaseValue('common_key_patterns');
+    }
 
-        return self::getArrayBaseValue('common_key_patterns', $default);
+    /**
+     * Gets the template names that uses Laravel-Collective
+     *
+     * @return array
+     */
+    public static function getCollectiveTemplates()
+    {
+        return self::getArrayBaseValue('laravel_collective_templates');
+    }
+
+    /**
+     * Gets the default template name.
+     *
+     * @return string
+     */
+    public static function getDefaultTemplateName()
+    {
+        return self::getStringBaseValue('template');
+    }
+
+    /**
+     * Gets the eloquent type to method collection.
+     *
+     * @return array
+     */
+    public static function dataTypeMap()
+    {
+        return self::getArrayBaseValue('eloquent_type_to_method');
+    }
+
+    /**
+     * Get the custom model templates.
+     *
+     * @return array
+     */
+    public static function getCustomModelTemplates()
+    {
+        return self::getArrayBaseValue('generic_view_labels');
+    }
+
+    /**
+     * Gets the eloquent's method to html
+     *
+     * @return array
+     */
+    public static function getEloquentToHtmlMap()
+    {
+        return self::getArrayBaseValue('eloquent_type_to_html_type');
+    }
+
+    /**
+     * Gets the default value of the system path
+     *
+     * @param string $file
+     *
+     * @return string
+     */
+    public static function getSystemPath($file = '')
+    {
+        return self::getPathBaseValue('system_files_path', $file);
     }
 
     /**
@@ -220,73 +228,7 @@ class Config
      */
     public static function getRequestsPath($file = '')
     {
-        $path = self::getStringBaseValue('form_requests_path', 'Http/Requests');
-
-        return Helpers::getPathWithSlash($path) . $file;
-    }
-
-    /**
-     * Gets the default template name.
-     *
-     * @return array
-     */
-    public static function getTemplatesPath()
-    {
-        $path = self::getStringBaseValue('templates_path', 'resources/laravel-code-generator/templates');
-
-        return Helpers::getPathWithSlash($path);
-    }
-
-    /**
-     * Gets the eloquent's method to html
-     *
-     * @return array
-     */
-    public static function getEloquentToHtmlMap()
-    {
-        $default = [
-            'char' => 'text',
-            'date' => 'text',
-            'dateTime' => 'text',
-            'dateTimeTz' => 'text',
-            'bigIncrements' => 'number',
-            'bigIncrements' => 'number',
-            'binary' => 'textarea',
-            'boolean' => 'checkbox',
-            'decimal' => 'number',
-            'double' => 'number',
-            'enum' => 'select',
-            'float' => 'number',
-            'integer' => 'number',
-            'integer' => 'number',
-            'ipAddress' => 'text',
-            'json' => 'checkbox',
-            'jsonb' => 'checkbox',
-            'longText' => 'textarea',
-            'macAddress' => 'text',
-            'mediumInteger' => 'number',
-            'mediumText' => 'textarea',
-            'string' => 'text',
-            'text' => 'textarea',
-            'time' => 'text',
-            'timeTz' => 'text',
-            'tinyInteger' => 'number',
-            'tinyInteger' => 'number',
-            'timestamp' => 'text',
-            'timestampTz' => 'text',
-            'unsignedBigInteger' => 'number',
-            'unsignedBigInteger' => 'number',
-            'unsignedInteger' => 'number',
-            'unsignedInteger' => 'number',
-            'unsignedMediumInteger' => 'number',
-            'unsignedMediumInteger' => 'number',
-            'unsignedSmallInteger' => 'number',
-            'unsignedSmallInteger' => 'number',
-            'unsignedTinyInteger' => 'number',
-            'uuid' => 'text',
-        ];
-
-        return self::getArrayBaseValue('eloquent_type_to_html_type', $default);
+        return self::getPathBaseValue('form_requests_path', $file);
     }
 
     /**
@@ -296,9 +238,7 @@ class Config
      */
     public static function getModelsPath($file = '')
     {
-        $path = self::getStringBaseValue('models_path', 'Models');
-
-        return Helpers::getPathWithSlash($path) . $file;
+        return self::getPathBaseValue('models_path', $file);
     }
 
     /**
@@ -308,9 +248,7 @@ class Config
      */
     public static function getApiResourcePath($file = '')
     {
-        $path = self::getStringBaseValue('api_resources_path', 'Http/Resources');
-
-        return Helpers::getPathWithSlash($path) . $file;
+        return self::getPathBaseValue('api_resources_path', $file);
     }
 
     /**
@@ -320,9 +258,7 @@ class Config
      */
     public static function getApiResourceCollectionPath($file = '')
     {
-        $path = self::getStringBaseValue('api_resources_collection_path', 'Http/Resources/Collections');
-
-        return Helpers::getPathWithSlash($path) . $file;
+        return self::getPathBaseValue('api_resources_collection_path', $file);
     }
 
     /**
@@ -334,9 +270,7 @@ class Config
      */
     public static function getControllersPath($file = '')
     {
-        $path = self::getStringBaseValue('controllers_path', 'Http/Controllers');
-
-        return Helpers::getPathWithSlash($path) . $file;
+        return self::getPathBaseValue('controllers_path', $file);
     }
 
     /**
@@ -348,57 +282,7 @@ class Config
      */
     public static function getApiControllersPath($file = '')
     {
-        $path = self::getStringBaseValue('api_controllers_path', 'Http/Controllers/Api');
-
-        return Helpers::getPathWithSlash($path) . $file;
-    }
-
-    /**
-     * Gets the path to languages
-     *
-     * @return string
-     */
-    public static function getLanguagesPath()
-    {
-        $path = self::getStringBaseValue('languages_path', 'resources/lang');
-
-        return Helpers::getPathWithSlash($path);
-    }
-
-    /**
-     * Gets the path to views
-     *
-     * @return string
-     */
-    public static function getViewsPath()
-    {
-        $paths = config('view.paths', [0 => 'resources/views']);
-
-        return Helpers::getPathWithSlash($paths[0]);
-    }
-
-    /**
-     * Gets the path to api-doc views
-     *
-     * @return string
-     */
-    public static function getApiDocsViewsPath()
-    {
-        $path = self::getStringBaseValue('api_docs_path', 'resources/views/api-docs');
-
-        return Helpers::getPathWithSlash($path);
-    }
-
-    /**
-     * Gets the migrations path.
-     *
-     * @return string
-     */
-    public static function getMigrationsPath()
-    {
-        $path = self::getStringBaseValue('migrations_path', 'resources/lang');
-
-        return Helpers::getPathWithSlash($path);
+        return self::getPathBaseValue('api_controllers_path', $file);
     }
 
     /**
@@ -410,199 +294,88 @@ class Config
      */
     public static function getResourceFilePath($file = '')
     {
-        $path = self::getStringBaseValue('resource_file_path', 'resources/laravel-code-generator/sources');
-
-        return Helpers::getPathWithSlash($path) . $file;
-    }
-
-    /**
-     * Gets the template names that uses Laravel-Collective
-     *
-     * @return array
-     */
-    public static function getCollectiveTemplates()
-    {
-        return self::getArrayBaseValue('laravel_collective_templates', ['default-collective']);
+        return self::getPathBaseValue('resource_file_path', $file);
     }
 
     /**
      * Gets the default template name.
      *
+     * @return array
+     */
+    public static function getTemplatesPath()
+    {
+        return self::getPathBaseValue('templates_path');
+    }
+
+    /**
+     * Gets the path to languages
+     *
      * @return string
      */
-    public static function getDefaultTemplateName()
+    public static function getLanguagesPath()
     {
-        return self::getStringBaseValue('template', 'default');
+        return self::getPathBaseValue('languages_path');
     }
 
     /**
-     * Gets the eloquent type to method collection.
+     * Gets the path to api-doc views
      *
-     * @return array
+     * @return string
      */
-    public static function dataTypeMap()
+    public static function getApiDocsViewsPath()
     {
-        $default = [
-            'char' => 'char',
-            'date' => 'date',
-            'datetime' => 'dateTime',
-            'datetimetz' => 'dateTimeTz',
-            'biginteger' => 'bigIncrements',
-            'bigint' => 'bigIncrements',
-            'tinyblob' => 'binary',
-            'mediumblob' => 'binary',
-            'blob' => 'binary',
-            'longblob' => 'binary',
-            'binary' => 'binary',
-            'bool' => 'boolean',
-            'bit' => 'boolean',
-            'boolean' => 'boolean',
-            'decimal' => 'decimal',
-            'double' => 'double',
-            'enum' => 'enum',
-            'list' => 'enum',
-            'float' => 'float',
-            'int' => 'integer',
-            'integer' => 'integer',
-            'ipaddress' => 'ipAddress',
-            'json' => 'json',
-            'jsonb' => 'jsonb',
-            'longtext' => 'longText',
-            'macaddress' => 'macAddress',
-            'mediuminteger' => 'mediumInteger',
-            'mediumint' => 'mediumInteger',
-            'mediumtext' => 'mediumText',
-            'smallInteger' => 'smallInteger',
-            'smallint' => 'smallInteger',
-            'morphs' => 'morphs',
-            'string' => 'string',
-            'varchar' => 'string',
-            'nvarchar' => 'string',
-            'text' => 'text',
-            'time' => 'time',
-            'timetz' => 'timeTz',
-            'tinyinteger' => 'tinyInteger',
-            'tinyint' => 'tinyInteger',
-            'timestamp' => 'timestamp',
-            'timestamptz' => 'timestampTz',
-            'unsignedbiginteger' => 'unsignedBigInteger',
-            'unsignedbigint' => 'unsignedBigInteger',
-            'unsignedInteger' => 'unsignedInteger',
-            'unsignedint' => 'unsignedInteger',
-            'unsignedmediuminteger' => 'unsignedMediumInteger',
-            'unsignedmediumint' => 'unsignedMediumInteger',
-            'unsignedsmallinteger' => 'unsignedSmallInteger',
-            'unsignedsmallint' => 'unsignedSmallInteger',
-            'unsignedtinyinteger' => 'unsignedTinyInteger',
-            'uuid' => 'uuid',
-        ];
-
-        return self::getArrayBaseValue('eloquent_type_to_method', $default);
+        return self::getPathBaseValue('api_docs_path');
     }
 
     /**
-     * Get the custom model templates.
+     * Gets the migrations path.
+     *
+     * @return string
+     */
+    public static function getMigrationsPath()
+    {
+        return self::getPathBaseValue('migrations_path');
+    }
+
+    /**
+     * Gets the path to views
+     *
+     * @return string
+     */
+    public static function getViewsPath()
+    {
+        $paths = config('view.paths', [0 => 'resources/views']);
+
+        return Helpers::fixPathSeparator(Helpers::getPathWithSlash($paths[0]));
+    }
+
+    /**
+     * Checks if a giving file type should be a plural or not.
      *
      * @return array
      */
-    public static function getCustomModelTemplates()
+    public static function shouldBePlural($key)
     {
-        $default = [
-            'create' => [
-                'text' => 'Create New [% model_name_title %]',
-                'template' => 'create_model',
-            ],
-            'delete' => [
-                'text' => 'Delete [% model_name_title %]',
-                'template' => 'delete_model',
-                'in-function-with-collective' => true,
-            ],
-            'edit' => [
-                'text' => 'Edit [% model_name_title %]',
-                'template' => 'edit_model',
-            ],
-            'show' => [
-                'text' => 'Show [% model_name_title %]',
-                'template' => 'show_model',
-            ],
-            'show_all' => [
-                'text' => 'Show All [% model_name_title %]',
-                'template' => 'show_all_models',
-            ],
-            'add' => [
-                'text' => 'Add',
-                'template' => 'add',
-                'in-function-with-collective' => true,
-            ],
-            'update' => [
-                'text' => 'Update',
-                'template' => 'update',
-                'in-function-with-collective' => true,
-            ],
-            'confirm_delete' => [
-                'text' => 'Delete [% model_name_title %]?',
-                'template' => 'confirm_delete',
-                'in-function-with-collective' => true,
-            ],
-            'none_available' => [
-                'text' => 'No [% model_name_plural_title %] Available!',
-                'template' => 'no_models_available',
-            ],
-            'model_plural' => [
-                'text' => '[% model_name_plural_title %]',
-                'template' => 'model_plural',
-            ],
-            'model_was_added' => [
-                'text' => '[% model_name_title %] was successfully added!',
-                'template' => 'model_was_added',
-            ],
-            'model_was_updated' => [
-                'text' => '[% model_name_title %] was successfully updated!',
-                'template' => 'model_was_updated',
-            ],
-            'model_was_deleted' => [
-                'text' => '[% model_name_title %] was successfully deleted!',
-                'template' => 'model_was_deleted',
-            ],
-            'unexpected_error' => [
-                'text' => 'Unexpected error occurred while trying to process your request!',
-                'template' => 'unexpected_error',
-            ],
-            'current_uploaded_file' => [
-                'text' => 'Current [% model_name_title %]:',
-                'template' => 'current_uploaded_file',
-            ],
-        ];
+        $config = self::getArrayBaseValue('plural_names_for');
 
-        return self::getArrayBaseValue('generic_view_labels', $default);
+        if (isset($config[$key])) {
+            return (bool) $config[$key];
+        }
+
+        return ($key != 'model-name');
     }
 
     /**
      * Get the config value of the giving index, using the default configs.
      *
      * @param string $index
-     * @param string $default = null
+     * @param mix $default
      *
      * @return mix
      */
     public static function get($index, $default = null)
     {
         $key = self::getKey($index);
-
-        return LaravelConfig::get($key, $default);
-    }
-
-    /**
-     * Get the config value of the giving index, using the custom configs.
-     *
-     * @param string $index
-     * @param string $default = null
-     *
-     * @return mix
-     */
-    public static function getCustom($index, $default = null)
-    {
-        $key = self::getCustomKey($index);
 
         return LaravelConfig::get($key, $default);
     }
@@ -622,20 +395,6 @@ class Config
     }
 
     /**
-     * Checks of the custom-configs has a giving key
-     *
-     * @param string $index
-     *
-     * @return bool
-     */
-    public static function hasCustom($index)
-    {
-        $key = self::getCustomKey($index);
-
-        return LaravelConfig::has($key);
-    }
-
-    /**
      * Checks the key to access the default-config.
      *
      * @param string $index
@@ -644,68 +403,68 @@ class Config
      */
     public static function getKey($index)
     {
-        return sprintf('codegenerator.%s', $index);
-    }
-
-    /**
-     * Checks the key to access the custom-config.
-     *
-     * @param string $index
-     *
-     * @return string
-     */
-    public static function getCustomKey($index)
-    {
-        return sprintf('codegenerator_custom.%s', $index);
+        return sprintf('laravel-code-generator.%s', $index);
     }
 
     /**
      * Get the proper array-based value from the config
-     *
+     *-
      * @param string $index
-     * @param array $default
      *
      * @return array
      */
-    public static function getArrayBaseValue($index, $default = [])
+    public static function getArrayBaseValue($index)
     {
-        $values = (array) self::getCustom($index, []);
+        $values = (array) self::get($index, []);
+        $default = (array) self::getDefaultConfig($index);
 
-        return array_merge((array) self::get($index, $default), $values);
+        return array_merge($default, $values);
     }
 
     /**
      * Get the proper bool-based value from the config
      *
      * @param string $index
-     * @param string $default
      *
      * @return bool
      */
-    public static function getBoolBaseValue($index, $default)
+    public static function getBoolBaseValue($index)
     {
-        if (self::hasCustom($index)) {
-            return (bool) self::getCustom($index);
+        if (self::has($index)) {
+            return (bool) self::get($index);
         }
 
-        return (bool) self::get($index, true);
+        return (bool) self::getDefaultConfig($index);
     }
 
     /**
      * Get the proper string-based value from the config
      *
      * @param string $index
-     * @param string $default
      *
      * @return string
      */
-    public static function getStringBaseValue($index, $default)
+    public static function getStringBaseValue($index)
     {
-        if (self::hasCustom($index)) {
-            return (string) self::getCustom($index);
+        if (self::has($index)) {
+            return (string) self::get($index);
         }
 
-        return (string) self::get($index, $default);
+        return (string) self::getDefaultConfig($index);
+    }
+
+    /**
+     * Gets a path base value
+     *
+     * @param string $file
+     *
+     * @return string
+     */
+    public static function getPathBaseValue($index, $file = '')
+    {
+        $path = self::getStringBaseValue($index);
+
+        return Helpers::fixPathSeparator(Helpers::getPathWithSlash($path)) . $file;
     }
 
     /**
@@ -715,22 +474,21 @@ class Config
      */
     public static function getCommonDefinitions()
     {
-        $customValues = (array) self::getCustom('common_definitions', []);
-        $defaultValues = self::get('common_definitions', []);
+        $customValues = (array) self::get('common_definitions', []);
+        $defaultValues = (array) self::getDefaultConfig('common_definitions');
         $final = [];
 
         foreach ($defaultValues as $key => $defaultValue) {
-            if (is_array($defaultValue)
-                && array_key_exists('match', $defaultValue)
-                && array_key_exists('set', $defaultValue)
-            ) {
-                $matches = (array) $defaultValue['match'];
-
-                $final[] = [
-                    'match' => $matches,
-                    'set' => self::mergeDefinitions($matches, $customValues, (array) $defaultValue['set']),
-                ];
+            if (!self::isValidDefinitionArray($defaultValue)) {
+                continue;
             }
+
+            $matches = (array) $defaultValue['match'];
+
+            $final[] = [
+                'match' => $matches,
+                'set' => self::mergeDefinitions($matches, $customValues, (array) $defaultValue['set']),
+            ];
         }
 
         return $final;
@@ -751,9 +509,10 @@ class Config
 
         foreach ($customs as $key => $custom) {
 
-            if (!is_array($custom) || !array_key_exists('match', $custom) || !array_key_exists('set', $custom)) {
+            if (!self::isValidDefinitionArray($custom)) {
                 continue;
             }
+
             $matches = (array) $custom['match'];
             $combined = array_intersect($keys, $matches);
 
@@ -765,4 +524,51 @@ class Config
         return $final;
     }
 
+    /**
+     * Checks if the giving variable is a valid definition array
+     *
+     * @param string $custom
+     *
+     * @return bool
+     */
+    protected static function isValidDefinitionArray($custom)
+    {
+        return is_array($custom)
+        && array_key_exists('match', $custom)
+        && array_key_exists('set', $custom);
+    }
+
+    /**
+     * Retrieves the default value from the default repository.
+     *
+     * @param string $index
+     *
+     * @return Illuminate\Config\Repository
+     */
+    protected static function getDefaultConfig($index)
+    {
+        $repository = self::getDefaultRepository();
+
+        if (!$repository->has($index)) {
+            throw new Exception('The default configuration does not have definition for "' . $index . '"');
+        }
+
+        return $repository->get($index);
+    }
+
+    /**
+     * Gets the default configuration repository
+     *
+     * @return Illuminate\Config\Repository
+     */
+    protected static function getDefaultRepository()
+    {
+        if (is_null(self::$repository)) {
+            $config = include_once __DIR__ . '/../../config/default.php';
+
+            self::$repository = new Repository($config);
+        }
+
+        return self::$repository;
+    }
 }

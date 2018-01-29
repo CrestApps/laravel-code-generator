@@ -80,8 +80,7 @@ trait GeneratorReplacers
      */
     protected function replaceControllerName(&$stub, $name)
     {
-        $stub = $this->strReplace('controller_name', $name, $stub);
-        return $this;
+        return $this->replaceTemplate('controller_name', $name, $stub);
     }
 
     /**

@@ -12,5 +12,5 @@
             return '';
         }
         
-        return $file->store(config('codegenerator.files_upload_path'), config('filesystems.default'));
+        return $file->store(config('laravel-code-generator.files_upload_path','uploads'), config('filesystems.default'));
     }

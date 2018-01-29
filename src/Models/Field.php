@@ -135,6 +135,13 @@ class Field implements JsonWriter
     public $name;
 
     /**
+     * The field's description.
+     *
+     * @var bool
+     */
+    public $description;
+
+    /**
      * The labels of the field
      *
      * @var array
@@ -821,6 +828,16 @@ class Field implements JsonWriter
     }
 
     /**
+     * Get current validation rules.
+     *
+     * @return array
+     */
+    public function getValidationRules()
+    {
+        return $this->validationRules ?: [];
+    }
+
+    /**
      * Checks if this field is boolean type.
      *
      * @return bool
@@ -962,6 +979,7 @@ class Field implements JsonWriter
             'on-update' => $this->onUpdate,
             'api-key' => $this->getApiKey(),
             'is-api-visible' => $this->isApiVisible,
+            'description' => $this->description,
         ];
     }
 
@@ -1768,6 +1786,7 @@ class Field implements JsonWriter
         'is-index' => 'isIndex',
         'is-unique' => 'isUnique',
         'comment' => 'comment',
+        'description' => 'description',
         'is-nullable' => 'isNullable',
         'is-auto-increment' => 'isAutoIncrement',
         'is-inline-options' => 'isInlineOptions',

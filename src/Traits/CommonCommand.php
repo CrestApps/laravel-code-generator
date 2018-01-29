@@ -495,21 +495,26 @@ trait CommonCommand
     /**
      * Gets the path to templates
      *
-     * @param string $template
+     * @param string $templateName
      *
      * @return string
      */
-    protected function getPathToTemplates($template = null)
+    protected function getPathToTemplates($templateName = null)
     {
-        $template = Helpers::getPathWithSlash($template ?: Config::getDefaultTemplateName());
-        $basePath = base_path(Config::getTemplatesPath() . $template);
-        $path = Helpers::getPathWithSlash($basePath);
+        $templateName = $templateName ?: Config::getDefaultTemplateName();
+        $path = base_path(Config::getTemplatesPath() . Helpers::getPathWithSlash($templateName));
 
-        if (!$this->isFileExists($path)) {
+        if (!File::isDirectory($path) && in_array($templateName, ['default', 'default-collective'])) {
+            // If the default templates are not published, utilize the default package path.
+
+            $path = __DIR__ . '/../../templates/' . $templateName;
+        }
+
+        if (!File::isDirectory($path)) {
             throw new Exception('Invalid template. Make sure the following path exists: "' . $path . '"');
         }
 
-        return $path;
+        return Helpers::getPathWithSlash($path);
     }
 
     /**
