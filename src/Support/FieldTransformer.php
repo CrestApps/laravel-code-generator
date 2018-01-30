@@ -197,6 +197,7 @@ class FieldTransformer
                 $this->presetProperties($properties)
                     ->setLabels($properties)
                     ->setPlaceholder($properties)
+                    ->setApiDescription($properties)
                     ->setOptions($properties);
             }
 
@@ -227,6 +228,26 @@ class FieldTransformer
         }
 
         $properties['labels'] = $this->getFieldLabels($label, $properties['name'], $this->languages);
+
+        return $this;
+    }
+
+    /**
+     * Sets the labels property
+     *
+     * @param array & $properties
+     *
+     * @return $this
+     */
+    protected function setApiDescription(&$properties)
+    {
+        $label = $properties['name'];
+
+        if (Helpers::isKeyExists($properties, 'api-description')) {
+            $label = $properties['api-description'];
+        }
+
+        $properties['api-description'] = $this->getFieldLabels($label, $properties['name'], $this->languages);
 
         return $this;
     }

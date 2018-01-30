@@ -135,13 +135,6 @@ class Field implements JsonWriter
     public $name;
 
     /**
-     * The field's description.
-     *
-     * @var bool
-     */
-    public $description;
-
-    /**
      * The labels of the field
      *
      * @var array
@@ -379,6 +372,13 @@ class Field implements JsonWriter
     public $isApiVisible = true;
 
     /**
+     * The labels of the api-description
+     *
+     * @var array
+     */
+    private $apiDescription = [];
+
+    /**
      * Creates a new field instance.
      *
      * @param string $name
@@ -559,6 +559,22 @@ class Field implements JsonWriter
         $id = $this->getFieldId('_placeholder');
 
         $this->placeholders[$lang] = new Label($text, $this->localeGroup, $isPlain, $lang, $id);
+    }
+
+    /**
+     * Adds a label to the descriptions collection
+     *
+     * @param string $text
+     * @param bool $isPlain
+     * @param string $lang
+     *
+     * @return void
+     */
+    public function addApiDescription($text, $isPlain = true, $lang = 'en')
+    {
+        $id = $this->getFieldId('_api_description');
+
+        $this->apiDescription[$lang] = new Label($text, $this->localeGroup, $isPlain, $lang, $id);
     }
 
     /**
@@ -979,8 +995,18 @@ class Field implements JsonWriter
             'on-update' => $this->onUpdate,
             'api-key' => $this->getApiKey(),
             'is-api-visible' => $this->isApiVisible,
-            'description' => $this->description,
+            'api-description' => $this->labelsToRaw($this->getApiDescription()),
         ];
+    }
+
+    /**
+     * Gets the labels for the description
+     *
+     * @return array
+     */
+    public function getApiDescription()
+    {
+        return $this->apiDescription ?: [];
     }
 
     /**
@@ -1179,6 +1205,24 @@ class Field implements JsonWriter
     }
 
     /**
+     * It set the labels property for a giving field
+     *
+     * @param array $properties
+     *
+     * @return $this
+     */
+    protected function setApiDescriptionProperty(array $properties)
+    {
+        $labels = $this->getApiDescriptionsFromProperties($properties);
+
+        foreach ($labels as $label) {
+            $this->addApiDescription($label->text, $label->isPlain, $label->lang);
+        }
+
+        return $this;
+    }
+
+    /**
      * Check is the field has multiple answers
      *
      * @return bool
@@ -1202,12 +1246,33 @@ class Field implements JsonWriter
         }
 
         if (is_array($properties['labels'])) {
-            //At this point we know this the label
             return $this->getLabelsFromArray($properties['labels']);
         }
 
         return [
             new Label($properties['labels'], $this->localeGroup, true, $this->defaultLang),
+        ];
+    }
+
+    /**
+     * It will get the provided labels from with the $properties's 'label' or 'labels' property
+     *
+     * @param array $properties
+     *
+     * @return array
+     */
+    protected function getApiDescriptionsFromProperties(array $properties)
+    {
+        if (!Helpers::isKeyExists($properties, 'api-description')) {
+            return [];
+        }
+
+        if (is_array($properties['api-description'])) {
+            return $this->getLabelsFromArray($properties['api-description']);
+        }
+
+        return [
+            new Label($properties['api-description'], $this->localeGroup, true, $this->defaultLang),
         ];
     }
 
@@ -1786,7 +1851,6 @@ class Field implements JsonWriter
         'is-index' => 'isIndex',
         'is-unique' => 'isUnique',
         'comment' => 'comment',
-        'description' => 'description',
         'is-nullable' => 'isNullable',
         'is-auto-increment' => 'isAutoIncrement',
         'is-inline-options' => 'isInlineOptions',
@@ -1867,6 +1931,7 @@ class Field implements JsonWriter
 
         $field->setPredefindProperties($properties)
             ->setLabelsProperty($properties)
+            ->setApiDescriptionProperty($properties)
             ->setDataTypeParams($properties)
             ->setOptionsProperty($properties)
             ->setUnsigned($properties)

@@ -10,10 +10,12 @@ For full documentation and live demo please visit <a href="https://crestapps.com
 ## Features
 
 <ul>
+	<li>One step installation when using Laravel 5.5+</li>
 	<li>Create very clean, reusable and highly readable code to build on.</li>
 	<li>Create full resources using a single command with <strong>migration</strong> or from <strong>existing database</strong>.</li>
 	<li>Creates full resources for all of the existing tables in the database using one command.</li>
 	<li>Create full API-based resources using a single command with <strong>migration</strong> or from <strong>existing database</strong>.</li>
+	<li>Create beautiful documentation for your API.</li>
 	<li>Create api-resource and api-resource-collection with Laravel 5.5+.</li>
 	<li>Allows you to save the fields in a JSON file and recreate resources when the business needs changes.</li>
 	<li>Utilizes JSON based resource-file to allow you to define your resources. Resource-file allows you to easily regenerate the resource at any time even when the business rules change.</li>
@@ -57,12 +59,6 @@ For full documentation and live demo please visit <a href="https://crestapps.com
 	}
 	```
 
-3. Execute the following command from the command-line to publish the package's config and the default template to start generating awesome code.
-
-	```
-	php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServiceProvider" --tag=default
-	```
-
 > A layout is required for the default views! The code generator allows you to create a layout using the command-line. Of cource you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/ "CSS bootstrap framework") in your layout for the default templates to work properly. Additionally, you can chose to you design your own templetes using a different or no css framework. 
 
 ## Lessons
@@ -76,59 +72,61 @@ Checkout our channel on <a href="https://www.youtube.com/channel/UCkEd0nOoRf3o0a
 > The command in between the square brackets **[]** must be replaced with a variable of your choice.
 
 <ul>
-	<li>
-		<strong>Main commands</strong>
-		<ul>
-			<li>php artisan create:layout [application-name]</li>
-		    <li>php artisan create:scaffold [model-name]</li>
-		    <li>php artisan create:controller [model-name]</li>
-		    <li>php artisan create:model [model-name]</li>
-		    <li>php artisan create:form-request [model-name]</li>
-		    <li>php artisan create:routes [model-name]</li>
-		    <li>php artisan create:migration [model-name]</li>
-		    <li>php artisan create:language [model-name]</li>
-		    <li>php artisan create:mapped-resources</li>
-	    </ul>
-	</li>
-	<li>
-		<strong>API commands</strong>
-		<ul>
-		    <li>php artisan create:api-scaffold [model-name]</li>
-		    <li>php artisan create:api-controller [model-name]</li>
-		    <li>php artisan create:api-resources [model-name]</li>
-	    </ul>
-	</li>
-	<li>
-		<strong>Views commands</strong>
-		<ul>
-			<li>php artisan create:views [model-name]</li>
-			<li>php artisan create:index-view [model-name]</li>
-		    <li>php artisan create:create-view [model-name]</li>
-		    <li>php artisan create:edit-view [model-name]</li>
-		    <li>php artisan create:show-view [model-name]</li>
-		    <li>php artisan create:form-view [model-name]</li>
-	    </ul>
-	</li>
-    <li>
-		<strong>Resource's files commands</strong>
-		<ul>
-		    <li>php artisan resource-file:from-database [model-name]</li>
-		    <li>php artisan resource-file:create [model-name]</li>
-		    <li>php artisan resource-file:append [model-name]</li>
-		    <li>php artisan resource-file:reduce [model-name]</li>
-		    <li>php artisan resource-file:delete [model-name]</li>
-	    </ul>
-	</li>
-	<li>
-		<strong>Migration commands</strong>
-		<ul>
-		    <li>php artisan migrate-all</li>
-		    <li>php artisan migrate:rollback-all</li>
-		    <li>php artisan migrate:reset-all</li>
-		    <li>php artisan migrate:refresh-all</li>
-		    <li>php artisan migrate:status-all</li>
-	    </ul>
-	</li>
+<li>
+	<strong>Main commands</strong>
+	<ul>
+	    <li>php artisan create:scaffold [model-name]</li>
+	    <li>php artisan create:controller [model-name]</li>
+	    <li>php artisan create:model [model-name]</li>
+	    <li>php artisan create:form-request [model-name]</li>
+	    <li>php artisan create:routes [model-name]</li>
+	    <li>php artisan create:migration [model-name]</li>
+	    <li>php artisan create:language [model-name]</li>
+	    <li>php artisan create:mapped-resources</li>
+    </ul>
+</li>
+<li>
+	<strong>API commands</strong>
+	<ul>
+	    <li>php artisan create:api-scaffold [model-name]</li>
+	    <li>php artisan create:api-controller [model-name]</li>
+	    <li>php artisan create:api-resources [model-name]</li>
+	    <li>php artisan api-doc:create-controller [model-name]</li>
+	    <li>php artisan api-doc:create-view [model-name]</li>
+    </ul>
+</li>
+<li>
+	<strong>Views commands</strong>
+	<ul>
+		<li>php artisan create:layout [application-name]</li>
+		<li>php artisan create:views [model-name]</li>
+		<li>php artisan create:index-view [model-name]</li>
+	    <li>php artisan create:create-view [model-name]</li>
+	    <li>php artisan create:edit-view [model-name]</li>
+	    <li>php artisan create:show-view [model-name]</li>
+	    <li>php artisan create:form-view [model-name]</li>
+    </ul>
+</li>
+<li>
+	<strong>Resource's files commands</strong>
+	<ul>
+	    <li>php artisan resource-file:from-database [model-name]</li>
+	    <li>php artisan resource-file:create [model-name]</li>
+	    <li>php artisan resource-file:append [model-name]</li>
+	    <li>php artisan resource-file:reduce [model-name]</li>
+	    <li>php artisan resource-file:delete [model-name]</li>
+    </ul>
+</li>
+<li>
+	<strong>Migration commands</strong>
+	<ul>
+	    <li>php artisan migrate-all</li>
+	    <li>php artisan migrate:rollback-all</li>
+	    <li>php artisan migrate:reset-all</li>
+	    <li>php artisan migrate:refresh-all</li>
+	    <li>php artisan migrate:status-all</li>
+    </ul>
+</li>
 </ul>
 
 > Full documentation available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/docs/2.3 "Laravel Code Generator Documentation"). 

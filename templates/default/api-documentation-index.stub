@@ -28,23 +28,16 @@
         <div class="panel-collapse collapse" id="index">
             <div class="panel-body">
                 <h3><strong>[% request_title %]</strong></h3>
-                <table class="table table-stripped">
-                    <tbody>
-                        <tr>
-                            <td>Authorization</td>
-                            <td>
-                                <span class="label label-primary" title="[% this_parameter_is_an_http_header %]">[% header_title %]</span>
-                            </td>
-                            <td>[% access_token_with_bearer %]</td>
-                        </tr>
-                    </tbody>
-                </table>
+                [% authorized_request_for_index %]
 
                 <hr>
                 <h3><strong>[% response_title %]</strong></h3>
 
                 <p>[% index_route_response_description %]</p>
-                <h4 class="text-success"><strong>200 - Ok</strong></h4> [% request_was_successful %]
+                <p></p>
+
+                <h4><strong class="text-success">200 - Ok</strong></h4>
+                <p class="text-muted">[% request_was_successful %]</p>
                 <table class="table table-stripped">
                     <tbody>
                         <tr>
@@ -172,7 +165,7 @@
                     </tbody>
                 </table>
 
-                @include('[% path_to_view_home %]failed-authentication')
+                [% include_failed_authentication_for_authorized_request %]
 
             </div>
         </div>
@@ -200,18 +193,20 @@
         <div class="panel-collapse collapse" id="store">
             <div class="panel-body">
                 <h3><strong>[% request_title %]</strong></h3>
-
-                <h5 class="text-muted"><strong>[% parameters_title %]</strong></h5>
+                
                 @include('[% path_to_view_home %]fields-list', [
                     'withValidation' => true
                 ])
+
                 <hr>
                 <h3><strong>[% response_title %]</strong></h3>
                 <p>[% store_route_response_description %]</p>
+                <p></p>
+
                 @include('[% path_to_view_home %]retrieved')
                 @include('[% path_to_view_home %]failed-to-retrieve')
                 @include('[% path_to_view_home %]failed-validation')
-                @include('[% path_to_view_home %]failed-authentication')
+                [% include_failed_authentication_for_authorized_request %]
 
             </div>
         </div>
@@ -242,18 +237,20 @@
 
                 <h3><strong>[% request_title %]</strong></h3>
 
-                <h5 class="text-muted"><strong>[% parameters_title %]</strong></h5>
                 @include('[% path_to_view_home %]fields-list', [
                     'withValidation' => true,
                     'withPathId' => true,
                 ])
+
                 <hr>
                 <h3><strong>[% response_title %]</strong></h3>
                 <p>[% update_route_response_description %]</p>
+                <p></p>
+                
                 @include('[% path_to_view_home %]retrieved')
                 @include('[% path_to_view_home %]failed-to-retrieve')
                 @include('[% path_to_view_home %]failed-validation')
-                @include('[% path_to_view_home %]failed-authentication')
+                [% include_failed_authentication_for_authorized_request %]
 
             </div>
         </div>
@@ -284,21 +281,22 @@
             <div class="panel-body">
 
                 <h3><strong>[% request_title %]</strong></h3>
-
+                
                 <table class="table table-stripped">
                     <thead>
                         <tr>
-                            <td class="col-md-2">[% parameter_title %]</td>
-                            <td class="col-md-2">[% type_title %]</td>
-                            <td class="col-md-2">[% request_title %]</td>
-                            <td class="col-md-6">[% description_title %]</td>
+                            <th class="col-md-2">[% parameter_name_title %]</th>
+                            <th class="col-md-2">[% data_type_title %]</th>
+                            <th class="col-md-2">[% parameter_type_title %]</th>
+                            <th class="col-md-6">[% description_title %]</th>
                         </tr>
                     </thead>
                     <tbody>
+                        [% include_parameter_for_authorized_request %]
                         <tr>
-                            <td>[% model_id_camel_case %]</td>
+                            <td>[% model_name %]</td>
                             <td>[% integer_title %]</td>
-                            <td>[% path_title %]</td>
+                            <td><span class="label label-info" title="[% this_parameter_is_part_of_the_path %]">[% path_title %]</span></td>
                             <td>[% the_id_of_model_to_retrieve %]</td>
                         </tr>
                     </tbody>
@@ -308,10 +306,11 @@
                 <hr>
                 <h3><strong>[% response_title %]</strong></h3>
                 <p>[% show_route_response_description %] </p>
-                <span class="ml-10">[% show_route_description %]</span>
+                <p></p>
+
                 @include('[% path_to_view_home %]retrieved')
                 @include('[% path_to_view_home %]failed-to-retrieve')
-                @include('[% path_to_view_home %]failed-authentication')
+                [% include_failed_authentication_for_authorized_request %]
 
             </div>
         </div>
@@ -340,23 +339,23 @@
         <div class="panel-collapse collapse" id="destroy">
             <div class="panel-body">
 
-
                 <h3><strong>[% request_title %]</strong></h3>
-                <p>[% destroy_route_response_description %]</p>
+
                 <table class="table table-stripped">
                     <thead>
                         <tr>
-                            <td class="col-md-2">[% parameter_title %]</td>
-                            <td class="col-md-2">[% type_title %]</td>
-                            <td class="col-md-2">[% request_type_title %]</td>
-                            <td class="col-md-6">[% description_title %]</td>
+                            <th class="col-md-2">[% parameter_name_title %]</th>
+                            <th class="col-md-2">[% data_type_title %]</th>
+                            <th class="col-md-2">[% parameter_type_title %]</th>
+                            <th class="col-md-6">[% description_title %]</th>
                         </tr>
                     </thead>
                     <tbody>
+                        [% include_parameter_for_authorized_request %]
                         <tr>
-                            <td>[% model_id_camel_case %]</td>
+                            <td>[% model_name %]</td>
                             <td>[% integer_title %]</td>
-                            <td>[% path_title %]</td>
+                            <td><span class="label label-info" title="[% this_parameter_is_part_of_the_path %]">[% path_title %]</span></td>
                             <td>[% the_id_of_model_to_delete %]</td>
                         </tr>
                     </tbody>
@@ -365,10 +364,12 @@
 
                 <hr>
                 <h3><strong>[% response_title %]</strong></h3>
+                <p>[% destroy_route_response_description %]</p>
+                <p></p>
 
                 @include('[% path_to_view_home %]retrieved')
                 @include('[% path_to_view_home %]failed-to-retrieve')
-                @include('[% path_to_view_home %]failed-authentication')
+                [% include_failed_authentication_for_authorized_request %]
 
             </div>
         </div>
@@ -395,7 +396,18 @@
 
         <div class="panel-collapse" id="[% model_name %]-model">
             <div class="panel-body">
-                @include('[% path_to_view_home %]fields-list')
+                <table class="table table-stripped">
+                    <thead>
+                        <tr>
+                            <th>[% field_name_title %]</th>
+                            <th>[% field_type_title %]</th>
+                            <th>[% description_title %]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    [% fields_list_for_body %]
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

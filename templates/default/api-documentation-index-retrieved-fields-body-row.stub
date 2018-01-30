@@ -1,5 +1,5 @@
         <tr>
             <td>[% field_name %]</td>
             <td>[% field_type_title %]</td>
-            <td>[% field_description %]</td>
+            <td>[% api_field_description %]</td>
         </tr>

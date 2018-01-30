@@ -3,6 +3,7 @@
 namespace CrestApps\CodeGenerator\Commands\Api;
 
 use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
@@ -61,16 +62,58 @@ class CreateApiDocumentationCommand extends Command
 
         $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields, $this->isCollectiveTemplate());
 
-        return $this->replaceStandardLabels($stub, $viewLabels->getLabels())
+        // The replaceAuthorizedRequestForIndex() method must be executed before replaceAuthorizationCall()
+        return $this->replaceAuthorizedRequestForIndex($stub, $this->getAuthorizedRequestForIndex($input->withAuth, $resource->getApiDocLabels(), $viewLabels->getLabels()))
+            ->replaceAuthorizationCall($stub, $this->getAuthorizationCall($input->withAuth, $resource->getApiDocLabels(), $viewLabels->getLabels()))
+            ->replaceFailedAuthorizationCall($stub, $this->getFailedAuthorizationCall($input->withAuth))
+            ->replaceFieldsListForBody($stub, $this->getFieldsListBody($input->modelName, $resource, $viewLabels->getLabels(), true))
+            ->replaceStandardLabels($stub, $viewLabels->getLabels())
             ->replaceApiLabels($stub, $resource->getApiDocLabels())
             ->replaceModelName($stub, $input->modelName)
             ->replaceRouteNames($stub, $input->modelName, $input->prefix)
-            ->repaceLayoutName($stub, $input->layoutName)
-            ->repacePathToViewHome($stub, $this->getPathToViewHome($input->viewsDirectory, $input->prefix))
+            ->replaceLayoutName($stub, $input->layoutName)
+            ->replacePathToViewHome($stub, $this->getPathToViewHome($input->viewsDirectory, $input->prefix))
             ->makeRequiredSubViews($input, $resource->getApiDocLabels(), $viewLabels->getLabels())
             ->makeFieldsListView($input, $resource, $viewLabels->getLabels())
             ->createFile($destenationFile, $stub)
             ->info('A api-documentation was successfully crafted.');
+    }
+
+    protected function getAuthorizationCall($withAuth, array $apiDocLabels, array $standardLabels = null)
+    {
+        if ($withAuth) {
+            $stub = $this->getStubContent('api-documentation-index-authentication');
+
+            $this->replaceStandardLabels($stub, $standardLabels)
+                ->replaceApiLabels($stub, $apiDocLabels);
+
+            return $stub;
+        }
+
+        return '';
+    }
+
+    protected function getAuthorizedRequestForIndex($withAuth, array $apiDocLabels, array $standardLabels = null)
+    {
+        if ($withAuth) {
+            $stub = $this->getStubContent('api-documentation-index-request');
+
+            $this->replaceStandardLabels($stub, $standardLabels)
+                ->replaceApiLabels($stub, $apiDocLabels);
+
+            return $stub;
+        }
+
+        return $this->getTemplateVariable('no_parameters');
+    }
+
+    protected function getFailedAuthorizationCall($withAuth)
+    {
+        if ($withAuth) {
+            return '@include(\'[% path_to_view_home %]failed-authentication\')';
+        }
+
+        return '';
     }
 
     /**
@@ -98,11 +141,11 @@ class CreateApiDocumentationCommand extends Command
      */
     protected function makeRequiredSubViews($input, array $apiDocLabels, array $standardLabels)
     {
-        $stub = $this->getStubContent('api-documentation-index-failed-authentication');
         $this->makeStandardSubView('failed-authentication', $input, $apiDocLabels, $standardLabels)
             ->makeStandardSubView('failed-to-retrieve', $input, $apiDocLabels, $standardLabels)
             ->makeStandardSubView('failed-validation', $input, $apiDocLabels, $standardLabels)
             ->makeStandardSubView('failed-authentication', $input, $apiDocLabels, $standardLabels)
+            ->makeStandardSubView('authentication', $input, $apiDocLabels, $standardLabels)
             ->makeStandardSubView('retrieved', $input, $apiDocLabels, $standardLabels);
 
         return $this;
@@ -113,10 +156,11 @@ class CreateApiDocumentationCommand extends Command
         $stub = $this->getStubContent('api-documentation-index-fields-list');
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'fields-list');
 
-        $this->replaceStandardLabels($stub, $standardLabels)
+        $this->replaceAuthorizationCall($stub, $this->getAuthorizationCall($input->withAuth, $resource->getApiDocLabels(), $standardLabels))
+            ->replaceStandardLabels($stub, $standardLabels)
             ->replaceApiLabels($stub, $resource->getApiDocLabels())
             ->replaceModelName($stub, $input->modelName)
-            ->repaceValidationRuleRequired($stub, $this->getRequiredRule($resource->getApiDocLabels(), $standardLabels))
+            ->replaceValidationRuleRequired($stub, $this->getRequiredRule($resource->getApiDocLabels(), $standardLabels))
             ->replaceFieldsListForBody($stub, $this->getFieldsListBody($input->modelName, $resource, $standardLabels))
             ->createFile($destenationFile, $stub);
 
@@ -224,10 +268,15 @@ class CreateApiDocumentationCommand extends Command
         return $this->getDestinationPath($viewsPath) . $filename;
     }
 
-    protected function getFieldsListBody($modelName, Resource $resource, array $standardLabels = null)
+    protected function getFieldsListBody($modelName, Resource $resource, array $standardLabels = null, $modelDefinition = false)
     {
+        $stubName = 'api-documentation-index-fields-list-body-row';
+        if ($modelDefinition) {
+            $stubName = 'api-documentation-index-fields-list-body-row-for-model';
+        }
+        $template = $this->getStubContent($stubName);
+
         $final = [];
-        $template = $this->getStubContent('api-documentation-index-fields-list-body-row');
         foreach ($resource->getFields() as $field) {
             $stub = $template;
 
@@ -237,19 +286,16 @@ class CreateApiDocumentationCommand extends Command
                 $requiredTemplate = $this->getRequiredRule($resource->getApiDocLabels(), $standardLabels);
             }
 
-            // TO DO
-            // description must be converted into a label instead of a string
-            $this->replaceStandardLabels($stub, $standardLabels)
+            // The replaceFieldType() must be executed before replaceStandardLabels
+            // to replace the types in a title form.
+            $this->replaceFieldType($stub, $this->getFileTypeTitle($field))
+                ->replaceApiFieldDescription($stub, $this->getFieldDescription($field))
+                ->replaceStandardLabels($stub, $standardLabels)
                 ->replaceApiLabels($stub, $resource->getApiDocLabels())
                 ->replaceModelName($stub, $modelName)
-                ->replaceFieldDescription($stub, $field->description)
                 ->replaceValidationRules($stub, $this->getValidationRules($field))
                 ->replaceModelName($stub, $field->name, 'field_')
-                ->repaceValidationRuleRequired($stub, $requiredTemplate);
-
-            // replace field_description
-            // replace validation_rules
-            // replace field_type_title
+                ->replaceValidationRuleRequired($stub, $requiredTemplate);
 
             $final[] = $stub;
         }
@@ -257,34 +303,75 @@ class CreateApiDocumentationCommand extends Command
         return implode(PHP_EOL, $final);
     }
 
+    protected function getFieldDescription(Field $field)
+    {
+        $label = current($field->getApiDescription());
+
+        if (!empty($label)) {
+            return $this->getViewReadyAccessor($label);
+        }
+
+        return '';
+    }
+
+    protected function getFileTypeTitle(Field $field)
+    {
+        $type = 'string';
+
+        if ($field->isNumeric()) {
+            $type = 'integer';
+        } elseif ($field->isBoolean()) {
+            $type = 'boolean';
+        } elseif ($field->isDateTime()) {
+            $type = 'datetime';
+        } elseif ($field->isTime()) {
+            $type = 'time';
+        } elseif ($field->isDate()) {
+            $type = 'date';
+        } elseif ($field->isDecimal()) {
+            $type = 'decimal';
+        } elseif ($field->isFile()) {
+            $type = 'file';
+        }
+
+        return $this->getTemplateVariable($type . '_title');
+    }
+
     protected function getValidationRules(Field $field)
     {
-        $updatedRules = array_filter($field->getValidationRules(), function ($rule) {
-            return !in_array($rule, ['required', 'nullable']);
-        });
-
         $hasString = in_array('string', $field->getValidationRules());
+        $hasNumber = empty(array_intersect(['integer', 'numeric'], $field->getValidationRules()));
 
-        if ($hasString) {
-            foreach ($field->getValidationRules() as $rule) {
-                if (starts_with($rule, 'min:')) {
-                    $updatedRules[] = 'Minimum Length: ' . Helpers::removePreFixWith($rule, 'min:');
-                }
-
-                if (starts_with($rule, 'max:')) {
-                    $updatedRules[] = 'Maximum Length: ' . Helpers::removePreFixWith($rule, 'max:');
-                }
-            }
-        }
-
+        $rules = [];
         foreach ($field->getValidationRules() as $rule) {
-            if ($hasString && starts_with($rule, 'min:') && starts_with($rule, 'max:')) {
+            if (in_array($rule, ['required', 'nullable'])) {
                 continue;
             }
-            $updatedRules[] = ucfirst($rule);
+
+            if ($hasString && starts_with($rule, 'min:')) {
+                $rules[] = 'Minimum Length: ' . Helpers::removePreFixWith($rule, 'min:');
+                continue;
+            }
+
+            if ($hasString && starts_with($rule, 'max:')) {
+                $rules[] = 'Maximum Length: ' . Helpers::removePreFixWith($rule, 'max:');
+                continue;
+            }
+
+            if ($hasNumber && starts_with($rule, 'min:')) {
+                $rules[] = 'Minimum Value: ' . Helpers::removePreFixWith($rule, 'min:');
+                continue;
+            }
+
+            if ($hasNumber && starts_with($rule, 'max:')) {
+                $rules[] = 'Maximum Value: ' . Helpers::removePreFixWith($rule, 'max:');
+                continue;
+            }
+
+            $rules[] = ucfirst($rule);
         }
 
-        return implode('; ', $updatedRules);
+        return implode('; ', $rules);
     }
 
     /**
@@ -359,10 +446,7 @@ class CreateApiDocumentationCommand extends Command
         foreach ($labels as $lang => $labelsCollection) {
 
             foreach ($labelsCollection as $label) {
-                $text = $label->text;
-                if (!$label->isPlain) {
-                    $text = sprintf("{{ trans('%s') }}", $label->getAccessor());
-                }
+                $text = $this->getViewReadyAccessor($label);
 
                 $this->replaceTemplate($label->id, $text, $stub);
             }
@@ -372,6 +456,22 @@ class CreateApiDocumentationCommand extends Command
     }
 
     /**
+     * Get a view ready label accessor.
+     *
+     * @param  CrestApps\CodeGenerator\Model\Label $label
+     *
+     * @return string
+     */
+    protected function getViewReadyAccessor(Label $label)
+    {
+        if (!$label->isPlain) {
+            return sprintf("{{ trans('%s') }}", $label->getAccessor());
+        }
+
+        return $label->text;
+    }
+
+    /**
      * Replaces the layout_name for the giving stub,
      *
      * @param  string  $stub
@@ -379,22 +479,48 @@ class CreateApiDocumentationCommand extends Command
      *
      * @return $this
      */
-    protected function repaceLayoutName(&$stub, $name)
+    protected function replaceLayoutName(&$stub, $name)
     {
         return $this->replaceTemplate('layout_name', $name, $stub);
     }
 
     /**
-     * Replaces the layout_name for the giving stub,
+     * Replaces the field_type_title for the giving stub,
      *
      * @param  string  $stub
      * @param  string  $name
      *
      * @return $this
      */
-    protected function repacePathToViewHome(&$stub, $name)
+    protected function replaceFieldType(&$stub, $name)
     {
-        return $this->replaceTemplate('path_to_view_home', $name, $stub);
+        return $this->replaceTemplate('field_type_title', $name, $stub);
+    }
+
+    /**
+     * Replaces the include_parameter_for_authorized_request for the giving stub,
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    protected function replaceAuthorizationCall(&$stub, $name)
+    {
+        return $this->replaceTemplate('include_parameter_for_authorized_request', $name, $stub);
+    }
+
+    /**
+     * Replaces the include_failed_authentication_for_authorized_request for the giving stub,
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    protected function replaceFailedAuthorizationCall(&$stub, $name)
+    {
+        return $this->replaceTemplate('include_failed_authentication_for_authorized_request', $name, $stub);
     }
 
     /**
@@ -405,7 +531,33 @@ class CreateApiDocumentationCommand extends Command
      *
      * @return $this
      */
-    protected function repaceValidationRuleRequired(&$stub, $name)
+    protected function replacePathToViewHome(&$stub, $name)
+    {
+        return $this->replaceTemplate('path_to_view_home', $name, $stub);
+    }
+
+    /**
+     * Replaces the authorized_request_for_index for the giving stub,
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    protected function replaceAuthorizedRequestForIndex(&$stub, $name)
+    {
+        return $this->replaceTemplate('authorized_request_for_index', $name, $stub);
+    }
+
+    /**
+     * Replaces the layout_name for the giving stub,
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    protected function replaceValidationRuleRequired(&$stub, $name)
     {
         return $this->replaceTemplate('validation_rule_required', $name, $stub);
     }
@@ -431,9 +583,9 @@ class CreateApiDocumentationCommand extends Command
      *
      * @return $this
      */
-    protected function replaceFieldDescription(&$stub, $name)
+    protected function replaceApiFieldDescription(&$stub, $name)
     {
-        return $this->replaceTemplate('field_description', $name, $stub);
+        return $this->replaceTemplate('api_field_description', $name, $stub);
     }
 
     /**

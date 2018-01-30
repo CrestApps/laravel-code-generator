@@ -289,6 +289,7 @@ return [
             'set' => [
                 // You may use any of the field templates to create the label
                 'labels' => '[% field_name_title %]',
+                'api-description' => 'The [% field_name %] of the model.',
             ],
         ],
         [
@@ -664,9 +665,29 @@ return [
             'text' => 'Integer',
             'template' => 'integer_title',
         ],
+        'decimal_title' => [
+            'text' => 'Decimal',
+            'template' => 'decimal_title',
+        ],
+        'file_title' => [
+            'text' => 'File',
+            'template' => 'file_title',
+        ],
         'array_title' => [
             'text' => 'Array',
             'template' => 'array_title',
+        ],
+        'datetime_title' => [
+            'text' => 'DateTime',
+            'template' => 'datetime_title',
+        ],
+        'time_title' => [
+            'text' => 'Time',
+            'template' => 'time_title',
+        ],
+        'date_title' => [
+            'text' => 'Date',
+            'template' => 'date_title',
         ],
         'array_of_strings' => [
             'text' => 'Array of strings',
@@ -743,6 +764,30 @@ return [
         'body_title' => [
             'text' => 'Body',
             'template' => 'body_title',
+        ],
+        'this_parameter_is_part_of_the_path' => [
+            'text' => 'This parameter is part of the url',
+            'template' => 'this_parameter_is_part_of_the_path',
+        ],
+        'this_parameter_is_part_of_the_body' => [
+            'text' => 'This parameter is part of the body',
+            'template' => 'this_parameter_is_part_of_the_body',
+        ],
+        'no_parameters' => [
+            'text' => 'No parameters.',
+            'template' => 'no_parameters',
+        ],
+        'parameter_name_title' => [
+            'text' => 'Parameter Name',
+            'template' => 'parameter_name_title',
+        ],
+        'field_name_title' => [
+            'text' => 'Field Name',
+            'template' => 'field_name_title',
+        ],
+        'field_type_title' => [
+            'text' => 'Field Type',
+            'template' => 'field_type_title',
         ],
     ],
 
