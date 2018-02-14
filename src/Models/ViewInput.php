@@ -3,9 +3,12 @@
 namespace CrestApps\CodeGenerator\Models;
 
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Traits\LanguageTrait;
 
 class ViewInput
 {
+    use LanguageTrait;
+
     /**
      * The provided modelName
      *
@@ -68,7 +71,7 @@ class ViewInput
         $prefix = trim($options['routes-prefix']);
         $this->prefix = ($prefix == 'default-form') ? Helpers::makeRouteGroup($this->modelName) : $prefix;
         $this->force = $options['force'];
-        $this->languageFileName = trim($options['language-filename']) ?: Helpers::makeLocaleGroup($this->modelName);
+        $this->languageFileName = trim($options['language-filename']) ?: self::makeLocaleGroup($this->modelName);
         $this->layout = trim($options['layout-name']);
         $this->template = trim($options['template-name']);
     }

@@ -4,7 +4,7 @@ namespace CrestApps\CodeGenerator\Commands\Views;
 
 use CrestApps\CodeGenerator\Commands\Bases\ViewsCommandBase;
 use CrestApps\CodeGenerator\Models\Resource;
-use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Arr;
 
 class CreateViewsCommand extends ViewsCommandBase
 {
@@ -93,7 +93,7 @@ class CreateViewsCommand extends ViewsCommandBase
      */
     protected function getOnlyViews()
     {
-        $viewsToCreate = Helpers::removeEmptyItems(explode(',', $this->option('only-views')));
+        $viewsToCreate = Arr::removeEmptyItems(explode(',', $this->option('only-views')));
 
         return array_intersect($this->views, $viewsToCreate);
     }

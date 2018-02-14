@@ -1,5 +1,7 @@
     /**
      * Get the [% relation_name %] for this model.
+     *
+     * @return [% relation_return_type %]
      */
     public function [% relation_name %]()
     {

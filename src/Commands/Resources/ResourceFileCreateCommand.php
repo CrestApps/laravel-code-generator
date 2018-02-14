@@ -10,9 +10,12 @@ use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ResourceMapper;
+use CrestApps\CodeGenerator\Traits\LanguageTrait;
 
 class ResourceFileCreateCommand extends ResourceFileCreatorCommandBase
 {
+    use LanguageTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -66,7 +69,7 @@ class ResourceFileCreateCommand extends ResourceFileCreatorCommandBase
 
         $resource = new Resource($fields, $relations, $indexes);
 
-        $resource->setDefaultApiDocLabels($input->modelName, Helpers::makeLocaleGroup($input->modelName), $input->translationFor);
+        $resource->setDefaultApiDocLabels($input->modelName, self::makeLocaleGroup($input->modelName), $input->translationFor);
 
         $this->createFile($file, Helpers::prettifyJson($resource->toArray()))
             ->info('The "' . basename($file) . '" file was crafted successfully!');

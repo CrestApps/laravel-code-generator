@@ -3,6 +3,7 @@
 namespace CrestApps\CodeGenerator\Commands\Bases;
 
 use CrestApps\CodeGenerator\Models\Field;
+use CrestApps\CodeGenerator\Support\Arr;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
@@ -92,7 +93,7 @@ class ControllerRequestCommandBase extends Command
             $standardRules = array_diff($rules, $customRules);
             $shortCustomRules = $this->extractCustomValidationShortName($customRules);
 
-            $wrappedRules = array_merge(Helpers::wrapItems($standardRules), $shortCustomRules);
+            $wrappedRules = array_merge(Arr::wrapItems($standardRules), $shortCustomRules);
 
             return sprintf("%s'%s' => [%s],", $prefix, $field->name, implode(',', $wrappedRules));
         }

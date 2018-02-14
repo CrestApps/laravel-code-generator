@@ -4,15 +4,17 @@ namespace CrestApps\CodeGenerator\Commands\Api;
 
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 use CrestApps\CodeGenerator\Traits\ApiResourceTrait;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use CrestApps\CodeGenerator\Traits\ModelTrait;
 use Illuminate\Console\Command;
 
 class CreateApiResourceCommand extends Command
 {
-    use CommonCommand, GeneratorReplacers, ApiResourceTrait;
+    use CommonCommand, GeneratorReplacers, ApiResourceTrait, ModelTrait;
 
     /**
      * Total white-spaced to eliminate when creating an array string.
@@ -36,6 +38,7 @@ class CreateApiResourceCommand extends Command
                             {--model-directory= : The path where the model should be created under.}
                             {--template-name= : The template name to use when generating the code.}
                             {--collection : Create a resource collection.}
+                            {--api-version= : The api version to prefix your resurces with.}
                             {--force : Override the model if one already exists.}';
 
     /**
@@ -73,7 +76,7 @@ class CreateApiResourceCommand extends Command
             ->replaceTransformMethod($stub, $this->getTransformMethod($input, $resource->fields, $input->isCollection, $input->isCollection))
             ->replaceStandardLabels($stub, $viewLabels->getLabels())
             ->replaceModelName($stub, $input->modelName)
-            ->replaceModelFullname($stub, Helpers::getModelNamespace($input->modelName, $input->modelDirectory))
+            ->replaceModelFullname($stub, self::getModelNamespace($input->modelName, $input->modelDirectory))
             ->createFile($destenationFile, $stub)
             ->info('An ' . $this->getFileTitle($input->isCollection) . ' was crafted successfully.');
     }
@@ -156,7 +159,7 @@ class CreateApiResourceCommand extends Command
             $path = $this->getApiResourcePath();
         }
 
-        $path = Helpers::removePreFixWith($path, Helpers::getAppNamespace());
+        $path = Str::trimStart($path, Helpers::getAppNamespace());
 
         return app_path($path . $name . '.php');
     }
@@ -173,6 +176,7 @@ class CreateApiResourceCommand extends Command
         $template = $this->getTemplateName();
         $isCollection = $this->option('collection');
         $modelDirectory = trim($this->option('model-directory'));
+        $apiVersion = trim($this->option('api-version'));
 
         return (object) compact(
             'modelName',

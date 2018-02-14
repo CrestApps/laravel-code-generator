@@ -7,10 +7,12 @@ use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\MigrationCapsule;
 use CrestApps\CodeGenerator\Models\MigrationTrackerCapsule;
 use CrestApps\CodeGenerator\Models\Resource;
+use CrestApps\CodeGenerator\Support\Arr;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\MigrationHistoryTracker;
 use CrestApps\CodeGenerator\Support\ResourceMapper;
+use CrestApps\CodeGenerator\Traits\LanguageTrait;
 use CrestApps\CodeGenerator\Traits\Migration;
 use DB;
 use Exception;
@@ -18,7 +20,7 @@ use File;
 
 class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
 {
-    use Migration;
+    use Migration, LanguageTrait;
 
     /**
      * The name and signature of the console command.
@@ -70,7 +72,7 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
             $mapper->append($this->getModelName(), $this->getNewFilename(), $tableName);
         }
 
-        $resource->setDefaultApiDocLabels($input->modelName, Helpers::makeLocaleGroup($modelName), $input->translationFor);
+        $resource->setDefaultApiDocLabels($input->modelName, self::makeLocaleGroup($modelName), $input->translationFor);
 
         $this->createVirtualMigration($parser->getResource(), $destenationFile, $tableName);
 
@@ -188,7 +190,7 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
      */
     protected function getLanguages()
     {
-        return Helpers::convertStringToArray($this->option('translation-for'));
+        return Arr::fromString($this->option('translation-for'));
     }
 
     /**

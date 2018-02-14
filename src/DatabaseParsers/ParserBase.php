@@ -11,11 +11,12 @@ use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ResourceMapper;
 use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Traits\ModelTrait;
 use Exception;
 
 abstract class ParserBase
 {
-    use CommonCommand;
+    use CommonCommand, ModelTrait;
 
     /**
      * List of fields to be excluded from all views.

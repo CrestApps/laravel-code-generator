@@ -284,7 +284,7 @@ class StandardHtml extends HtmlGeneratorBase
         $defaultValueString = '[]';
 
         if (!empty($defaultValue)) {
-            $joinedValues = implode(',', Helpers::wrapItems((array) $defaultValue));
+            $joinedValues = implode(',', Arr::wrapItems((array) $defaultValue));
             $defaultValueString = sprintf('[%s]', $joinedValues);
         }
 

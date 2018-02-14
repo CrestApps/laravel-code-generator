@@ -5,12 +5,17 @@ namespace CrestApps\CodeGenerator\Commands\Bases;
 use CrestApps\CodeGenerator\Commands\Bases\ControllerRequestCommandBase;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Models\Resource;
+use CrestApps\CodeGenerator\Support\Arr;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
+use CrestApps\CodeGenerator\Traits\LanguageTrait;
+use CrestApps\CodeGenerator\Traits\ModelTrait;
 
 abstract class ControllerCommandBase extends ControllerRequestCommandBase
 {
+    use ModelTrait, LanguageTrait;
+
     /**
      * The request object's name to use in the controller.
      *
@@ -209,7 +214,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
         $prefix = ($this->option('routes-prefix') == 'default-form') ? Helpers::makeRouteGroup($modelName) : $this->option('routes-prefix');
         $perPage = intval($this->option('models-per-page'));
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
-        $langFile = $this->option('language-filename') ?: Helpers::makeLocaleGroup($modelName);
+        $langFile = $this->option('language-filename') ?: self::makeLocaleGroup($modelName);
         $withFormRequest = $this->option('with-form-request');
         $force = $this->option('force');
         $modelDirectory = $this->option('model-directory');
@@ -255,7 +260,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
             return '';
         }
 
-        return sprintf(', compact(%s)', implode(',', Helpers::wrapItems($variables)));
+        return sprintf(', compact(%s)', implode(',', Arr::wrapItems($variables)));
     }
 
     /**
@@ -401,8 +406,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
      */
     protected function getDefaultClassToExtend()
     {
-        $base = $this->getControllerPath();
-
+        $base = Config::getApiControllersPath();
         $controller = trim($this->option('controller-directory'));
 
         return Helpers::fixNamespace(Helpers::getAppNamespace($base, $controller, 'Controller'));
@@ -654,7 +658,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
             return '';
         }
 
-        return sprintf('with(%s)->', implode(',', Helpers::wrapItems($relations)));
+        return sprintf('with(%s)->', implode(',', Arr::wrapItems($relations)));
     }
 
     /**
@@ -953,7 +957,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
         $this->ChangeRequestType($input);
 
         $dataMethod = $this->getDataMethod($resource->fields, $this->requestNameSpace . '\\' . $this->requestName, $input);
-        $languages = array_keys(Helpers::getLanguageItems($resource->fields));
+        $languages = array_keys(self::getLanguageItems($resource->fields));
         $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields, $this->isCollectiveTemplate());
         $namespacesToUse = $this->getRequiredUseClasses($resource->fields, $this->getAdditionalNamespaces($input));
 
@@ -991,7 +995,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     protected function getAdditionalNamespaces($input)
     {
         return [
-            Helpers::getModelNamespace($input->modelName, $input->modelDirectory),
+            self::getModelNamespace($input->modelName, $input->modelDirectory),
             $this->requestNameSpace,
             $this->getFullClassToExtend(),
         ];
@@ -1025,7 +1029,17 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
      */
     protected function getControllerStub()
     {
-        return $this->getStubContent($this->getControllerType());
+        return $this->getStubContent($this->getControllerStubName());
+    }
+
+    /**
+     * Gets the name of the controller stub.
+     *
+     * @return string
+     */
+    protected function getControllerStubName()
+    {
+        return $this->getControllerType();
     }
 
     /**

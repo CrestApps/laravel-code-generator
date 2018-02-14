@@ -42,6 +42,13 @@ class ApiScaffoldInput extends ScaffoldInputBase
     public $apiResourceCollectionName;
 
     /**
+     * Should the request also scaffold documentation or not.
+     *
+     * @var bool
+     */
+    public $withDocumentations;
+
+    /**
      * Creates a new class instance.
      *
      * @param CrestApps\CodeGenerator\Models\Bases\ScaffoldInputBase $model

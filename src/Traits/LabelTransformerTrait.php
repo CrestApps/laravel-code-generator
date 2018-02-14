@@ -2,7 +2,7 @@
 
 namespace CrestApps\CodeGenerator\Traits;
 
-use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
 
 trait LabelTransformerTrait
 {
@@ -21,7 +21,7 @@ trait LabelTransformerTrait
             $title = $this->getFirstElement($title);
         }
 
-        $fieldName = Helpers::removePostFixWith($fieldName, '_id');
+        $fieldName = str::trimEnd($fieldName, '_id');
 
         $this->replaceModelName($title, $fieldName, 'field_');
 

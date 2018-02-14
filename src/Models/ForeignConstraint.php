@@ -2,15 +2,15 @@
 
 namespace CrestApps\CodeGenerator\Models;
 
-use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Arr;
 use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
-use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Traits\ModelTrait;
 
 class ForeignConstraint implements JsonWriter
 {
-    use CommonCommand;
+    use CommonCommand, ModelTrait;
 
     /**
      * The name of the foreign field/column.
@@ -92,7 +92,7 @@ class ForeignConstraint implements JsonWriter
     public function getReferencesModel()
     {
         if (empty($this->referencesModel)) {
-            $this->referencesModel = $this->getModelNamespace(ucfirst($this->getForeignModelName()));
+            $this->referencesModel = self::getModelNamespace(ucfirst($this->getForeignModelName()));
         }
 
         return $this->referencesModel;
@@ -139,13 +139,14 @@ class ForeignConstraint implements JsonWriter
      *
      * @return string
      */
+    /*
     protected function getModelNamespace($modelName)
     {
-        $path = Helpers::getAppNamespace() . rtrim(Config::getModelsPath(), '\\');
+    $path = Helpers::getAppNamespace() . rtrim(Config::getModelsPath(), '\\');
 
-        return $path . '\\' . $modelName;
+    return $path . '\\' . $modelName;
     }
-
+     */
     /**
      * Get the name of the foreign model.
      *
@@ -206,11 +207,11 @@ class ForeignConstraint implements JsonWriter
      */
     public static function fromArray(array $constraint, $fieldName)
     {
-        $onUpdate = Helpers::isKeyExists($constraint, 'on-update') ? $constraint['on-update'] : null;
-        $onDelete = Helpers::isKeyExists($constraint, 'on-delete') ? $constraint['on-delete'] : null;
-        $model = Helpers::isKeyExists($constraint, 'references-model') ? $constraint['references-model'] :
-        Helpers::guessModelFullName($fieldName, Helpers::getModelsPath());
-        $isSelfReference = Helpers::isKeyExists($constraint, 'is-self-reference') ? (bool) $constraint['is-self-reference'] : false;
+        $onUpdate = Arr::isKeyExists($constraint, 'on-update') ? $constraint['on-update'] : null;
+        $onDelete = Arr::isKeyExists($constraint, 'on-delete') ? $constraint['on-delete'] : null;
+        $model = Arr::isKeyExists($constraint, 'references-model') ? $constraint['references-model'] :
+        self::guessModelFullName($fieldName, self::getModelsPath());
+        $isSelfReference = Arr::isKeyExists($constraint, 'is-self-reference') ? (bool) $constraint['is-self-reference'] : false;
 
         return new self(
             $constraint['field'],

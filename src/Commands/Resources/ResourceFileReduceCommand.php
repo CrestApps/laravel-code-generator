@@ -3,6 +3,7 @@
 namespace CrestApps\CodeGenerator\Commands\Resources;
 
 use CrestApps\CodeGenerator\Commands\Bases\ResourceFileCommandBase;
+use CrestApps\CodeGenerator\Support\Arr;
 use CrestApps\CodeGenerator\Support\Helpers;
 
 class ResourceFileReduceCommand extends ResourceFileCommandBase
@@ -176,9 +177,9 @@ class ResourceFileReduceCommand extends ResourceFileCommandBase
         $modelName = trim($this->argument('model-name'));
         $filename = trim($this->option('resource-filename'));
         $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
-        $fieldNames = array_unique(Helpers::convertStringToArray($this->generatorOption('fields')));
-        $relations = Helpers::convertStringToArray(trim($this->option('relations')));
-        $indexes = Helpers::convertStringToArray(trim($this->option('indexes')));
+        $fieldNames = array_unique(Arr::fromString($this->generatorOption('fields')));
+        $relations = Arr::fromString(trim($this->option('relations')));
+        $indexes = Arr::fromString(trim($this->option('indexes')));
 
         return (object) compact(
             'modelName',

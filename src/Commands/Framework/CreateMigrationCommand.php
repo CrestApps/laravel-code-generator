@@ -11,6 +11,7 @@ use CrestApps\CodeGenerator\Models\MigrationChangeCapsule;
 use CrestApps\CodeGenerator\Models\MigrationInput;
 use CrestApps\CodeGenerator\Models\MigrationTrackerCapsule;
 use CrestApps\CodeGenerator\Models\Resource;
+use CrestApps\CodeGenerator\Support\Arr;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\MigrationHistoryTracker;
@@ -451,7 +452,7 @@ class CreateMigrationCommand extends MigrationCommandBase
                     throw new Exception('Non-Existing columns are being using an index. Invalid columns are "' . implode(',', $invalidColumns) . '"');
                 }
 
-                $columns = Helpers::wrapItems($index->getColumns());
+                $columns = Arr::wrapItems($index->getColumns());
 
                 $indexColumn = sprintf('[%s]', implode(',', $columns));
             } else {
@@ -594,7 +595,7 @@ class CreateMigrationCommand extends MigrationCommandBase
                 'It is possible that this field is required but only have option available has an empty string.');
         }
 
-        return sprintf('[%s]', implode(',', Helpers::wrapItems($values)));
+        return sprintf('[%s]', implode(',', Arr::wrapItems($values)));
     }
 
     /**
@@ -977,7 +978,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     protected function addDropColumn(&$property, $name)
     {
         if (is_array($name)) {
-            $property .= sprintf('%s([%s])', $this->getPropertyBase('dropColumn'), implode(',', Helpers::wrapItems($name)));
+            $property .= sprintf('%s([%s])', $this->getPropertyBase('dropColumn'), implode(',', Arr::wrapItems($name)));
         } else {
             $property .= sprintf("%s('%s')", $this->getPropertyBase('dropColumn'), $name);
         }

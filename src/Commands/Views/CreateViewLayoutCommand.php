@@ -4,6 +4,7 @@ namespace CrestApps\CodeGenerator\Commands\Views;
 
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use Exception;
 use File;
@@ -118,7 +119,7 @@ class CreateViewLayoutCommand extends Command
     protected function getCommandInput()
     {
         $appName = trim($this->argument('application-name'));
-        $layoutFileName = Helpers::postFixWith(trim($this->option('layout-filename')) ?: 'layout-filename', '.blade.php');
+        $layoutFileName = Str::postfix(trim($this->option('layout-filename')) ?: 'layout-filename', '.blade.php');
         $layoutDirectory = trim($this->option('layout-directory'));
         $withoutValidation = $this->option('without-validation');
         $force = $this->option('force');

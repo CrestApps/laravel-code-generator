@@ -4,7 +4,9 @@ namespace CrestApps\CodeGenerator\Support;
 
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\FieldMapper;
+use CrestApps\CodeGenerator\Support\Arr;
 use CrestApps\CodeGenerator\Support\FieldsOptimizer;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use CrestApps\CodeGenerator\Traits\LabelTransformerTrait;
@@ -83,7 +85,7 @@ class FieldTransformer
         // OR
         // name:a;html-type:select;options:first|second|third|fourth
         $fields = [];
-        $fieldNames = array_unique(Helpers::convertStringToArray($str));
+        $fieldNames = array_unique(Arr::fromString($str));
         foreach ($fieldNames as $fieldName) {
             $field = [];
 
@@ -94,16 +96,16 @@ class FieldTransformer
                     throw new Exception('The "name" property was not provided and is required!');
                 }
 
-                $parts = Helpers::convertStringToArray($fieldName, ';');
+                $parts = Arr::fromString($fieldName, ';');
 
                 foreach ($parts as $part) {
-                    if (!str_is('*:*', $part) || count($properties = Helpers::convertStringToArray($part, ':')) < 2) {
+                    if (!str_is('*:*', $part) || count($properties = Arr::fromString($part, ':')) < 2) {
                         throw new Exception('Each provided property should use the following format "key:value"');
                     }
                     list($key, $value) = $properties;
                     $field[$key] = $value;
                     if ($key == 'options') {
-                        $options = Helpers::convertStringToArray($value, '|');
+                        $options = Arr::fromString($value, '|');
 
                         if (count($options) == 0) {
                             throw new Exception('You must provide at least one option where each option is seperated by "|".');
@@ -223,7 +225,7 @@ class FieldTransformer
     {
         $label = $properties['name'];
 
-        if (Helpers::isKeyExists($properties, 'labels')) {
+        if (Arr::isKeyExists($properties, 'labels')) {
             $label = $properties['labels'];
         }
 
@@ -243,7 +245,7 @@ class FieldTransformer
     {
         $label = $properties['name'];
 
-        if (Helpers::isKeyExists($properties, 'api-description')) {
+        if (Arr::isKeyExists($properties, 'api-description')) {
             $label = $properties['api-description'];
         }
 
@@ -261,7 +263,7 @@ class FieldTransformer
      */
     protected function setPlaceholder(&$properties)
     {
-        if (!Helpers::isKeyExists($properties, 'placeholder')) {
+        if (!Arr::isKeyExists($properties, 'placeholder')) {
             $properties['placeholder'] = $this->getPlaceholders($properties['name'], $this->getHtmlType($properties));
         }
 
@@ -277,7 +279,7 @@ class FieldTransformer
      */
     protected function setOptions(&$properties)
     {
-        if (Helpers::isKeyExists($properties, 'options')) {
+        if (Arr::isKeyExists($properties, 'options')) {
             $properties['options'] = $this->getOptions((array) $properties['options']);
         }
 
@@ -299,12 +301,12 @@ class FieldTransformer
         foreach ($definitions as $definition) {
             $patterns = $this->getArrayByKey($definition, 'match');
 
-            if (Helpers::strIs($patterns, $properties['name'])) {
+            if (Str::match($patterns, $properties['name'])) {
                 //auto add any config from the master config
                 $settings = $this->getArrayByKey($definition, 'set');
 
                 foreach ($settings as $key => $setting) {
-                    if (!Helpers::isKeyExists($properties, $key) || empty($properties[$key])) {
+                    if (!Arr::isKeyExists($properties, $key) || empty($properties[$key])) {
                         $properties[$key] = $setting;
                     }
                 }
@@ -384,7 +386,7 @@ class FieldTransformer
      */
     protected function getArrayByKey(array $array, $key)
     {
-        return Helpers::isKeyExists($array, $key) ? (array) $array[$key] : [];
+        return Arr::isKeyExists($array, $key) ? (array) $array[$key] : [];
     }
 
     /**

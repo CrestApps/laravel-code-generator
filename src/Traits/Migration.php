@@ -3,7 +3,7 @@
 namespace CrestApps\CodeGenerator\Traits;
 
 use App;
-use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
@@ -103,7 +103,7 @@ trait Migration
     {
         $filename = sprintf('%s_alter_%s_table_%s.php', date('Y_m_d_His'), strtolower($name), $count);
 
-        return Helpers::postFixWith($filename, '.php');
+        return Str::postfix($filename, '.php');
     }
 
     /**
@@ -117,7 +117,7 @@ trait Migration
     {
         $filename = sprintf('%s_create_%s_table.php', date('Y_m_d_His'), strtolower($name));
 
-        return Helpers::postFixWith($filename, '.php');
+        return Str::postfix($filename, '.php');
     }
 
     /**

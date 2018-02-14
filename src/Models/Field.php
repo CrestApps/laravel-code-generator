@@ -5,16 +5,19 @@ namespace CrestApps\CodeGenerator\Models;
 use App;
 use CrestApps\CodeGenerator\Models\ForeignRelationhip;
 use CrestApps\CodeGenerator\Models\Label;
+use CrestApps\CodeGenerator\Support\Arr;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use CrestApps\CodeGenerator\Traits\ModelTrait;
 use Exception;
 
 class Field implements JsonWriter
 {
-    use CommonCommand, GeneratorReplacers;
+    use CommonCommand, GeneratorReplacers, ModelTrait;
 
     /**
      * The apps default language
@@ -899,21 +902,6 @@ class Field implements JsonWriter
     }
 
     /**
-     * Creates locale key for a giving languagefile
-     *
-     * @param string $stub
-     * @param string $postFix
-     *
-     * @return string
-     */
-    /*
-    protected function getLocaleKey($postFix = null)
-    {
-    return sprintf('%s.%s', $this->localeGroup, $this->getFieldId($postFix));
-    }
-     */
-
-    /**
      * Gets the field Id.
      *
      * @param string $optionValue
@@ -940,7 +928,7 @@ class Field implements JsonWriter
     {
         $value = strtolower(str_replace(' ', '_', $optionValue));
 
-        return Helpers::removeNonEnglishChars($value);
+        return Str::removeNonEnglishChars($value);
     }
 
     /**
@@ -1050,7 +1038,7 @@ class Field implements JsonWriter
             $this->range = explode(':', substr($properties['html-type'], 12));
         }
 
-        if (Helpers::isKeyExists($properties, 'range') && is_array($properties['range'])) {
+        if (Arr::isKeyExists($properties, 'range') && is_array($properties['range'])) {
             $this->range = $properties['range'];
         }
 
@@ -1067,7 +1055,7 @@ class Field implements JsonWriter
      */
     public function setOptionsProperty(array $properties)
     {
-        if (Helpers::isKeyExists($properties, 'options') && is_array($properties['options'])) {
+        if (Arr::isKeyExists($properties, 'options') && is_array($properties['options'])) {
             $labels = $this->transferOptionsToLabels($properties['options']);
 
             foreach ($labels as $label) {
@@ -1140,7 +1128,7 @@ class Field implements JsonWriter
             return null;
         }
 
-        return Helpers::postFixWith($action, ';');
+        return Str::postfix($action, ';');
     }
 
     /**
@@ -1152,7 +1140,7 @@ class Field implements JsonWriter
      */
     public function setDataTypeParams(array $properties)
     {
-        if (Helpers::isKeyExists($properties, 'data-type-params') && is_array($properties['data-type-params'])) {
+        if (Arr::isKeyExists($properties, 'data-type-params') && is_array($properties['data-type-params'])) {
             $this->methodParams = $this->getDataTypeParams((array) $properties['data-type-params']);
         }
 
@@ -1241,7 +1229,7 @@ class Field implements JsonWriter
      */
     protected function getLabelsFromProperties(array $properties)
     {
-        if (!Helpers::isKeyExists($properties, 'labels')) {
+        if (!Arr::isKeyExists($properties, 'labels')) {
             throw new Exception('The resource-file is missing the labels entry for the ' . $this->name . ' field.');
         }
 
@@ -1263,7 +1251,7 @@ class Field implements JsonWriter
      */
     protected function getApiDescriptionsFromProperties(array $properties)
     {
-        if (!Helpers::isKeyExists($properties, 'api-description')) {
+        if (!Arr::isKeyExists($properties, 'api-description')) {
             return [];
         }
 
@@ -1285,8 +1273,8 @@ class Field implements JsonWriter
      */
     public function setValidationProperty(array $properties)
     {
-        if (Helpers::isKeyExists($properties, 'validation')) {
-            $this->validationRules = is_array($properties['validation']) ? $properties['validation'] : Helpers::removeEmptyItems(explode('|', $properties['validation']));
+        if (Arr::isKeyExists($properties, 'validation')) {
+            $this->validationRules = is_array($properties['validation']) ? $properties['validation'] : Arr::removeEmptyItems(explode('|', $properties['validation']));
         }
 
         if (Helpers::isNewerThanOrEqualTo('5.2') && $this->isNullable && !in_array('nullable', $this->validationRules)) {
@@ -1309,18 +1297,18 @@ class Field implements JsonWriter
                 $this->validationRules[] = 'string';
             }
 
-            if (!Helpers::inArraySearch($this->validationRules, 'min')) {
+            if (!Arr::isMatch($this->validationRules, 'min')) {
                 $this->validationRules[] = sprintf('min:%s', $this->getMinLength());
             }
 
-            if (!Helpers::inArraySearch($this->validationRules, 'max') && !is_null($this->getMaxLength())) {
+            if (!Arr::isMatch($this->validationRules, 'max') && !is_null($this->getMaxLength())) {
                 $this->validationRules[] = sprintf('max:%s', $this->getMaxLength());
             }
         }
 
         $params = [];
 
-        if (Helpers::isKeyExists($properties, 'data-type-params')) {
+        if (Arr::isKeyExists($properties, 'data-type-params')) {
             $params = $this->getDataTypeParams((array) $properties['data-type-params']);
         }
 
@@ -1331,11 +1319,11 @@ class Field implements JsonWriter
                 $this->validationRules[] = 'numeric';
             }
 
-            if (!Helpers::inArraySearch($this->validationRules, 'min') && !is_null($minValue = $this->getMinValue())) {
+            if (!Arr::isMatch($this->validationRules, 'min') && !is_null($minValue = $this->getMinValue())) {
                 $this->validationRules[] = sprintf('min:%s', $minValue);
             }
 
-            if (!Helpers::inArraySearch($this->validationRules, 'max') && !is_null($maxValue = $this->getMaxValue())) {
+            if (!Arr::isMatch($this->validationRules, 'max') && !is_null($maxValue = $this->getMaxValue())) {
                 $this->validationRules[] = sprintf('max:%s', $maxValue);
             }
         }
@@ -1352,7 +1340,7 @@ class Field implements JsonWriter
      */
     public function setUnsigned(array $properties)
     {
-        $this->isUnsigned = (Helpers::isKeyExists($properties, 'is-unsigned') && $properties['is-unsigned'])
+        $this->isUnsigned = (Arr::isKeyExists($properties, 'is-unsigned') && $properties['is-unsigned'])
         || in_array($this->getEloquentDataMethod(), $this->unsignedTypes);
 
         return $this;
@@ -1367,13 +1355,13 @@ class Field implements JsonWriter
      */
     protected function setForeignRelationFromArray(array $properties)
     {
-        if (Helpers::isKeyExists($properties, 'is-foreign-relation') && !$properties['is-foreign-relation']) {
+        if (Arr::isKeyExists($properties, 'is-foreign-relation') && !$properties['is-foreign-relation']) {
             return $this;
         }
 
-        $relation = ForeignRelationship::predict($this->name, Helpers::getModelsPath());
+        $relation = ForeignRelationship::predict($this->name, self::getModelsPath());
 
-        if (Helpers::isKeyExists($properties, 'foreign-relation')) {
+        if (Arr::isKeyExists($properties, 'foreign-relation')) {
             $relation = ForeignRelationship::get((array) $properties['foreign-relation']);
 
             if (!is_null($relation)) {
@@ -1381,7 +1369,7 @@ class Field implements JsonWriter
                 $this->setOnUpdate($properties);
             }
 
-        } else if (Helpers::isKeyExists($properties, 'foreign-constraint')) {
+        } else if (Arr::isKeyExists($properties, 'foreign-constraint')) {
             $constraint = $this->getForeignConstraintFromArray((array) $properties);
 
             if (!is_null($constraint)) {
@@ -1439,9 +1427,9 @@ class Field implements JsonWriter
      */
     protected function containsForeignConstraint(array $properties)
     {
-        return Helpers::isKeyExists($properties, 'foreign-constraint')
+        return Arr::isKeyExists($properties, 'foreign-constraint')
         && is_array($properties['foreign-constraint'])
-        && Helpers::isKeyExists($properties['foreign-constraint'], 'field', 'references', 'on');
+        && Arr::isKeyExists($properties['foreign-constraint'], 'field', 'references', 'on');
     }
 
     /**
@@ -1804,7 +1792,7 @@ class Field implements JsonWriter
      */
     public static function isValidHtmlType(array $properties)
     {
-        return Helpers::isKeyExists($properties, 'html-type') &&
+        return Arr::isKeyExists($properties, 'html-type') &&
             (
             in_array($properties['html-type'], self::$validHtmlTypes)
             || self::isValidSelectRangeType($properties)
@@ -1820,7 +1808,7 @@ class Field implements JsonWriter
      */
     public static function isValidSelectRangeType(array $properties)
     {
-        return Helpers::isKeyExists($properties, 'html-type')
+        return Arr::isKeyExists($properties, 'html-type')
         && starts_with($properties['html-type'], 'selectRange|');
     }
 
@@ -1877,7 +1865,7 @@ class Field implements JsonWriter
     public function setPredefindProperties(array $properties)
     {
         foreach ($this->predefinedKeyMapping as $key => $property) {
-            if (Helpers::isKeyExists($properties, $key)) {
+            if (Arr::isKeyExists($properties, $key)) {
                 if (is_array($property)) {
                     foreach ($property as $name) {
                         $this->{$name} = $properties[$key];
@@ -1901,8 +1889,8 @@ class Field implements JsonWriter
      */
     public static function getNameFromArray(array $properties)
     {
-        if (!Helpers::isKeyExists($properties, 'name')
-            || empty($fieldName = Helpers::removeNonEnglishChars($properties['name']))
+        if (!Arr::isKeyExists($properties, 'name')
+            || empty($fieldName = Str::removeNonEnglishChars($properties['name']))
         ) {
             throw new Exception("The field 'name' was not provided!");
         }

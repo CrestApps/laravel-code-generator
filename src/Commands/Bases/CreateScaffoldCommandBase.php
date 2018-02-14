@@ -6,12 +6,13 @@ use CrestApps\CodeGenerator\Models\Bases\ScaffoldInputBase;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Traits\ScaffoldTrait;
 use Exception;
 use Illuminate\Console\Command;
 
 class CreateScaffoldCommandBase extends Command
 {
-    use CommonCommand;
+    use CommonCommand, ScaffoldTrait;
 
     /**
      * Runs any logic before scaffolding
@@ -29,32 +30,6 @@ class CreateScaffoldCommandBase extends Command
         } else if (!empty($input->fields)) {
             $this->createResourceFileFromString($input);
         }
-    }
-
-    /**
-     * Prints a message
-     *
-     * @param string $message
-     *
-     * @return $this
-     */
-    protected function printInfo($message)
-    {
-        $this->info($message);
-
-        return $this;
-    }
-
-    /**
-     * Gets the model name in plain english from a giving model name.
-     *
-     * @param string $modelName
-     *
-     * @return string
-     */
-    protected function modelNamePlainEnglish($modelName)
-    {
-        return str_replace('_', ' ', snake_case($modelName));
     }
 
     /**

@@ -81,16 +81,6 @@ trait ApiResourceTrait
     }
 
     /**
-     * Check if the current laravel version has api-support
-     *
-     * @return bool
-     */
-    protected function isApiResourceSupported()
-    {
-        return Helpers::isNewerThanOrEqualTo('5.4');
-    }
-
-    /**
      * Gets the api-resource's namespace.
      *
      * @param string $modelName
@@ -143,7 +133,7 @@ trait ApiResourceTrait
             $path = Helpers::getPathWithSlash($path);
         }
 
-        $path = Helpers::getAppNamespace(Config::getApiResourcePath(), $path);
+        $path = Helpers::getAppNamespace(Config::getApiResourcePath(), $path, $this->option('api-version'));
 
         return Helpers::getPathWithSlash($path);
     }
@@ -161,7 +151,7 @@ trait ApiResourceTrait
             $path = Helpers::getPathWithSlash($path);
         }
 
-        return Helpers::getAppNamespace(Config::getApiResourceCollectionPath(), $path);
+        return Helpers::getAppNamespace(Config::getApiResourceCollectionPath(), $path, $this->option('api-version'));
     }
 
     /**
@@ -181,7 +171,7 @@ trait ApiResourceTrait
 
         $this->replaceModelApiArray($stub, $this->getModelApiArray($fields, $input->modelName, $useDefaultAccessor))
             ->replaceModelName($stub, $input->modelName)
-            ->replaceModelFullname($stub, Helpers::getModelNamespace($input->modelName, $input->modelDirectory))
+            ->replaceModelFullname($stub, self::getModelNamespace($input->modelName, $input->modelDirectory))
             ->replaceTransformMethodName($stub, $methodName);
 
         return $stub;

@@ -5,16 +5,19 @@ namespace CrestApps\CodeGenerator\Commands\Framework;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Models\Resource;
+use CrestApps\CodeGenerator\Support\Arr;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use CrestApps\CodeGenerator\Traits\LanguageTrait;
 use Illuminate\Console\Command;
 
 class CreateModelCommand extends Command
 {
-    use CommonCommand, GeneratorReplacers;
+    use CommonCommand, GeneratorReplacers, LanguageTrait;
 
     /**
      * Total white-spaced to eliminate when creating an array string.
@@ -236,8 +239,8 @@ class CreateModelCommand extends Command
      */
     protected function getFillablesFromString($stub, $fillablesString)
     {
-        $columns = Helpers::removeEmptyItems(explode(',', $fillablesString), function ($column) {
-            return trim(Helpers::removeNonEnglishChars($column));
+        $columns = Arr::removeEmptyItems(explode(',', $fillablesString), function ($column) {
+            return trim(Str::removeNonEnglishChars($column));
         });
 
         $fillables = [];
@@ -329,7 +332,7 @@ class CreateModelCommand extends Command
 
         $modelDirectory = trim($this->option('model-directory'));
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
-        $languageFileName = $this->option('language-filename') ?: Helpers::makeLocaleGroup($modelName);
+        $languageFileName = $this->option('language-filename') ?: self::makeLocaleGroup($modelName);
         $template = $this->getTemplateName();
 
         return (object) compact(
@@ -378,9 +381,9 @@ class CreateModelCommand extends Command
      *
      * @return string
      */
-    protected function turnRelationArgumentToString(array $arrguments)
+    protected function joinArguments(array $arrguments)
     {
-        return implode(',', Helpers::wrapItems(Helpers::removeEmptyItems($arrguments)));
+        return implode(',', Arr::wrapItems(Arr::removeEmptyItems($arrguments)));
     }
 
     /**
@@ -494,9 +497,26 @@ class CreateModelCommand extends Command
 
         $this->replaceRelationName($stub, $relation->name)
             ->replaceRelationType($stub, $relation->getType())
-            ->replaceRelationParams($stub, $this->turnRelationArgumentToString($relation->parameters));
+            ->replaceRelationParams($stub, $this->joinArguments($relation->parameters))
+            ->replaceRelationReturnType($stub, $this->getRelationReturnType($relation));
 
         return $stub;
+    }
+
+    /**
+     * Gets the return type for the giving relationship
+     *
+     * @param CrestApps\CodeGenerator\Models\ForeignRelation $relation
+     *
+     * @return string
+     */
+    protected function getRelationReturnType(ForeignRelationship $relation)
+    {
+        if ($relation->isSingleRelation()) {
+            return $relation->getFullForeignModel();
+        }
+
+        return 'Illuminate\Database\Eloquent\Collection';
     }
 
     /**
@@ -550,6 +570,19 @@ class CreateModelCommand extends Command
     protected function replaceDateFormat(&$stub, $format)
     {
         return $this->replaceTemplate('date_format', $format, $stub);
+    }
+
+    /**
+     * Replaces date format for the giving field.
+     *
+     * @param  string  $stub
+     * @param  string  $format
+     *
+     * @return $this
+     */
+    protected function replaceRelationReturnType(&$stub, $format)
+    {
+        return $this->replaceTemplate('relation_return_type', $format, $stub);
     }
 
     /**

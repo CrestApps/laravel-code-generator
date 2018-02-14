@@ -66,7 +66,9 @@ class CodeGeneratorServiceProvider extends ServiceProvider
             'CrestApps\CodeGenerator\Commands\Views\CreateLayoutCommand',
             'CrestApps\CodeGenerator\Commands\Api\CreateApiControllerCommand',
             'CrestApps\CodeGenerator\Commands\Api\CreateApiScaffoldCommand',
-            'CrestApps\CodeGenerator\Commands\Api\CreateApiDocumentationCommand',
+            'CrestApps\CodeGenerator\Commands\ApiDocs\CreateApiDocsControllerCommand',
+            'CrestApps\CodeGenerator\Commands\ApiDocs\CreateApiDocsScaffoldCommand',
+            'CrestApps\CodeGenerator\Commands\ApiDocs\CreateApiDocsViewCommand',
         ];
 
         if (Helpers::isNewerThanOrEqualTo()) {
@@ -80,7 +82,7 @@ class CodeGeneratorServiceProvider extends ServiceProvider
                 ]);
         }
 
-        if (Helpers::isNewerThanOrEqualTo('5.5')) {
+        if (Helpers::isApiResourceSupported()) {
             $commands = array_merge($commands,
                 [
                     'CrestApps\CodeGenerator\Commands\Api\CreateApiResourceCommand',

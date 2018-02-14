@@ -157,6 +157,14 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | The default path to store the controller for the api-documentation.
+    |--------------------------------------------------------------------------
+    |
+     */
+    'api_docs_controller_path' => 'Http/Controllers/ApiDocs',
+
+    /*
+    |--------------------------------------------------------------------------
     | The default path of where the models will be generated into.
     |--------------------------------------------------------------------------
     |

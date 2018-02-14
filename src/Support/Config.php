@@ -298,6 +298,18 @@ class Config
     }
 
     /**
+     * Gets the path to api-docs-controller
+     *
+     * @param string $file
+     *
+     * @return string
+     */
+    public static function getApiDocsControllersPath($file = '')
+    {
+        return self::getPathBaseValue('api_docs_controller_path', $file);
+    }
+
+    /**
      * Gets the default template name.
      *
      * @return array

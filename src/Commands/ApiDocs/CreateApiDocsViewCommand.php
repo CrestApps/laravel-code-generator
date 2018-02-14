@@ -1,35 +1,39 @@
 <?php
 
-namespace CrestApps\CodeGenerator\Commands\Api;
+namespace CrestApps\CodeGenerator\Commands\ApiDocs;
 
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
+use CrestApps\CodeGenerator\Traits\ApiDocViewsTrait;
 use CrestApps\CodeGenerator\Traits\ApiResourceTrait;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use CrestApps\CodeGenerator\Traits\LanguageTrait;
+use CrestApps\CodeGenerator\Traits\RouteTrait;
 use Illuminate\Console\Command;
 
-class CreateApiDocumentationCommand extends Command
+class CreateApiDocsViewCommand extends Command
 {
-    use CommonCommand, GeneratorReplacers, ApiResourceTrait;
+    use CommonCommand, GeneratorReplacers, ApiResourceTrait, ApiDocViewsTrait, LanguageTrait, RouteTrait;
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create a new API based controller.';
+    protected $description = 'Create view to render the api-documenations.';
 
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'api-doc:create-view
+    protected $signature = 'api-docs:create-view
                             {model-name : The model name that this controller will represent.}
                             {--controller-name= : The name of the controler.}
                             {--controller-directory= : The directory where the controller should be created under.}
@@ -38,6 +42,7 @@ class CreateApiDocumentationCommand extends Command
                             {--language-filename= : The languages file name to put the labels in.}
                             {--with-auth : Generate the controller with Laravel auth middlewear. }
                             {--views-directory= : The name of the directory to create the views under.}
+                            {--api-version= : The api version to prefix your resurces with.}
                             {--layout-name=layouts.api-doc-layout : This will extract the validation into a request form class.}
                             {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the controller if one already exists.}';
@@ -51,7 +56,6 @@ class CreateApiDocumentationCommand extends Command
     {
         $input = $this->getCommandInput();
         $resource = Resource::fromFile($input->resourceFile, $input->langFile);
-
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix, 'index');
 
         if ($this->hasErrors($resource, $destenationFile)) {
@@ -70,13 +74,13 @@ class CreateApiDocumentationCommand extends Command
             ->replaceStandardLabels($stub, $viewLabels->getLabels())
             ->replaceApiLabels($stub, $resource->getApiDocLabels())
             ->replaceModelName($stub, $input->modelName)
-            ->replaceRouteNames($stub, $input->modelName, $input->prefix)
+            ->replaceRouteNames($stub, $input->modelName, $this->getNamePrefix($input->prefix, 'api', $input->apiVersion))
             ->replaceLayoutName($stub, $input->layoutName)
             ->replacePathToViewHome($stub, $this->getPathToViewHome($input->viewsDirectory, $input->prefix))
             ->makeRequiredSubViews($input, $resource->getApiDocLabels(), $viewLabels->getLabels())
             ->makeFieldsListView($input, $resource, $viewLabels->getLabels())
             ->createFile($destenationFile, $stub)
-            ->info('A api-documentation was successfully crafted.');
+            ->info('The views for the api-documentation were successfully crafted.');
     }
 
     protected function getAuthorizationCall($withAuth, array $apiDocLabels, array $standardLabels = null)
@@ -201,39 +205,6 @@ class CreateApiDocumentationCommand extends Command
     }
 
     /**
-     * It path to view home using the dot notation.
-     *
-     * @param string $viewsDirectory
-     * @param string $routesPrefix
-     *
-     * @return string
-     */
-    protected function getPathToViewHome($viewsDirectory, $routesPrefix)
-    {
-        $path = Config::getApiDocsViewsPath() . $this->getFullViewsPath($viewsDirectory, $routesPrefix);
-
-        return Helpers::convertToDotNotation($path);
-    }
-
-    /**
-     * It path to view home using the dot notation.
-     *
-     * @param $viewsDirectory
-     *
-     * @return string
-     */
-    protected function getPathToViews($viewsDirectory)
-    {
-        $path = Config::getApiDocsViewsPath();
-
-        if (!empty($viewsDirectory)) {
-            $path .= Helpers::getPathWithSlash($viewsDirectory);
-        }
-
-        return $path;
-    }
-
-    /**
      * Gets the destenation file to be created.
      *
      * @param string $name
@@ -349,22 +320,22 @@ class CreateApiDocumentationCommand extends Command
             }
 
             if ($hasString && starts_with($rule, 'min:')) {
-                $rules[] = 'Minimum Length: ' . Helpers::removePreFixWith($rule, 'min:');
+                $rules[] = 'Minimum Length: ' . Str::trimEnd($rule, 'min:');
                 continue;
             }
 
             if ($hasString && starts_with($rule, 'max:')) {
-                $rules[] = 'Maximum Length: ' . Helpers::removePreFixWith($rule, 'max:');
+                $rules[] = 'Maximum Length: ' . Str::trimEnd($rule, 'max:');
                 continue;
             }
 
             if ($hasNumber && starts_with($rule, 'min:')) {
-                $rules[] = 'Minimum Value: ' . Helpers::removePreFixWith($rule, 'min:');
+                $rules[] = 'Minimum Value: ' . Str::trimEnd($rule, 'min:');
                 continue;
             }
 
             if ($hasNumber && starts_with($rule, 'max:')) {
-                $rules[] = 'Maximum Value: ' . Helpers::removePreFixWith($rule, 'max:');
+                $rules[] = 'Maximum Value: ' . Str::trimEnd($rule, 'max:');
                 continue;
             }
 
@@ -374,26 +345,6 @@ class CreateApiDocumentationCommand extends Command
         return implode('; ', $rules);
     }
 
-    /**
-     * Gets destenation view path
-     *
-     * @param string $viewsDirectory
-     * @param string $routesPrefix
-     *
-     * @return $this
-     */
-    protected function getFullViewsPath($viewsDirectory, $routesPrefix)
-    {
-        $path = '';
-
-        if (!empty($viewsDirectory)) {
-            $path .= Helpers::getPathWithSlash($viewsDirectory);
-        }
-
-        $path .= !empty($routesPrefix) ? Helpers::getPathWithSlash(str_replace('.', '-', $routesPrefix)) : '';
-
-        return $path;
-    }
     /**
      * It generate the destenation view name
      *
@@ -603,9 +554,11 @@ class CreateApiDocumentationCommand extends Command
         $layoutName = trim($this->option('layout-name'));
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
         $prefix = ($this->option('routes-prefix') == 'default-form') ? Helpers::makeRouteGroup($modelName) : $this->option('routes-prefix');
-        $langFile = $this->option('language-filename') ?: Helpers::makeLocaleGroup($modelName);
+        $langFile = $this->option('language-filename') ?: self::makeLocaleGroup($modelName);
         $withAuth = $this->option('with-auth');
+        $apiVersion = trim($this->option('api-version'));
         $force = $this->option('force');
+        $viewsDirectory = ($apiVersion) ? Str::prefix($viewsDirectory, $apiVersion) : $viewsDirectory;
 
         return (object) compact(
             'modelName',
@@ -616,6 +569,7 @@ class CreateApiDocumentationCommand extends Command
             'langFile',
             'withAuth',
             'viewsDirectory',
+            'apiVersion',
             'layoutName',
             'force'
         );

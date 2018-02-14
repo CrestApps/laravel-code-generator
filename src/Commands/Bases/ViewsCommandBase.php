@@ -8,6 +8,7 @@ use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Models\ViewInput;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
@@ -48,7 +49,7 @@ abstract class ViewsCommandBase extends Command
      */
     protected function getViewType()
     {
-        return Helpers::removePostFixWith($this->getStubName(), '.blade');
+        return Str::trimEnd($this->getStubName(), '.blade');
     }
 
     /**
@@ -341,6 +342,7 @@ abstract class ViewsCommandBase extends Command
             '--resource-file' => $resourceFile,
             '--template-name' => $this->getTemplateName(),
         ]);
+
         return $this;
     }
 

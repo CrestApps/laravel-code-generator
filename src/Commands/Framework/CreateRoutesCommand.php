@@ -2,16 +2,19 @@
 
 namespace CrestApps\CodeGenerator\Commands\Framework;
 
+use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use CrestApps\CodeGenerator\Traits\RouteTrait;
 use Exception;
 use Illuminate\Console\Command;
 use Route;
 
 class CreateRoutesCommand extends Command
 {
-    use CommonCommand, GeneratorReplacers;
+    use CommonCommand, GeneratorReplacers, RouteTrait;
 
     /**
      * The name and signature of the console command.
@@ -24,7 +27,7 @@ class CreateRoutesCommand extends Command
                             {--routes-prefix=default-form : Prefix of the route group.}
                             {--controller-directory= : The directory where the controller is under.}
                             {--without-route-clause : Create the routes without where clause for the id.}
-                            {--for-api : Create the routes for an api instead of a web.}
+                            {--routes-type= : The type of the route to create "api", "api-docs" or web.}
                             {--api-version= : The api version to prefix your resurces with.}
                             {--template-name= : The template name to use when generating the code.}';
 
@@ -44,44 +47,74 @@ class CreateRoutesCommand extends Command
     {
         $input = $this->getCommandInput();
 
-        $namePrefix = $input->forApi ? Helpers::preFixWith($input->prefix, 'api/') : $input->prefix;
-
-        $controllnerName = $this->getControllerName($input->controllerName, $input->controllerDirectory);
+        $namePrefix = $this->getNamePrefix($input->prefix, $input->type, $input->apiVersion);
 
         if ($this->isRouteNameExists($this->getDotNotationName($this->getModelName($input->modelName), $namePrefix, 'index'))) {
             $this->warn("The routes already registered!");
+
             return;
         }
 
-        $routesFile = $this->getRoutesFileName($input->forApi);
+        $routesFile = $this->getRoutesFileName($input->type);
 
         if (!$this->isFileExists($routesFile)) {
             throw new Exception("The routes file does not exists. The expected location was " . $routesFile);
         }
 
-        $stub = $this->getRoutesStub($input->forApi);
-
+        $stub = $this->getRoutesStub($input->type);
         $controllnerName = $this->getControllerName($input->controllerName, $input->controllerDirectory);
 
         $this->replaceModelName($stub, $input->modelName)
             ->replaceControllerName($stub, $controllnerName)
             ->replaceRouteNames($stub, $this->getModelName($input->modelName), $namePrefix)
-            ->processRoutesGroup($stub, $input->prefix, $input->controllerDirectory, $input->template, $input->forApi)
+            ->processRoutesGroup($stub, $input)
             ->replaceRouteIdClause($stub, $this->getRouteIdClause($input->withoutRouteClause))
+            ->replacePrefix($stub, $namePrefix)
+            ->replaceVersion($stub, $this->getVersion($input->apiVersion))
             ->appendToRoutesFile($stub, $routesFile)
             ->info('The routes were added successfully.');
     }
 
+    protected function getControllerDirectory()
+    {
+        $path = Config::getApiDocsControllersPath($input->controllerName);
+
+        Str::trimStart($path, Config::getControllersPath());
+    }
     /**
      * Gets the stub content for the route
      *
-     * @return object
+     * @param string $type
+     *
+     * @return string
      */
-    protected function getRoutesStub($isApi)
+    protected function getRoutesStub($type)
     {
-        $name = $isApi ? 'api-routes' : 'routes';
+        $name = 'routes';
+
+        if ($type == 'api') {
+            $name = 'api-routes';
+        } else if ($type == 'api-docs') {
+            $name = 'api-documentation-routes';
+        }
 
         return $this->getStubContent($name);
+    }
+
+    /**
+     * Gets the version parameter
+     *
+     * @param string $version
+     *
+     * @return string
+     */
+    protected function getVersion($version)
+    {
+        if ($version) {
+            return '/{version}';
+        }
+
+        return '';
     }
 
     /**
@@ -91,19 +124,17 @@ class CreateRoutesCommand extends Command
      */
     protected function getCommandInput()
     {
-        $modelName = trim($this->argument('model-name'));
-        $controllerName = trim($this->option('controller-name')) ?: Helpers::postFixWith($modelName, 'Controller');
-        $prefix = ($this->option('routes-prefix') == 'default-form') ? Helpers::makeRouteGroup($modelName) : $this->option('routes-prefix');
-        $prefix = str_replace('\\', '/', $prefix);
-        $template = $this->getTemplateName();
-        $controllerDirectory = trim($this->option('controller-directory'));
-        $withoutRouteClause = $this->option('without-route-clause');
-        $forApi = $this->option('for-api');
-        $apiVersion = $this->option('api-version');
 
-        if ($apiVersion) {
-            $prefix = Helpers::postFixWith($prefix, '/') . $apiVersion;
-        }
+        $modelName = trim($this->argument('model-name'));
+        $controllerName = trim($this->option('controller-name')) ?: Str::postfix($modelName, 'Controller');
+        $prefix = ($this->option('routes-prefix') == 'default-form') ? Helpers::makeRouteGroup($modelName) : $this->option('routes-prefix');
+        $prefix = trim(str_replace('\\', '/', $prefix));
+        $template = $this->getTemplateName();
+        $type = strtolower($this->option('routes-type'));
+        $apiVersion = $this->option('api-version');
+        $controllerDirectory = trim($this->option('controller-directory')) ?: $this->getDefaultControllerDirectory($type, $apiVersion);
+        $withoutRouteClause = $this->option('without-route-clause');
+
         return (object) compact(
             'modelName',
             'controllerName',
@@ -112,8 +143,29 @@ class CreateRoutesCommand extends Command
             'controllerDirectory',
             'withoutRouteClause',
             'apiVersion',
-            'forApi'
+            'type'
         );
+    }
+
+    /**
+     * Gets the default controller directory
+     *
+     * @param string $type
+     * @param string $apiVersion
+     *
+     * @return string
+     */
+    protected function getDefaultControllerDirectory($type, $apiVersion)
+    {
+        $directory = Config::getControllersPath();
+
+        if ($type == 'api') {
+            $directory = Config::getApiControllersPath($apiVersion);
+        } else if ($type == 'api-docs') {
+            $directory = Config::getApiDocsControllersPath();
+        }
+
+        return ltrim(Str::trimStart($directory, Config::getControllersPath()), '/');
     }
 
     /**
@@ -161,7 +213,7 @@ class CreateRoutesCommand extends Command
             return $name;
         }
 
-        $path = Helpers::postFixWith($namespace, '\\');
+        $path = Str::postfix($namespace, '\\');
 
         return Helpers::fixNamespace($path . $name);
     }
@@ -193,6 +245,19 @@ class CreateRoutesCommand extends Command
     }
 
     /**
+     * Replaces the version template for the given stub.
+     *
+     * @param string $stub
+     * @param string $version
+     *
+     * @return $this
+     */
+    protected function replaceVersion(&$stub, $version)
+    {
+        return $this->replaceTemplate('version', $version, $stub);
+    }
+
+    /**
      * Replaces the routes' prefix for the given stub.
      *
      * @param string $stub
@@ -209,22 +274,23 @@ class CreateRoutesCommand extends Command
      * Groups the routes with a prefix and namespace if prefix or namespace is provided.
      *
      * @param string $stub
-     * @param string $prefix
-     * @param string $namespace
-     * @param string $template
-     * @param bool $forApi
+     * @param object $input
      *
      * @return $this
      */
-    protected function processRoutesGroup(&$stub, $prefix, $namespace, $template, $forApi)
+    protected function processRoutesGroup(&$stub, $input)
     {
-        $prefix = trim($prefix);
-
-        if ($forApi && Helpers::isOlderThan('5.3')) {
-            $prefix = Helpers::preFixWith($prefix, 'api/');
+        if ($input->type == 'api-docs') {
+            return $this;
         }
 
-        if (!empty($prefix) || !empty($namespace)) {
+        $prefix = $input->prefix;
+
+        if ($input->type == 'api' && Helpers::isOlderThan('5.3')) {
+            $prefix = Str::prefix($prefix, 'api/');
+        }
+
+        if (!empty($prefix) || !empty($input->controllerDirectory)) {
             $groupStub = $this->getStubContent('routes-group');
 
             $this->replacePrefix($groupStub, $this->getGroupPrefix($prefix))
@@ -283,15 +349,15 @@ class CreateRoutesCommand extends Command
     /**
      * Gets the correct routes fullname based on current framework version.
      *
-     * @param bool $isApi
+     * @param string $type
      *
      * @return string
      */
-    protected function getRoutesFileName($isApi = false)
+    protected function getRoutesFileName($type)
     {
         if (Helpers::isNewerThanOrEqualTo('5.3')) {
 
-            $file = $isApi ? 'api' : 'web';
+            $file = ($type == 'api') ? 'api' : 'web';
 
             return base_path('routes/' . $file . '.php');
         }

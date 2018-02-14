@@ -5,14 +5,14 @@ namespace CrestApps\CodeGenerator\Support;
 use App;
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Config;
-use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use CrestApps\CodeGenerator\Traits\LanguageTrait;
 use Exception;
 
 class ViewLabelsGenerator
 {
-    use CommonCommand, GeneratorReplacers;
+    use CommonCommand, GeneratorReplacers, LanguageTrait;
 
     /**
      * The name of the model
@@ -62,7 +62,7 @@ class ViewLabelsGenerator
 
         $this->modelName = $modelName;
         $this->fields = $fields;
-        $this->localeGroup = Helpers::makeLocaleGroup($modelName);
+        $this->localeGroup = self::makeLocaleGroup($modelName);
         $this->defaultLang = App::getLocale();
         $this->isCollectiveTemplate = $isCollectiveTemplate;
     }
@@ -98,7 +98,7 @@ class ViewLabelsGenerator
      */
     public function getLabels()
     {
-        $languages = array_keys(Helpers::getLanguageItems($this->fields));
+        $languages = array_keys(self::getLanguageItems($this->fields));
 
         if (count($languages) > 0) {
             return $this->getTranslatedLabels($languages);

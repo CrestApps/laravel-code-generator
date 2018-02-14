@@ -5,10 +5,10 @@ namespace CrestApps\CodeGenerator\Models;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Models\Index;
 use CrestApps\CodeGenerator\Models\Relation;
+use CrestApps\CodeGenerator\Support\Arr;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
-use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use CrestApps\CodeGenerator\Traits\LabelTransformerTrait;
@@ -79,6 +79,7 @@ class Resource implements JsonWriter
         'api-resource',
         'api-resource-collection',
         'api-documentation',
+        'api-documentation-controller',
         'form-request',
         'languages',
         'form-view',
@@ -565,7 +566,7 @@ class Resource implements JsonWriter
             throw new Exception("The provided string is not a valid json.");
         }
 
-        if (is_array($capsule) && !Helpers::isAssociative($capsule)) {
+        if (is_array($capsule) && !Arr::isAssociative($capsule)) {
             // At this point we know the resource file is` using old convention
             // Set the fields
             $fields = FieldTransformer::fromArray($capsule, $localeGroup, $languages, true);

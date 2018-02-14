@@ -9,12 +9,13 @@ use CrestApps\CodeGenerator\Support\CrestAppsTranslator;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Traits\LanguageTrait;
 use Exception;
 use Illuminate\Console\Command;
 
 class CreateLanguageCommand extends Command
 {
-    use CommonCommand;
+    use CommonCommand, LanguageTrait;
 
     /**
      * The name and signature of the console command.
@@ -74,7 +75,7 @@ class CreateLanguageCommand extends Command
      */
     protected function getAvailableLabels(Resource $resource, $modelName)
     {
-        $languages = Helpers::getLanguageItems($resource->fields);
+        $languages = self::getLanguageItems($resource->fields);
 
         //Merge the api-documentation labels to the fields label
         foreach ($resource->getTranslatedApiDocLabels() as $lang => $docLabels) {
@@ -248,7 +249,7 @@ class CreateLanguageCommand extends Command
     protected function getCommandInput()
     {
         $modelName = trim($this->argument('model-name'));
-        $fileName = trim($this->option('language-filename')) ?: Helpers::makeLocaleGroup($modelName);
+        $fileName = trim($this->option('language-filename')) ?: self::makeLocaleGroup($modelName);
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
         $template = trim($this->option('template-name'));
 

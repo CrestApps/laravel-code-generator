@@ -8,9 +8,13 @@ use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
+use CrestApps\CodeGenerator\Traits\ScaffoldTrait;
 
 class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
 {
+    use ScaffoldTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -47,6 +51,7 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
                             {--table-exists : This option will attempt to fetch the field from existing database table.}
                             {--translation-for= : A comma seperated string of languages to create fields for.}
                             {--with-api-resource : Generate the controller with both api-resource and api-resource-collection classes.}
+                            {--with-api-docs : Create full api documentation.}
                             {--api-resource-directory= : The directory where the api-resource should be created.}
                             {--api-resource-collection-directory= : The directory where the api-resource-collection should be created.}
                             {--api-resource-name= : The api-resource file name.}
@@ -59,7 +64,7 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
      *
      * @var string
      */
-    protected $description = 'Create all api-based resources for a giving model.';
+    protected $description = 'Scaffold all necessary resources for an api.';
 
     /**
      * Executes the console command.
@@ -82,6 +87,10 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
             ->createLanguage($input)
             ->createMigration($input)
             ->info('Done!');
+
+        if ($input->withDocumentations) {
+            $this->createDocs($input);
+        }
     }
 
     /**
@@ -98,7 +107,7 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
                 [
                     'model-name' => $input->modelName,
                     '--controller-name' => $input->controllerName,
-                    '--controller-directory' => $this->appendVerison($input->controllerDirectory, $input->apiVersion),
+                    '--controller-directory' => $input->controllerDirectory,
                     '--controller-extends' => $input->controllerExtends,
                     '--model-directory' => $input->modelDirectory,
                     '--resource-file' => $input->resourceFile,
@@ -107,18 +116,48 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
                     '--language-filename' => $input->languageFileName,
                     '--with-form-request' => $input->formRequest,
                     '--without-form-request' => $this->option('without-form-request'),
-                    '--form-request-directory' => $this->appendVerison($input->formRequestDirectory, $input->apiVersion),
+                    '--form-request-directory' => $input->formRequestDirectory,
                     '--with-auth' => $input->withAuth,
                     '--template-name' => $input->template,
                     '--with-api-resource' => $input->withApiResource,
-                    '--api-resource-directory' => $this->appendVerison($input->apiResourceDirectory, $input->apiVersion),
-                    '--api-resource-collection-directory' => $this->appendVerison($input->apiResourceCollectionDirectory, $input->apiVersion),
+                    '--api-resource-directory' => $input->apiResourceDirectory,
+                    '--api-resource-collection-directory' => $input->apiResourceCollectionDirectory,
                     '--api-resource-name' => $input->apiResourceName,
                     '--api-resource-collection-name' => $input->apiResourceCollectionName,
+                    '--api-version' => $input->apiVersion,
                     '--force' => $input->force,
                 ]
             );
         }
+
+        return $this;
+    }
+
+    /**
+     * Executes the command that generates the documentation
+     *
+     * @param CrestApps\CodeGenerator\Models\ApiScaffoldInput $input
+     * @return $this
+     */
+    protected function createDocs(ApiScaffoldInput $input)
+    {
+
+        $this->call(
+            'api-docs:scaffold',
+            [
+                'model-name' => $input->modelName,
+                '--controller-name' => $input->controllerName,
+                '--controller-directory' => $input->controllerDirectory,
+                '--controller-extends' => $input->controllerExtends,
+                '--resource-file' => $input->resourceFile,
+                '--routes-prefix' => $input->prefix,
+                '--language-filename' => $input->languageFileName,
+                '--with-auth' => $input->withAuth,
+                '--template-name' => $input->template,
+                '--api-version' => $input->apiVersion,
+                '--force' => $input->force,
+            ]
+        );
 
         return $this;
     }
@@ -143,9 +182,9 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
                 '--controller-name' => $input->controllerName,
                 '--routes-prefix' => $input->prefix,
                 '--template-name' => $input->template,
-                '--controller-directory' => $this->appendVerison($controllerDirectory, $input->apiVersion),
+                '--controller-directory' => $input->controllerDirectory,
                 '--without-route-clause' => !$withClause,
-                '--for-api' => true,
+                '--routes-type' => 'api',
                 '--api-version' => $input->apiVersion,
             ]
         );
@@ -165,7 +204,7 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
         $web = Helpers::fixNamespace(Config::getControllersPath());
         $apis = Helpers::fixNamespace(Config::getApiControllersPath());
 
-        $directory = trim(Helpers::removePreFixWith($apis, $web), '\\/');
+        $directory = trim(Str::trimStart($apis, $web), '\\/');
 
         if (!empty($path)) {
             return $directory . '\\' . $path;
@@ -189,24 +228,8 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
         $input->apiResourceName = $this->option('api-resource-name');
         $input->apiResourceCollectionName = $this->option('api-resource-collection-name');
         $input->apiVersion = $this->option('api-version');
+        $input->withDocumentations = $this->option('with-api-docs');
 
         return $input;
-    }
-
-    /**
-     * appends the giving version number to the giving path
-     *
-     * @param string $path
-     * @param string $version
-     *
-     * @return string
-     */
-    protected function appendVerison($path, $version)
-    {
-        if (!empty($path)) {
-            return Helpers::getPathWithSlash($path) . $version;
-        }
-
-        return $version;
     }
 }
