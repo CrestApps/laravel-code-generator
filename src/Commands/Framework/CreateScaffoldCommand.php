@@ -162,7 +162,6 @@ class CreateScaffoldCommand extends CreateScaffoldCommandBase
                 '--template-name' => $input->template,
                 '--controller-directory' => $input->controllerDirectory,
                 '--without-route-clause' => !$withClause,
-                '--for-api' => false,
             ]
         );
 

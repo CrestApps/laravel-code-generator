@@ -90,4 +90,26 @@ class Arr extends LaravelArr
         }
         return false;
     }
+
+    /**
+     * It trims each element in a givin array and removes the empty elements.
+     * If a callback is passed as a second parameter, the callbacl is applied on each item.
+     *
+     * @param array $items
+     * @param function $callback
+     *
+     * @return $array
+     */
+    public static function removeEmptyItems(array $items, $callback = null)
+    {
+        $final = [];
+        foreach ($items as $item) {
+            $item = trim($item);
+            $item = !is_null($callback) && is_callable($callback) ? call_user_func($callback, $item) : $item;
+            if (!empty($item)) {
+                $final[] = $item;
+            }
+        }
+        return $final;
+    }
 }
