@@ -21,7 +21,7 @@ class MigrationChangeBase
     public $isDeleted = false;
 
     /**
-     * Get a raw property using the giving property name
+     * Get a raw property using the given property name
      *
      * @return mix (null | array)
      */

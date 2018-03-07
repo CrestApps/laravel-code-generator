@@ -80,7 +80,7 @@ class FieldsOptimizer
     }
 
     /**
-     * Assigned and fix the primary key field of the giving collection.
+     * Assigned and fix the primary key field of the given collection.
      *
      * @param array $mappers
      *
@@ -107,7 +107,7 @@ class FieldsOptimizer
     }
 
     /**
-     * Giving a mappers collection, it'll update the the field by making one as primary title
+     * given a mappers collection, it'll update the the field by making one as primary title
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @return bool
@@ -138,7 +138,7 @@ class FieldsOptimizer
     }
 
     /**
-     * It checks if a giving field is a primary or not.
+     * It checks if a given field is a primary or not.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @return bool

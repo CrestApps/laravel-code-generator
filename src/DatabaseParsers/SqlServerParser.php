@@ -133,7 +133,7 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the unsiged flag for a giving field.
+     * Set the unsiged flag for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
@@ -151,7 +151,7 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the html type for a giving field.
+     * Set the html type for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
@@ -170,7 +170,7 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the data type for a giving field.
+     * Set the data type for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
@@ -189,7 +189,7 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the nullable for a giving field.
+     * Set the nullable for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $nullable
@@ -204,7 +204,7 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the max length for a giving field.
+     * Set the max length for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $length
@@ -222,7 +222,7 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the default value for a giving field.
+     * Set the default value for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $default
@@ -239,7 +239,7 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the labels for a giving field.
+     * Set the labels for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $name
@@ -254,7 +254,7 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the keys for a giving field.
+     * Set the keys for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $key
@@ -286,7 +286,7 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Gets a labe field's label from a giving name.
+     * Gets a labe field's label from a given name.
      *
      * @return string
     */

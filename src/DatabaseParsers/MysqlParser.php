@@ -63,7 +63,7 @@ class MysqlParser extends ParserBase
     }
 
     /**
-     * Gets foreign key constraint info for a giving column name.
+     * Gets foreign key constraint info for a given column name.
      *
      * @return mix (null|object)
      */
@@ -181,7 +181,7 @@ class MysqlParser extends ParserBase
     }
 
     /**
-     * Get a corresponding relation to a giving table name, foreign column and local column.
+     * Get a corresponding relation to a given table name, foreign column and local column.
      *
      * @return CrestApps\CodeGenerator\Models\ForeignRelationship
      */
@@ -239,7 +239,7 @@ class MysqlParser extends ParserBase
     }
 
     /**
-     * Gets the field after transfering it from a giving query object.
+     * Gets the field after transfering it from a given query object.
      *
      * @param object $column
      *
@@ -320,7 +320,7 @@ class MysqlParser extends ParserBase
     }
 
     /**
-     * Gets the data type for a giving field.
+     * Gets the data type for a given field.
      *
      * @param string $type
      * @param string $columnType
@@ -343,7 +343,7 @@ class MysqlParser extends ParserBase
     }
 
     /**
-     * Gets the foreign constrain for the giving field.
+     * Gets the foreign constrain for the given field.
      *
      * @param string $name
      *
@@ -369,7 +369,7 @@ class MysqlParser extends ParserBase
     }
 
     /**
-     * Set the options for a giving field.
+     * Set the options for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
@@ -386,7 +386,7 @@ class MysqlParser extends ParserBase
     }
 
     /**
-     * Parses out the options from a giving type
+     * Parses out the options from a given type
      *
      * @param string $type
      *

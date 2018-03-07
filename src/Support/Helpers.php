@@ -11,7 +11,7 @@ use Illuminate\Container\Container;
 class Helpers
 {
     /**
-     * Makes a controller name from a giving model name
+     * Makes a controller name from a given model name
      *
      * @param string $modelName
      *
@@ -30,7 +30,7 @@ class Helpers
     }
 
     /**
-     * Eliminate a duplicate giving phrase from a giving string
+     * Eliminate a duplicate given phrase from a given string
      *
      * @param string $subject
      * @param string $eliminate
@@ -79,7 +79,7 @@ class Helpers
     }
 
     /**
-     * Checks an array for the first value that starts with a giving pattern
+     * Checks an array for the first value that starts with a given pattern
      *
      * @param array $subjects
      * @param string $search
@@ -110,7 +110,7 @@ class Helpers
     }
 
     /**
-     * Gets a label from a giving name
+     * Gets a label from a given name
      *
      * @param string $name
      *
@@ -143,7 +143,7 @@ class Helpers
     }
 
     /**
-     * Creates a colection of messages out of a giving fields collection.
+     * Creates a colection of messages out of a given fields collection.
      *
      * @param array $fields
      *
@@ -179,7 +179,7 @@ class Helpers
     }
 
     /**
-     * Guesses the model full name using the giving field's name
+     * Guesses the model full name using the given field's name
      *
      * @param string $name
      * @param string $modelsPath
@@ -194,7 +194,7 @@ class Helpers
     }
 
     /**
-     * Extracts the model name from the giving field's name.
+     * Extracts the model name from the given field's name.
      *
      * @param string $name
      *
@@ -208,7 +208,7 @@ class Helpers
     }
 
     /**
-     * Checks if a key exists in a giving array
+     * Checks if a key exists in a given array
      *
      * @param array $properties
      * @param string $name
@@ -241,7 +241,7 @@ class Helpers
     }
 
     /**
-     * Makes the proper english case giving a model name and a file type
+     * Makes the proper english case given a model name and a file type
      *
      * @param string $modelName
      * @param string $key
@@ -260,7 +260,7 @@ class Helpers
     }
 
     /**
-     * Makes the table name from the giving model name.
+     * Makes the table name from the given model name.
      *
      * @param  string  $modelName
      *
@@ -272,7 +272,7 @@ class Helpers
     }
 
     /**
-     * Makes the route group from the giving model name.
+     * Makes the route group from the given model name.
      *
      * @param  string  $modelName
      *
@@ -298,7 +298,7 @@ class Helpers
     }
 
     /**
-     * Evaluates the current version of the framework to see if it >= a giving version.
+     * Evaluates the current version of the framework to see if it >= a given version.
      *
      * @param $version
      *
@@ -355,7 +355,7 @@ class Helpers
     }
 
     /**
-     * Checks if a string matches at least one giving pattern
+     * Checks if a string matches at least one given pattern
      *
      * @param string|array $patterns
      * @param string $subject
@@ -419,7 +419,7 @@ class Helpers
     }
 
     /**
-     * Checks if a giving array is associative
+     * Checks if a given array is associative
      *
      * @param array $items
      *
@@ -431,7 +431,7 @@ class Helpers
     }
 
     /**
-     * Converts slash to back slash of a giving string
+     * Converts slash to back slash of a given string
      *
      * @return string
      */
@@ -457,7 +457,7 @@ class Helpers
     }
 
     /**
-     * Removes a string from the end of another giving string if it already ends with it.
+     * Removes a string from the end of another given string if it already ends with it.
      *
      * @param  string  $name
      * @param  string  $fix
@@ -476,7 +476,7 @@ class Helpers
     }
 
     /**
-     * Adds a postFix string at the end of another giving string if it does not already ends with it.
+     * Adds a postFix string at the end of another given string if it does not already ends with it.
      *
      * @param  string  $name
      * @param  string  $fix
@@ -493,7 +493,7 @@ class Helpers
     }
 
     /**
-     * Adds a preFix string at the begining of another giving string if it does not already ends with it.
+     * Adds a preFix string at the begining of another given string if it does not already ends with it.
      *
      * @param  string  $name
      * @param  string  $fix
@@ -546,7 +546,7 @@ class Helpers
     }
 
     /**
-     * Wrapps each item in an array with a giving string
+     * Wrapps each item in an array with a given string
      *
      * @return array
      */
@@ -560,7 +560,7 @@ class Helpers
     }
 
     /**
-     * Trims a giving string from whitespaces and single/double quotes and square brake.
+     * Trims a given string from whitespaces and single/double quotes and square brake.
      *
      * @return string
      */
@@ -570,7 +570,7 @@ class Helpers
     }
 
     /**
-     * It splits a giving string by a giving seperator after trimming each part
+     * It splits a given string by a given seperator after trimming each part
      * from whitespaces and single/double quotes. Any empty string is eliminated.
      *
      * @param string $str

@@ -8,7 +8,7 @@ use Illuminate\Support\Str as LaravelStr;
 class Str
 {
     /**
-     * Gets a plural version of a giving word.
+     * Gets a plural version of a given word.
      *
      * @param string $word
      *
@@ -26,7 +26,7 @@ class Str
     }
 
     /**
-     * Gets a singular version of a giving word.
+     * Gets a singular version of a given word.
      *
      * @param string $word
      *

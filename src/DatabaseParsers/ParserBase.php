@@ -117,7 +117,7 @@ abstract class ParserBase
     }
 
     /**
-     * Check if the giving fields contains autoManagedFields
+     * Check if the given fields contains autoManagedFields
      *
      * @return CrestApps\CodeGenerator\Models\Resource
      */
@@ -160,7 +160,7 @@ abstract class ParserBase
     }
 
     /**
-     * Get the html type for a giving field.
+     * Get the html type for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
@@ -179,7 +179,7 @@ abstract class ParserBase
     }
 
     /**
-     * Set the html type for a giving field.
+     * Set the html type for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
@@ -206,7 +206,7 @@ abstract class ParserBase
     }
 
     /**
-     * Gets the model's name from a giving table name
+     * Gets the model's name from a given table name
      *
      * @param string $tableName
      *
@@ -220,7 +220,7 @@ abstract class ParserBase
     }
 
     /**
-     * Make a model name from the giving table name
+     * Make a model name from the given table name
      *
      * @param string $tableName
      *
@@ -241,7 +241,7 @@ abstract class ParserBase
     abstract protected function getColumns();
 
     /**
-     * Transfers every column in the giving array to a collection of fields.
+     * Transfers every column in the given array to a collection of fields.
      *
      * @return array of CrestApps\CodeGenerator\Models\Field;
      */

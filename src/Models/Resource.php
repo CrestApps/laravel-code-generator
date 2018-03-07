@@ -158,7 +158,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * Checks if the giving resource is protected or not.
+     * Checks if the given resource is protected or not.
      *
      * @return bool
      */
@@ -240,7 +240,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * Extracts the giving property name from the fields
+     * Extracts the given property name from the fields
      *
      * @return array
      */
@@ -260,7 +260,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * Extracts the giving property name from the fields
+     * Extracts the given property name from the fields
      *
      * @return array
      */
@@ -411,7 +411,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * It transfres a giving string to a collection of field
+     * It transfres a given string to a collection of field
      *
      * @param string|json $json
      * @param string $localeGroup
@@ -427,7 +427,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * It transfres a giving JSON string to a collection of field
+     * It transfres a given JSON string to a collection of field
      *
      * @param string|json $json
      * @param string $localeGroup

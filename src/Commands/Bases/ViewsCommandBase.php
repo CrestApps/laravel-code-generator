@@ -130,7 +130,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * It Replaces the primaryKey, modelNames, routeNames in a giving stub
+     * It Replaces the primaryKey, modelNames, routeNames in a given stub
      *
      * @param string $stub
      * @param CrestApps\CodeGenerator\Models\ViewInput $input
@@ -219,7 +219,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * Get the view's name of a giving file.
+     * Get the view's name of a given file.
      *
      * @param string $fillname
      *
@@ -233,7 +233,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * It Replaces the layout name in a giving stub
+     * It Replaces the layout name in a given stub
      *
      * @param string $stub
      * @param string $layout
@@ -246,7 +246,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * It Replaces fieldUpload in the giving stub.
+     * It Replaces fieldUpload in the given stub.
      *
      * @param string $stub
      * @param array $fields
@@ -261,7 +261,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * It gets the file attribute based on the giving template type.
+     * It gets the file attribute based on the given template type.
      *
      * @param string $template
      *
@@ -296,7 +296,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * It make a valid command for creating a giving view
+     * It make a valid command for creating a given view
      *
      * @param string $view
      *
@@ -364,7 +364,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * Gets the primary key name from a giving fields collection
+     * Gets the primary key name from a given fields collection
      *
      * @param array $fields
      *
@@ -378,7 +378,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * Gets the primary key name from a giving fields collection
+     * Gets the primary key name from a given fields collection
      *
      * @param array $fields
      * @param string $default

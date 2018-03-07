@@ -28,7 +28,7 @@ class ResourceMapper
     }
 
     /**
-     * Gets the first map with the giving model name
+     * Gets the first map with the given model name
      *
      * @param string $value
      * @param string $key
@@ -52,7 +52,7 @@ class ResourceMapper
     }
 
     /**
-     * Gets the first map with the giving model name then get a specific property/key
+     * Gets the first map with the given model name then get a specific property/key
      *
      * @param string $value
      * @param string $key

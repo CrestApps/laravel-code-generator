@@ -282,7 +282,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Gets a list of all column that are used in the giving migration
+     * Gets a list of all column that are used in the given migration
      *
      * @param CrestApps\CodeGenerator\Models\Resource $resource
      * @param CrestApps\CodeGenerator\Models\MigrationInput $input
@@ -305,7 +305,7 @@ class CreateMigrationCommand extends MigrationCommandBase
         return $columns;
     }
     /**
-     * Adds foreign key constraint to a giving properties.
+     * Adds foreign key constraint to a given properties.
      *
      * @param string $properties
      * @param array $constraints
@@ -327,7 +327,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Gets Foreign contstrains from giving fields.
+     * Gets Foreign contstrains from given fields.
      *
      * @param array of CrestApps\CodeGenerator\Models\Field $field
      *
@@ -347,7 +347,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds 'foreign' eloquent method to a giving properties.
+     * Adds 'foreign' eloquent method to a given properties.
      *
      * @param string $properties
      * @param CrestApps\CodeGenerator\Models\ForeignConstraint $constraint
@@ -362,7 +362,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds 'references' eloquent method to a giving properties.
+     * Adds 'references' eloquent method to a given properties.
      *
      * @param string $properties
      * @param CrestApps\CodeGenerator\Models\ForeignConstraint $constraint
@@ -377,7 +377,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds 'on' eloquent method to a giving properties.
+     * Adds 'on' eloquent method to a given properties.
      *
      * @param string $properties
      * @param CrestApps\CodeGenerator\Models\ForeignConstraint $constraint
@@ -392,7 +392,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds 'onDelete' eloquent method to a giving properties.
+     * Adds 'onDelete' eloquent method to a given properties.
      *
      * @param string $properties
      * @param CrestApps\CodeGenerator\Models\ForeignConstraint $constraint
@@ -409,7 +409,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds 'onUpdate' eloquent method to a giving properties.
+     * Adds 'onUpdate' eloquent method to a given properties.
      *
      * @param string $properties
      * @param CrestApps\CodeGenerator\Models\ForeignConstraint $constraint
@@ -426,7 +426,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds index method to a giving $properties
+     * Adds index method to a given $properties
      *
      * @param string $properties
      * @param array $indexes
@@ -598,7 +598,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * It gets label's value for each label in the giving labels
+     * It gets label's value for each label in the given labels
      *
      * @param array $labels
      *
@@ -618,7 +618,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Creates the base property from a giving method.
+     * Creates the base property from a given method.
      *
      * @param string $method
      *
@@ -933,7 +933,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds the field's "default" value to the giving property.
+     * Adds the field's "default" value to the given property.
      *
      * @param string $property
      * @param CrestApps\CodeGenerator\Models\Field $field
@@ -950,7 +950,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds the field's "unsigned" value to the giving property.
+     * Adds the field's "unsigned" value to the given property.
      *
      * @param string $property
      * @param CrestApps\CodeGenerator\Models\Field $field
@@ -967,7 +967,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds the field's "dropColumn" method call to the giving property.
+     * Adds the field's "dropColumn" method call to the given property.
      *
      * @param string $property
      * @param string $name
@@ -986,7 +986,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds the field's "renameColumn" method call to the giving property.
+     * Adds the field's "renameColumn" method call to the given property.
      *
      * @param string $property
      * @param string $from
@@ -1002,7 +1002,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds the field's "unique" value to the giving property.
+     * Adds the field's "unique" value to the given property.
      *
      * @param string $property
      * @param CrestApps\CodeGenerator\Models\Field $field
@@ -1019,7 +1019,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds the field's "index" value to the giving property.
+     * Adds the field's "index" value to the given property.
      *
      * @param string $property
      * @param CrestApps\CodeGenerator\Models\Field $field
@@ -1066,7 +1066,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds the field's "nullable" value to the giving property.
+     * Adds the field's "nullable" value to the given property.
      *
      * @param string $property
      * @param CrestApps\CodeGenerator\Models\Field $field
@@ -1083,7 +1083,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds the field's "comment" value to the giving property.
+     * Adds the field's "comment" value to the given property.
      *
      * @param string $property
      * @param CrestApps\CodeGenerator\Models\Field $field
@@ -1100,7 +1100,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds the table's "engine" type to the giving property.
+     * Adds the table's "engine" type to the given property.
      *
      * @param string $property
      * @param string $name
@@ -1118,7 +1118,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds the table's "primary column" to the giving property.
+     * Adds the table's "primary column" to the given property.
      *
      * @param string $property
      * @param CrestApps\CodeGenerator\Models\Field $field
@@ -1139,7 +1139,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds 'updated_at' and 'created_at' columns to a giving propery.
+     * Adds 'updated_at' and 'created_at' columns to a given propery.
      *
      * @param string $property
      * @param bool $without
@@ -1157,7 +1157,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds 'delete_at' columns to a giving propery.
+     * Adds 'delete_at' columns to a given propery.
      *
      * @param string $property
      * @param bool $withSoftDelete
@@ -1175,7 +1175,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Gets the correct eloquent increment method from the giving type.
+     * Gets the correct eloquent increment method from the given type.
      *
      * @param string $type
      *
