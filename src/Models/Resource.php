@@ -546,7 +546,7 @@ class Resource implements JsonWriter
         $fileFullname = Config::getResourceFilePath($filename);
 
         if (!File::exists($fileFullname)) {
-            throw new Exception('The file ' . $fileFullname . ' was not found!');
+            throw new Exception('The resource file ' . $fileFullname . ' was not found! Perhaps, you need to run PHP artisan resource-file:create [name]  or resource-file:from-database [tablename] ');
         }
 
         return File::get($fileFullname);
