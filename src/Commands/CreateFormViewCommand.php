@@ -27,7 +27,7 @@ class CreateFormViewCommand extends ViewsCommandBase
      *
      * @var string
      */
-    protected $description = 'Create a from-view for the model.';
+    protected $description = 'Create a form-view for the model.';
 
     /**
      * Gets the name of the stub to process.
@@ -65,7 +65,7 @@ class CreateFormViewCommand extends ViewsCommandBase
     }
 
     /**
-     * Replaces the form field's html code in a giving stub.
+     * Replaces the form field's html code in a given stub.
      *
      * @param string $stub
      * @param string $fields

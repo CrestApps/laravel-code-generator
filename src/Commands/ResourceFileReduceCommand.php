@@ -84,7 +84,7 @@ class ResourceFileReduceCommand extends ResourceFileCommandBase
     }
 
     /**
-     * Reduces the fields from a giving resource.
+     * Reduces the fields from a given resource.
      *
      * @param CrestApps\CodeGenerator\Models\Resource &$resource
      * @param array $$fieldNames
@@ -110,7 +110,7 @@ class ResourceFileReduceCommand extends ResourceFileCommandBase
     }
 
     /**
-     * Reduces the indexes from a giving resource.
+     * Reduces the indexes from a given resource.
      *
      * @param CrestApps\CodeGenerator\Models\Resource &$resource
      * @param array $indexNames
@@ -138,7 +138,7 @@ class ResourceFileReduceCommand extends ResourceFileCommandBase
     }
 
     /**
-     * Reduces the relations from a giving resource.
+     * Reduces the relations from a given resource.
      *
      * @param CrestApps\CodeGenerator\Models\Resource &$resource
      * @param array $relationNames

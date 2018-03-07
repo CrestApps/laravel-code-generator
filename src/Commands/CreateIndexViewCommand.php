@@ -65,7 +65,7 @@ class CreateIndexViewCommand extends ViewsCommandBase
     }
 
     /**
-     * Replaces the column headers in a giving stub.
+     * Replaces the column headers in a given stub.
      *
      * @param string $stub
      * @param string $header
@@ -78,7 +78,7 @@ class CreateIndexViewCommand extends ViewsCommandBase
     }
 
     /**
-     * Replaces the column cells in a giving stub.
+     * Replaces the column cells in a given stub.
      *
      * @param string $stub
      * @param string $body

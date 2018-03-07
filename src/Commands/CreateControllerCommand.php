@@ -172,7 +172,7 @@ class CreateControllerCommand extends ControllerCommandBase
         }
 
         if ($this->alreadyExists($destenationFile)) {
-            $this->error('The controller already exists!');
+            $this->error('The controller already exists! To override the existing file, use --force option.');
 
             $hasErrors = true;
         }
@@ -181,7 +181,7 @@ class CreateControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Extracts a namespace from a giving string
+     * Extracts a namespace from a given string
      *
      * @param string $string
      *
@@ -241,7 +241,7 @@ class CreateControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Extracts a namespace from a giving string
+     * Extracts a namespace from a given string
      *
      * @param string $string
      *
@@ -304,7 +304,7 @@ class CreateControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Get a string to set a giving $variable with a $key and $value pair
+     * Get a string to set a given $variable with a $key and $value pair
      *
      * @param string $key
      * @param string $value
@@ -400,7 +400,7 @@ class CreateControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Converts giving array of variables to a compact statements.
+     * Converts given array of variables to a compact statements.
      *
      * @param array $variables
      *
@@ -558,7 +558,7 @@ class CreateControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Gets the setter action for the giving field on-store.
+     * Gets the setter action for the given field on-store.
      *
      * @param array $fields
      * @param string $view
@@ -580,7 +580,7 @@ class CreateControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Gets the setter action for the giving field on-update.
+     * Gets the setter action for the given field on-update.
      *
      * @param array $fields
      * @param string $view
@@ -602,7 +602,7 @@ class CreateControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Gets the relation accessor for the giving foreign renationship.
+     * Gets the relation accessor for the given foreign renationship.
      *
      * @param CrestApps\CodeGenerator\Models\ForeignRelationship $collection
      *
@@ -767,7 +767,7 @@ class CreateControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Converts giving array of relation name to a with() statements.
+     * Converts given array of relation name to a with() statements.
      *
      * @param array $variables
      *
@@ -783,7 +783,7 @@ class CreateControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Checks if a giving fields array conatins at least one multiple answers' field.
+     * Checks if a given fields array conatins at least one multiple answers' field.
      *
      * @param array
      *
@@ -980,7 +980,7 @@ class CreateControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Replaces relationCollections for the giving stub.
+     * Replaces relationCollections for the given stub.
      *
      * @param $stub
      * @param $collections
@@ -1117,7 +1117,7 @@ class CreateControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Replaces withRelationsForIndex for the giving stub.
+     * Replaces withRelationsForIndex for the given stub.
      *
      * @param $stub
      * @param $relations
@@ -1130,7 +1130,7 @@ class CreateControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Replaces withRelationsForShow for the giving stub.
+     * Replaces withRelationsForShow for the given stub.
      *
      * @param $stub
      * @param $relations

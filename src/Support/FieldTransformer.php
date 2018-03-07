@@ -286,7 +286,7 @@ class FieldTransformer
     }
 
     /**
-     * Gets labels from a giving title and field name.
+     * Gets labels from a given title and field name.
      *
      * @param string $title
      * @param string $name
@@ -317,7 +317,7 @@ class FieldTransformer
     }
 
     /**
-     * Gets options from a giving array of options
+     * Gets options from a given array of options
      *
      * @param string $name
      *
@@ -335,7 +335,7 @@ class FieldTransformer
     }
 
     /**
-     * Gets options from a giving array of options
+     * Gets options from a given array of options
      *
      * @param string $name
      *
@@ -363,7 +363,7 @@ class FieldTransformer
     }
 
     /**
-     * Gets labels from a giving title and field name.
+     * Gets labels from a given title and field name.
      *
      * @param string $name
      *
@@ -383,7 +383,7 @@ class FieldTransformer
     }
 
     /**
-     * Gets the html-type from the giving array
+     * Gets the html-type from the given array
      *
      * @param array $properties
      *

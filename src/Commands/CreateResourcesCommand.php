@@ -56,7 +56,7 @@ class CreateResourcesCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create all resources for a giving model.';
+    protected $description = 'Create all resources for a given model.';
 
     /**
      * Executes the console command.
@@ -101,7 +101,7 @@ class CreateResourcesCommand extends Command
     }
 
     /**
-     * Gets the model name in plain english from a giving model name.
+     * Gets the model name in plain english from a given model name.
      *
      * @param string $modelName
      *

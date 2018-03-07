@@ -80,7 +80,7 @@ class ResourceFileAppendCommand extends ResourceFileCreatorCommandBase
     }
 
     /**
-     * Merges the giving file's content to the new fields.
+     * Merges the given file's content to the new fields.
      *
      * @param CrestApps\CodeGenerator\Models\Resource &$resource
      * @param (object) $input

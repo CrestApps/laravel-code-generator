@@ -295,7 +295,7 @@ class ValidationParser
     }
 
     /**
-     * Checks if a giving rule is required
+     * Checks if a given rule is required
      *
      * @param string $name
      *
@@ -328,7 +328,7 @@ class ValidationParser
     }
 
     /**
-     * Checks if any rule starts with a giving key
+     * Checks if any rule starts with a given key
      *
      * @param string $key
      *

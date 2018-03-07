@@ -74,7 +74,7 @@ class Config
     }
 
     /**
-     * Checks if a giving file type should be a plural or not.
+     * Checks if a given file type should be a plural or not.
      *
      * @return array
      */
@@ -503,7 +503,7 @@ class Config
     }
 
     /**
-     * Get the config value of the giving index, using the default configs.
+     * Get the config value of the given index, using the default configs.
      *
      * @param string $index
      * @param string $default = null
@@ -518,7 +518,7 @@ class Config
     }
 
     /**
-     * Get the config value of the giving index, using the custom configs.
+     * Get the config value of the given index, using the custom configs.
      *
      * @param string $index
      * @param string $default = null
@@ -533,7 +533,7 @@ class Config
     }
 
     /**
-     * Checks of the default-configs has a giving key
+     * Checks of the default-configs has a given key
      *
      * @param string $index
      *
@@ -547,7 +547,7 @@ class Config
     }
 
     /**
-     * Checks of the custom-configs has a giving key
+     * Checks of the custom-configs has a given key
      *
      * @param string $index
      *

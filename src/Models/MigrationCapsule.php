@@ -183,7 +183,7 @@ class MigrationCapsule implements JsonWriter, ChangeDetector
     }
 
     /**
-     * Gets an instance of Migration Capsule using the giving name
+     * Gets an instance of Migration Capsule using the given name
      *
      * @param string $name
      *
