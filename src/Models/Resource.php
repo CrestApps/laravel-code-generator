@@ -535,7 +535,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * Gets the content of a json file.
+     * Gets the content of the resource json file.
      *
      * @param $filename
      *
