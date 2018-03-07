@@ -172,7 +172,7 @@ class CreateControllerCommand extends ControllerCommandBase
         }
 
         if ($this->alreadyExists($destenationFile)) {
-            $this->error('The controller already exists!');
+            $this->error('The controller already exists! To override the existing file, use --force option.');
 
             $hasErrors = true;
         }

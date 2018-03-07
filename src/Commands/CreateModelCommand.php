@@ -115,7 +115,7 @@ class CreateModelCommand extends Command
         }
 
         if ($this->alreadyExists($destenationFile)) {
-            $this->error('The model already exists!');
+            $this->error('The model already exists! To override the existing file, use --force option.');
 
             $hasErrors = true;
         }

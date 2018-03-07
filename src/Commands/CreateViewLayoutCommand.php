@@ -45,7 +45,7 @@ class CreateViewLayoutCommand extends Command
         $destenationFile = $path . $input->layoutFileName;
 
         if ($this->alreadyExists($destenationFile)) {
-            $this->error('The layout already exists!');
+            $this->error('The layout already exists!  To override the existing file, use --force option.');
 
             return false;
         }
@@ -70,7 +70,7 @@ class CreateViewLayoutCommand extends Command
     protected function makeFile($filename, $content, $force)
     {
         if ($this->fileExists($filename, $force)) {
-            throw new Exception('The destenation file already exists. To override the existing file, pass "--force" option.');
+            throw new Exception('The destination file already exists. To override the existing file, pass "--force" option.');
         }
 
         if (!File::put($filename, $content)) {
