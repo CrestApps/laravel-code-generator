@@ -212,7 +212,7 @@ The following example assumes that we are trying to create a CRUD called <var>As
 <p><small>The above command will create resource-file names <var>/resources/laravel-code-generator/sources/asset_categories.json</var>. It is going to assume that the table name is called "asset_categories" in your database. If that is not the case, you can use <var>--table-name=some_other_table_name</var></small></p>
 
 <p><small>Then it will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views and the routes!</var></small></p>
-<p><small>You may also create a resource-file from existing database separately using <code>php artisan resource-file:form-database AssetCategory</code></small></p>
+<p><small>You may also create a resource-file from existing database separately using <code>php artisan resource-file:from-database AssetCategory</code></small></p>
 </blockquote>
 
 
@@ -222,13 +222,13 @@ The following example assumes that we are trying to create a CRUD called <var>As
 <p><code>php artisan create:scaffold AssetCategory --translation-for=en,ar --table-exists</code></p>
 <p><small>The above command will create resource-file names <var>/resources/laravel-code-generator/sources/asset_categories.json</var></small></p>
 <p><small>Then it will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views and the routes!</var></small></p>
-<p><small>You may also create a resource-file from existing database separately using <code>php artisan resource-file:form-database AssetCategory --translation-for=en,ar</code></small></p>
+<p><small>You may also create a resource-file from existing database separately using <code>php artisan resource-file:from-database AssetCategory --translation-for=en,ar</code></small></p>
 </blockquote>
 
 #### Creating resources from existing database with translation for English and Arabic in two step for better control over the fields!
 
 <blockquote>
-<p><code>php artisan resource-file:form-database AssetCategory --translation-for=en,ar</code></p>
+<p><code>php artisan resource-file:from-database AssetCategory --translation-for=en,ar</code></p>
 <p><code>php artisan create:scaffold AssetCategory</code></p>
 <p><small>The above command will create resource-file names <var>/resources/laravel-code-generator/sources/asset_categories.json</var></small></p>
 <p><small>Then it will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views and the routes!</var></small></p>
