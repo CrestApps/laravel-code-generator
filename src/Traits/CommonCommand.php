@@ -52,7 +52,7 @@ trait CommonCommand
     ];
 
     /**
-     * Replaces a template variable in the giving subject.
+     * Replaces a template variable in the given subject.
      *
      * @return string
      */
@@ -64,7 +64,7 @@ trait CommonCommand
     }
 
     /**
-     * Replaces a template variable in the giving subject.
+     * Replaces a template variable in the given subject.
      *
      * @param string $search
      * @param string $replace
@@ -90,7 +90,7 @@ trait CommonCommand
     }
 
     /**
-     * Gets the relation accessor for the giving foreign renationship.
+     * Gets the relation accessor for the given foreign renationship.
      *
      * @param string $name
      *
@@ -116,7 +116,7 @@ trait CommonCommand
     }
 
     /**
-     * Gets plural variable instance of a giving model.
+     * Gets plural variable instance of a given model.
      *
      * @param  string  $name
      *
@@ -136,7 +136,7 @@ trait CommonCommand
     }
 
     /**
-     * Gets singular variable instance of a giving model.
+     * Gets singular variable instance of a given model.
      *
      * @param  string  $name
      *
@@ -221,7 +221,7 @@ trait CommonCommand
     }
 
     /**
-     * It Replaces the view names in a giving stub
+     * It Replaces the view names in a given stub
      *
      * @param string $stub
      * @param string $viewDirectory
@@ -387,7 +387,7 @@ trait CommonCommand
     }
 
     /**
-     * Adds content to a giving file.
+     * Adds content to a given file.
      *
      * @param  string  $file
      *
@@ -401,7 +401,7 @@ trait CommonCommand
     }
 
     /**
-     * Adds content to a giving file.
+     * Adds content to a given file.
      *
      * @param  string  $file
      *
@@ -415,7 +415,7 @@ trait CommonCommand
     }
 
     /**
-     * Determine the primary field in a giving array
+     * Determine the primary field in a given array
      *
      * @param array $fields
      *
@@ -518,7 +518,7 @@ trait CommonCommand
     }
 
     /**
-     * Checks the giving template if it is a Laravel-Collective template or not.
+     * Checks the given template if it is a Laravel-Collective template or not.
      *
      * @param string $template
      *
@@ -530,7 +530,7 @@ trait CommonCommand
     }
 
     /**
-     * Checks if a giving fields array conatins at least one file field
+     * Checks if a given fields array conatins at least one file field
      *
      * @param array
      *

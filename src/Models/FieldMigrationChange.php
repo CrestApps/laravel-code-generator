@@ -84,7 +84,7 @@ class FieldMigrationChange extends MigrationChangeBase implements JsonWriter, Ch
     }
 
     /**
-     * Get new migration change from the giving field
+     * Get new migration change from the given field
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      *
@@ -100,7 +100,7 @@ class FieldMigrationChange extends MigrationChangeBase implements JsonWriter, Ch
     }
 
     /**
-     * Get new migration change from the giving field
+     * Get new migration change from the given field
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      *
@@ -116,7 +116,7 @@ class FieldMigrationChange extends MigrationChangeBase implements JsonWriter, Ch
         return $change;
     }
     /**
-     * Get the migration change after comparing two giving fields
+     * Get the migration change after comparing two given fields
      *
      * @param CrestApps\CodeGenerator\Models\Field $fieldA
      * @param CrestApps\CodeGenerator\Models\Field $fieldB

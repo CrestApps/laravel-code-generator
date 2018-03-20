@@ -198,7 +198,7 @@ class CreateLanguageCommand extends Command
     }
 
     /**
-     * Gets the index on where to append messages to of a giving stub.
+     * Gets the index on where to append messages to of a given stub.
      *
      * @param string $stub
      *
@@ -212,7 +212,7 @@ class CreateLanguageCommand extends Command
     }
 
     /**
-     * Creates a new language file with with a giving messages.
+     * Creates a new language file with with a given messages.
      *
      * @param string $fileFullname
      * @param string $messages
@@ -230,7 +230,7 @@ class CreateLanguageCommand extends Command
     }
 
     /**
-     * Gets the full path of a giving language
+     * Gets the full path of a given language
      *
      * @param string $language
      *

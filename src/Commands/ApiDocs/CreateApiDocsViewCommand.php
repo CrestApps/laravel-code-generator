@@ -423,7 +423,7 @@ class CreateApiDocsViewCommand extends Command
     }
 
     /**
-     * Replaces the layout_name for the giving stub,
+     * Replaces the layout_name for the given stub,
      *
      * @param  string  $stub
      * @param  string  $name
@@ -436,7 +436,7 @@ class CreateApiDocsViewCommand extends Command
     }
 
     /**
-     * Replaces the field_type_title for the giving stub,
+     * Replaces the field_type_title for the given stub,
      *
      * @param  string  $stub
      * @param  string  $name
@@ -449,7 +449,7 @@ class CreateApiDocsViewCommand extends Command
     }
 
     /**
-     * Replaces the include_parameter_for_authorized_request for the giving stub,
+     * Replaces the include_parameter_for_authorized_request for the given stub,
      *
      * @param  string  $stub
      * @param  string  $name
@@ -462,7 +462,7 @@ class CreateApiDocsViewCommand extends Command
     }
 
     /**
-     * Replaces the include_failed_authentication_for_authorized_request for the giving stub,
+     * Replaces the include_failed_authentication_for_authorized_request for the given stub,
      *
      * @param  string  $stub
      * @param  string  $name
@@ -475,7 +475,7 @@ class CreateApiDocsViewCommand extends Command
     }
 
     /**
-     * Replaces the layout_name for the giving stub,
+     * Replaces the layout_name for the given stub,
      *
      * @param  string  $stub
      * @param  string  $name
@@ -488,7 +488,7 @@ class CreateApiDocsViewCommand extends Command
     }
 
     /**
-     * Replaces the authorized_request_for_index for the giving stub,
+     * Replaces the authorized_request_for_index for the given stub,
      *
      * @param  string  $stub
      * @param  string  $name
@@ -501,7 +501,7 @@ class CreateApiDocsViewCommand extends Command
     }
 
     /**
-     * Replaces the layout_name for the giving stub,
+     * Replaces the layout_name for the given stub,
      *
      * @param  string  $stub
      * @param  string  $name
@@ -514,7 +514,7 @@ class CreateApiDocsViewCommand extends Command
     }
 
     /**
-     * Replaces the fields_list_for_body for the giving stub,
+     * Replaces the fields_list_for_body for the given stub,
      *
      * @param  string  $stub
      * @param  string  $name
@@ -527,7 +527,7 @@ class CreateApiDocsViewCommand extends Command
     }
 
     /**
-     * Replaces the field_description for the giving stub,
+     * Replaces the field_description for the given stub,
      *
      * @param  string  $stub
      * @param  string  $name

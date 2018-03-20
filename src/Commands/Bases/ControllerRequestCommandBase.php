@@ -48,7 +48,7 @@ class ControllerRequestCommandBase extends Command
     }
 
     /**
-     * Gets laravel ready field validation format from a giving string
+     * Gets laravel ready field validation format from a given string
      *
      * @param array $fields
      *
@@ -79,7 +79,7 @@ class ControllerRequestCommandBase extends Command
     }
 
     /**
-     * Gets laravel ready field validation format for a giving field
+     * Gets laravel ready field validation format for a given field
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $customRules
@@ -102,7 +102,7 @@ class ControllerRequestCommandBase extends Command
     }
 
     /**
-     * Extracts the custom validation rules' short name from the giving rules array.
+     * Extracts the custom validation rules' short name from the given rules array.
      *
      * @param array $rules
      *
@@ -127,7 +127,7 @@ class ControllerRequestCommandBase extends Command
     }
 
     /**
-     * Extracts the custom validation rules' short name from the giving rules array.
+     * Extracts the custom validation rules' short name from the given rules array.
      *
      * @param array $rules
      *
@@ -149,7 +149,7 @@ class ControllerRequestCommandBase extends Command
     }
 
     /**
-     * Extracts the custom validation rules from the giving rules array.
+     * Extracts the custom validation rules from the given rules array.
      *
      * @param array $rules
      *
@@ -189,7 +189,7 @@ class ControllerRequestCommandBase extends Command
     }
 
     /**
-     * Get the short name of the giving custom validation rule.
+     * Get the short name of the given custom validation rule.
      *
      * @param string $rule
      *
@@ -215,7 +215,7 @@ class ControllerRequestCommandBase extends Command
     }
 
     /**
-     * Get the full class name of the giving custom valiation rule.
+     * Get the full class name of the given custom valiation rule.
      *
      * @param string $rule
      *
@@ -370,7 +370,7 @@ EOF;
     }
 
     /**
-     * Checks if the controller must have a giving method name
+     * Checks if the controller must have a given method name
      *
      * @param string $name
      *
@@ -487,7 +487,7 @@ EOF;
     }
 
     /**
-     * Replaces the visibility level of a giving stub
+     * Replaces the visibility level of a given stub
      *
      * @param  string  $stub
      * @param  string  $level

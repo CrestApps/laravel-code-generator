@@ -7,7 +7,7 @@ use CrestApps\CodeGenerator\Support\Str;
 trait LabelTransformerTrait
 {
     /**
-     * Gets labels from a giving title and field name.
+     * Gets labels from a given title and field name.
      *
      * @param string $title
      * @param string $fieldName
@@ -33,7 +33,7 @@ trait LabelTransformerTrait
     }
 
     /**
-     * Gets labels from a giving title and field name.
+     * Gets labels from a given title and field name.
      *
      * @param string $title
      * @param string $modelName
@@ -57,7 +57,7 @@ trait LabelTransformerTrait
     }
 
     /**
-     * Make labels array for giving languages
+     * Make labels array for given languages
      *
      * @param string $title
      * @param array $languages
@@ -76,7 +76,7 @@ trait LabelTransformerTrait
     }
 
     /**
-     * Gets options from a giving array of options
+     * Gets options from a given array of options
      *
      * @param string $name
      *

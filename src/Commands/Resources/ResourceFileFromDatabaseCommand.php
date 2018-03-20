@@ -56,9 +56,9 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
      */
     public function handle()
     {
-        $destenationFile = $this->getDestinationFullname();
+        $file = $this->getDestinationFullname();
 
-        if ($this->alreadyExists($destenationFile)) {
+        if ($this->alreadyExists($file)) {
             $this->error('The resource-file already exists! To override the existing file, use --force option.');
 
             return false;
@@ -72,12 +72,14 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
             $mapper->append($this->getModelName(), $this->getNewFilename(), $tableName);
         }
 
-        $resource->setDefaultApiDocLabels($input->modelName, self::makeLocaleGroup($modelName), $input->translationFor);
+        $resource = $parser->getResource();
+        $modelName = $this->getModelName();
+        $resource->setDefaultApiDocLabels($modelName, self::makeLocaleGroup($modelName), $this->getLanguages());
 
-        $this->createVirtualMigration($parser->getResource(), $destenationFile, $tableName);
+        $this->createVirtualMigration($resource, $file, $tableName);
 
-        $this->createFile($destenationFile, $parser->getResourceAsJson())
-            ->info('The "' . basename($destenationFile) . '" file was crafted successfully!');
+        $this->createFile($file, Helpers::prettifyJson($resource->toArray()))
+            ->info('The "' . basename($file) . '" file was crafted successfully!');
     }
 
     /**

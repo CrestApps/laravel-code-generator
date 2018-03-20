@@ -8,7 +8,7 @@ use Illuminate\Support\Arr as LaravelArr;
 class Arr extends LaravelArr
 {
     /**
-     * Checks if a giving array is associative
+     * Checks if a given array is associative
      *
      * @param array $items
      *
@@ -20,7 +20,7 @@ class Arr extends LaravelArr
     }
 
     /**
-     * Wrapps each item in an array with a giving string
+     * Wrapps each item in an array with a given string
      *
      * @param array $items
      * @param string $wrapper
@@ -37,7 +37,7 @@ class Arr extends LaravelArr
     }
 
     /**
-     * It splits a giving string by a giving seperator after trimming each part
+     * It splits a given string by a given seperator after trimming each part
      * from whitespaces and single/double quotes. Any empty string is eliminated.
      *
      * @param string $str
@@ -53,7 +53,7 @@ class Arr extends LaravelArr
     }
 
     /**
-     * Checks if a the giving array contains every giving parameter.
+     * Checks if a the given array contains every given parameter.
      *
      * @param array $properties
      * @param string $name
@@ -74,7 +74,7 @@ class Arr extends LaravelArr
     }
 
     /**
-     * Checks an array for the first value that starts with a giving pattern
+     * Checks an array for the first value that starts with a given pattern
      *
      * @param array $subjects
      * @param string $search

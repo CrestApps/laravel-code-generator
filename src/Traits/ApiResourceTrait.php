@@ -178,7 +178,7 @@ trait ApiResourceTrait
     }
 
     /**
-     * Replaces the model fullname for the giving stub,
+     * Replaces the model fullname for the given stub,
      *
      * @param  string  $stub
      * @param  string  $name
@@ -204,7 +204,7 @@ trait ApiResourceTrait
     }
 
     /**
-     * Replaces the model_api_array for the giving stub,
+     * Replaces the model_api_array for the given stub,
      *
      * @param  string  $stub
      * @param  string  $name
@@ -230,7 +230,7 @@ trait ApiResourceTrait
     }
 
     /**
-     * Replaces the transform method for the giving stub,
+     * Replaces the transform method for the given stub,
      *
      * @param  string  $stub
      * @param  string  $name
@@ -243,7 +243,7 @@ trait ApiResourceTrait
     }
 
     /**
-     * Replaces the transform_method_name for the giving stub,
+     * Replaces the transform_method_name for the given stub,
      *
      * @param  string  $stub
      * @param  string  $name

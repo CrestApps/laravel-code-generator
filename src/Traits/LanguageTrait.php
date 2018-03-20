@@ -7,7 +7,7 @@ use CrestApps\CodeGenerator\Support\Str;
 trait LanguageTrait
 {
     /**
-     * Creates a colection of messages out of a giving fields collection.
+     * Creates a colection of messages out of a given fields collection.
      *
      * @param array $fields
      *

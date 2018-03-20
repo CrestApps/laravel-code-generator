@@ -72,7 +72,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Extracts a namespace from a giving string
+     * Extracts a namespace from a given string
      *
      * @param string $string
      *
@@ -132,7 +132,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Extracts a namespace from a giving string
+     * Extracts a namespace from a given string
      *
      * @param string $string
      *
@@ -170,7 +170,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Get a string to set a giving $variable with a $key and $value pair
+     * Get a string to set a given $variable with a $key and $value pair
      *
      * @param string $key
      * @param string $value
@@ -248,7 +248,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Converts giving array of variables to a compact statements.
+     * Converts given array of variables to a compact statements.
      *
      * @param array $variables
      *
@@ -423,7 +423,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Gets the setter action for the giving field on-store.
+     * Gets the setter action for the given field on-store.
      *
      * @param array $fields
      * @param string $view
@@ -445,7 +445,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Gets the setter action for the giving field on-update.
+     * Gets the setter action for the given field on-update.
      *
      * @param array $fields
      * @param string $view
@@ -467,7 +467,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Gets the relation accessor for the giving foreign renationship.
+     * Gets the relation accessor for the given foreign renationship.
      *
      * @param CrestApps\CodeGenerator\Models\ForeignRelationship $collection
      *
@@ -646,7 +646,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Converts giving array of relation name to a with() statements.
+     * Converts given array of relation name to a with() statements.
      *
      * @param array $variables
      *
@@ -662,7 +662,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Checks if a giving fields array conatins at least one multiple answers' field.
+     * Checks if a given fields array conatins at least one multiple answers' field.
      *
      * @param array
      *
@@ -833,7 +833,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Replaces relationCollections for the giving stub.
+     * Replaces relationCollections for the given stub.
      *
      * @param $stub
      * @param $collections
@@ -918,7 +918,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Replaces withRelationsForIndex for the giving stub.
+     * Replaces withRelationsForIndex for the given stub.
      *
      * @param $stub
      * @param $relations
@@ -931,7 +931,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Replaces withRelationsForShow for the giving stub.
+     * Replaces withRelationsForShow for the given stub.
      *
      * @param $stub
      * @param $relations

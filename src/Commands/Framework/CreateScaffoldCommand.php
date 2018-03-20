@@ -53,7 +53,7 @@ class CreateScaffoldCommand extends CreateScaffoldCommandBase
      *
      * @var string
      */
-    protected $description = 'Create all web-based resources for a giving model.';
+    protected $description = 'Create all web-based resources for a given model.';
 
     /**
      * Executes the console command.

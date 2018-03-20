@@ -12,7 +12,7 @@ class ResourceFileCommandBase extends Command
     use CommonCommand;
 
     /**
-     * Gets the resource from the giving file
+     * Gets the resource from the given file
      *
      * @param string $file
      * @param array $languages

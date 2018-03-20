@@ -34,7 +34,7 @@ trait ModelTrait
     }
 
     /**
-     * Guesses the model full name using the giving field's name
+     * Guesses the model full name using the given field's name
      *
      * @param string $name
      * @param string $modelsPath
@@ -49,7 +49,7 @@ trait ModelTrait
     }
 
     /**
-     * Extracts the model name from the giving field's name.
+     * Extracts the model name from the given field's name.
      *
      * @param string $name
      *

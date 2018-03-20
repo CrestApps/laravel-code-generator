@@ -84,7 +84,7 @@ trait GeneratorReplacers
     }
 
     /**
-     * It Replaces the primary key in a giving stub
+     * It Replaces the primary key in a given stub
      *
      * @param string $stub
      * @param string $primaryKey

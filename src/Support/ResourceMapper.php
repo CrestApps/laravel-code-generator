@@ -4,9 +4,9 @@ namespace CrestApps\CodeGenerator\Support;
 
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Helpers;
-use Illuminate\Console\Command;
-use File;
 use Exception;
+use File;
+use Illuminate\Console\Command;
 
 class ResourceMapper
 {
@@ -28,7 +28,7 @@ class ResourceMapper
     }
 
     /**
-     * Gets the first map with the giving model name
+     * Gets the first map with the given model name
      *
      * @param string $value
      * @param string $key
@@ -52,7 +52,7 @@ class ResourceMapper
     }
 
     /**
-     * Gets the first map with the giving model name then get a specific property/key
+     * Gets the first map with the given model name then get a specific property/key
      *
      * @param string $value
      * @param string $key

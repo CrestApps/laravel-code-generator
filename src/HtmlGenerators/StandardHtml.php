@@ -134,7 +134,7 @@ class StandardHtml extends HtmlGeneratorBase
     }
 
     /**
-     * Gets a plain title from a giving label.
+     * Gets a plain title from a given label.
      *
      * @param CrestApps\CodeGenerator\Models\Label $label
      * @param bool $raw
@@ -245,7 +245,7 @@ class StandardHtml extends HtmlGeneratorBase
     }
 
     /**
-     * Gets a raw value for a giving field's name.
+     * Gets a raw value for a given field's name.
      *
      * @param string $name
      * @param string $value
@@ -264,7 +264,7 @@ class StandardHtml extends HtmlGeneratorBase
     }
 
     /**
-     * Gets a raw value for a giving field's name.
+     * Gets a raw value for a given field's name.
      *
      * @param string $name
      * @param string $value

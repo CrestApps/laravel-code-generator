@@ -437,7 +437,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * Gets a label by a giving language
+     * Gets a label by a given language
      *
      * @param string $lang
      *
@@ -455,7 +455,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * Gets a label by a giving language
+     * Gets a label by a given language
      *
      * @param string $lang
      *
@@ -642,7 +642,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * It set the placeholder property for a giving field
+     * It set the placeholder property for a given field
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param array $properties
@@ -671,7 +671,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * It get the labels from a giving array
+     * It get the labels from a given array
      *
      * @param array $items
      *
@@ -762,7 +762,7 @@ class Field implements JsonWriter
         return !is_null($this->foreignConstraint);
     }
     /**
-     * Checks if the field is on a giving view.
+     * Checks if the field is on a given view.
      *
      * @return bool
      */
@@ -795,7 +795,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * Gets a options by a giving language
+     * Gets a options by a given language
      *
      * @param string $lang
      *
@@ -892,7 +892,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * Check if the Eloquent data method is changable to the giving type
+     * Check if the Eloquent data method is changable to the given type
      *
      * @var bool
      */
@@ -1026,7 +1026,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * Sets the range for a giving field
+     * Sets the range for a given field
      *
      * @param array $properties
      *
@@ -1046,7 +1046,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * It set the options property for a giving field
+     * It set the options property for a given field
      *
      * @param array $properties
 
@@ -1114,7 +1114,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * Cleans up a giving action
+     * Cleans up a given action
      *
      * @param string $action
      *
@@ -1132,7 +1132,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * Sets the DataTypeParam for a giving field
+     * Sets the DataTypeParam for a given field
      *
      * @param array $properties
      *
@@ -1148,7 +1148,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * Gets the data type parameters for the giving type.
+     * Gets the data type parameters for the given type.
      *
      * @param array $params
      *
@@ -1175,7 +1175,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * It set the labels property for a giving field
+     * It set the labels property for a given field
      *
      * @param array $properties
      *
@@ -1193,7 +1193,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * It set the labels property for a giving field
+     * It set the labels property for a given field
      *
      * @param array $properties
      *
@@ -1265,7 +1265,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * It set the validationRules property for a giving field
+     * It set the validationRules property for a given field
      *
      * @param array $properties
      *
@@ -1332,7 +1332,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * Sets the isUnsigned for a giving field
+     * Sets the isUnsigned for a given field
      *
      * @param array $properties
      *
@@ -1347,7 +1347,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * Sets the foreign relations for a giving field
+     * Sets the foreign relations for a given field
      *
      * @param array $properties
      *
@@ -1383,7 +1383,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * Sets the foreign key for a giving field
+     * Sets the foreign key for a given field
      *
      * @param array $properties
      *
@@ -1419,7 +1419,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * Check if giving properties contains a valid foreign key object
+     * Check if given properties contains a valid foreign key object
      *
      * @param array $properties
      *
@@ -1721,7 +1721,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * Gets method's parameter for a giving index.
+     * Gets method's parameter for a given index.
      *
      * @return mix (int|null)
      */
@@ -1855,7 +1855,7 @@ class Field implements JsonWriter
     ];
 
     /**
-     * It set the predefined property for a giving field.
+     * It set the predefined property for a given field.
      * it uses the predefinedKeyMapping array
      *
      * @param array $properties
@@ -1880,7 +1880,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * It gets the name of the field from a giving array
+     * It gets the name of the field from a given array
      *
      * @param array $properties
      * @throws Exception
@@ -1899,7 +1899,7 @@ class Field implements JsonWriter
     }
 
     /**
-     * It set the predefined property for a giving field.
+     * It set the predefined property for a given field.
      * it uses the predefinedKeyMapping array
      *
      * @param array $properties

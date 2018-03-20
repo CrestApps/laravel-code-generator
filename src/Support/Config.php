@@ -362,7 +362,7 @@ class Config
     }
 
     /**
-     * Checks if a giving file type should be a plural or not.
+     * Checks if a given file type should be a plural or not.
      *
      * @return array
      */
@@ -378,7 +378,7 @@ class Config
     }
 
     /**
-     * Get the config value of the giving index, using the default configs.
+     * Get the config value of the given index, using the default configs.
      *
      * @param string $index
      * @param mix $default
@@ -393,7 +393,7 @@ class Config
     }
 
     /**
-     * Checks of the default-configs has a giving key
+     * Checks of the default-configs has a given key
      *
      * @param string $index
      *
@@ -537,7 +537,7 @@ class Config
     }
 
     /**
-     * Checks if the giving variable is a valid definition array
+     * Checks if the given variable is a valid definition array
      *
      * @param string $custom
      *

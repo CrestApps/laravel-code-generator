@@ -89,7 +89,6 @@ class ValidationParser
      */
     protected $string;
 
-
     /**
      * Creates a new parser instance.
      *
@@ -239,7 +238,7 @@ class ValidationParser
      */
     public function isString()
     {
-        return $this->getSetValue('string') && ! $this->isValidNumber();
+        return $this->getSetValue('string') && !$this->isValidNumber();
     }
 
     /**
@@ -295,7 +294,7 @@ class ValidationParser
     }
 
     /**
-     * Checks if a giving rule is required
+     * Checks if a given rule is required
      *
      * @param string $name
      *
@@ -328,7 +327,7 @@ class ValidationParser
     }
 
     /**
-     * Checks if any rule starts with a giving key
+     * Checks if any rule starts with a given key
      *
      * @param string $key
      *

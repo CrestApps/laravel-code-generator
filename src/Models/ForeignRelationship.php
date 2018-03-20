@@ -262,7 +262,7 @@ class ForeignRelationship implements JsonWriter
     }
 
     /**
-     * Check if a giving class is an an instance of Model
+     * Check if a given class is an an instance of Model
      *
      * @return bool
      */
@@ -414,7 +414,7 @@ class ForeignRelationship implements JsonWriter
     }
 
     /**
-     * Get a foreign relationship from giving array
+     * Get a foreign relationship from given array
      *
      * @param array $options
      * @throws Exception
@@ -438,7 +438,7 @@ class ForeignRelationship implements JsonWriter
     }
 
     /**
-     * Get a foreign relationship from giving array
+     * Get a foreign relationship from given array
      *
      * @param array $options
      *
@@ -450,7 +450,7 @@ class ForeignRelationship implements JsonWriter
     }
 
     /**
-     * Get a foreign relationship from giving string
+     * Get a foreign relationship from given string
      *
      * @param string $rawRelation
      *
@@ -492,7 +492,7 @@ class ForeignRelationship implements JsonWriter
     }
 
     /**
-     * Get a predictable foreign relation using the giving field's name
+     * Get a predictable foreign relation using the given field's name
      *
      * @param string $fieldName
      * @param string $modelPath
@@ -515,7 +515,7 @@ class ForeignRelationship implements JsonWriter
     }
 
     /**
-     * Makes a relation name from the giving field name
+     * Makes a relation name from the given field name
      *
      * @param string $fieldName
      *

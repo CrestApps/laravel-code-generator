@@ -11,7 +11,7 @@ use Illuminate\Container\Container;
 class Helpers
 {
     /**
-     * Makes a controller name from a giving model name
+     * Makes a controller name from a given model name
      *
      * @param string $modelName
      *
@@ -30,7 +30,7 @@ class Helpers
     }
 
     /**
-     * Makes an api-resource name from a giving model name
+     * Makes an api-resource name from a given model name
      *
      * @param string $modelName
      *
@@ -49,7 +49,7 @@ class Helpers
     }
 
     /**
-     * Makes an api-resource-collection name from a giving model name
+     * Makes an api-resource-collection name from a given model name
      *
      * @param string $modelName
      *
@@ -100,7 +100,7 @@ class Helpers
     }
 
     /**
-     * Gets the app namespace afer concatenating any giving paths to it
+     * Gets the app namespace afer concatenating any given paths to it
      *
      * @param mix $paths
      *
@@ -131,7 +131,7 @@ class Helpers
     }
 
     /**
-     * Gets a label from a giving name
+     * Gets a label from a given name
      *
      * @param string $name
      *
@@ -164,7 +164,7 @@ class Helpers
     }
 
     /**
-     * Makes the table name from the giving model name.
+     * Makes the table name from the given model name.
      *
      * @param  string  $modelName
      *
@@ -176,7 +176,7 @@ class Helpers
     }
 
     /**
-     * Makes the route group from the giving model name.
+     * Makes the route group from the given model name.
      *
      * @param  string  $modelName
      *
@@ -212,7 +212,7 @@ class Helpers
     }
 
     /**
-     * Evaluates the current version of the framework to see if it >= a giving version.
+     * Evaluates the current version of the framework to see if it >= a given version.
      *
      * @param $version
      *
@@ -224,7 +224,7 @@ class Helpers
     }
 
     /**
-     * Evaluates the current version of the framework to see if it < a giving version.
+     * Evaluates the current version of the framework to see if it < a given version.
      *
      * @param $version
      *
@@ -247,7 +247,7 @@ class Helpers
     }
 
     /**
-     * Converts slash to back slash of a giving string
+     * Converts slash to back slash of a given string
      *
      * @return string
      */

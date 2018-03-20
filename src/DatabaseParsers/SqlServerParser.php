@@ -1,12 +1,12 @@
 <?php
 namespace CrestApps\CodeGenerator\DatabaseParser;
 
-use DB;
 use App;
-use Exception;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\FieldOptimizer;
 use CrestApps\CodeGenerator\Support\DatabaseParser\ParserBase;
+use DB;
+use Exception;
 
 class SqlServerParser extends ParserBase
 {
@@ -57,7 +57,7 @@ class SqlServerParser extends ParserBase
      * Gets the final fields.
      *
      * @return array
-    */
+     */
     public function getFields()
     {
         if (is_null($this->fields)) {
@@ -77,11 +77,11 @@ class SqlServerParser extends ParserBase
      * Gets column meta info from the information schema.
      *
      * @return array
-    */
+     */
     protected function getColumn()
     {
         return DB::select(
-            'SELECT 
+            'SELECT
 							 c.COLUMN_NAME
 							,c.COLUMN_DEFAULT
 							,c.IS_NULLABLE
@@ -98,7 +98,7 @@ class SqlServerParser extends ParserBase
 							            AND c.TABLE_NAME = pk.TABLE_NAME
 							            AND c.COLUMN_NAME = pk.COLUMN_NAME
 							WHERE c.TABLE_NAME = ? AND c.TABLE_CATALOG = ? ',
-                          [$this->tableName, $this->databaseName]
+            [$this->tableName, $this->databaseName]
         );
     }
 
@@ -108,7 +108,7 @@ class SqlServerParser extends ParserBase
      * @param array $columns
      *
      * @return array
-    */
+     */
     protected function transfer(array $columns)
     {
         $fields = [];
@@ -117,12 +117,12 @@ class SqlServerParser extends ParserBase
             $field = new Field($column->COLUMN_NAME);
 
             $this->setIsNullable($field, $column->IS_NULLABLE)
-                 ->setMaxLength($field, $column->CHARACTER_MAXIMUM_LENGTH)
-                 ->setDefault($field, $column->COLUMN_DEFAULT)
-                 ->setDataType($field, $column->DATA_TYPE)
-                 ->setKey($field, $column->COLUMN_KEY, $column->EXTRA)
-                 ->setLabel($field, $column->COLUMN_NAME)
-                 ->setHtmlType($field, $column->DATA_TYPE);
+                ->setMaxLength($field, $column->CHARACTER_MAXIMUM_LENGTH)
+                ->setDefault($field, $column->COLUMN_DEFAULT)
+                ->setDataType($field, $column->DATA_TYPE)
+                ->setKey($field, $column->COLUMN_KEY, $column->EXTRA)
+                ->setLabel($field, $column->COLUMN_NAME)
+                ->setHtmlType($field, $column->DATA_TYPE);
 
             $optimizer = new FieldOptimizer($field);
 
@@ -133,14 +133,14 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the unsiged flag for a giving field.
+     * Set the unsiged flag for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
      *
      * @return $this
-    */
-    protected function setUnsigned(Field & $field, $type)
+     */
+    protected function setUnsigned(Field &$field, $type)
     {
         if (strpos($type, 'unsigned') !== false) {
             $field->isUnsigned = true;
@@ -151,14 +151,14 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the html type for a giving field.
+     * Set the html type for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
      *
      * @return $this
-    */
-    protected function setHtmlType(Field & $field, $type)
+     */
+    protected function setHtmlType(Field &$field, $type)
     {
         $map = $this->getMap();
 
@@ -170,14 +170,14 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the data type for a giving field.
+     * Set the data type for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
      *
      * @return $this
-    */
-    protected function setDataType(Field & $field, $type)
+     */
+    protected function setDataType(Field &$field, $type)
     {
         $map = $this->dataTypeMap();
 
@@ -189,14 +189,14 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the nullable for a giving field.
+     * Set the nullable for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $nullable
      *
      * @return $this
-    */
-    protected function setIsNullable(Field & $field, $nullable)
+     */
+    protected function setIsNullable(Field &$field, $nullable)
     {
         $field->isNullable = (strtoupper($nullable) == 'YES');
 
@@ -204,14 +204,14 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the max length for a giving field.
+     * Set the max length for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $length
      *
      * @return $this
-    */
-    protected function setMaxLength(Field & $field, $length)
+     */
+    protected function setMaxLength(Field &$field, $length)
     {
         if (($value = intval($length)) > 0) {
             $field->validationRules[] = sprintf('max:%s', $value);
@@ -222,14 +222,14 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the default value for a giving field.
+     * Set the default value for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $default
      *
      * @return $this
-    */
-    protected function setDefault(Field & $field, $default)
+     */
+    protected function setDefault(Field &$field, $default)
     {
         if (!empty($default)) {
             $field->dataValue = $default;
@@ -239,14 +239,14 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the labels for a giving field.
+     * Set the labels for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $name
      *
      * @return $this
-    */
-    protected function setLabel(Field & $field, $name)
+     */
+    protected function setLabel(Field &$field, $name)
     {
         $field->addLabel($this->getLabelName($name), $this->tableName, true, $this->locale);
 
@@ -254,15 +254,15 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the keys for a giving field.
+     * Set the keys for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $key
      * @param string $extra
      *
      * @return $this
-    */
-    protected function setKey(Field & $field, $key, $extra)
+     */
+    protected function setKey(Field &$field, $key, $extra)
     {
         $key = strtoupper($key);
 
@@ -286,20 +286,20 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Gets a labe field's label from a giving name.
+     * Gets a labe field's label from a given name.
      *
      * @return string
-    */
+     */
     protected function getLabelName($name)
     {
-        return trim(ucwords(str_replace(['-','_'], ' ', $name)));
+        return trim(ucwords(str_replace(['-', '_'], ' ', $name)));
     }
 
     /**
      * Gets the eloquent method to html
      *
      * @return array
-    */
+     */
     protected function getMap()
     {
         return config('codegenerator.eloquent_type_to_html_type');
@@ -309,7 +309,7 @@ class SqlServerParser extends ParserBase
      * Gets the eloquent type to method collection
      *
      * @return array
-    */
+     */
     public function dataTypeMap()
     {
         return config('codegenerator.eloquent_type_to_method');

@@ -82,7 +82,7 @@ class CreateViewLayoutCommand extends Command
     }
 
     /**
-     * Checks if the giving file exists or not.
+     * Checks if the given file exists or not.
      * If the file exists and $force is set to true the method will return true.
      *
      * @param string $filename

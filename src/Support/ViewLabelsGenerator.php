@@ -68,7 +68,7 @@ class ViewLabelsGenerator
     }
 
     /**
-     * Gets translatable labels for the giving languages if any
+     * Gets translatable labels for the given languages if any
      *
      * @param array $languages
      *
@@ -89,7 +89,7 @@ class ViewLabelsGenerator
     }
 
     /**
-     * Gets translatable labels for the giving languages if any,
+     * Gets translatable labels for the given languages if any,
      * otherwise, get plain labels
      *
      * @param array $languages
@@ -148,7 +148,7 @@ class ViewLabelsGenerator
     }
 
     /**
-     * Checks if the giving properties request to put the label in a function.
+     * Checks if the given properties request to put the label in a function.
      *
      * @param array $properties
      *

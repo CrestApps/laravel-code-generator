@@ -64,7 +64,7 @@ class CreateShowViewCommand extends ViewsCommandBase
     }
 
     /**
-     * Replaces the table rows for the giving stub.
+     * Replaces the table rows for the given stub.
      *
      * @param string $stub
      * @param string $rows

@@ -8,7 +8,7 @@ use Illuminate\Support\Str as LaravelStr;
 class Str extends LaravelStr
 {
     /**
-     * Gets a plural version of a giving word.
+     * Gets a plural version of a given word.
      *
      * @param string $word
      * @param int $count
@@ -27,7 +27,7 @@ class Str extends LaravelStr
     }
 
     /**
-     * Gets a singular version of a giving word.
+     * Gets a singular version of a given word.
      *
      * @param string $word
      *
@@ -69,7 +69,7 @@ class Str extends LaravelStr
     }
 
     /**
-     * Eliminate a duplicate giving phrase from a giving string
+     * Eliminate a duplicate given phrase from a given string
      *
      * @param string $subject
      * @param string $search
@@ -88,7 +88,7 @@ class Str extends LaravelStr
     }
 
     /**
-     * Removes a string from the end of a giving subject.
+     * Removes a string from the end of a given subject.
      *
      * @param  string  $subject
      * @param  string  $search
@@ -105,7 +105,7 @@ class Str extends LaravelStr
     }
 
     /**
-     * Removes a string from the start of a giving subject.
+     * Removes a string from the start of a given subject.
      *
      * @param  string  $subject
      * @param  string  $search
@@ -128,7 +128,7 @@ class Str extends LaravelStr
     }
 
     /**
-     * Checks if a string matches at least one giving pattern
+     * Checks if a string matches at least one given pattern
      *
      * @param string|array $patterns
      * @param string $subject
@@ -166,7 +166,7 @@ class Str extends LaravelStr
     }
 
     /**
-     * Trims a giving string from whitespaces and single/double quotes and square brake.
+     * Trims a given string from whitespaces and single/double quotes and square brake.
      *
      * @param string $subject
      *
@@ -178,7 +178,7 @@ class Str extends LaravelStr
     }
 
     /**
-     * Makes the proper english case giving name and a file type
+     * Makes the proper english case given name and a file type
      *
      * @param string $name
      * @param string $key
@@ -197,7 +197,7 @@ class Str extends LaravelStr
     }
 
     /**
-     * Adds a preFix string at the begining of another giving string if it does not already ends with it.
+     * Adds a preFix string at the begining of another given string if it does not already ends with it.
      *
      * @param  string  $name
      * @param  string  $fix
@@ -214,7 +214,7 @@ class Str extends LaravelStr
     }
 
     /**
-     * Adds a string at the end of another giving string if it does not already ends with it.
+     * Adds a string at the end of another given string if it does not already ends with it.
      *
      * @param  string  $subject
      * @param  string  $fix
@@ -246,7 +246,7 @@ class Str extends LaravelStr
     }
 
     /**
-     * Split a string into array using the giving delimiter
+     * Split a string into array using the given delimiter
      *
      * @param mix (string | array) $delimiter
      * @param bool $string

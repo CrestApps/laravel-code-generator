@@ -220,7 +220,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Gets the return code for a giving method.
+     * Gets the return code for a given method.
      *
      * @param object $input
      * @param array $fields
@@ -238,7 +238,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * appends the giving version number to the giving path
+     * appends the given version number to the given path
      *
      * @param string $path
      * @param string $version
@@ -255,7 +255,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Gets the plain success return code for a giving method.
+     * Gets the plain success return code for a given method.
      *
      * @param object $input
      * @param array $fields
@@ -277,7 +277,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Gets the plain success return code for a giving method.
+     * Gets the plain success return code for a given method.
      *
      * @param object $input
      * @param array $fields
@@ -397,7 +397,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Checks if the controller must have a giving method name
+     * Checks if the controller must have a given method name
      *
      * @param string $name
      *
@@ -477,7 +477,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Replaces the validator_request for the giving stub,
+     * Replaces the validator_request for the given stub,
      *
      * @param  string  $stub
      * @param  string  $name

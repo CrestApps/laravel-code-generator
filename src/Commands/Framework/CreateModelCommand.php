@@ -172,7 +172,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * If a giving fields collection does not contain a field called "deleted_at", one will be created.
+     * If a given fields collection does not contain a field called "deleted_at", one will be created.
      *
      * @param array $fields
      *
@@ -230,7 +230,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Gets the fillable string from a giving raw string.
+     * Gets the fillable string from a given raw string.
      *
      * @param string $stub
      * @param string $fillablesString
@@ -255,7 +255,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Gets the date fields string from a giving fields array.
+     * Gets the date fields string from a given fields array.
      *
      * @param string $stub
      * @param array $fields
@@ -277,7 +277,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Gets the castable fields in a string from a giving fields array.
+     * Gets the castable fields in a string from a given fields array.
      *
      * @param string $stub
      * @param array $fields
@@ -450,7 +450,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Gets accessor for a giving field.
+     * Gets accessor for a given field.
      *
      * @param  CrestApps\CodeGenerator\Models\Field  $field
      * @param  string $content
@@ -467,7 +467,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Gets mutator for a giving field.
+     * Gets mutator for a given field.
      *
      * @param  CrestApps\CodeGenerator\Models\Field  $field
      * @param  string $content
@@ -504,7 +504,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Gets the return type for the giving relationship
+     * Gets the return type for the given relationship
      *
      * @param CrestApps\CodeGenerator\Models\ForeignRelation $relation
      *
@@ -560,7 +560,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Replaces date format for the giving field.
+     * Replaces date format for the given field.
      *
      * @param  string  $stub
      * @param  string  $format
@@ -573,7 +573,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Replaces date format for the giving field.
+     * Replaces date format for the given field.
      *
      * @param  string  $stub
      * @param  string  $format
@@ -586,7 +586,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Replaces content of the giving stub.
+     * Replaces content of the given stub.
      *
      * @param  string  $stub
      * @param  string  $content
@@ -742,7 +742,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Replaces the replationships for the giving stub.
+     * Replaces the replationships for the given stub.
      *
      * @param $stub
      * @param array $relationMethods
@@ -755,7 +755,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Replaces the replation type for the giving stub.
+     * Replaces the replation type for the given stub.
      *
      * @param string $stub
      * @param string $type
@@ -768,7 +768,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Replaces the replation name for the giving stub.
+     * Replaces the replation name for the given stub.
      *
      * @param string $stub
      * @param string $name
@@ -781,7 +781,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Replaces the replation params for the giving stub.
+     * Replaces the replation params for the given stub.
      *
      * @param string $stub
      * @param string $params
