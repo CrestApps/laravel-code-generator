@@ -346,7 +346,7 @@ trait CommonCommand
      */
     protected function getStubContent($name, $template = null)
     {
-        return $this->getFileContent($this->getStubByName($name, $template));
+        return $this->getFileContent($this->getStubByName($name, $template ?: $this->getTemplateName()));
     }
 
     /**

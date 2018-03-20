@@ -59,7 +59,7 @@ class CreateRoutesCommand extends Command
         $this->replaceModelName($stub, $input->modelName)
             ->replaceControllerName($stub, $controllnerName)
             ->replaceRouteNames($stub, $this->getModelName($input->modelName), $input->prefix)
-            ->processRoutesGroup($stub, $input->prefix, $input->controllerDirectory, $input->template)
+            ->processRoutesGroup($stub, $input->prefix, $input->controllerDirectory)
             ->appendToRoutesFile($stub, $routesFile)
             ->info('The routes were added successfully.');
     }
@@ -75,14 +75,12 @@ class CreateRoutesCommand extends Command
         $controllerName = trim($this->option('controller-name')) ?: Helpers::postFixWith($modelName, 'Controller');
         $prefix = ($this->option('routes-prefix') == 'default-form') ? Helpers::makeRouteGroup($modelName) : $this->option('routes-prefix');
         $prefix = str_replace('\\', '/', $prefix);
-        $template = $this->getTemplateName();
         $controllerDirectory = trim($this->option('controller-directory'));
 
         return (object) compact(
             'modelName',
             'controllerName',
             'prefix',
-            'template',
             'controllerDirectory'
         );
     }
@@ -153,11 +151,10 @@ class CreateRoutesCommand extends Command
      * @param string $stub
      * @param string $prefix
      * @param string $namespace
-     * @param string $template
      *
      * @return $this
      */
-    protected function processRoutesGroup(&$stub, $prefix, $namespace, $template)
+    protected function processRoutesGroup(&$stub, $prefix, $namespace)
     {
         $prefix = trim($prefix);
 
