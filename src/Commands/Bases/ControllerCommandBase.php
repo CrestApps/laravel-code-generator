@@ -21,7 +21,9 @@ class ControllerCommandBase extends Command
      */
     protected function isConvertEmptyStringsToNullRegistered()
     {
-        $kernal = $this->getLaravel()->make(\App\Http\Kernel::class);
+        $kernalClass = sprintf('\\%s\\Http\\Kernel', Helpers::getAppName());
+
+        $kernal = $this->getLaravel()->make($kernalClass);
 
         return $kernal->hasMiddleware(\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class);
     }
