@@ -552,7 +552,7 @@ class CreateControllerCommand extends ControllerCommandBase
             $modelDirectory = str_finish($modelDirectory, '\\');
         }
 
-        $namespace = Helpers::getAppNamespace() . Config::getModelsPath($modelDirectory . $modelName);
+        $namespace = Helpers::getAppNamespace() . ltrim(Config::getModelsPath($modelDirectory . $modelName), '\\');
 
         return rtrim(Helpers::convertSlashToBackslash($namespace), '\\');
     }
