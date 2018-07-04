@@ -1117,7 +1117,7 @@ class Field implements JsonWriter
         if (!Helpers::isKeyExists($properties, 'labels')) {
             throw new Exception('The resource-file is missing the labels entry for the ' . $this->name . ' field.');
         }
-        
+
         if (is_array($properties['labels'])) {
             //At this point we know this the label
             return $this->getLabelsFromArray($properties['labels']);
@@ -1381,7 +1381,23 @@ class Field implements JsonWriter
      */
     public function isNumeric()
     {
-        return $this->isDecimal() || in_array($this->getEloquentDataMethod(), ['bigIncrements', 'bigInteger', 'increments', 'integer', 'mediumIncrements', 'mediumInteger', 'smallIncrements', 'smallInteger', 'tinyInteger', 'unsignedBigInteger', 'unsignedInteger', 'unsignedMediumInteger', 'unsignedSmallInteger', 'unsignedTinyInteger']);
+        return $this->isDecimal() || in_array($this->getEloquentDataMethod(),
+            [
+                'bigIncrements',
+                'bigInteger',
+                'increments',
+                'integer',
+                'mediumIncrements',
+                'mediumInteger',
+                'smallIncrements',
+                'smallInteger',
+                'tinyInteger',
+                'unsignedBigInteger',
+                'unsignedInteger',
+                'unsignedMediumInteger',
+                'unsignedSmallInteger',
+                'unsignedTinyInteger',
+            ]);
     }
 
     /**

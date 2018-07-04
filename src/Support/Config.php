@@ -641,9 +641,12 @@ class Config
     public static function getCommonDefinitions()
     {
         $customValues = (array) self::getCustom('common_definitions', []);
+
         $defaultValues = self::get('common_definitions', []);
         $final = [];
+        $finalMatchingKeys = [];
 
+        // Merge properties with existing patterns
         foreach ($defaultValues as $key => $defaultValue) {
             if (is_array($defaultValue)
                 && array_key_exists('match', $defaultValue)
@@ -651,9 +654,33 @@ class Config
             ) {
                 $matches = (array) $defaultValue['match'];
 
+                $finalMatchingKeys = array_merge($finalMatchingKeys, $matches);
+
                 $final[] = [
                     'match' => $matches,
                     'set' => self::mergeDefinitions($matches, $customValues, (array) $defaultValue['set']),
+                ];
+            }
+        }
+
+        // Add new patterns
+        foreach ($customValues as $key => $customValue) {
+            if (is_array($customValue)
+                && array_key_exists('match', $customValue)
+                && array_key_exists('set', $customValue)
+            ) {
+                $newPatterns = array_diff((array) $customValue['match'], $finalMatchingKeys);
+
+                if (empty($newPatterns)) {
+                    // At this point there are no patters that we don't already have
+                    continue;
+                }
+
+                $finalMatchingKeys = array_merge($finalMatchingKeys, $newPatterns);
+
+                $final[] = [
+                    'match' => $newPatterns,
+                    'set' => $customValue['set'],
                 ];
             }
         }
