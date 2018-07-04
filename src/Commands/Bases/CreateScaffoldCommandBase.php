@@ -167,6 +167,7 @@ class CreateScaffoldCommandBase extends Command
                     '--table-name' => $input->table,
                     '--primary-key' => $input->primaryKey,
                     '--resource-file' => $input->resourceFile,
+                    '--model-extends' => $input->modelExtends,
                     '--model-directory' => $input->modelDirectory,
                     '--with-soft-delete' => $input->withSoftDelete,
                     '--without-timestamps' => $input->withoutTimeStamps,
@@ -198,6 +199,7 @@ class CreateScaffoldCommandBase extends Command
         $input->formRequest = $this->option('with-form-request');
         $input->controllerDirectory = $this->option('controller-directory');
         $input->controllerExtends = $this->option('controller-extends') ?: null;
+        $input->modelExtends = $this->option('model-extends') ?: null;
         $input->withMigration = $this->option('with-migration');
         $input->force = $this->option('force');
         $input->modelDirectory = $this->option('model-directory');

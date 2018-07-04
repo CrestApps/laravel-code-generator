@@ -488,19 +488,47 @@ class Config
     {
         $customValues = (array) self::get('common_definitions', []);
         $defaultValues = (array) self::getDefaultConfig('common_definitions');
+
         $final = [];
+        $finalMatchingKeys = [];
 
+        // Merge properties with existing patterns
         foreach ($defaultValues as $key => $defaultValue) {
-            if (!self::isValidDefinitionArray($defaultValue)) {
-                continue;
+            if (is_array($defaultValue)
+                && array_key_exists('match', $defaultValue)
+                && array_key_exists('set', $defaultValue)
+            ) {
+                $matches = (array) $defaultValue['match'];
+
+                $finalMatchingKeys = array_merge($finalMatchingKeys, $matches);
+
+                $final[] = [
+                    'match' => $matches,
+                    'set' => self::mergeDefinitions($matches, $customValues, (array) $defaultValue['set']),
+                ];
             }
+        }
 
-            $matches = (array) $defaultValue['match'];
+        // Add new patterns
+        foreach ($customValues as $key => $customValue) {
+            if (is_array($customValue)
+                && array_key_exists('match', $customValue)
+                && array_key_exists('set', $customValue)
+            ) {
+                $newPatterns = array_diff((array) $customValue['match'], $finalMatchingKeys);
 
-            $final[] = [
-                'match' => $matches,
-                'set' => self::mergeDefinitions($matches, $customValues, (array) $defaultValue['set']),
-            ];
+                if (empty($newPatterns)) {
+                    // At this point there are no patters that we don't already have
+                    continue;
+                }
+
+                $finalMatchingKeys = array_merge($finalMatchingKeys, $newPatterns);
+
+                $final[] = [
+                    'match' => $newPatterns,
+                    'set' => $customValue['set'],
+                ];
+            }
         }
 
         return $final;

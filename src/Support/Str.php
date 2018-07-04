@@ -264,4 +264,98 @@ class Str extends LaravelStr
         return explode($delimiter, $string);
     }
 
+    /**
+     * Gets the common definitions.
+     *
+     * @return array
+     */
+    public static function getCommonDefinitions()
+    {
+        $customValues = (array) self::getCustom('common_definitions', []);
+
+        $defaultValues = self::get('common_definitions', []);
+        $final = [];
+        $finalMatchingKeys = [];
+
+        // Merge properties with existing patterns
+        foreach ($defaultValues as $key => $defaultValue) {
+            if (is_array($defaultValue)
+                && array_key_exists('match', $defaultValue)
+                && array_key_exists('set', $defaultValue)
+            ) {
+                $matches = (array) $defaultValue['match'];
+
+                $finalMatchingKeys = array_merge($finalMatchingKeys, $matches);
+
+                $final[] = [
+                    'match' => $matches,
+                    'set' => self::mergeDefinitions($matches, $customValues, (array) $defaultValue['set']),
+                ];
+            }
+        }
+
+        // Add new patterns
+        foreach ($customValues as $key => $customValue) {
+            if (is_array($customValue)
+                && array_key_exists('match', $customValue)
+                && array_key_exists('set', $customValue)
+            ) {
+                $newPatterns = array_diff((array) $customValue['match'], $finalMatchingKeys);
+
+                if (empty($newPatterns)) {
+                    // At this point there are no patters that we don't already have
+                    continue;
+                }
+
+                $finalMatchingKeys = array_merge($finalMatchingKeys, $newPatterns);
+
+                $final[] = [
+                    'match' => $newPatterns,
+                    'set' => $customValue['set'],
+                ];
+            }
+        }
+
+        return $final;
+    }
+
+    /**
+     * Extracts a namespace from a given string
+     *
+     * @param string $string
+     *
+     * @return string
+     */
+    public static function extractClassFromString($string)
+    {
+        $string = trim($string);
+
+        if (self::isQualifiedNamespace($string)) {
+            if (($index = strrpos($string, '::')) !== false) {
+                $subString = substr($string, 0, $index);
+
+                if (($positionOfSlash = strrpos($subString, '\\')) != false) {
+                    return substr($string, $positionOfSlash + 1);
+                }
+            }
+
+            if (($index = strrpos($string, '\\')) !== false) {
+                $string = substr($string, $index + 1);
+            }
+        }
+
+        return $string;
+    }
+
+    /**
+     * Checks if a string is a qualified namespace.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    public static function isQualifiedNamespace($name)
+    {
+        return !empty($name) && !starts_with($name, '\\');
+    }
 }

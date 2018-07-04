@@ -8,6 +8,7 @@ use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Arr;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 use CrestApps\CodeGenerator\Traits\LanguageTrait;
 use CrestApps\CodeGenerator\Traits\ModelTrait;
@@ -72,34 +73,6 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Extracts a namespace from a given string
-     *
-     * @param string $string
-     *
-     * @return string
-     */
-    protected function extractClassFromString($string)
-    {
-        $string = trim($string);
-
-        if ($this->isQualifiedNamespace($string)) {
-            if (($index = strrpos($string, '::')) !== false) {
-                $subString = substr($string, 0, $index);
-
-                if (($positionOfSlash = strrpos($subString, '\\')) != false) {
-                    return substr($string, $positionOfSlash + 1);
-                }
-            }
-
-            if (($index = strrpos($string, '\\')) !== false) {
-                $string = substr($string, $index + 1);
-            }
-        }
-
-        return $string;
-    }
-
-    /**
      * Gets the signature of the getData method.
      *
      * @param array  $fields
@@ -142,7 +115,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     {
         $string = trim($string);
 
-        if ($this->isQualifiedNamespace($string) && ($index = strrpos($string, '::')) != false) {
+        if (Str::isQualifiedNamespace($string) && ($index = strrpos($string, '::')) != false) {
             $namespace = substr($string, 0, $index);
 
             if (!empty($namespace)) {
@@ -336,7 +309,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
      */
     protected function getControllerExtends($namespace)
     {
-        $class = $this->extractClassFromString($namespace);
+        $class = Str::extractClassFromString($namespace);
         if (!empty($class)) {
             return sprintf('extends %s', $class);
         }
@@ -435,7 +408,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
         $final = [];
 
         foreach ($fields as $field) {
-            $action = $this->extractClassFromString($field->onStore);
+            $action = Str::extractClassFromString($field->onStore);
             if (!empty($action)) {
                 $final[] = $this->getArrayReadyString($field->name, $action);
             }
@@ -457,7 +430,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
         $final = [];
 
         foreach ($fields as $field) {
-            $action = $this->extractClassFromString($field->onUpdate);
+            $action = Str::extractClassFromString($field->onUpdate);
             if (!empty($action)) {
                 $final[] = $this->getArrayReadyString($field->name, $action);
             }
@@ -675,18 +648,6 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
         });
 
         return count($filtered) > 0;
-    }
-
-    /**
-     * Checks if a string is a qualified namespace.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    protected function isQualifiedNamespace($name)
-    {
-        return !empty($name) && !starts_with($name, '\\');
     }
 
     /**

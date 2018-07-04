@@ -13,7 +13,7 @@
   - The user is no longer required to publish the default templates. This is much better step to prevent upgrade braking when the template are updated during a patch release. The user should publish templates only if he/she want to modify it and rename it. **IMPORTANT** Delete existing default and default-collective templates from the folders from the default publish path of your project.
   - The user no longer have to publish resource to install the package! One line only is required to install the package on laravel 5.5+ (i.e, composer require crestapps/laravel-code-generator --dev)
   - **IMPORTANT**: delete the the `codegenerator.php` file from your config folder, then rename the `codegenerator_custom.php` file to `laravel-code-generator.php`. Alternatively, you can delete both `codegenerator.php` and `codegenerator_custom.php`
-
+ - Added `--model-extends` option to the create:model command to allow the use to extend a custom default base class.
 
 ## v2.2.7
  - Added capability to lock down resource from with in the resource file. This is helpful if you make code changes to a file and you want the code generator to protect the file from accidentally overriding it when using --force

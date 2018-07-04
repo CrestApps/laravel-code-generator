@@ -20,6 +20,7 @@ class CreateScaffoldCommand extends CreateScaffoldCommandBase
                             {--controller-directory= : The directory where the controller should be created under. }
                             {--controller-extends=default-controller : The base controller to be extend.}
                             {--model-directory= : The path of the model.}
+                            {--model-extends=default-model : The base model to be extend.}
                             {--views-directory= : The name of the view path.}
                             {--form-request-directory= : The directory of the form-request.}
                             {--resource-file= : The name of the resource-file to import from.}

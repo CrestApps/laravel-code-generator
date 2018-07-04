@@ -82,6 +82,13 @@ class ScaffoldInputBase
     public $controllerExtends;
 
     /**
+     * What should the model extends
+     *
+     * @var string
+     */
+    public $modelExtends;
+
+    /**
      * Without migration
      *
      * @var bool

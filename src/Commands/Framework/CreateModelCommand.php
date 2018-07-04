@@ -41,6 +41,7 @@ class CreateModelCommand extends Command
                             {--with-soft-delete : Enables softdelete future should be enable in the model.}
                             {--without-timestamps : Prevent Eloquent from maintaining both created_at and the updated_at properties.}
                             {--template-name= : The template name to use when generating the code.}
+                            {--model-extends=default-model : The base model to be extend.}
                             {--force : Override the model if one already exists.}';
 
     /**
@@ -82,9 +83,12 @@ class CreateModelCommand extends Command
         $stub = $this->getStubContent('model');
         $primaryField = $this->getPrimaryField($fields);
         $relations = $this->getRelationMethods($resource->relations, $fields);
+        $namespacesToUse = $this->getRequiredUseClasses($this->getAdditionalNamespaces($input));
 
         return $this->replaceTable($stub, $resource->getTableName($input->table))
             ->replaceModelName($stub, $input->modelName)
+            ->replaceUseCommandPlaceholder($stub, $namespacesToUse)
+            ->replaceModelExtends($stub, $this->getModelExtends($this->getFullClassToExtend()))
             ->replaceNamespace($stub, $this->getNamespace($input->modelName, $input->modelDirectory))
             ->replaceSoftDelete($stub, $input->useSoftDelete)
             ->replaceTimestamps($stub, $this->getTimeStampsStub($input->useTimeStamps, $resource->isCreateAndUpdateAtManaged()))
@@ -230,6 +234,36 @@ class CreateModelCommand extends Command
     }
 
     /**
+     * Gets the code to extend the controller.
+     *
+     * @param string $namespace
+     *
+     * @return string
+     */
+    protected function getModelExtends($namespace)
+    {
+        $class = Str::extractClassFromString($namespace);
+        if (!empty($class)) {
+            return sprintf('extends %s', $class);
+        }
+
+        return '';
+    }
+
+    /**
+     * Replaces model_extends
+     *
+     * @param  string  $stub
+     * @param  string  $commands
+     *
+     * @return $this
+     */
+    protected function replaceModelExtends(&$stub, $commands)
+    {
+        return $this->replaceTemplate('model_extends', $commands, $stub);
+    }
+
+    /**
      * Gets the fillable string from a given raw string.
      *
      * @param string $stub
@@ -334,6 +368,7 @@ class CreateModelCommand extends Command
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
         $languageFileName = $this->option('language-filename') ?: self::makeLocaleGroup($modelName);
         $template = $this->getTemplateName();
+        $extends = $this->generatorOption('model-extends');
 
         return (object) compact(
             'table',
@@ -346,6 +381,67 @@ class CreateModelCommand extends Command
             'modelDirectory',
             'languageFileName'
         );
+    }
+
+    /**
+     * Gets the full class name to extend
+     *
+     * @return string
+     */
+    protected function getFullClassToExtend()
+    {
+        $extend = $this->generatorOption('model-extends');
+
+        if (empty($extend)) {
+            return '';
+        }
+
+        if ($this->isExtendsDefault()) {
+            return $this->getDefaultClassToExtend();
+        }
+
+        return Helpers::fixNamespace($extend);
+    }
+
+    /**
+     * Checks if the model extends the default "Model" class
+     *
+     * @return bool
+     */
+    protected function isExtendsDefault()
+    {
+        return $this->option('model-extends') == 'default-model';
+    }
+
+    /**
+     * Gets the default class to extend
+     *
+     * @return string
+     */
+    protected function getDefaultClassToExtend()
+    {
+        return 'Illuminate\Database\Eloquent\Model';
+    }
+
+    /**
+     * Gets the full use statement for the classes
+     *
+     * @param array $additions
+     *
+     * @return string
+     */
+    protected function getRequiredUseClasses(array $additions = [])
+    {
+        $commands = [];
+
+        foreach ($additions as $addition) {
+            $commands[] = $this->getUseClassCommand($addition);
+        }
+
+        $commands = array_unique($commands);
+        sort($commands);
+
+        return implode(PHP_EOL, $commands);
     }
 
     /**
@@ -543,6 +639,27 @@ class CreateModelCommand extends Command
     }
 
     /**
+     * Gets any additional classes to include in the use statement
+     *
+     * @param object $input
+     *
+     * @return array
+     */
+    protected function getAdditionalNamespaces($input)
+    {
+        $commands = [
+            // Here add the using soft delete
+            $this->getFullClassToExtend(),
+        ];
+
+        if ($input->useSoftDelete) {
+            $commands[] = 'Illuminate\Database\Eloquent\SoftDeletes';
+        }
+
+        return $commands;
+    }
+
+    /**
      * Gets the timestamp block.
      *
      * @param  bool  $shouldUseTimeStamps
@@ -596,6 +713,19 @@ class CreateModelCommand extends Command
     protected function replaceFieldContent(&$stub, $content)
     {
         return $this->replaceTemplate('content', $content, $stub);
+    }
+
+    /**
+     * Replaces useCommandPlaceHolder
+     *
+     * @param  string  $stub
+     * @param  string  $commands
+     *
+     * @return $this
+     */
+    protected function replaceUseCommandPlaceholder(&$stub, $commands)
+    {
+        return $this->replaceTemplate('use_command_placeholder', $commands, $stub);
     }
 
     /**
