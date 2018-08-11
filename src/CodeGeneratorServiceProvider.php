@@ -19,7 +19,7 @@ class CodeGeneratorServiceProvider extends ServiceProvider
 
         // publish the config base file
         $this->publishes([
-            $dir . 'config/codegenerator.php' => config_path('laravel-code-generator.php'),
+            $dir . 'config/laravel-code-generator.php' => config_path('laravel-code-generator.php'),
         ], 'config');
 
         // publish the default-template

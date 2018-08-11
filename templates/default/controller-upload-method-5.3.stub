@@ -12,5 +12,8 @@
             return '';
         }
         
-        return $file->store(config('laravel-code-generator.files_upload_path','uploads'), config('filesystems.default'));
+        $path = config('laravel-code-generator.files_upload_path', 'uploads');
+        $saved = $file->store('public/' . $path, config('filesystems.default'));
+
+        return substr($saved, 7);
     }

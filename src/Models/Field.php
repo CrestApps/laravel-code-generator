@@ -623,7 +623,7 @@ class Field implements JsonWriter
         }
 
         if ($this->isFile()) {
-            return sprintf("basename(%s)", $fieldAccessor);
+            return $fieldAccessor;
         }
 
         return $fieldAccessor;
