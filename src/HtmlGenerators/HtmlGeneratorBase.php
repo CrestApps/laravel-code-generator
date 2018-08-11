@@ -129,10 +129,25 @@ abstract class HtmlGeneratorBase
     {
         $this->replaceFieldName($stub, $field->name)
             ->replaceModelName($stub, $this->modelName)
-            ->replaceRowFieldValue($stub, $this->getFieldAccessorValue($field, 'show'))
+            ->replaceRowFieldValue($stub, $this->getFieldValueForShow($field))
             ->replaceFieldTitle($stub, $this->getTitle($field->getLabel(), true));
 
         return $stub;
+    }
+    /**
+     * Gets the value to use in the show view
+     *
+     * @param Field $field
+     *
+     * @return string
+     */
+    protected function getFieldValueForShow(Field $field)
+    {
+        if ($field->isFile()) {
+            return sprintf("asset('storage/' . %s)", $this->getFieldAccessorValue($field, 'show'));
+        }
+
+        return $this->getFieldAccessorValue($field, 'show');
     }
 
     /**
@@ -290,10 +305,6 @@ abstract class HtmlGeneratorBase
 
         if ($field->isMultipleAnswers()) {
             return sprintf("implode('%s', %s)", $field->optionsDelimiter, $fieldAccessor);
-        }
-
-        if ($field->isFile()) {
-            return sprintf("basename(%s)", $fieldAccessor);
         }
 
         return $fieldAccessor;
