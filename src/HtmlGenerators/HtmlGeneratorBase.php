@@ -822,7 +822,7 @@ abstract class HtmlGeneratorBase
     {
         $template = $raw === false ? "trans('%s')" : "{{ trans('%s') }}";
 
-        return sprintf($template, $label->localeGroup);
+        return sprintf($template, $label->getAccessor());
     }
 
     /**
