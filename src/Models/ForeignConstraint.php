@@ -92,7 +92,7 @@ class ForeignConstraint implements JsonWriter
     public function getReferencesModel()
     {
         if (empty($this->referencesModel)) {
-            $this->referencesModel = self::getModelNamespace(ucfirst($this->getForeignModelName()));
+            $this->referencesModel = self::getModelNamespace($this->getForeignModelName(), null);
         }
 
         return $this->referencesModel;
@@ -133,21 +133,6 @@ class ForeignConstraint implements JsonWriter
     }
 
     /**
-     * Get the namecpase of the foreign model.
-     *
-     * @param string $modelName
-     *
-     * @return string
-     */
-    /*
-    protected function getModelNamespace($modelName)
-    {
-    $path = Helpers::getAppNamespace() . rtrim(Config::getModelsPath(), '\\');
-
-    return $path . '\\' . $modelName;
-    }
-     */
-    /**
      * Get the name of the foreign model.
      *
      * @param string $prefix
@@ -156,7 +141,7 @@ class ForeignConstraint implements JsonWriter
      */
     protected function getForeignModelName($prefix = '')
     {
-        return camel_case($prefix . Str::singular($this->references));
+        return ucfirst(camel_case($prefix . Str::singular($this->references)));
     }
 
     /**
