@@ -1,0 +1,10 @@
+    /**
+     * Set the [% field_name %].
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function set[% field_name_cap %]Attribute($value)
+    {
+        [% content %]
+    }

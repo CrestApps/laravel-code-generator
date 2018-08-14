@@ -1,0 +1,4 @@
+Schema::[% connection_name %][% operation_name %]('[% table_name %]', function(Blueprint $table)
+        {
+[% blue_print_body %]
+        });

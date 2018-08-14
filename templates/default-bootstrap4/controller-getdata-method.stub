@@ -1,0 +1,15 @@
+    
+    /**
+     * Get the request's data from the request.
+     *
+     * [% request_name_comment %]
+     * @return array
+     */
+    [% visibility_level %] function getData([% type_hinted_request_name %])
+    {
+        $data = [% request_variable %]->only([% fillable %]);
+[% file_snippet %]
+[% boolean_snippet %]
+[% string_to_null_snippet %]
+        return $data;
+    }

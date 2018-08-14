@@ -1,0 +1,17 @@
+    
+    /**
+     * Validate the given request with the defined rules.
+     *
+     * @param  [% request_fullname %]  $request
+     *
+     * @return boolean
+     */
+    protected function affirm(Request $request)
+    {
+        $rules = [
+    [% validation_rules %] 
+        ];
+[% file_validation_snippet %]
+
+        return $this->validate($request, $rules);
+    }

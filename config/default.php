@@ -42,6 +42,7 @@ return [
      */
     'laravel_collective_templates' => [
         'default-collective',
+        'default-collective-bootstrap4',
     ],
 
     /*

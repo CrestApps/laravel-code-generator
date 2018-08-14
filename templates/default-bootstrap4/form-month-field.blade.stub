@@ -1,0 +1,8 @@
+        <select class="form-control[% css_class %]" id="[% field_name %]" name="[% field_name %]">
+            [% placeholder %]
+        	@foreach (range(1, 12) as $value)
+			    <option value="{{ $value }}"[% selected_value %]>
+			    	{{ date('F', mktime(0, 0, 0, $value, 1)) }}
+			    </option>
+			@endforeach
+        </select>

@@ -1,0 +1,6 @@
+        <div class="[% field_type %]">
+            <label for='[% item_id %]'>
+                {!! Form::[% field_type %]('[% field_name %]', '[% option_value %]', [% checked_item %], ['id' => '[% item_id %]', 'class' => '[% required_class %][% css_class %]',[% required_field %] ]) !!}
+                [% item_title %]
+            </label>
+        </div>

@@ -1,0 +1,141 @@
+<?php
+
+namespace [% namespace %];
+
+[% use_command_placeholder %]
+use Exception;
+
+class [% controller_name %] [% controller_extends %]
+{
+[% constructor %]
+    /**
+     * Display a listing of the [% model_name_plural %].
+     *
+     * @return Illuminate\View\View
+     */
+    public function index()
+    {
+        $[% model_name_plural_variable %] = [% model_name_class %]::[% with_relations_for_index %]paginate([% models_per_page %]);
+
+        return view('[% index_view_name %]'[% view_variables_for_index %]);
+    }
+
+    /**
+     * Show the form for creating a new [% model_name %].
+     *
+     * @return Illuminate\View\View
+     */
+    public function create()
+    {
+        [% relation_collections %]
+        
+        return view('[% create_view_name %]'[% view_variables_for_create %]);
+    }
+
+    /**
+     * Store a new [% model_name %] in the storage.
+     *
+     * @param [% request_fullname %] [% request_variable %]
+     *
+     * @return Illuminate\Http\RedirectResponse | Illuminate\Routing\Redirector
+     */
+    public function store([% type_hinted_request_name %])
+    {
+        try {
+            [% call_affirm %]
+            $[% data_variable %] = [% call_get_data %];
+            [% on_store_setter %]
+            [% model_name_class %]::create($[% data_variable %]);
+
+            return redirect()->route('[% index_route_name %]')
+                             ->with('success_message', [% model_was_added %]);
+
+        } catch (Exception $exception) {
+
+            return back()->withInput()
+                         ->withErrors(['unexpected_error' => [% unexpected_error %]]);
+        }
+    }
+
+    /**
+     * Display the specified [% model_name %].
+     *
+     * @param int $id
+     *
+     * @return Illuminate\View\View
+     */
+    public function show($id)
+    {
+        $[% model_name_singular_variable %] = [% model_name_class %]::[% with_relations_for_show %]findOrFail($id);
+
+        return view('[% show_view_name %]'[% view_variables_for_show %]);
+    }
+
+    /**
+     * Show the form for editing the specified [% model_name %].
+     *
+     * @param int $id
+     *
+     * @return Illuminate\View\View
+     */
+    public function edit($id)
+    {
+        $[% model_name_singular_variable %] = [% model_name_class %]::findOrFail($id);
+        [% relation_collections %]
+
+        return view('[% edit_view_name %]'[% view_variables_for_edit %]);
+    }
+
+    /**
+     * Update the specified [% model_name %] in the storage.
+     *
+     * @param  int $id
+     * @param [% request_fullname %] [% request_variable %]
+     *
+     * @return Illuminate\Http\RedirectResponse | Illuminate\Routing\Redirector
+     */
+    public function update($id, [% type_hinted_request_name %])
+    {
+        try {
+            [% call_affirm %]
+            $[% data_variable %] = [% call_get_data %];
+            [% on_update_setter %]
+            $[% model_name_singular_variable %] = [% model_name_class %]::findOrFail($id);
+            $[% model_name_singular_variable %]->update($[% data_variable %]);
+
+            return redirect()->route('[% index_route_name %]')
+                             ->with('success_message', [% model_was_updated %]);
+
+        } catch (Exception $exception) {
+
+            return back()->withInput()
+                         ->withErrors(['unexpected_error' => [% unexpected_error %]]);
+        }        
+    }
+
+    /**
+     * Remove the specified [% model_name %] from the storage.
+     *
+     * @param  int $id
+     *
+     * @return Illuminate\Http\RedirectResponse | Illuminate\Routing\Redirector
+     */
+    public function destroy($id)
+    {
+        try {
+            $[% model_name_singular_variable %] = [% model_name_class %]::findOrFail($id);
+            $[% model_name_singular_variable %]->delete();
+
+            return redirect()->route('[% index_route_name %]')
+                             ->with('success_message', [% model_was_deleted %]);
+
+        } catch (Exception $exception) {
+
+            return back()->withInput()
+                         ->withErrors(['unexpected_error' => [% unexpected_error %]]);
+        }
+    }
+[% affirm_method %]
+[% get_data_method %]
+[% upload_method %]
+}
