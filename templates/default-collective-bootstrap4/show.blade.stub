@@ -1,0 +1,52 @@
+@extends('[% layout_name %]')
+
+@section('content')
+
+<div class="card">
+    <div class="card-header">
+
+        <h5  class="my-1 float-left">{{ isset([% model_header %]) ? [% model_header %] : '[% model_name_title %]' }}</h5>
+
+        <div class="float-right">
+        
+            {!! Form::open([
+                'method' =>'DELETE',
+                'route'  => ['[% destroy_route_name %]', $[% model_name_singular_variable %]->[% primary_key %]]
+            ]) !!}
+                <div class="btn-group btn-group-sm" role="group">
+                    <a href="{{ route('[% index_route_name %]') }}" class="btn btn-primary" title="[% show_all_models %]">
+                        <i class=" fas fa-fw fa-th-list" aria-hidden="true"></i>
+                    </a>
+
+                    <a href="{{ route('[% create_route_name %]') }}" class="btn btn-success" title="[% create_model %]">
+                        <i class=" fas fa-fw fa-plus" aria-hidden="true"></i>
+                    </a>
+
+                    <a href="{{ route('[% edit_route_name %]', $[% model_name_singular_variable %]->[% primary_key %] ) }}" class="btn btn-primary" title="[% edit_model %]">
+                        <i class=" fas fa-fw fa-pencil-alt" aria-hidden="true"></i>
+                    </a>
+
+                    {!! Form::button('<i class=" fas fa-fw fa-trash-alt" aria-hidden="true"></i>', 
+                        [   
+                            'type'    => 'submit',
+                            'class'   => 'btn btn-danger',
+                            'title'   => [% delete_model %],
+                            'onclick' => 'return confirm("' . [% confirm_delete %] . '")'
+                        ])
+                    !!}
+                </div>
+            {!! Form::close() !!}
+
+        </div>
+
+    </div>
+
+    <div class="card-body">
+        <dl class="dl-horizontal">
+[% table_rows %]
+        </dl>
+
+    </div>
+</div>
+
+@endsection

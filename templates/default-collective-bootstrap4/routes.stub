@@ -1,0 +1,25 @@
+
+    Route::get('/', '[% controller_name %]@index')
+         ->name('[% index_route_name %]');
+
+    Route::get('/create','[% controller_name %]@create')
+         ->name('[% create_route_name %]');
+
+    Route::get('/show/{[% model_name_singular_variable %]}','[% controller_name %]@show')
+         ->name('[% show_route_name %]')
+         ->where('id', '[0-9]+');
+
+    Route::get('/{[% model_name_singular_variable %]}/edit','[% controller_name %]@edit')
+         ->name('[% edit_route_name %]')
+         ->where('id', '[0-9]+');
+
+    Route::post('/', '[% controller_name %]@store')
+         ->name('[% store_route_name %]');
+               
+    Route::put('[% model_name_snake %]/{[% model_name_singular_variable %]}', '[% controller_name %]@update')
+         ->name('[% update_route_name %]')
+         ->where('id', '[0-9]+');
+
+    Route::delete('/[% model_name_snake %]/{[% model_name_singular_variable %]}','[% controller_name %]@destroy')
+         ->name('[% destroy_route_name %]')
+         ->where('id', '[0-9]+');

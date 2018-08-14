@@ -1,0 +1,1 @@
+return date('[% date_format %]', strtotime($value));

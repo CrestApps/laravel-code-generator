@@ -1,0 +1,1 @@
+        {!! Form::selectMonth('[% field_name %]', [% selected_value %], ['class' => 'form-control[% css_class %]']) !!}

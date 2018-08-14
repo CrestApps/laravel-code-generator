@@ -1,0 +1,93 @@
+@extends('[% layout_name %]')
+
+@section('content')
+
+    @if(Session::has('success_message'))
+        <div class="alert alert-success">
+            <i class=" fas fa-fw fa-check"></i>
+            {!! session('success_message') !!}
+
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+        </div>
+    @endif
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <h5  class="my-1 float-left">[% model_name_plural_title %]</h5>
+
+            <div class="btn-group btn-group-sm float-right" role="group">
+
+                <a href="{{ route('[% create_route_name %]') }}" class="btn btn-success" title="[% create_model %]">
+                    <i class=" fas fa-fw fa-plus" aria-hidden="true"></i>
+                </a>
+
+            </div>
+
+        </div>
+        
+        @if(count($[% model_name_plural_variable %]) == 0)
+            <div class="card-body text-center">
+                <h4>[% no_models_available %]</h4>
+            </div>
+        @else
+        <div class="card-body">
+
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                        <tr>
+    [% header_cells %]
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($[% model_name_plural_variable %] as $[% model_name_singular_variable %])
+                        <tr>
+    [% body_cells %]
+                            <td>
+
+                                {!! Form::open([
+                                    'method' =>'DELETE',
+                                    'route'  => ['[% destroy_route_name %]', $[% model_name_singular_variable %]->[% primary_key %]],
+                                    'style'  => 'display: inline;',
+                                ]) !!}
+                                    <div class="btn-group btn-group-sm float-right" role="group">
+                                        <a href="{{ route('[% show_route_name %]', $[% model_name_singular_variable %]->[% primary_key %] ) }}" class="btn btn-info" title="[% show_model %]">
+                                            <i class=" fas fa-fw fa-eye" aria-hidden="true"></i>
+                                        </a>
+                                        <a href="{{ route('[% edit_route_name %]', $[% model_name_singular_variable %]->[% primary_key %] ) }}" class="btn btn-primary" title="[% edit_model %]">
+                                            <i class=" fas fa-fw fa-pencil-alt" aria-hidden="true"></i>
+                                        </a>
+
+                                        {!! Form::button('<i class=" fas fa-fw fa-trash-alt" aria-hidden="true"></i>', 
+                                            [   
+                                                'type'    => 'submit',
+                                                'class'   => 'btn btn-danger',
+                                                'title'   => [% delete_model %],
+                                                'onclick' => 'return confirm("' . [% confirm_delete %] . '")'
+                                            ])
+                                        !!}
+                                    </div>
+                                {!! Form::close() !!}
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+        <div class="card-footer">
+            {!! $[% model_name_plural_variable %]->render() !!}
+        </div>
+
+        @endif
+
+    </div>
+@endsection

@@ -1,0 +1,1 @@
+Schema::[% connection_name %]drop('[% table_name %]');

@@ -1,0 +1,8 @@
+
+<div class="form-group {{ $errors->has('[% field_name %]') ? 'has-error' : '' }}">
+[% field_label %]
+    <div class="col-md-10">
+[% field_input %]
+[% field_validation_helper %]
+    </div>
+</div>

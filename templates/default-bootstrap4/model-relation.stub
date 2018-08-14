@@ -1,0 +1,7 @@
+    /**
+     * Get the [% relation_name %] for this model.
+     */
+    public function [% relation_name %]()
+    {
+        return $this->[% relation_type %]([% relation_params %]);
+    }

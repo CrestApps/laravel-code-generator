@@ -1,0 +1,4 @@
+        <label for="[% item_id %]" class="[% field_type %]-inline">
+            <input id="[% item_id %]" class="[% required_class %][% css_class %]" name="[% field_name %]" type="[% field_type %]" value="[% option_value %]"[% required_field %][% checked_item %]>
+            [% item_title %]
+        </label>

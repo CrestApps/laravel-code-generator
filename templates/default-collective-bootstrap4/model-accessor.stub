@@ -1,0 +1,10 @@
+    /**
+     * Get [% field_name %] in array format
+     *
+     * @param  string  $value
+     * @return array
+     */
+    public function get[% field_name_cap %]Attribute($value)
+    {
+        [% content %]
+    }

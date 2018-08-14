@@ -1,0 +1,20 @@
+  
+    /**
+     * Moves the attached file to the server.
+     *
+     * @param Symfony\Component\HttpFoundation\File\UploadedFile $file
+     *
+     * @return string
+     */
+    protected function moveFile($file)
+    {
+        if (!$file->isValid()) {
+            return '';
+        }
+        
+        $fileName = sprintf('%s.%s', uniqid(), $file->getClientOriginalExtension());
+        $destinationPath = config('codegenerator.files_upload_path');
+        $path = $file->move($destinationPath, $fileName);
+        
+        return $destinationPath . '/' . $fileName;
+    }

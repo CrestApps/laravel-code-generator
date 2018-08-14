@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="{{ App::getLocale() }}">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ config('app.name', '[% application_name %]') }}</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    {{-- <link href="{{ asset('css/app.css') }}" rel="stylesheet"> --}}
+
+    <style>
+        body {
+            padding-top: 70px;
+            padding-bottom: 20px;
+        }
+
+        /* Set padding to keep content from hitting the edges */
+        .body-content {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        /* Override the default bootstrap behavior where horizontal description lists 
+           will truncate terms that are too long to fit in the left column.
+           Also, add a 8pm to the bottom margin
+        */
+        .dl-horizontal dt {
+            white-space: normal;
+            margin-bottom: 8px;
+        }
+
+        /* Set width on the form input elements since they're 100% wide by default */
+        input,
+        select,
+        textarea,
+        .uploaded-file-group,
+        .input-width-input {
+            max-width: 380px;
+        }
+
+        /* Vertically align the table cells inside body-panel */
+        .panel-body .table > tr > td
+        {
+            vertical-align: middle;
+        }
+
+        .panel-body-with-table
+        {
+            padding: 0;
+        }
+
+        /* Font Awesome size */
+        .fas {
+            font-size: 1em;
+        }
+
+    </style>
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a href="{!! url('/') !!}" class="navbar-brand">{{ config('app.name', '[% application_name %]') }}</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Active</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#">Disabled</a>
+                </li>
+
+                @if (Route::has('login'))
+                    @if (Auth::check())
+                        <li class="nav-item"><a class="nav-link" href="{{ url('/home') }}">Home</a></li>
+                    @else
+                        <li class="nav-item"><a class="nav-link" href="{{ url('/login') }}">Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url('/register') }}">Register</a></li>
+                    @endif
+                @endif
+                </ul>
+                <form class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container body-content">
+        @yield('content')
+    </div>
+
+    <!-- Scripts -->
+    
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"
+        integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.0/jquery.validate.min.js"></script>
+    {{-- <script src="{{ asset('js/app.js') }}"></script> --}}
+    <script type="text/javascript">
+        $(function(){
+
+             // sends the uploaded file file to the fielselect event
+            $(document).on('change', ':file', function() {
+                var input = $(this);
+                var label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+
+                input.trigger('fileselect', [label]);
+            });
+
+            // Set the label of the uploaded file
+            $(':file').on('fileselect', function(event, label) {
+                $(this).closest('.uploaded-file-group').find('.uploaded-file-name').val(label);
+            });
+            
+            // Deals with the upload file in edit mode
+            $('.custom-delete-file:checkbox').change(function(e){
+                var self = $(this);
+                var container = self.closest('.input-width-input');
+                var display = container.find('.custom-delete-file-name');
+
+                if (self.is(':checked')) {
+                    display.wrapInner('<del></del>');
+                } else {
+                    var del = display.find('del').first();
+                    if (del.is('del')) {
+                        del.contents().unwrap();
+                    }
+                }
+            }).change();
+
+            // Sets the validator defaults
+            $.validator.setDefaults({
+                errorElement: "span",
+                errorClass: "help-block",
+                highlight: function (element, errorClass, validClass) {
+                    $(element).closest('.form-group').addClass('has-error');
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).closest('.form-group').removeClass('has-error');
+                },
+                errorPlacement: function (error, element) {
+                    if (element.parent('.input-group').length) {
+                        error.insertAfter(element.parent());
+                    } else if(element.prop('type') === 'checkbox' || element.prop('type') === 'radio') {
+                        error.appendTo(element.closest(':not(input, label, .checkbox, .radio)').first());
+                    } else {
+                        error.insertAfter(element);
+                    }
+                }
+            });
+
+            // Makes sure any input with the required class is actually required
+            $('form').each(function(index, item){
+                var form = $(item);
+                form.validate();
+
+                form.find(':input.required').each(function(i, input){
+                    $(input).attr('required', true);
+                });
+            });
+
+        });
+    </script>
+
+</body>
+</html>

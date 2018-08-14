@@ -1,0 +1,1 @@
+        {!! Form::selectRange('[% field_name %]', [% min_value %], [% max_value %], [% selected_value %], ['class' => 'form-control[% css_class %]']) !!}

@@ -1,0 +1,20 @@
+        <div class="input-group uploaded-file-group">
+            <label class="input-group-btn">
+                <span class="btn btn-default">
+                    Browse <input type="file" name="[% field_name %]" id="[% field_name %]" class="hidden[% css_class %]">
+                </span>
+            </label>
+            <input type="text" class="form-control uploaded-file-name" readonly>
+        </div>
+
+        @if (isset($[% model_name_singular_variable %]->[% field_name %]) && !empty($[% model_name_singular_variable %]->[% field_name %]))
+            <div class="input-group input-width-input">
+                <span class="input-group-addon">
+                    <input type="checkbox" name="custom_delete_[% field_name %]" class="custom-delete-file" value="1" {{ old('custom_delete_[% field_name %]', '0') == '1' ? 'checked' : '' }}> Delete
+                </span>
+
+                <span class="input-group-addon custom-delete-file-name">
+                    {{ [% field_value %] }}
+                </span>
+            </div>
+        @endif

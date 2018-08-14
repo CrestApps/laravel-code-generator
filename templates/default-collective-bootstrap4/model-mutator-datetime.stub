@@ -1,0 +1,1 @@
+$this->attributes['[% field_name %]'] = !empty($value) ? date($this->getDateFormat(), strtotime($value)) : null;
