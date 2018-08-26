@@ -134,7 +134,7 @@ class CreateScaffoldCommandBase extends Command
      */
     protected function createLanguage(ScaffoldInputBase $input)
     {
-        if (!$this->option('without-languages')) {
+        if (!$input->withoutLanguages) {
             $this->call(
                 'create:language',
                 [
@@ -159,7 +159,7 @@ class CreateScaffoldCommandBase extends Command
      */
     protected function createModel(ScaffoldInputBase $input)
     {
-        if (!$this->option('without-model')) {
+        if (!$input->withoutModel) {
             $this->call(
                 'create:model',
                 [
@@ -196,7 +196,7 @@ class CreateScaffoldCommandBase extends Command
         $input->perPage = intval($this->option('models-per-page'));
         $input->resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($input->modelName);
         $input->fields = trim($this->option('fields'));
-        $input->formRequest = $this->option('with-form-request');
+        $input->withFormRequest = $this->option('with-form-request');
         $input->controllerDirectory = $this->option('controller-directory');
         $input->controllerExtends = $this->option('controller-extends') ?: null;
         $input->modelExtends = $this->option('model-extends') ?: null;
@@ -206,6 +206,11 @@ class CreateScaffoldCommandBase extends Command
         $input->primaryKey = $this->option('primary-key');
         $input->withSoftDelete = $this->option('with-soft-delete');
         $input->withoutTimeStamps = $this->option('without-timestamps');
+        $input->withoutLanguages = $this->option('without-languages');
+        $input->withoutModel = $this->option('without-model');
+        $input->withoutController = $this->option('without-controller');
+        $input->withoutFormRequest = $this->option('without-form-request');
+        $input->withoutViews = $this->option('without-views');
         $input->migrationClass = $this->option('migration-class-name');
         $input->connectionName = $this->option('connection-name');
         $input->engineName = $this->option('engine-name');

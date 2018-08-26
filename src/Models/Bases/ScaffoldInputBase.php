@@ -65,7 +65,7 @@ class ScaffoldInputBase
      *
      * @var bool
      */
-    public $formRequest = false;
+    public $withFormRequest;
 
     /**
      * The controller directory
@@ -89,18 +89,18 @@ class ScaffoldInputBase
     public $modelExtends;
 
     /**
-     * Without migration
+     * With migration
      *
      * @var bool
      */
-    public $withMigration = false;
+    public $withMigration;
 
     /**
      * Override existing files
      *
      * @var bool
      */
-    public $force = false;
+    public $force;
 
     /**
      * Models directory
@@ -124,12 +124,46 @@ class ScaffoldInputBase
     public $withSoftDelete;
 
     /**
-     * Without time stamp
+     * Without timestamp
      *
      * @var bool
      */
     public $withoutTimeStamps;
 
+    /**
+     * Without languages
+     *
+     * @var bool
+     */
+    public $withoutLanguages;
+
+    /**
+     * Without model
+     *
+     * @var bool
+     */
+    public $withoutModel;
+
+    /**
+     * Without controller
+     *
+     * @var bool
+     */
+    public $withoutController;
+
+    /**
+     * Without views
+     *
+     * @var bool
+     */
+    public $withoutViews;
+
+    /**
+     * Without form-request
+     *
+     * @var bool
+     */
+    public $withoutFormRequest;
     /**
      * migration class name
      *
