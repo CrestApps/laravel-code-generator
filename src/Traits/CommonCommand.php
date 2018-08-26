@@ -98,6 +98,10 @@ trait CommonCommand
      */
     protected function getUseClassCommand($name)
     {
+        if (empty($name)) {
+            return '';
+        }
+
         return sprintf('use %s;', $name);
     }
 

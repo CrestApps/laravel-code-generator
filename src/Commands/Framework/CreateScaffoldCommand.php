@@ -129,7 +129,7 @@ class CreateScaffoldCommand extends CreateScaffoldCommandBase
                     '--models-per-page' => $input->perPage,
                     '--routes-prefix' => $input->prefix,
                     '--language-filename' => $input->languageFileName,
-                    '--with-form-request' => $input->formRequest,
+                    '--with-form-request' => $input->withFormRequest,
                     '--without-form-request' => $this->option('without-form-request'),
                     '--form-request-directory' => $input->formRequestDirectory,
                     '--with-auth' => $input->withAuth,
