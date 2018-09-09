@@ -500,7 +500,8 @@ class CreateModelCommand extends Command
                 $accessors[] = $this->getAccessor($field, $content);
             }
 
-            if ($field->isDateOrTime()) {
+            if ($field->isDateOrTime() && !$field->isDate) {
+                // We should not create accessor for a datetime field that is casted to Carbon object
                 $content = $this->getStubContent('model-accessor-datetime');
                 $this->replaceDateFormat($content, $field->dateFormat);
 

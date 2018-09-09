@@ -101,7 +101,7 @@ trait Migration
      */
     protected function getAlterMigrationName($name, $count)
     {
-        $filename = sprintf('%s_alter_%s_table_%s.php', date('Y_m_d_His'), strtolower($name), $count);
+        $filename = sprintf('%s_alter_%s_%s_table.php', date('Y_m_d_His'), strtolower($name), $count);
 
         return Str::postfix($filename, '.php');
     }
@@ -142,6 +142,6 @@ trait Migration
      */
     protected function makeAlterTableClassName($tableName, $id)
     {
-        return sprintf('Alter%sTable%s', studly_case($tableName), $id);
+        return sprintf('Alter%s%sTable', studly_case($tableName), $id);
     }
 }
