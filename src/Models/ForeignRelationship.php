@@ -123,7 +123,7 @@ class ForeignRelationship implements JsonWriter
     public function setType($type)
     {
         if (!self::isValidType($type)) {
-            throw new OutOfRangeException();
+            throw new \OutOfRangeException();
         }
 
         $this->type = $type;
