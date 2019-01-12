@@ -27,6 +27,7 @@ class ForeignRelationship implements JsonWriter
         'hasManyThrough',
         'morphTo',
         'morphMany',
+        'morphOne',
         'morphToMany',
     ];
 
@@ -107,6 +108,7 @@ class ForeignRelationship implements JsonWriter
         return in_array($this->type, [
             'hasOne',
             'belongsTo',
+            'morphOne',
             'morphTo',
         ]);
     }
