@@ -126,7 +126,22 @@ class Str extends LaravelStr
 
         return $subject;
     }
-
+	
+    /**
+     * Check a string for a positive keyword
+     *
+     * @param string $str
+     *
+     * @return array
+     */
+    public static function stringToBool($str)
+    {
+        if (is_bool($str)) {
+            return $str;
+        }
+        return in_array(strtolower($str), ['true', 'yes', '1', 'valid', 'correct']);
+    }
+	
     /**
      * Checks if a string matches at least one given pattern
      *

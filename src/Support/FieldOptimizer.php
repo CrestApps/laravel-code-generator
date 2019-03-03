@@ -209,7 +209,6 @@ class FieldOptimizer
     protected function optimizePrimaryKey()
     {
         if ($this->field->isPrimary()) {
-			
 			$this->field->isNullable = false;
 			
             if ($this->meta == null) {

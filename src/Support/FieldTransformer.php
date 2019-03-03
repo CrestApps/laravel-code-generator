@@ -92,17 +92,24 @@ class FieldTransformer
             if (str_contains($fieldName, ':')) {
                 // Handle the following format
                 // name:a;html-type:select;options:first|second|third|fourth
-                if (!str_is('*name*:*', $fieldName)) {
+                if (!Str::is('*name*:*', $fieldName)) {
                     throw new Exception('The "name" property was not provided and is required!');
                 }
 
                 $parts = Arr::fromString($fieldName, ';');
 
                 foreach ($parts as $part) {
-                    if (!str_is('*:*', $part) || count($properties = Arr::fromString($part, ':')) < 2) {
+                    if (!Str::is('*:*', $part) || count($properties = Arr::fromString($part, ':')) < 2) {
                         throw new Exception('Each provided property should use the following format "key:value"');
                     }
                     list($key, $value) = $properties;
+					
+                    if(Str::startsWith($key, 'is-')){
+                        $field[$key] = Str::stringToBool($value);
+                    } else {
+                        $field[$key] = $value;
+                    }
+					
                     $field[$key] = $value;
                     if ($key == 'options') {
                         $options = Arr::fromString($value, '|');
