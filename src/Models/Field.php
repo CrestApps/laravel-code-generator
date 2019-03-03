@@ -882,7 +882,7 @@ class Field implements JsonWriter
             'is-unique' => $this->isUnique,
             'is-primary' => $this->isPrimary,
             'comment' => $this->comment,
-            'is-nullable' => $this->isNullable,
+            'is-nullable' => $this->isNullable(),
             'is-header' => $this->isHeader,
             'is-unsigned' => $this->isUnsigned,
             'is-auto-increment' => $this->isAutoIncrement,
@@ -1141,7 +1141,7 @@ class Field implements JsonWriter
             $this->validationRules = is_array($properties['validation']) ? $properties['validation'] : Helpers::removeEmptyItems(explode('|', $properties['validation']));
         }
 
-        if (Helpers::isNewerThanOrEqualTo('5.2') && $this->isNullable && !in_array('nullable', $this->validationRules)) {
+        if (Helpers::isNewerThanOrEqualTo('5.2') && $this->isNullable() && !in_array('nullable', $this->validationRules)) {
             $this->validationRules[] = 'nullable';
         }
 
@@ -1525,7 +1525,7 @@ class Field implements JsonWriter
      */
     public function getMinLength()
     {
-        if ($this->isRequired() || !$this->isNullable) {
+        if ($this->isRequired() || !$this->isNullable()) {
             return 1;
         }
 
@@ -1807,7 +1807,7 @@ class Field implements JsonWriter
             ->setPlaceholder($properties) // this must come after setForeignRelation
             ->setOnStore($properties)
             ->setOnUpdate($properties);
-
+			
         if (Field::isValidSelectRangeType($properties)) {
             $field->htmlType = 'selectRange';
         }
@@ -1815,7 +1815,7 @@ class Field implements JsonWriter
         if ($field->getEloquentDataMethod() == 'enum' && empty($field->getOptions())) {
             throw new Exception('To construct an enum data-type field, options must be set. ' . $field->name);
         }
-
+	
         return $field;
     }
 }

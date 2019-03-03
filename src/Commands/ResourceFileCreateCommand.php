@@ -61,10 +61,12 @@ class ResourceFileCreateCommand extends ResourceFileCreatorCommandBase
         }
 
         $fields = FieldTransformer::fromString($this->option('fields'), 'generic', $input->translationFor);
+
         $relations = $this->getRelations($input->relations);
         $indexes = $this->getIndexes($input->indexes);
 
         $resource = new Resource($fields, $relations, $indexes);
+		
 
         $this->createFile($file, Helpers::prettifyJson($resource->toArray()))
             ->info('The "' . basename($file) . '" file was crafted successfully!');

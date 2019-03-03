@@ -99,7 +99,7 @@ class FieldOptimizer
      */
     protected function optimizeRequiredField()
     {
-        if (!array_key_exists('is-nullable', $this->meta) && ($this->parser->isNullable() || !$this->parser->isRequired() || $this->parser->isConditionalRequired())) {
+        if (!array_key_exists('is-nullable', $this->meta) && !$this->field->isPrimary() && ($this->parser->isNullable() || !$this->parser->isRequired() || $this->parser->isConditionalRequired())) {
             $this->field->isNullable = true;
         }
 
@@ -209,6 +209,8 @@ class FieldOptimizer
     protected function optimizePrimaryKey()
     {
         if ($this->field->isPrimary()) {
+			$this->field->isNullable = false;
+				
             if ($this->meta == null) {
                 $this->field->isOnFormView = false;
                 $this->field->isOnIndexView = false;

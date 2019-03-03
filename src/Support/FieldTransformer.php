@@ -7,6 +7,7 @@ use CrestApps\CodeGenerator\Models\FieldMapper;
 use CrestApps\CodeGenerator\Support\FieldsOptimizer;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
+use Illuminate\Support\Str as LaravelStr;
 use Exception;
 
 class FieldTransformer
@@ -83,6 +84,7 @@ class FieldTransformer
         // name:a;html-type:select;options:first|second|third|fourth
         $fields = [];
         $fieldNames = array_unique(Helpers::convertStringToArray($str));
+
         foreach ($fieldNames as $fieldName) {
             $field = [];
 
@@ -100,7 +102,14 @@ class FieldTransformer
                         throw new Exception('Each provided property should use the following format "key:value"');
                     }
                     list($key, $value) = $properties;
-                    $field[$key] = $value;
+					
+					if(LaravelStr::startsWith($key, 'is-')){
+						$field[$key] = Helpers::stringToBool($value);
+					} else {
+                        $field[$key] = $value;
+					}
+					
+					
                     if ($key == 'options') {
                         $options = Helpers::convertStringToArray($value, '|');
 
@@ -203,7 +212,7 @@ class FieldTransformer
 
             $mappers[] = new FieldMapper($field, (array) $rawField);
         }
-
+		
         $optimizer = new FieldsOptimizer($mappers);
         $this->fields = $optimizer->optimize()->getFields();
 
@@ -273,8 +282,9 @@ class FieldTransformer
             if (Helpers::strIs($patterns, $properties['name'])) {
                 //auto add any config from the master config
                 $settings = $this->getArrayByKey($definition, 'set');
-
+				
                 foreach ($settings as $key => $setting) {
+					
                     if (!Helpers::isKeyExists($properties, $key) || empty($properties[$key])) {
                         $properties[$key] = $setting;
                     }

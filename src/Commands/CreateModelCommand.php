@@ -163,7 +163,7 @@ class CreateModelCommand extends Command
      *
      * @return string
      */
-    protected function getPrimaryKeyName(Field $primaryField, $primaryKey)
+    protected function getPrimaryKeyName(Field $primaryField = null, $primaryKey = 'id')
     {
         return !is_null($primaryField) ? $primaryField->name : $primaryKey;
     }
