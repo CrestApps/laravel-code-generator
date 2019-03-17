@@ -435,7 +435,6 @@ class ForeignRelationship implements JsonWriter
      */
     public static function get(array $options)
     {
-		
         if (!array_key_exists('type', $options) || !array_key_exists('params', $options) || !array_key_exists('name', $options)) {
 			
 			if(count($options) >= 3) {
