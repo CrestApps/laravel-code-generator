@@ -1140,7 +1140,7 @@ class Field implements JsonWriter
      */
     public function setDataTypeParams(array $properties)
     {
-        if (Arr::isKeyExists($properties, 'data-type-params') && is_array($properties['data-type-params'])) {
+        if (Arr::isKeyExists($properties, 'data-type-params')) {
             $this->methodParams = $this->getDataTypeParams((array) $properties['data-type-params']);
         }
 

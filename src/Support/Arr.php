@@ -45,9 +45,9 @@ class Arr extends LaravelArr
      *
      * @return array
      */
-    public static function fromString($str, $seperator = ',')
+    public static function fromString($str, $seperator = ',', $limit = PHP_INT_MAX)
     {
-        return self::removeEmptyItems(explode($seperator, $str), function ($param) {
+        return self::removeEmptyItems(explode($seperator, $str, $limit ), function ($param) {
             return Str::trimQuots($param);
         });
     }

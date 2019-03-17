@@ -26,7 +26,7 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
                             {--controller-directory= : The directory where the controller should be created under. }
                             {--controller-extends=default-controller : The base controller to be extend.}
                             {--model-directory= : The path of the model.}
-                            {--views-directory= : The name of the view path.}
+							{--model-extends=default-model : The base model to be extend.}
                             {--form-request-directory= : The directory of the form-request.}
                             {--resource-file= : The name of the resource-file to import from.}
                             {--fields= : If the resource-file does not exists, passing list of fields here will create it first.}
@@ -114,7 +114,7 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
                     '--models-per-page' => $input->perPage,
                     '--routes-prefix' => $input->prefix,
                     '--language-filename' => $input->languageFileName,
-                    '--with-form-request' => $input->formRequest,
+                    '--with-form-request' => $input->withFormRequest,
                     '--without-form-request' => $this->option('without-form-request'),
                     '--form-request-directory' => $input->formRequestDirectory,
                     '--with-auth' => $input->withAuth,

@@ -210,7 +210,6 @@ class CreateScaffoldCommandBase extends Command
         $input->withoutModel = $this->option('without-model');
         $input->withoutController = $this->option('without-controller');
         $input->withoutFormRequest = $this->option('without-form-request');
-        $input->withoutViews = $this->option('without-views');
         $input->migrationClass = $this->option('migration-class-name');
         $input->connectionName = $this->option('connection-name');
         $input->engineName = $this->option('engine-name');

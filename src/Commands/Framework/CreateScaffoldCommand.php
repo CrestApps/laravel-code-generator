@@ -179,6 +179,8 @@ class CreateScaffoldCommand extends CreateScaffoldCommandBase
         $input = new ScaffoldInput(parent::getCommandInput());
 
         $input->viewsDirectory = trim($this->option('views-directory'));
+		$input->withoutViews = $this->option('without-views');
+		
         $input->layoutName = $this->option('layout-name') ?: 'layouts.app';
 
         return $input;
