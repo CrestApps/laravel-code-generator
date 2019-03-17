@@ -1,9 +1,8 @@
 <?php
 
-namespace CrestApps\CodeGeneratorTests;
+namespace CrestApps\CodeGenerator\Tests;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use CrestApps\CodeGenerator\Tests\TestCase;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
 
 class ForeignRelationTest extends TestCase
