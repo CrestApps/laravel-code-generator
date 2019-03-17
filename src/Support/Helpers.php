@@ -578,9 +578,9 @@ class Helpers
      *
      * @return array
      */
-    public static function convertStringToArray($str, $seperator = ',')
+    public static function convertStringToArray($str, $seperator = ',', $limit = PHP_INT_MAX)
     {
-        return self::removeEmptyItems(explode($seperator, $str), function ($param) {
+        return self::removeEmptyItems(explode($seperator, $str, $limit), function ($param) {
             return self::trimQuots($param);
         });
     }

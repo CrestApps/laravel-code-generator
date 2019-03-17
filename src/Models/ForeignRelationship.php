@@ -79,7 +79,7 @@ class ForeignRelationship implements JsonWriter
     public function __construct($type, $parameters, $name, $field = null)
     {
         $this->setType($type);
-        $this->setParameters((array) $parameters);
+        $this->setParameters($parameters);
         $this->name = $name;
         $this->setField($field);
     }
@@ -89,10 +89,14 @@ class ForeignRelationship implements JsonWriter
      *
      * @return void
      */
-    public function setParameters(array $parameters)
+    public function setParameters($parameters)
     {
-        $this->parameters = [];
-
+		$this->parameters = [];
+		
+		if(!is_array($parameters)){
+			$parameters = Helpers::convertStringToArray($parameters, '|');
+		}
+        
         foreach ($parameters as $parameter) {
             $this->parameters[] = Helpers::eliminateDupilcates($parameter, "\\");
         }
@@ -433,11 +437,24 @@ class ForeignRelationship implements JsonWriter
      */
     public static function get(array $options)
     {
+		
         if (!array_key_exists('type', $options) || !array_key_exists('params', $options) || !array_key_exists('name', $options)) {
+			
+			if(count($options) >= 3) {
+				$values = array_values($options);
+				$field = isset($values[3]) ? $values[3] : null;
+				return new ForeignRelationship(
+					$values[1],
+					$values[2],
+					$values[0],
+					$field
+				);				
+			}
+			
             return null;
         }
-
-        $field = array_key_exists('field', $options) ? $options['field'] : null;
+		
+		$field = array_key_exists('field', $options) ? $options['field'] : null;
 
         return new ForeignRelationship(
             $options['type'],

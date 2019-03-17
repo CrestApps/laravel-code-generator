@@ -61,7 +61,6 @@ class ResourceFileCreateCommand extends ResourceFileCreatorCommandBase
         }
 
         $fields = FieldTransformer::fromString($this->option('fields'), 'generic', $input->translationFor);
-
         $relations = $this->getRelations($input->relations);
         $indexes = $this->getIndexes($input->indexes);
 

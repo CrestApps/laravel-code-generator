@@ -83,53 +83,60 @@ class FieldTransformer
         // OR
         // name:a;html-type:select;options:first|second|third|fourth
         $fields = [];
-        $fieldNames = array_unique(Helpers::convertStringToArray($str));
+        $fieldNames = array_unique(Helpers::convertStringToArray($str, ','));
 
         foreach ($fieldNames as $fieldName) {
             $field = [];
 
-            if (str_contains($fieldName, ':')) {
-                // Handle the following format
-                // name:a;html-type:select;options:first|second|third|fourth
-                if (!str_is('*name*:*', $fieldName)) {
-                    throw new Exception('The "name" property was not provided and is required!');
-                }
+            if (!str_contains($fieldName, ':')) {
+			
+				$field['name'] = $fieldName;
+				
+				continue;
+			}
+			
+			// Handle the following format
+			// name:a;html-type:select;options:first|second|third|fourth
+			if (!str_is('*name*:*', $fieldName)) {
+				throw new Exception('The "name" property was not provided and is required!');
+			}
 
-                $parts = Helpers::convertStringToArray($fieldName, ';');
+			$parts = Helpers::convertStringToArray($fieldName, ';');
 
-                foreach ($parts as $part) {
-                    if (!str_is('*:*', $part) || count($properties = Helpers::convertStringToArray($part, ':')) < 2) {
-                        throw new Exception('Each provided property should use the following format "key:value"');
-                    }
-                    list($key, $value) = $properties;
-					
-					if(LaravelStr::startsWith($key, 'is-')){
-						$field[$key] = Helpers::stringToBool($value);
-					} else {
-                        $field[$key] = $value;
+			foreach ($parts as $part) {
+				
+				if (!str_is('*:*', $part) || count($properties = Helpers::convertStringToArray($part, ':', 2)) != 2) {
+					throw new Exception('Each provided property should use the following format "key:value"');
+				}
+				list($key, $value) = $properties;
+				
+				// The renations uses # as a delimiter
+				$selfParts = Helpers::convertStringToArray($value, '#');
+				
+				if(LaravelStr::startsWith($key, 'is-')){
+					$field[$key] = Helpers::stringToBool($value);					
+				} else {
+					$field[$key] = count($selfParts) > 1 ? $selfParts : $value;
+				}
+				
+				
+				if ($key == 'options') {
+					$options = Helpers::convertStringToArray($value, '|');
+
+					if (count($options) == 0) {
+						throw new Exception('You must provide at least one option where each option is seperated by "|".');
 					}
-					
-					
-                    if ($key == 'options') {
-                        $options = Helpers::convertStringToArray($value, '|');
 
-                        if (count($options) == 0) {
-                            throw new Exception('You must provide at least one option where each option is seperated by "|".');
-                        }
-
-                        $field['options'] = [];
-                        foreach ($options as $option) {
-                            $field['options'][$option] = $option;
-                        }
-                    }
-                }
-            } else {
-                $field['name'] = $fieldName;
-            }
+					$field['options'] = [];
+					foreach ($options as $option) {
+						$field['options'][$option] = $option;
+					}
+				}
+			}
 
             $fields[] = $field;
         }
-
+		
         return self::fromArray($fields, $localeGroup, $languages, $isReadOnly);
     }
 
@@ -170,7 +177,7 @@ class FieldTransformer
         $this->localeGroup = $localeGroup;
         $this->languages = array_unique($languages);
         $this->isReadOnly = $isReadOnly;
-    }
+	}
 
     /**
      * It get the fields collection
@@ -209,7 +216,7 @@ class FieldTransformer
             }
 
             $field = Field::fromArray($properties, $this->localeGroup, $this->languages);
-
+			
             $mappers[] = new FieldMapper($field, (array) $rawField);
         }
 		
@@ -275,7 +282,7 @@ class FieldTransformer
     public function presetProperties(array &$properties)
     {
         $definitions = Config::getCommonDefinitions();
-
+		
         foreach ($definitions as $definition) {
             $patterns = $this->getArrayByKey($definition, 'match');
 

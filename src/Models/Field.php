@@ -1043,10 +1043,10 @@ class Field implements JsonWriter
      */
     public function setDataTypeParams(array $properties)
     {
-        if (Helpers::isKeyExists($properties, 'data-type-params') && is_array($properties['data-type-params'])) {
+        if (Helpers::isKeyExists($properties, 'data-type-params')) {
             $this->methodParams = $this->getDataTypeParams((array) $properties['data-type-params']);
         }
-
+		
         return $this;
     }
 
@@ -1060,7 +1060,6 @@ class Field implements JsonWriter
     public function getDataTypeParams(array $params)
     {
         $type = $this->getEloquentDataMethod();
-
         if (in_array($type, ['char', 'string']) && isset($params[0]) && ($length = intval($params[0])) > 0) {
             return [$length];
         }
