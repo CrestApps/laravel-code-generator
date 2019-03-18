@@ -29,6 +29,7 @@ class ForeignRelationship implements JsonWriter
         'morphMany',
         'morphOne',
         'morphToMany',
+        'morphedByMany'
     ];
 
     /**
