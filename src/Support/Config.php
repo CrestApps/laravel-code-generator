@@ -224,7 +224,7 @@ class Config
             'date' => 'text',
             'dateTime' => 'text',
             'dateTimeTz' => 'text',
-            'bigIncrements' => 'number',
+            'bigInteger' => 'number',
             'bigIncrements' => 'number',
             'binary' => 'textarea',
             'boolean' => 'checkbox',
