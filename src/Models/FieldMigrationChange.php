@@ -55,6 +55,15 @@ class FieldMigrationChange extends MigrationChangeBase implements JsonWriter, Ch
                 return true;
             }
         }
+        if ($this->hasFromToFields()) {
+            // check for change in presence of foreign-constraint
+            $fromConstraint = null !== $this->fromField->getForeignConstraint();
+            $toConstraint = null !== $this->toField->getForeignConstraint();
+            $constraintChange = $fromConstraint != $toConstraint;
+            if ($constraintChange) {
+                return true;
+            }
+        }
 
         return false;
     }
