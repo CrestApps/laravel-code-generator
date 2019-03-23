@@ -1677,6 +1677,7 @@ class Field implements JsonWriter
             return null;
         }
         $dataType = $this->getEloquentDataMethod();
+		$max = 2147483647;
 
         if ($this->isDecimal()) {
             $length = $this->getMethodParam(0) ?: 1;
@@ -1687,21 +1688,20 @@ class Field implements JsonWriter
                 $max = substr_replace($max, '.', $declimal * -1, 0);
             }
             $max = floatval($max);
-        } elseif ($dataType == 'integer') {
+        } elseif ($dataType == 'integer' || $dataType == 'increments') {
             $max = $this->isUnsigned ? 4294967295 : 2147483647;
-        } elseif ($dataType == 'mediumInteger') {
+        } elseif ($dataType == 'mediumInteger' || $dataType == 'mediumIncrements') {
             $max = $this->isUnsigned ? 16777215 : 8388607;
-        } elseif ($dataType == 'smallInteger') {
+        } elseif ($dataType == 'smallInteger' || $dataType == 'smallIncrements') {
             $max = $this->isUnsigned ? 65535 : 32767;
-        } elseif ($dataType == 'tinyInteger') {
+        } elseif ($dataType == 'tinyInteger' || $dataType == 'tinyIncrements') {
             $max = $this->isUnsigned ? 255 : 127;
-        } elseif ($dataType == 'bigInteger') {
+        } elseif ($dataType == 'bigInteger' || $dataType == 'bigIncrements') {
             $max = $this->isUnsigned ? 18446744073709551615 : 9223372036854775807;
         }
 
         return $max;
     }
-
     /**
      * Gets the minimum value a field can equal.
      *
