@@ -51,7 +51,7 @@ class MigrationTrackerCapsule implements JsonWriter
     public function __construct(array $properties = [])
     {
         if (!isset($properties['table-name']) || empty($properties['table-name'])) {
-            throw new Eexception('The table-name is required to construct a migration capsule!');
+            throw new Exception('The table-name is required to construct a migration capsule!');
         }
 
         $this->tableName = $properties['table-name'];

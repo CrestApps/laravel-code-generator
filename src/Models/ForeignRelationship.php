@@ -7,9 +7,9 @@ use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ResourceMapper;
 use CrestApps\CodeGenerator\Support\Str;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Exception;
-use File;
+use Illuminate\Support\Facades\File;
 use Illuminate\Database\Eloquent\Model;
 
 class ForeignRelationship implements JsonWriter
@@ -29,6 +29,7 @@ class ForeignRelationship implements JsonWriter
         'morphMany',
         'morphOne',
         'morphToMany',
+        'morphedByMany'
     ];
 
     /**
@@ -62,7 +63,7 @@ class ForeignRelationship implements JsonWriter
     /**
      * Instance of the foreign model.
      *
-     * @var Illuminate\Database\Eloquent\Model
+     * @var Model
      */
     private $foreignModel;
 
@@ -215,8 +216,6 @@ class ForeignRelationship implements JsonWriter
     /**
      * Gets the relation's type.
      *
-     * @param string $name
-     *
      * @return string
      */
     public function getType()
@@ -289,7 +288,7 @@ class ForeignRelationship implements JsonWriter
     /**
      * Gets the name of the foreign model's primary key.
      *
-     * @return sting
+     * @return string
      */
     public function getPrimaryKeyForForeignModel()
     {
@@ -364,7 +363,7 @@ class ForeignRelationship implements JsonWriter
     /**
      * Gets the foreign model fields from resource file
      *
-     * @return mix (null | CrestApps\CodeGenerator\Models\Resource)
+     * @return CrestApps\CodeGenerator\Models\Resource|null
      */
     protected function getForeignResource()
     {
@@ -392,7 +391,7 @@ class ForeignRelationship implements JsonWriter
     /**
      * Gets a single instance of the foreign mode.
      *
-     * @return Illuminate\Database\Eloquent\Model
+     * @return Model
      */
     private function getForeignModelInstance()
     {
@@ -433,11 +432,10 @@ class ForeignRelationship implements JsonWriter
      *
      * @param array $options
      *
-     * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
+     * @return null | ForeignRelationship
      */
     public static function get(array $options)
     {
-		
         if (!array_key_exists('type', $options) || !array_key_exists('params', $options) || !array_key_exists('name', $options)) {
 			
 			if(count($options) >= 3) {
@@ -469,7 +467,7 @@ class ForeignRelationship implements JsonWriter
      *
      * @param string $rawRelation
      *
-     * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
+     * @return null | ForeignRelationship
      */
     public static function fromString($rawRelation)
     {
@@ -503,7 +501,7 @@ class ForeignRelationship implements JsonWriter
      * @param string $fieldName
      * @param string $modelPath
      *
-     * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
+     * @return null | ForeignRelationship
      */
     public static function predict($fieldName, $modelPath)
     {
