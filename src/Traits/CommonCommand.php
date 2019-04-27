@@ -399,7 +399,13 @@ trait CommonCommand
      */
     protected function putContentInFile($file, $content)
     {
-        $bytesWritten = File::put($file, $content);
+		$path = dirname($file);
+				
+		if(!$this->isFileExists($path)) {
+			File::makeDirectory($path, 0755, true);
+		}
+		
+        File::put($file, $content);
 
         return $this;
     }
@@ -413,7 +419,7 @@ trait CommonCommand
      */
     protected function appendContentToFile($file, $content)
     {
-        $bytesWritten = File::append($file, $content);
+        File::append($file, $content);
 
         return $this;
     }

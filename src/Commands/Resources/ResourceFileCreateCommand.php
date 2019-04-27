@@ -70,7 +70,7 @@ class ResourceFileCreateCommand extends ResourceFileCreatorCommandBase
         $resource = new Resource($fields, $relations, $indexes);
 
         $resource->setDefaultApiDocLabels($input->modelName, self::makeLocaleGroup($input->modelName), $input->translationFor);
-
+	
         $this->createFile($file, Helpers::prettifyJson($resource->toArray()))
             ->info('The "' . basename($file) . '" file was crafted successfully!');
     }
