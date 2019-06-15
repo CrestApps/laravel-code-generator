@@ -96,9 +96,9 @@ class Helpers
      */
     public static function fixNamespace($path)
     {
-		$path = self::convertSlashToBackslash($path);
+        $path = self::convertSlashToBackslash($path);
 		
-		$path = rtrim(Str::eliminateDupilcates($path, '\\'), '\\');
+        $path = rtrim(Str::eliminateDupilcates($path, '\\'), '\\');
 		
         return $path;
     }
