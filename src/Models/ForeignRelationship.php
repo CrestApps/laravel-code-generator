@@ -88,7 +88,7 @@ class ForeignRelationship implements JsonWriter
         }
 		
         foreach ($parameters as $parameter) {
-            $this->parameters[] = Str::eliminateDupilcates($parameter, "\\");
+            $this->parameters[] = Str::eliminateDuplicates($parameter, "\\");
         }
     }
 

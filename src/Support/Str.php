@@ -76,7 +76,7 @@ class Str extends LaravelStr
      *
      * @return string
      */
-    public static function eliminateDupilcates($subject, $search)
+    public static function eliminateDuplicates($subject, $search)
     {
         $pattern = str_repeat($search, 2);
 

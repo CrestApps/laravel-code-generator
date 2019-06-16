@@ -98,7 +98,7 @@ class Helpers
     {
         $path = self::convertSlashToBackslash($path);
 		
-        $path = rtrim(Str::eliminateDupilcates($path, '\\'), '\\');
+        $path = rtrim(Str::eliminateDuplicates($path, '\\'), '\\');
 		
         return $path;
     }
