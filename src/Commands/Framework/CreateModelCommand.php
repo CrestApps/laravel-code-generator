@@ -818,7 +818,7 @@ class CreateModelCommand extends Command
     protected function replaceFieldName(&$stub, $name)
     {
         $stub = $this->strReplace('field_name', $name, $stub);
-        $stub = $this->strReplace('field_name_cap', ucwords(camel_case($name)), $stub);
+        $stub = $this->strReplace('field_name_cap', ucwords(Str::camel($name)), $stub);
 
         return $this;
     }

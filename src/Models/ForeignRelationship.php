@@ -542,6 +542,6 @@ class ForeignRelationship implements JsonWriter
     {
         $modelName = self::extractModelName($fieldName);
 
-        return camel_case($modelName);
+        return Str::camel($modelName);
     }
 }

@@ -278,7 +278,7 @@ class StandardHtml extends HtmlGeneratorBase
         $valueString = 'null';
 
         if (!is_null($value)) {
-            $valueString = starts_with($value, '$') ? sprintf("%s", $value) : sprintf("'%s'", $value);
+            $valueString = Str::startsWith($value, '$') ? sprintf("%s", $value) : sprintf("'%s'", $value);
         }
 
         $defaultValueString = '[]';

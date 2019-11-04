@@ -183,7 +183,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     {
         $modelName = trim($this->argument('model-name'));
         $cName = trim($this->option('controller-name'));
-        $controllerName = $cName ? str_finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($modelName);
+        $controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($modelName);
         $prefix = ($this->option('routes-prefix') == 'default-form') ? Helpers::makeRouteGroup($modelName) : $this->option('routes-prefix');
         $perPage = intval($this->option('models-per-page'));
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
@@ -486,7 +486,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     protected function getRequestsNamespace($name, $path)
     {
         if (!empty($path)) {
-            $path = str_finish($path, '\\');
+            $path = Str::finish($path, '\\');
         }
 
         $path = Helpers::getAppNamespace() . Config::getRequestsPath($path);

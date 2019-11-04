@@ -2,6 +2,8 @@
 
 namespace CrestApps\CodeGenerator\Traits;
 
+use CrestApps\CodeGenerator\Support\Str;
+
 trait ScaffoldTrait
 {
     /**
@@ -27,6 +29,6 @@ trait ScaffoldTrait
      */
     protected function modelNamePlainEnglish($modelName)
     {
-        return str_replace('_', ' ', snake_case($modelName));
+        return str_replace('_', ' ', Str::snake($modelName));
     }
 }

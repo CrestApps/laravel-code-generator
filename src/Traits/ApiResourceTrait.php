@@ -18,7 +18,7 @@ trait ApiResourceTrait
     {
         $cName = trim($this->option('api-resource-name'));
 
-        return $cName ? str_finish($cName, Config::getApiResourceNamePostFix()) : Helpers::makeApiResourceName($modelName);
+        return $cName ? Str::finish($cName, Config::getApiResourceNamePostFix()) : Helpers::makeApiResourceName($modelName);
     }
 
     /**
@@ -49,7 +49,7 @@ trait ApiResourceTrait
     {
         $cName = trim($this->option('api-resource-collection-name'));
 
-        return $cName ? str_finish($cName, Config::getApiResourceCollectionNamePostFix()) : Helpers::makeApiResourceCollectionName($modelName);
+        return $cName ? Str::finish($cName, Config::getApiResourceCollectionNamePostFix()) : Helpers::makeApiResourceCollectionName($modelName);
     }
 
     /**

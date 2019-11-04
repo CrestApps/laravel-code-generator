@@ -221,7 +221,7 @@ abstract class ParserBase
     {
         $name = Str::singular($tableName);
 
-        return ucfirst(camel_case($name));
+        return ucfirst(Str::camel($name));
     }
 
     /**

@@ -319,22 +319,22 @@ class CreateApiDocsViewCommand extends Command
                 continue;
             }
 
-            if ($hasString && starts_with($rule, 'min:')) {
+            if ($hasString && Str::startsWith($rule, 'min:')) {
                 $rules[] = 'Minimum Length: ' . Str::trimEnd($rule, 'min:');
                 continue;
             }
 
-            if ($hasString && starts_with($rule, 'max:')) {
+            if ($hasString && Str::startsWith($rule, 'max:')) {
                 $rules[] = 'Maximum Length: ' . Str::trimEnd($rule, 'max:');
                 continue;
             }
 
-            if ($hasNumber && starts_with($rule, 'min:')) {
+            if ($hasNumber && Str::startsWith($rule, 'min:')) {
                 $rules[] = 'Minimum Value: ' . Str::trimEnd($rule, 'min:');
                 continue;
             }
 
-            if ($hasNumber && starts_with($rule, 'max:')) {
+            if ($hasNumber && Str::startsWith($rule, 'max:')) {
                 $rules[] = 'Maximum Value: ' . Str::trimEnd($rule, 'max:');
                 continue;
             }
@@ -548,7 +548,7 @@ class CreateApiDocsViewCommand extends Command
     {
         $modelName = trim($this->argument('model-name'));
         $cName = trim($this->option('controller-name'));
-        $controllerName = $cName ? str_finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($modelName);
+        $controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($modelName);
         $controllerDirectory = trim($this->option('controller-directory'));
         $viewsDirectory = trim($this->option('views-directory'));
         $layoutName = trim($this->option('layout-name'));

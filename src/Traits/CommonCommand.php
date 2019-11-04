@@ -128,9 +128,9 @@ trait CommonCommand
      */
     public function getPluralVariable($name)
     {
-        $snake = snake_case($name);
+        $snake = Str::snake($name);
 
-        $variableName = camel_case(Str::plural($snake));
+        $variableName = Str::camel(Str::plural($snake));
 
         if ($variableName == $this->getSingularVariable($name)) {
             $variableName .= 'Objects';
@@ -148,9 +148,9 @@ trait CommonCommand
      */
     public function getSingularVariable($name)
     {
-        $snake = snake_case($name);
+        $snake = Str::snake($name);
 
-        return camel_case($snake);
+        return Str::camel($snake);
     }
 
     /**

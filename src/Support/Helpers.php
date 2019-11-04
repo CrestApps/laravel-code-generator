@@ -20,7 +20,7 @@ class Helpers
     public static function makeControllerName($modelName)
     {
         $name = Str::properSnake($modelName, 'controller-name');
-        $case = ucfirst(camel_case($name));
+        $case = ucfirst(Str::camel($name));
 
         if (!empty($postfix = Config::getControllerNamePostFix())) {
             return Str::postfix($case, $postfix);
@@ -39,7 +39,7 @@ class Helpers
     public static function makeApiResourceName($modelName)
     {
         $name = Str::properSnake($modelName, 'api-resource-name');
-        $case = ucfirst(camel_case($name));
+        $case = ucfirst(Str::camel($name));
 
         if (!empty($postfix = Config::getApiResourceNamePostFix())) {
             return Str::postfix($case, $postfix);
@@ -58,7 +58,7 @@ class Helpers
     public static function makeApiResourceCollectionName($modelName)
     {
         $name = Str::properSnake($modelName, 'api-resource-collection-name');
-        $case = ucfirst(camel_case($name));
+        $case = ucfirst(Str::camel($name));
 
         if (!empty($postfix = Config::getApiResourceCollectionNamePostFix())) {
             return Str::postfix($case, $postfix);
@@ -97,9 +97,9 @@ class Helpers
     public static function fixNamespace($path)
     {
         $path = self::convertSlashToBackslash($path);
-		
+
         $path = rtrim(Str::eliminateDuplicates($path, '\\'), '\\');
-		
+
         return $path;
     }
 
@@ -158,10 +158,10 @@ class Helpers
     public static function makeFormRequestName($modelName)
     {
         $name = Str::properSnake($modelName, 'request-form-name');
-        $case = ucfirst(camel_case($name));
+        $case = ucfirst(Str::camel($name));
 
         if (!empty($postFix = Config::getFormRequestNamePostFix())) {
-            return str_finish($case, $postFix);
+            return Str::finish($case, $postFix);
         }
 
         return $case;
@@ -202,7 +202,7 @@ class Helpers
     {
         $snake = Str::properSnake($modelName, 'resource-file-name');
 
-        return str_finish($snake, '.json');
+        return Str::finish($snake, '.json');
     }
 
     /**

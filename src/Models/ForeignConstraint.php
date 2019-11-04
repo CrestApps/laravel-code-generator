@@ -141,7 +141,7 @@ class ForeignConstraint implements JsonWriter
      */
     protected function getForeignModelName($prefix = '')
     {
-        return ucfirst(camel_case($prefix . Str::singular($this->references)));
+        return ucfirst(Str::camel($prefix . Str::singular($this->references)));
     }
 
     /**

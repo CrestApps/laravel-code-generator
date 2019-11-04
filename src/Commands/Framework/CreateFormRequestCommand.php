@@ -6,6 +6,7 @@ use CrestApps\CodeGenerator\Commands\Bases\ControllerRequestCommandBase;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
 
 class CreateFormRequestCommand extends ControllerRequestCommandBase
 {
@@ -184,7 +185,7 @@ class CreateFormRequestCommand extends ControllerRequestCommandBase
      */
     protected function getDestenationFile($name, $path)
     {
-        return str_finish(app_path(Config::getRequestsPath($path)), '/') . $name . '.php';
+        return Str::finish(app_path(Config::getRequestsPath($path)), '/') . $name . '.php';
     }
 
     /**
@@ -196,7 +197,7 @@ class CreateFormRequestCommand extends ControllerRequestCommandBase
      */
     protected function getRequestsNamespace($path)
     {
-        $path = str_finish($path, '\\');
+        $path = Str::finish($path, '\\');
 
         $path = Helpers::getAppNamespace() . Config::getRequestsPath($path);
 

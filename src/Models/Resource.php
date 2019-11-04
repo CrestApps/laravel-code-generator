@@ -6,6 +6,7 @@ use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Models\Index;
 use CrestApps\CodeGenerator\Models\Relation;
 use CrestApps\CodeGenerator\Support\Arr;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
@@ -158,7 +159,7 @@ class Resource implements JsonWriter
      */
     protected function getProtectionKey($name)
     {
-        $key = str_is('is-*-protected', $name) ? $name : sprintf('is-%s-protected', $name);
+        $key = Str::is('is-*-protected', $name) ? $name : sprintf('is-%s-protected', $name);
 
         return $key;
     }

@@ -8,6 +8,7 @@ use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
 use Illuminate\Console\Command;
+use CrestApps\CodeGenerator\Support\Str;
 
 class ControllerRequestCommandBase extends Command
 {
@@ -174,7 +175,7 @@ class ControllerRequestCommandBase extends Command
      */
     protected function isCustomRule($rule)
     {
-        return starts_with(trim($rule), 'new ');
+        return Str::startsWith(trim($rule), 'new ');
     }
 
     /**
@@ -212,7 +213,7 @@ class ControllerRequestCommandBase extends Command
      */
     protected function canHaveUsingCommand($fullname)
     {
-        return !starts_with($fullname, '\\');
+        return !Str::startsWith($fullname, '\\');
     }
 
     /**

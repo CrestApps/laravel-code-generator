@@ -229,7 +229,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
         $modelVariable = $this->getSingularVariable($this->modelName);
         $valueString = 'null';
         if (!is_null($value)) {
-            $valueString = starts_with($value, '$') ? sprintf("%s", $value) : sprintf("'%s'", $value);
+            $valueString = Str::startsWith($value, '$') ? sprintf("%s", $value) : sprintf("'%s'", $value);
         }
         $defaultValueString = '[]';
         if (!empty($defaultValue)) {

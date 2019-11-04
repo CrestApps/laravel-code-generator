@@ -152,7 +152,7 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
     {
         $filename = trim($this->option('resource-filename')) ?: Helpers::makeJsonFileName($this->getModelName());
 
-        return str_finish($filename, '.json');
+        return Str::finish($filename, '.json');
     }
 
     /**

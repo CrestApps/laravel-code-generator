@@ -129,7 +129,7 @@ trait Migration
      */
     protected function makeCreateTableClassName($tableName)
     {
-        return sprintf('Create%sTable', studly_case($tableName));
+        return sprintf('Create%sTable', Str::studly($tableName));
     }
 
     /**
@@ -142,6 +142,6 @@ trait Migration
      */
     protected function makeAlterTableClassName($tableName, $id)
     {
-        return sprintf('Alter%s%sTable', studly_case($tableName), $id);
+        return sprintf('Alter%s%sTable', Str::studly($tableName), $id);
     }
 }

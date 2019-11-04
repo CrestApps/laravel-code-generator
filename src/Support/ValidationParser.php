@@ -336,7 +336,7 @@ class ValidationParser
     protected function startsWith($key)
     {
         foreach ($this->rules as $rule) {
-            if (starts_with($rule, $key)) {
+            if (Str::startsWith($rule, $key)) {
                 return true;
             }
         }

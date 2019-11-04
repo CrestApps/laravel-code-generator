@@ -89,7 +89,7 @@ class FieldTransformer
         foreach ($fieldNames as $fieldName) {
             $field = [];
 
-            if (str_contains($fieldName, ':')) {
+            if (Str::contains($fieldName, ':')) {
                 // Handle the following format
                 // name:a;html-type:select;options:first|second|third|fourth
                 if (!Str::is('*name*:*', $fieldName)) {

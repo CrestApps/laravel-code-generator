@@ -4,6 +4,7 @@ namespace CrestApps\CodeGenerator\Commands\Views;
 
 use CrestApps\CodeGenerator\Commands\Bases\ViewsCommandBase;
 use CrestApps\CodeGenerator\Models\Resource;
+use CrestApps\CodeGenerator\Support\Str;
 
 class CreateCreateViewCommand extends ViewsCommandBase
 {
@@ -75,7 +76,7 @@ class CreateCreateViewCommand extends ViewsCommandBase
      */
     protected function getFormName($modelName)
     {
-        return sprintf('create_%s_form', snake_case($modelName));
+        return sprintf('create_%s_form', Str::snake($modelName));
     }
 
     /**
@@ -87,6 +88,6 @@ class CreateCreateViewCommand extends ViewsCommandBase
      */
     protected function getFormId($modelName)
     {
-        return sprintf('create_%s_form', snake_case($modelName));
+        return sprintf('create_%s_form', Str::snake($modelName));
     }
 }

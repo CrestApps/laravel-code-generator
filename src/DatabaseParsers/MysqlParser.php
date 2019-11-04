@@ -202,10 +202,10 @@ class MysqlParser extends ParserBase
         $relationName = ($selfReferences ? 'child_' : '');
 
         if ($this->isOneToMany($foreignTableName, $foreignColumn)) {
-            return new ForeignRelationship('hasMany', $params, camel_case($relationName . Str::plural($foreignTableName)));
+            return new ForeignRelationship('hasMany', $params, Str::camel($relationName . Str::plural($foreignTableName)));
         }
 
-        return new ForeignRelationship('hasOne', $params, camel_case($relationName . Str::singular($foreignTableName)));
+        return new ForeignRelationship('hasOne', $params, Str::camel($relationName . Str::singular($foreignTableName)));
     }
 
     /**

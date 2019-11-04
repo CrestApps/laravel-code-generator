@@ -1809,7 +1809,7 @@ class Field implements JsonWriter
     public static function isValidSelectRangeType(array $properties)
     {
         return Arr::isKeyExists($properties, 'html-type')
-        && starts_with($properties['html-type'], 'selectRange|');
+        && Str::startsWith($properties['html-type'], 'selectRange|');
     }
 
     /**

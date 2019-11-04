@@ -22,9 +22,9 @@ trait GeneratorReplacers
         $stub = $this->strReplace($prefix . 'name_sentence', ucfirst($englishSingle), $stub);
         $stub = $this->strReplace($prefix . 'name_plural', $plural, $stub);
         $stub = $this->strReplace($prefix . 'name_plural_title', Str::titleCase($plural), $stub);
-        $stub = $this->strReplace($prefix . 'name_snake', snake_case($modelName), $stub);
-        $stub = $this->strReplace($prefix . 'name_studly', studly_case($modelName), $stub);
-        $stub = $this->strReplace($prefix . 'name_slug', str_slug($englishSingle), $stub);
+        $stub = $this->strReplace($prefix . 'name_snake', Str::snake($modelName), $stub);
+        $stub = $this->strReplace($prefix . 'name_studly', Str::studly($modelName), $stub);
+        $stub = $this->strReplace($prefix . 'name_slug', Str::slug($englishSingle), $stub);
         $stub = $this->strReplace($prefix . 'name_kebab', Str::kebabCase($modelName), $stub);
         $stub = $this->strReplace($prefix . 'name_title', Str::titleCase($englishSingle), $stub);
         $stub = $this->strReplace($prefix . 'name_title_lower', strtolower($englishSingle), $stub);
@@ -67,7 +67,7 @@ trait GeneratorReplacers
      */
     protected function modelNamePlainEnglish($modelName)
     {
-        return str_replace('_', ' ', snake_case($modelName));
+        return str_replace('_', ' ', Str::snake($modelName));
     }
 
     /**
@@ -169,7 +169,7 @@ trait GeneratorReplacers
      */
     protected function getModelName($name)
     {
-        return snake_case($name);
+        return Str::snake($name);
     }
 
     /**

@@ -371,6 +371,6 @@ class Str extends LaravelStr
      */
     public static function isQualifiedNamespace($name)
     {
-        return !empty($name) && !starts_with($name, '\\');
+        return !empty($name) && !Str::startsWith($name, '\\');
     }
 }

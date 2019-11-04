@@ -34,7 +34,7 @@ class ResourceFileCreatorCommandBase extends ResourceFileCommandBase
     {
         $modelName = trim($this->argument('model-name'));
         $filename = trim($this->option('resource-filename'));
-        $file = $filename ? str_finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
+        $file = $filename ? Str::finish($filename, '.json') : Helpers::makeJsonFileName($modelName);
         $translationFor = array_unique(Arr::fromString($this->option('translation-for')));
         $fieldNames = array_unique(Arr::fromString($this->option('fields')));
         $relations = Arr::fromString($this->option('relations'));
