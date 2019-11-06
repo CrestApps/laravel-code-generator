@@ -6,6 +6,7 @@ use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
+use CrestApps\CodeGenerator\Support\Str;
 
 class LaravelCollectiveHtml extends HtmlGeneratorBase
 {
