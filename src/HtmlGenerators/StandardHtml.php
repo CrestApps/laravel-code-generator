@@ -278,13 +278,13 @@ class StandardHtml extends HtmlGeneratorBase
         $valueString = 'null';
 
         if (!is_null($value)) {
-            $valueString = starts_with($value, '$') ? sprintf("%s", $value) : sprintf("'%s'", $value);
+            $valueString = Str::startsWith($value, '$') ? sprintf("%s", $value) : sprintf("'%s'", $value);
         }
 
         $defaultValueString = '[]';
 
         if (!empty($defaultValue)) {
-            $joinedValues = implode(',', Helpers::wrapItems((array) $defaultValue));
+            $joinedValues = implode(',', Arr::wrapItems((array) $defaultValue));
             $defaultValueString = sprintf('[%s]', $joinedValues);
         }
 

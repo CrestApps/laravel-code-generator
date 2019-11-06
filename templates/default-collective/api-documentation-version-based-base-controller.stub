@@ -1,0 +1,38 @@
+<?php
+
+namespace [% namespace %];
+
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Routing\Controller as BaseController;
+
+class Controller extends BaseController
+{
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    /**
+     * Valid versions
+     *
+     * @var array
+     */
+    private $versions = [
+        '[% api_version_number %]',
+    ];
+
+    /**
+     * Get a valid version from the available list.
+     *
+     * @param string $version
+     *
+     * @return string
+     */
+    protected function getVersion($version)
+    {
+        if (in_array($version, $this->versions)) {
+            return $version;
+        }
+
+        return end($this->versions);
+    }
+}

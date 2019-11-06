@@ -210,7 +210,7 @@ class FieldOptimizer
     {
         if ($this->field->isPrimary()) {
 			$this->field->isNullable = false;
-				
+			
             if ($this->meta == null) {
                 $this->field->isOnFormView = false;
                 $this->field->isOnIndexView = false;

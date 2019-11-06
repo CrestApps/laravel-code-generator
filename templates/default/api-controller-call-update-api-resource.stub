@@ -1,0 +1,1 @@
+return new [% api_resource_class %]($[% model_name_singular_variable %], [% model_was_updated %]);

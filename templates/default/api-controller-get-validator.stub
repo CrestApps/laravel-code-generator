@@ -1,0 +1,16 @@
+    
+    /**
+     * Gets a new validator instance with the defined rules.
+     *
+     * @param [% request_fullname %] $request
+     *
+     * @return Illuminate\Support\Facades\Validator
+     */
+    protected function getValidator(Request $request)
+    {
+        $rules = [
+[% validation_rules %] 
+        ];
+[% file_validation_snippet %]
+        return Validator::make($request->all(), $rules);
+    }

@@ -1,0 +1,104 @@
+<?php
+
+namespace [% namespace %];
+
+[% use_command_placeholder %]
+use Exception;
+
+class [% controller_name %] [% controller_extends %]
+{
+[% constructor %]
+    /**
+     * Display a listing of the assets.
+     *
+     * @return Illuminate\View\View
+     */
+    public function index()
+    {
+        $[% model_name_plural_variable %] = [% model_name_class %]::[% with_relations_for_index %]paginate([% models_per_page %]);
+
+        [% index_return_success %]
+    }
+
+    /**
+     * Store a new [% model_name %] in the storage.
+     *
+     * @param [% request_fullname %] [% request_variable %]
+     *
+     * @return Illuminate\Http\Response
+     */
+    public function store([% type_hinted_request_name %])
+    {
+        try {
+            [% validator_request %]
+            $[% data_variable %] = [% call_get_data %];
+            [% on_store_setter %]
+            $[% model_name_singular_variable %] = [% model_name_class %]::create($[% data_variable %]);
+
+            [% store_return_success %]
+        } catch (Exception $exception) {
+            return $this->errorResponse([% unexpected_error %]);
+        }
+    }
+
+    /**
+     * Display the specified [% model_name %].
+     *
+     * @param int $id
+     *
+     * @return Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $[% model_name_singular_variable %] = [% model_name_class %]::[% with_relations_for_show %]findOrFail($id);
+
+        [% show_return_success %]
+    }
+
+    /**
+     * Update the specified [% model_name %] in the storage.
+     *
+     * @param int $id
+     * @param [% request_fullname %] [% request_variable %]
+     *
+     * @return Illuminate\Http\Response
+     */
+    public function update($id, [% type_hinted_request_name %])
+    {
+        try {
+            [% validator_request %]
+            $[% data_variable %] = [% call_get_data %];
+            [% on_update_setter %]
+            $[% model_name_singular_variable %] = [% model_name_class %]::findOrFail($id);
+            $[% model_name_singular_variable %]->update($[% data_variable %]);
+
+            [% update_return_success %]
+        } catch (Exception $exception) {
+            return $this->errorResponse([% unexpected_error %]);
+        }
+    }
+
+    /**
+     * Remove the specified [% model_name %] from the storage.
+     *
+     * @param int $id
+     *
+     * @return Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        try {
+            $[% model_name_singular_variable %] = [% model_name_class %]::findOrFail($id);
+            $[% model_name_singular_variable %]->delete();
+
+            [% destroy_return_success %]
+        } catch (Exception $exception) {
+            return $this->errorResponse([% unexpected_error %]);
+        }
+    }
+[% get_validator_method %]
+[% get_data_method %]
+[% upload_method %]
+[% transform_method %]
+[% response_methods %]
+}

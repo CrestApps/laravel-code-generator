@@ -1,0 +1,13 @@
+    /**
+     * Transform the giving [% model_name %] to public friendly array
+     *
+     * @param [% use_full_model_name %] $[% model_name_singular_variable %]
+     *
+     * @return array
+     */
+    protected function [% transform_method_name %]([% model_name_class %] $[% model_name_singular_variable %])
+    {
+        return [
+[% model_api_array %]
+        ];
+    }

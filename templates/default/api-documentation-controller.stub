@@ -1,0 +1,20 @@
+<?php
+
+namespace [% namespace %];
+
+[% use_command_placeholder %]
+
+class [% controller_name %] [% controller_extends %]
+{
+[% constructor %]
+    /**
+     * Display the documentation's view.
+     *
+     * @return Illuminate\View\View
+     */
+    public function index()
+    {
+        return view('[% view_access_fullname %]index');
+    }
+
+}

@@ -1,0 +1,50 @@
+<?php
+
+namespace [% namespace %];
+
+use Illuminate\Http\Resources\Json\ResourceCollection;
+use [% use_full_model_name %];
+
+class [% api_resource_collection_class %] extends ResourceCollection
+{
+    /**
+     * The response message
+     *
+     * @var mixed
+     */
+    protected $message;
+
+    /**
+     * Create a new resource instance.
+     *
+     * @param  mixed  $resource
+     * @param  mixed  $message
+     *
+     * @return void
+     */
+    public function __construct($resource, $message = null)
+    {
+        parent::__construct($resource);
+
+        $this->message = $message;
+    }
+
+    /**
+     * Transform the resource collection into an array.
+     *
+     * @param  \Illuminate\Http\Request
+     * @return array
+     */
+    public function toArray($request)
+    {
+        return [
+            'data' => $this->collection->transform(function ($[% model_name_singular_variable %]) {
+                return $this->transformModel($[% model_name_singular_variable %]);
+            }),
+            'message' => $this->message,
+            'success' => true,
+        ];
+    }
+
+[% transform_method %]
+}

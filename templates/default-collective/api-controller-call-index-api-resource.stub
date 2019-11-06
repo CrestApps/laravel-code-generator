@@ -1,0 +1,1 @@
+return new [% api_resource_collection_class %]($[% model_name_plural_variable %], [% models_were_retrieved %]);

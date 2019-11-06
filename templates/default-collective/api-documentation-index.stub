@@ -1,0 +1,417 @@
+@extends('[% layout_name %]')
+
+@section('content')
+
+<h2>[% model_plural %]</h2>
+[% general_description %]
+<hr>
+
+<h2>[% available_resources %]</h2>
+    <div class="panel panel-default mb-7" id="index-documentation">
+        <div class="panel-heading clearfix">
+
+            <div class="pull-left">
+                 <div class="label label-default label-api">GET</div>
+                 <span class="ml-10"><strong>/{{ Route::getRoutes()->getByName('[% index_route_name %]')->uri() }}</strong></span>
+                 <span class="ml-10">[% index_route_description %]</span>
+            </div>
+            <div class="pull-right">
+
+                <button data-toggle="collapse" data-parent="#index-documentation" href="#index" class="btn btn-default btn-xs">
+                    <span class="glyphicon glyphicon-chevron-down"></span>
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="panel-collapse collapse" id="index">
+            <div class="panel-body">
+                <h3><strong>[% request_title %]</strong></h3>
+                [% authorized_request_for_index %]
+
+                <hr>
+                <h3><strong>[% response_title %]</strong></h3>
+
+                <p>[% index_route_response_description %]</p>
+                <p></p>
+
+                <h4><strong class="text-success">200 - Ok</strong></h4>
+                <p class="text-muted">[% request_was_successful %]</p>
+                <table class="table table-stripped">
+                    <tbody>
+                        <tr>
+                            <td>success</td>
+                            <td>[% boolean_title %]</td>
+                            <td>Was the request successful or not.</td>
+                        </tr>
+                        <tr>
+                            <td>message</td>
+                            <td>[% string_title %]</td>
+                            <td>[% the_success_message %]</td>
+                        </tr>
+
+                        <tr>
+                            <td>data</td>
+                            <td>[% array_title %]</td>
+                            <td>
+                                [% the_key_is_the_model_property_and_the_value_is_the_model_value %]
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>links</td>
+                            <td>[% array_title %]</td>
+                            <td>
+                                <table class="table table-stripped">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-2">[% key_title %]</th>
+                                            <th class="col-md-2">[% data_type_title %]</th>
+                                            <th class="col-md-8">[% description_title %]</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>first</td>
+                                            <td>[% string_title %]</td>
+                                            <td>[% link_to_retrieve_first_page %]</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>last</td>
+                                            <td>[% string_title %]</td>
+                                            <td>[% link_to_retrieve_last_page %]</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>prev</td>
+                                            <td>[% string_title %]</td>
+                                            <td>[% link_to_retrieve_previous_page %]</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>next</td>
+                                            <td>[% string_title %]</td>
+                                            <td>[% link_to_retrieve_next_page %]</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <td>meta</td>
+                            <td>[% array_title %]</td>
+                            <td>
+                                <table class="table table-stripped">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-2">[% key_title %]</th>
+                                            <th class="col-md-2">[% data_type_title %]</th>
+                                            <th class="col-md-8">[% description_title %]</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>current_page</td>
+                                            <td>[% integer_title %]</td>
+                                            <td>[% the_number_of_current_page %]</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>from</td>
+                                            <td>[% integer_title %]</td>
+                                            <td>[% the_index_of_the_first_retrieved_item %]</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>last_page</td>
+                                            <td>[% integer_title %]</td>
+                                            <td>[% the_number_of_the_last_page %]</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Path</td>
+                                            <td>[% string_title %]</td>
+                                            <td>[% the_base_link_to_the_resource %]</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>per_page</td>
+                                            <td>[% integer_title %]</td>
+                                            <td>[% the_number_of_models_per_page %]</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>to</td>
+                                            <td>[% integer_title %]</td>
+                                            <td>[% the_index_of_the_last_retrieved_item %]</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>total</td>
+                                            <td>[% integer_title %]</td>
+                                            <td>[% the_total_of_available_pages %]</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+
+                [% include_failed_authentication_for_authorized_request %]
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="panel panel-success mb-7" id="store-documentation">
+        <div class="panel-heading clearfix">
+
+            <div class="pull-left">
+                 <div class="label label-success label-api">POST</div>
+                 <span class="ml-10"><strong>/{{ Route::getRoutes()->getByName('[% store_route_name %]')->uri() }}</strong></span>
+                 <span class="ml-10">[% store_route_description %]</span>
+            </div>
+            <div class="pull-right">
+
+                <button data-toggle="collapse" data-parent="#store-documentation" href="#store" class="btn btn-success btn-xs">
+                    <span class="glyphicon glyphicon-chevron-down"></span>
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="panel-collapse collapse" id="store">
+            <div class="panel-body">
+                <h3><strong>[% request_title %]</strong></h3>
+                
+                @include('[% path_to_view_home %]fields-list', [
+                    'withValidation' => true
+                ])
+
+                <hr>
+                <h3><strong>[% response_title %]</strong></h3>
+                <p>[% store_route_response_description %]</p>
+                <p></p>
+
+                @include('[% path_to_view_home %]retrieved')
+                @include('[% path_to_view_home %]failed-to-retrieve')
+                @include('[% path_to_view_home %]failed-validation')
+                [% include_failed_authentication_for_authorized_request %]
+
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="panel panel-warning mb-7" id="update-documentation">
+        <div class="panel-heading clearfix">
+
+            <div class="pull-left">
+                <div class="label label-warning label-api">POST</div>
+                <span class="ml-10"><strong>/{{ Route::getRoutes()->getByName('[% update_route_name %]')->uri() }}</strong></span>
+                <span class="ml-10">[% update_route_description %]</span>
+            </div>
+            <div class="pull-right">
+
+                <button data-toggle="collapse" data-parent="#update-documentation" href="#update" class="btn btn-warning btn-xs">
+                    <span class="glyphicon glyphicon-chevron-down"></span>
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="panel-collapse collapse" id="update">
+            <div class="panel-body">
+
+                <h3><strong>[% request_title %]</strong></h3>
+
+                @include('[% path_to_view_home %]fields-list', [
+                    'withValidation' => true,
+                    'withPathId' => true,
+                ])
+
+                <hr>
+                <h3><strong>[% response_title %]</strong></h3>
+                <p>[% update_route_response_description %]</p>
+                <p></p>
+                
+                @include('[% path_to_view_home %]retrieved')
+                @include('[% path_to_view_home %]failed-to-retrieve')
+                @include('[% path_to_view_home %]failed-validation')
+                [% include_failed_authentication_for_authorized_request %]
+
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="panel panel-info mb-7" id="show-documentation">
+        <div class="panel-heading clearfix">
+
+            <div class="pull-left">
+                <div class="label label-info label-api">GET</div>
+                <span class="ml-10"><strong>/{{ Route::getRoutes()->getByName('[% show_route_name %]')->uri() }}</strong></span>
+                <span class="ml-10">[% show_route_description %]</span>
+            </div>
+            <div class="pull-right">
+
+                <button data-toggle="collapse" data-parent="#show-documentation" href="#show" class="btn btn-info btn-xs">
+                    <span class="glyphicon glyphicon-chevron-down"></span>
+                </button>
+
+
+            </div>
+
+        </div>
+
+        <div class="panel-collapse collapse" id="show">
+            <div class="panel-body">
+
+                <h3><strong>[% request_title %]</strong></h3>
+                
+                <table class="table table-stripped">
+                    <thead>
+                        <tr>
+                            <th class="col-md-2">[% parameter_name_title %]</th>
+                            <th class="col-md-2">[% data_type_title %]</th>
+                            <th class="col-md-2">[% parameter_type_title %]</th>
+                            <th class="col-md-6">[% description_title %]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        [% include_parameter_for_authorized_request %]
+                        <tr>
+                            <td>[% model_name %]</td>
+                            <td>[% integer_title %]</td>
+                            <td><span class="label label-info" title="[% this_parameter_is_part_of_the_path %]">[% path_title %]</span></td>
+                            <td>[% the_id_of_model_to_retrieve %]</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+                <hr>
+                <h3><strong>[% response_title %]</strong></h3>
+                <p>[% show_route_response_description %] </p>
+                <p></p>
+
+                @include('[% path_to_view_home %]retrieved')
+                @include('[% path_to_view_home %]failed-to-retrieve')
+                [% include_failed_authentication_for_authorized_request %]
+
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="panel panel-danger mb-7" id="destroy-documentation">
+        <div class="panel-heading clearfix">
+
+            <div class="pull-left">
+                <div class="label label-danger label-api">DELETE</div>
+                <span class="ml-10"><strong>/{{ Route::getRoutes()->getByName('[% destroy_route_name %]')->uri() }}</strong></span>
+                <span class="ml-10">[% destroy_route_description %]</span>
+            </div>
+            <div class="pull-right">
+
+                <button data-toggle="collapse" data-parent="#destroy-documentation" href="#destroy" class="btn btn-danger btn-xs">
+                    <span class="glyphicon glyphicon-chevron-down"></span>
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="panel-collapse collapse" id="destroy">
+            <div class="panel-body">
+
+                <h3><strong>[% request_title %]</strong></h3>
+
+                <table class="table table-stripped">
+                    <thead>
+                        <tr>
+                            <th class="col-md-2">[% parameter_name_title %]</th>
+                            <th class="col-md-2">[% data_type_title %]</th>
+                            <th class="col-md-2">[% parameter_type_title %]</th>
+                            <th class="col-md-6">[% description_title %]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        [% include_parameter_for_authorized_request %]
+                        <tr>
+                            <td>[% model_name %]</td>
+                            <td>[% integer_title %]</td>
+                            <td><span class="label label-info" title="[% this_parameter_is_part_of_the_path %]">[% path_title %]</span></td>
+                            <td>[% the_id_of_model_to_delete %]</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+                <hr>
+                <h3><strong>[% response_title %]</strong></h3>
+                <p>[% destroy_route_response_description %]</p>
+                <p></p>
+
+                @include('[% path_to_view_home %]retrieved')
+                @include('[% path_to_view_home %]failed-to-retrieve')
+                [% include_failed_authentication_for_authorized_request %]
+
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+<h2>[% model_definition_title %]</h2>
+    <div class="panel panel-primary" id="[% model_name %]-model-documentation">
+        <div class="panel-heading clearfix">
+
+            <div class="pull-left">
+                 <span>[% model_name_title %]</span>
+            </div>
+            <div class="pull-right">
+
+                <button data-toggle="collapse" data-parent="#[% model_name %]-model-documentation" href="#[% model_name %]-model" class="btn btn-default btn-xs">
+                    <span class="glyphicon glyphicon-chevron-up"></span>
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="panel-collapse" id="[% model_name %]-model">
+            <div class="panel-body">
+                <table class="table table-stripped">
+                    <thead>
+                        <tr>
+                            <th>[% field_name_title %]</th>
+                            <th>[% field_type_title %]</th>
+                            <th>[% description_title %]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    [% fields_list_for_body %]
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+@endsection

@@ -4,14 +4,14 @@ namespace CrestApps\CodeGenerator\Models;
 
 class Label
 {
-    
+
     /**
      * The label's text
      *
      * @var string
      */
     public $text;
-    
+
     /**
      * The localeGroup for the label
      *
@@ -41,7 +41,7 @@ class Label
     public $value;
 
     /**
-     * The label's value
+     * The label's id
      *
      * @var string
      */
@@ -56,17 +56,22 @@ class Label
 
     /**
      * When a label is inside a function we need to ignore adding {{ }}
-     * when translating. All when displaying plain text, the text must
+     * when translating. Also, when displaying plain text, the text must
      * be wrapped with a single quote. This flag tell us to do that.
      *
      * @var bool
      */
     public $isInFunction = false;
-    
+
     /**
      * Create a new label instance.
      *
-     * @param string $name
+     * @param string $text
+     * @param string $localeGroup
+     * @param bool $isPlain
+     * @param string $lang
+     * @param string $id
+     * @param string $value
      *
      * @return void
      */
@@ -81,14 +86,24 @@ class Label
     }
 
     /**
-     * Returns current object into proper json format.
+     * Encode the current object into JSON format.
      *
      * @return string
      */
     public function toJson()
     {
         return json_encode([
-            $this->lang => $this->text
+            $this->lang => $this->text,
         ]);
+    }
+
+    /**
+     * Gets the translation accessor.
+     *
+     * @return string
+     */
+    public function getAccessor()
+    {
+        return sprintf('%s.%s', $this->localeGroup, $this->id);
     }
 }

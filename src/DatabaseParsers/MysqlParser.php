@@ -9,13 +9,16 @@ use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Models\Index;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\FieldTransformer;
-use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\Str;
+use CrestApps\CodeGenerator\Traits\LanguageTrait;
+use CrestApps\CodeGenerator\Traits\ModelTrait;
 use DB;
 use Exception;
 
 class MysqlParser extends ParserBase
 {
+    use ModelTrait, LanguageTrait;
+
     /**
      * List of the foreign constraints.
      *
@@ -188,7 +191,7 @@ class MysqlParser extends ParserBase
     protected function getRealtion($foreignTableName, $foreignColumn, $localColumn, $selfReferences)
     {
         $modelName = $this->getModelName($foreignTableName);
-        $model = Helpers::guessModelFullName($modelName, Helpers::getModelsPath());
+        $model = self::guessModelFullName($modelName, self::getModelsPath());
 
         $params = [
             $model,
@@ -199,10 +202,10 @@ class MysqlParser extends ParserBase
         $relationName = ($selfReferences ? 'child_' : '');
 
         if ($this->isOneToMany($foreignTableName, $foreignColumn)) {
-            return new ForeignRelationship('hasMany', $params, camel_case($relationName . Str::plural($foreignTableName)));
+            return new ForeignRelationship('hasMany', $params, Str::camel($relationName . Str::plural($foreignTableName)));
         }
 
-        return new ForeignRelationship('hasOne', $params, camel_case($relationName . Str::singular($foreignTableName)));
+        return new ForeignRelationship('hasOne', $params, Str::camel($relationName . Str::singular($foreignTableName)));
     }
 
     /**
@@ -278,7 +281,7 @@ class MysqlParser extends ParserBase
             $collection[] = $properties;
         }
 
-        $localeGroup = Helpers::makeLocaleGroup($this->tableName);
+        $localeGroup = self::makeLocaleGroup($this->tableName);
 
         $fields = FieldTransformer::fromArray($collection, $localeGroup, $this->languages);
 

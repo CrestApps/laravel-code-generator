@@ -1,0 +1,21 @@
+<?php
+
+namespace [% namespace %];
+
+[% use_command_placeholder %]
+
+class [% controller_name %] [% controller_extends %]
+{
+[% constructor %]
+    /**
+     * Display the documentation which corresponds to the giving version.
+     *
+     * @return Illuminate\View\View
+     */
+    public function index($version)
+    {
+        $viewName = sprintf('[% view_access_fullname %]index', $this->getVersion($version));
+
+        return view($viewName);
+    }
+}

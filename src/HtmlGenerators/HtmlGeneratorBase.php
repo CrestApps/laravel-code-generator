@@ -4,7 +4,6 @@ namespace CrestApps\CodeGenerator\HtmlGenerators;
 
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\Label;
-use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ValidationParser;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
@@ -134,6 +133,7 @@ abstract class HtmlGeneratorBase
 
         return $stub;
     }
+
     /**
      * Gets the value to use in the show view
      *
@@ -287,27 +287,9 @@ abstract class HtmlGeneratorBase
      */
     protected function getFieldAccessorValue(Field $field, $view)
     {
-        $fieldAccessor = sprintf('$%s->%s', $this->getSingularVariable($this->modelName), $field->name);
+        $variable = $this->getSingularVariable($this->modelName);
 
-        if ($field->hasForeignRelation() && $field->isOnView($view)) {
-            $relation = $field->getForeignRelation();
-            if (Helpers::isNewerThanOrEqualTo('5.5')) {
-                $fieldAccessor = sprintf('optional($%s->%s)->%s', $this->getSingularVariable($this->modelName), $relation->name, $relation->getField());
-            } else {
-                $fieldAccessor = sprintf('$%s->%s->%s', $this->getSingularVariable($this->modelName), $relation->name, $relation->getField());
-                $fieldAccessor = sprintf(" isset(%s) ? %s : '' ", $fieldAccessor, $fieldAccessor);
-            }
-        }
-
-        if ($field->isBoolean()) {
-            return sprintf("(%s) ? '%s' : '%s'", $fieldAccessor, $field->getTrueBooleanOption()->text, $field->getFalseBooleanOption()->text);
-        }
-
-        if ($field->isMultipleAnswers()) {
-            return sprintf("implode('%s', %s)", $field->optionsDelimiter, $fieldAccessor);
-        }
-
-        return $fieldAccessor;
+        return $field->getAccessorValue($variable, $view);
     }
 
     /**
@@ -840,7 +822,7 @@ abstract class HtmlGeneratorBase
     {
         $template = $raw === false ? "trans('%s')" : "{{ trans('%s') }}";
 
-        return sprintf($template, $label->localeGroup);
+        return sprintf($template, $label->getAccessor());
     }
 
     /**

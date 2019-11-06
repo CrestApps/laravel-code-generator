@@ -1,0 +1,12 @@
+        <tr>
+            <td>[% field_name %]</td>
+            <td>[% field_type_title %]</td>
+            <td><span class="label label-default" title="[% this_parameter_is_part_of_the_body %]">[% body_title %]</span></td>
+            <td>[% api_field_description %]</td>
+            @if($showValidation)
+                <td>
+                    [% validation_rule_required %]
+                    <span>[% validation_rules %]</span>
+                </td>
+            @endif
+        </tr>

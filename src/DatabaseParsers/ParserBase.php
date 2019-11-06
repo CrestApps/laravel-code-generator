@@ -11,11 +11,12 @@ use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ResourceMapper;
 use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
+use CrestApps\CodeGenerator\Traits\ModelTrait;
 use Exception;
 
 abstract class ParserBase
 {
-    use CommonCommand;
+    use CommonCommand, ModelTrait;
 
     /**
      * List of fields to be excluded from all views.
@@ -196,16 +197,6 @@ abstract class ParserBase
     }
 
     /**
-     * Gets the models namespace
-     *
-     * @return string
-     */
-    protected function getModelNamespace()
-    {
-        return Helpers::getAppNamespace() . Config::getModelsPath();
-    }
-
-    /**
      * Gets the model's name from a given table name
      *
      * @param string $tableName
@@ -230,7 +221,7 @@ abstract class ParserBase
     {
         $name = Str::singular($tableName);
 
-        return ucfirst(camel_case($name));
+        return ucfirst(Str::camel($name));
     }
 
     /**

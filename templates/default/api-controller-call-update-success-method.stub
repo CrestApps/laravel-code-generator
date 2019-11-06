@@ -1,0 +1,4 @@
+return $this->successResponse(
+			    [% model_was_updated %],
+			    $this->transform($[% model_name_singular_variable %])
+			);

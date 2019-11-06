@@ -1,0 +1,11 @@
+                        <tr>
+                            <td>Authorization</td>
+                            <td>[% string_title %]</td>
+                            <td>
+                                <span class="label label-primary" title="[% this_parameter_is_an_http_header %]">[% header_title %]</span>
+                            </td>
+                            <td>[% access_token_with_bearer %]</td>
+                            @if(isset($showValidation) && $showValidation)
+                                <td></td>
+                            @endif
+                        </tr>

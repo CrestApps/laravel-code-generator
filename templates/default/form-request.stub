@@ -25,7 +25,7 @@ class [% form_request_class %] extends FormRequest
     public function rules()
     {
         $rules = [
-    [% validation_rules %]
+[% validation_rules %]
         ];
 [% file_validation_snippet %]
         return $rules;

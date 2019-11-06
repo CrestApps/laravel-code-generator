@@ -4,15 +4,17 @@ namespace CrestApps\CodeGenerator\Support;
 
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\FieldMapper;
+use CrestApps\CodeGenerator\Support\Arr;
 use CrestApps\CodeGenerator\Support\FieldsOptimizer;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
-use Illuminate\Support\Str as LaravelStr;
+use CrestApps\CodeGenerator\Traits\LabelTransformerTrait;
 use Exception;
 
 class FieldTransformer
 {
-    use CommonCommand, GeneratorReplacers;
+    use CommonCommand, GeneratorReplacers, LabelTransformerTrait;
 
     /**
      * The name of the file where labels will reside
@@ -83,60 +85,52 @@ class FieldTransformer
         // OR
         // name:a;html-type:select;options:first|second|third|fourth
         $fields = [];
-        $fieldNames = array_unique(Helpers::convertStringToArray($str, ','));
-
+        $fieldNames = array_unique(Arr::fromString($str));
         foreach ($fieldNames as $fieldName) {
             $field = [];
 
-            if (!str_contains($fieldName, ':')) {
-			
-				$field['name'] = $fieldName;
-				
-				continue;
-			}
-			
-			// Handle the following format
-			// name:a;html-type:select;options:first|second|third|fourth
-			if (!str_is('*name*:*', $fieldName)) {
-				throw new Exception('The "name" property was not provided and is required!');
-			}
+            if (Str::contains($fieldName, ':')) {
+                // Handle the following format
+                // name:a;html-type:select;options:first|second|third|fourth
+                if (!Str::is('*name*:*', $fieldName)) {
+                    throw new Exception('The "name" property was not provided and is required!');
+                }
 
-			$parts = Helpers::convertStringToArray($fieldName, ';');
+                $parts = Arr::fromString($fieldName, ';');
 
-			foreach ($parts as $part) {
-				
-				if (!str_is('*:*', $part) || count($properties = Helpers::convertStringToArray($part, ':', 2)) != 2) {
-					throw new Exception('Each provided property should use the following format "key:value"');
-				}
-				list($key, $value) = $properties;
-				
-				// The renations uses # as a delimiter
-				$selfParts = Helpers::convertStringToArray($value, '#');
-				
-				if(LaravelStr::startsWith($key, 'is-')){
-					$field[$key] = Helpers::stringToBool($value);					
-				} else {
-					$field[$key] = count($selfParts) > 1 ? $selfParts : $value;
-				}
-				
-				
-				if ($key == 'options') {
-					$options = Helpers::convertStringToArray($value, '|');
+                foreach ($parts as $part) {
+                    if (!Str::is('*:*', $part) || count($properties = Arr::fromString($part, ':')) < 2) {
+                        throw new Exception('Each provided property should use the following format "key:value"');
+                    }
+                    list($key, $value) = $properties;
+					
+                    if(Str::startsWith($key, 'is-')){
+                        $field[$key] = Str::stringToBool($value);
+                    } else {
+                        $field[$key] = $value;
+                    }
+					
+                    $field[$key] = $value;
+                    if ($key == 'options') {
+                        $options = Arr::fromString($value, '|');
 
-					if (count($options) == 0) {
-						throw new Exception('You must provide at least one option where each option is seperated by "|".');
-					}
+                        if (count($options) == 0) {
+                            throw new Exception('You must provide at least one option where each option is seperated by "|".');
+                        }
 
-					$field['options'] = [];
-					foreach ($options as $option) {
-						$field['options'][$option] = $option;
-					}
-				}
-			}
+                        $field['options'] = [];
+                        foreach ($options as $option) {
+                            $field['options'][$option] = $option;
+                        }
+                    }
+                }
+            } else {
+                $field['name'] = $fieldName;
+            }
 
             $fields[] = $field;
         }
-		
+
         return self::fromArray($fields, $localeGroup, $languages, $isReadOnly);
     }
 
@@ -148,7 +142,7 @@ class FieldTransformer
      *
      * @return array
      */
-    public static function fromJson($json, $localeGroupm, array $languages = [])
+    public static function fromJson($json, $localeGroup, array $languages = [])
     {
         if (empty($json) || ($fields = json_decode($json, true)) === null) {
             throw new Exception("The provided string is not a valid json.");
@@ -177,7 +171,7 @@ class FieldTransformer
         $this->localeGroup = $localeGroup;
         $this->languages = array_unique($languages);
         $this->isReadOnly = $isReadOnly;
-	}
+    }
 
     /**
      * It get the fields collection
@@ -212,14 +206,15 @@ class FieldTransformer
                 $this->presetProperties($properties)
                     ->setLabels($properties)
                     ->setPlaceholder($properties)
+                    ->setApiDescription($properties)
                     ->setOptions($properties);
             }
 
             $field = Field::fromArray($properties, $this->localeGroup, $this->languages);
-			
+
             $mappers[] = new FieldMapper($field, (array) $rawField);
         }
-		
+
         $optimizer = new FieldsOptimizer($mappers);
         $this->fields = $optimizer->optimize()->getFields();
 
@@ -229,7 +224,7 @@ class FieldTransformer
     /**
      * Sets the labels property
      *
-     * @param array $properties
+     * @param array & $properties
      *
      * @return $this
      */
@@ -237,11 +232,31 @@ class FieldTransformer
     {
         $label = $properties['name'];
 
-        if (Helpers::isKeyExists($properties, 'labels')) {
+        if (Arr::isKeyExists($properties, 'labels')) {
             $label = $properties['labels'];
         }
 
-        $properties['labels'] = $this->getLabels($label, $properties['name']);
+        $properties['labels'] = $this->getFieldLabels($label, $properties['name'], $this->languages);
+
+        return $this;
+    }
+
+    /**
+     * Sets the labels property
+     *
+     * @param array & $properties
+     *
+     * @return $this
+     */
+    protected function setApiDescription(&$properties)
+    {
+        $label = $properties['name'];
+
+        if (Arr::isKeyExists($properties, 'api-description')) {
+            $label = $properties['api-description'];
+        }
+
+        $properties['api-description'] = $this->getFieldLabels($label, $properties['name'], $this->languages);
 
         return $this;
     }
@@ -249,22 +264,29 @@ class FieldTransformer
     /**
      * Sets the placeholder property
      *
-     * @param array $properties
+     * @param array & $properties
      *
      * @return $this
      */
     protected function setPlaceholder(&$properties)
     {
-        if (!Helpers::isKeyExists($properties, 'placeholder')) {
+        if (!Arr::isKeyExists($properties, 'placeholder')) {
             $properties['placeholder'] = $this->getPlaceholders($properties['name'], $this->getHtmlType($properties));
         }
 
         return $this;
     }
 
+    /**
+     * Sets the options property
+     *
+     * @param array & $properties
+     *
+     * @return $this
+     */
     protected function setOptions(&$properties)
     {
-        if (Helpers::isKeyExists($properties, 'options')) {
+        if (Arr::isKeyExists($properties, 'options')) {
             $properties['options'] = $this->getOptions((array) $properties['options']);
         }
 
@@ -282,17 +304,16 @@ class FieldTransformer
     public function presetProperties(array &$properties)
     {
         $definitions = Config::getCommonDefinitions();
-		
+
         foreach ($definitions as $definition) {
             $patterns = $this->getArrayByKey($definition, 'match');
 
-            if (Helpers::strIs($patterns, $properties['name'])) {
+            if (Str::match($patterns, $properties['name'])) {
                 //auto add any config from the master config
                 $settings = $this->getArrayByKey($definition, 'set');
-				
+
                 foreach ($settings as $key => $setting) {
-					
-                    if (!Helpers::isKeyExists($properties, $key) || empty($properties[$key])) {
+                    if (!Arr::isKeyExists($properties, $key) || empty($properties[$key])) {
                         $properties[$key] = $setting;
                     }
                 }
@@ -300,55 +321,6 @@ class FieldTransformer
         }
 
         return $this;
-    }
-
-    /**
-     * Gets labels from a given title and field name.
-     *
-     * @param string $title
-     * @param string $name
-     *
-     * @return mix (string | array)
-     */
-    protected function getLabels($title, $name)
-    {
-        if (is_array($title)) {
-            $title = $this->getFirstElement($title);
-        }
-
-        $name = Helpers::removePostFixWith($name, '_id');
-
-        $this->replaceModelName($title, $name, 'field_');
-
-        if ($this->hasLanguages()) {
-            $labels = [];
-
-            foreach ($this->languages as $language) {
-                $labels[$language] = $title;
-            }
-
-            return $labels;
-        }
-
-        return $title;
-    }
-
-    /**
-     * Gets options from a given array of options
-     *
-     * @param string $name
-     *
-     * @return mix (string|array)
-     */
-    protected function getFirstElement(array $array)
-    {
-        $value = reset($array);
-
-        if (is_array($value)) {
-            return $this->getFirstElement($value);
-        }
-
-        return $value;
     }
 
     /**
@@ -392,7 +364,7 @@ class FieldTransformer
 
         foreach ($templates as $type => $template) {
             if ($type == $htmlType) {
-                return $this->getLabels($template, $name);
+                return $this->getFieldLabels($template, $name, $this->languages);
             }
         }
 
@@ -421,7 +393,7 @@ class FieldTransformer
      */
     protected function getArrayByKey(array $array, $key)
     {
-        return Helpers::isKeyExists($array, $key) ? (array) $array[$key] : [];
+        return Arr::isKeyExists($array, $key) ? (array) $array[$key] : [];
     }
 
     /**

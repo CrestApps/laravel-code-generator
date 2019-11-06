@@ -98,21 +98,11 @@ trait CommonCommand
      */
     protected function getUseClassCommand($name)
     {
-        return sprintf('use %s;', $name);
-    }
-
-    /**
-     * Gets the correct routes fullname based on current framework version.
-     *
-     * @return string
-     */
-    protected function getRoutesFileName()
-    {
-        if (Helpers::isNewerThanOrEqualTo()) {
-            return base_path('routes/web.php');
+        if (empty($name)) {
+            return '';
         }
 
-        return app_path('Http/routes.php');
+        return sprintf('use %s;', $name);
     }
 
     /**
@@ -138,9 +128,9 @@ trait CommonCommand
      */
     public function getPluralVariable($name)
     {
-        $snake = snake_case($name);
+        $snake = Str::snake($name);
 
-        $variableName = camel_case(Str::plural($snake));
+        $variableName = Str::camel(Str::plural($snake));
 
         if ($variableName == $this->getSingularVariable($name)) {
             $variableName .= 'Objects';
@@ -158,9 +148,9 @@ trait CommonCommand
      */
     public function getSingularVariable($name)
     {
-        $snake = snake_case($name);
+        $snake = Str::snake($name);
 
-        return camel_case($snake);
+        return Str::camel($snake);
     }
 
     /**
@@ -272,6 +262,7 @@ trait CommonCommand
 
         if (!empty($routesPrefix)) {
             $routesPrefix = str_replace('.', '-', $routesPrefix);
+
             $name = Helpers::getWithDotPostFix(Helpers::convertToDotNotation($routesPrefix)) . $name;
         }
 
@@ -408,7 +399,13 @@ trait CommonCommand
      */
     protected function putContentInFile($file, $content)
     {
-        $bytesWritten = File::put($file, $content);
+		$path = dirname($file);
+				
+		if(!$this->isFileExists($path)) {
+			File::makeDirectory($path, 0755, true);
+		}
+		
+        File::put($file, $content);
 
         return $this;
     }
@@ -422,7 +419,7 @@ trait CommonCommand
      */
     protected function appendContentToFile($file, $content)
     {
-        $bytesWritten = File::append($file, $content);
+        File::append($file, $content);
 
         return $this;
     }
@@ -508,21 +505,26 @@ trait CommonCommand
     /**
      * Gets the path to templates
      *
-     * @param string $template
+     * @param string $templateName
      *
      * @return string
      */
-    protected function getPathToTemplates($template = null)
+    protected function getPathToTemplates($templateName = null)
     {
-        $template = Helpers::getPathWithSlash($template ?: Config::getDefaultTemplateName());
-        $basePath = base_path(Config::getTemplatesPath() . $template);
-        $path = Helpers::getPathWithSlash($basePath);
+        $templateName = $templateName ?: Config::getDefaultTemplateName();
+        $path = base_path(Config::getTemplatesPath() . Helpers::getPathWithSlash($templateName));
 
-        if (!$this->isFileExists($path)) {
+        if (!File::isDirectory($path) && in_array($templateName, ['default', 'default-collective'])) {
+            // If the default templates are not published, utilize the default package path.
+
+            $path = __DIR__ . '/../../templates/' . $templateName;
+        }
+
+        if (!File::isDirectory($path)) {
             throw new Exception('Invalid template. Make sure the following path exists: "' . $path . '"');
         }
 
-        return $path;
+        return Helpers::getPathWithSlash($path);
     }
 
     /**
@@ -550,7 +552,7 @@ trait CommonCommand
             return $field->isFile();
         });
 
-        return (count($filtered) > 0);
+        return !empty($filtered);
     }
 
     /**

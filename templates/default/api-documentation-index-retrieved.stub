@@ -1,0 +1,21 @@
+<h4 class="text-success"><strong>200 - Ok</strong></h4> 
+<p class="text-muted">[% request_was_successful %]</p>
+<table class="table table-stripped">
+    <tbody>
+        <tr>
+            <td>success</td>
+            <td>[% boolean_title %]</td>
+            <td>[% indicate_whether_the_request_was_successful_or_not %]</td>
+        </tr>
+        <tr>
+            <td>message</td>
+            <td>[% string_title %]</td>
+            <td>[% the_success_message %]</td>
+        </tr>
+        <tr>
+            <td>data</td>
+            <td>[% array_title %]</td>
+            <td>[% the_key_is_the_model_property_and_the_value_is_the_model_value %]</td>
+        </tr>
+    </tbody>
+</table>

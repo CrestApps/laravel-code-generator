@@ -1,0 +1,26 @@
+$[% data_variable %] = $[% model_name_plural_variable %]->transform(function ($[% model_name_singular_variable %]) {
+            return $this->transform($[% model_name_singular_variable %]);
+        });
+
+        return $this->successResponse(
+            [% models_were_retrieved %],
+            $[% data_variable %],
+            [
+                'links' => [
+                    'first' => $[% model_name_plural_variable %]->url(1),
+                    'last' => $[% model_name_plural_variable %]->url($[% model_name_plural_variable %]->lastPage()),
+                    'prev' => $[% model_name_plural_variable %]->previousPageUrl(),
+                    'next' => $[% model_name_plural_variable %]->nextPageUrl(),
+                ],
+                'meta' =>
+                [
+                    'current_page' => $[% model_name_plural_variable %]->currentPage(),
+                    'from' => $[% model_name_plural_variable %]->firstItem(),
+                    'last_page' => $[% model_name_plural_variable %]->lastPage(),
+                    'path' => $[% model_name_plural_variable %]->resolveCurrentPath(),
+                    'per_page' => $[% model_name_plural_variable %]->perPage(),
+                    'to' => $[% model_name_plural_variable %]->lastItem(),
+                    'total' => $[% model_name_plural_variable %]->total(),
+                ],
+            ]
+        );

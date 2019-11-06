@@ -1,0 +1,14 @@
+<table class="table table-stripped">
+    <thead>
+        <tr>
+            <th>[% parameter_name_title %]</th>
+            <th>[% data_type_title %]</th>
+            <th>[% parameter_type_title %]</th>
+            <th>[% description_title %]</th>
+        </tr>
+    </thead>
+    <tbody>
+        [% include_parameter_for_authorized_request %]
+    </tbody>
+
+</table>

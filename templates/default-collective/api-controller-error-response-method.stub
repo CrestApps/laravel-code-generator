@@ -1,0 +1,14 @@
+    /**
+     * Get an error response
+     *
+     * @param mix $message
+     *
+     * @return Illuminate\Http\Response
+     */
+    protected function errorResponse($message)
+    {
+        return response()->json([
+            'errors' => (array) $message,
+            'success' => false,
+        ], 422);
+    }

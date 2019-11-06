@@ -2,35 +2,22 @@
 
 namespace CrestApps\CodeGenerator\Models;
 
+use CrestApps\CodeGenerator\Support\Arr;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Contracts\JsonWriter;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\ResourceMapper;
 use CrestApps\CodeGenerator\Support\Str;
-use Illuminate\Support\Facades\DB;
+use CrestApps\CodeGenerator\Traits\ModelTrait;
+use DB;
 use Exception;
-use Illuminate\Support\Facades\File;
+use File;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations;
 
 class ForeignRelationship implements JsonWriter
 {
-    /**
-     * The allowed relation types.
-     *
-     * @var array
-     */
-    public static $allowedTypes = [
-        'hasOne',
-        'belongsTo',
-        'hasMany',
-        'belongsToMany',
-        'hasManyThrough',
-        'morphTo',
-        'morphMany',
-        'morphOne',
-        'morphToMany',
-        'morphedByMany'
-    ];
+    use ModelTrait;
 
     /**
      * The type of the relation.
@@ -63,7 +50,7 @@ class ForeignRelationship implements JsonWriter
     /**
      * Instance of the foreign model.
      *
-     * @var Model
+     * @var Illuminate\Database\Eloquent\Model
      */
     private $foreignModel;
 
@@ -92,14 +79,16 @@ class ForeignRelationship implements JsonWriter
      */
     public function setParameters($parameters)
     {
-		$this->parameters = [];
+        $this->parameters = [];
+
+        $this->parameters = [];
 		
-		if(!is_array($parameters)){
-			$parameters = Helpers::convertStringToArray($parameters, '|');
-		}
-        
+        if(!is_array($parameters)){
+            $parameters = Arr::fromString($parameters, '|');
+        }
+		
         foreach ($parameters as $parameter) {
-            $this->parameters[] = Helpers::eliminateDupilcates($parameter, "\\");
+            $this->parameters[] = Str::eliminateDuplicates($parameter, "\\");
         }
     }
 
@@ -113,7 +102,6 @@ class ForeignRelationship implements JsonWriter
         return in_array($this->type, [
             'hasOne',
             'belongsTo',
-            'morphOne',
             'morphTo',
         ]);
     }
@@ -128,10 +116,10 @@ class ForeignRelationship implements JsonWriter
     public function setType($type)
     {
         if (!self::isValidType($type)) {
-            throw new \OutOfRangeException();
+            throw new OutOfRangeException();
         }
 
-        $this->type = $type;
+        $this->type = lcfirst($type);
     }
 
     /**
@@ -143,7 +131,9 @@ class ForeignRelationship implements JsonWriter
      */
     public static function isValidType($type)
     {
-        return in_array($type, self::$allowedTypes);
+        $class = sprintf('Illuminate\Database\Eloquent\Relations\%s', ucfirst($type));
+
+        return is_subclass_of($class, 'Illuminate\Database\Eloquent\Relations\Relation');
     }
 
     /**
@@ -194,7 +184,7 @@ class ForeignRelationship implements JsonWriter
         $names = Config::getHeadersPatterns();
 
         foreach ($columns as $column) {
-            if (Helpers::strIs($names, $column)) {
+            if (Str::match($names, $column)) {
                 // At this point a column that match the header patter was found
                 return $column;
             }
@@ -205,7 +195,7 @@ class ForeignRelationship implements JsonWriter
         $primary = $this->getPrimaryKeyForForeignModel();
         $idPatterns = Config::getKeyPatterns();
         foreach ($columns as $column) {
-            if ($column != $primary && !Helpers::strIs($idPatterns, $column)) {
+            if ($column != $primary && !Str::match($idPatterns, $column)) {
                 return $column;
             }
         }
@@ -215,6 +205,8 @@ class ForeignRelationship implements JsonWriter
 
     /**
      * Gets the relation's type.
+     *
+     * @param string $name
      *
      * @return string
      */
@@ -288,7 +280,7 @@ class ForeignRelationship implements JsonWriter
     /**
      * Gets the name of the foreign model's primary key.
      *
-     * @return string
+     * @return sting
      */
     public function getPrimaryKeyForForeignModel()
     {
@@ -363,7 +355,7 @@ class ForeignRelationship implements JsonWriter
     /**
      * Gets the foreign model fields from resource file
      *
-     * @return CrestApps\CodeGenerator\Models\Resource|null
+     * @return mix (null | CrestApps\CodeGenerator\Models\Resource)
      */
     protected function getForeignResource()
     {
@@ -391,7 +383,7 @@ class ForeignRelationship implements JsonWriter
     /**
      * Gets a single instance of the foreign mode.
      *
-     * @return Model
+     * @return Illuminate\Database\Eloquent\Model
      */
     private function getForeignModelInstance()
     {
@@ -431,13 +423,13 @@ class ForeignRelationship implements JsonWriter
      * Get a foreign relationship from given array
      *
      * @param array $options
+     * @throws Exception
      *
-     * @return null | ForeignRelationship
+     * @return mix (null | CrestApps\CodeGenerator\Model\ForeignRelationship)
      */
     public static function get(array $options)
     {
-        if (!array_key_exists('type', $options) || !array_key_exists('params', $options) || !array_key_exists('name', $options)) {
-			
+        if (!self::isValid($options)) {
 			if(count($options) >= 3) {
 				$values = array_values($options);
 				$field = isset($values[3]) ? $values[3] : null;
@@ -449,10 +441,10 @@ class ForeignRelationship implements JsonWriter
 				);				
 			}
 			
-            return null;
-        }
-		
-		$field = array_key_exists('field', $options) ? $options['field'] : null;
+			return null;
+		}
+
+        $field = array_key_exists('field', $options) ? $options['field'] : null;
 
         return new ForeignRelationship(
             $options['type'],
@@ -463,11 +455,23 @@ class ForeignRelationship implements JsonWriter
     }
 
     /**
+     * Get a foreign relationship from given array
+     *
+     * @param array $options
+     *
+     * @return boolean
+     */
+    public static function isValid(array $options)
+    {
+        return Arr::isKeyExists($options, 'name', 'type', 'params');
+    }
+
+    /**
      * Get a foreign relationship from given string
      *
      * @param string $rawRelation
      *
-     * @return null | ForeignRelationship
+     * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
      */
     public static function fromString($rawRelation)
     {
@@ -483,13 +487,22 @@ class ForeignRelationship implements JsonWriter
                 continue;
             }
 
-            list($key, $value) = explode(':', $part);
+            list($key, $value) = Str::split([':', '='], $part);
 
-            if ($key == 'params' || str_contains($value, '|')) {
+            if (($isParams = in_array($key, ['params', 'param'])) || str_contains($value, '|')) {
                 $value = explode('|', $value);
+
+                if ($isParams) {
+                    $key = 'params';
+                }
             }
 
             $collection[$key] = $value;
+        }
+
+        if (!self::isValid($collection)) {
+            throw new Exception('Each relation must be in the following format "name:assets;type:hasMany;params:App\\Models\\Asset|category_id|id"');
+
         }
 
         return self::get($collection);
@@ -501,20 +514,34 @@ class ForeignRelationship implements JsonWriter
      * @param string $fieldName
      * @param string $modelPath
      *
-     * @return null | ForeignRelationship
+     * @return null | CrestApps\CodeGenerator\Model\ForeignRelationship
      */
     public static function predict($fieldName, $modelPath)
     {
         $patterns = Config::getKeyPatterns();
 
-        if (Helpers::strIs($patterns, $fieldName)) {
-            $relationName = camel_case(Helpers::extractModelName($fieldName));
-            $model = Helpers::guessModelFullName($fieldName, $modelPath);
+        if (Str::match($patterns, $fieldName)) {
+            $relationName = self::makeRelationName($fieldName);
+            $model = self::guessModelFullName($fieldName, $modelPath);
             $parameters = [$model, $fieldName];
 
             return new self('belongsTo', $parameters, $relationName);
         }
 
         return null;
+    }
+
+    /**
+     * Makes a relation name from the given field name
+     *
+     * @param string $fieldName
+     *
+     * @return string
+     */
+    public static function makeRelationName($fieldName)
+    {
+        $modelName = self::extractModelName($fieldName);
+
+        return Str::camel($modelName);
     }
 }

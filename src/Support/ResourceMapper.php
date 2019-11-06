@@ -4,12 +4,15 @@ namespace CrestApps\CodeGenerator\Support;
 
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Helpers;
-use Illuminate\Console\Command;
-use File;
 use Exception;
+use File;
+use Illuminate\Console\Command;
+use CrestApps\CodeGenerator\Traits\CommonCommand;
 
 class ResourceMapper
 {
+	use CommonCommand;
+	
     /**
      * @param Illuminate\Console\Command
      */
@@ -136,8 +139,8 @@ class ResourceMapper
                 $finalMaps[] = (object) $existingMap;
             }
         }
-
-        File::put($file, Helpers::prettifyJson($finalMaps));
+		
+        $this->putContentInFile($file, Helpers::prettifyJson($finalMaps));
     }
 
     /**

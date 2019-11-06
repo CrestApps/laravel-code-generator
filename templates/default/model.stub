@@ -2,9 +2,9 @@
 
 namespace [% namespace %];
 
-use Illuminate\Database\Eloquent\Model;
-[% use_soft_delete %]
-class [% model_name_class %] extends Model
+[% use_command_placeholder %]
+
+class [% model_name_class %] [% model_extends %]
 {
     [% use_soft_delete_trait %]
 [% time_stamps %]

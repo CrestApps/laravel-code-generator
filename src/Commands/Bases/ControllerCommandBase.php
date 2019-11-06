@@ -2,482 +2,1018 @@
 
 namespace CrestApps\CodeGenerator\Commands\Bases;
 
+use CrestApps\CodeGenerator\Commands\Bases\ControllerRequestCommandBase;
+use CrestApps\CodeGenerator\Models\ForeignRelationship;
+use CrestApps\CodeGenerator\Models\Resource;
+use CrestApps\CodeGenerator\Support\Arr;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
-use CrestApps\CodeGenerator\Traits\CommonCommand;
-use CrestApps\CodeGenerator\Traits\GeneratorReplacers;
-use Illuminate\Console\Command;
+use CrestApps\CodeGenerator\Support\Str;
+use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
+use CrestApps\CodeGenerator\Traits\LanguageTrait;
+use CrestApps\CodeGenerator\Traits\ModelTrait;
 
-class ControllerCommandBase extends Command
+abstract class ControllerCommandBase extends ControllerRequestCommandBase
 {
-    use CommonCommand, GeneratorReplacers;
+    use ModelTrait, LanguageTrait;
 
     /**
-     * Checks if the ConvertEmptyStringsToNull middleware is registered or not
+     * The request object's name to use in the controller.
+     *
+     * @var string
+     */
+    protected $requestName = 'Request';
+
+    /**
+     * The name of the data variable.
+     *
+     * @var string
+     */
+    protected $dataVariable = 'data';
+
+    /**
+     * The request object's namespace to use in the controller.
+     *
+     * @var string
+     */
+    protected $requestNameSpace = 'Illuminate\Http\Request';
+
+    /**
+     * The request variable to use in the controller.
+     *
+     * @var string
+     */
+    protected $requestVariable = '$request';
+
+    /**
+     * Build the model class with the given name.
+     *
+     * @param  CrestApps\CodeGenerator\Models\Resource $resource
+     * @param string $destenationFile
+     *
+     * @return bool
+     */
+    protected function hasErrors(Resource $resource, $destenationFile)
+    {
+        $hasErrors = false;
+
+        if ($resource->isProtected($this->getControllerType())) {
+            $this->warn('The ' . $this->getControllerType() . ' is protected and cannot be regenerated. To regenerate the file, unprotect it from the resource file.');
+
+            $hasErrors = true;
+        }
+
+        if ($this->alreadyExists($destenationFile)) {
+            $this->error('The ' . $this->getControllerType() . ' already exists!');
+
+            $hasErrors = true;
+        }
+
+        return $hasErrors;
+    }
+
+    /**
+     * Gets the signature of the getData method.
+     *
+     * @param array  $fields
+     * @param string $requestFullname
+     * @param bool   $withFormRequest
+     * @param object $input
+     *
+     * @return string
+     */
+    protected function getDataMethod(array $fields, $requestFullname, $input)
+    {
+        if ($input->withFormRequest) {
+            return '';
+        }
+
+        $stub = $this->getDataMethodStubContent();
+
+        $this->replaceFileSnippet($stub, $this->getFileSnippet($fields, $this->requestVariable))
+            ->replaceValidationRules($stub, $this->getValidationRules($fields))
+            ->replaceFillables($stub, $this->getFillables($fields))
+            ->replaceFileValidationSnippet($stub, $this->getFileValidationSnippet($fields, $input, $this->requestVariable))
+            ->replaceBooleadSnippet($stub, $this->getBooleanSnippet($fields, $this->requestVariable))
+            ->replaceStringToNullSnippet($stub, $this->getStringToNullSnippet($fields))
+            ->replaceRequestNameComment($stub, $this->getRequestNameComment($requestFullname))
+            ->replaceMethodVisibilityLevel($stub, 'protected');
+
+        $stub = str_replace(PHP_EOL . PHP_EOL, PHP_EOL, $stub);
+
+        return $stub;
+    }
+
+    /**
+     * Extracts a namespace from a given string
      *
      * @param string $string
      *
      * @return string
      */
-    protected function isConvertEmptyStringsToNullRegistered()
+    protected function extractNamespace($string)
     {
-        $kernalClass = sprintf('\\%s\\Http\\Kernel', Helpers::getAppName());
+        $string = trim($string);
 
-        $kernal = $this->getLaravel()->make($kernalClass);
+        if (Str::isQualifiedNamespace($string) && ($index = strrpos($string, '::')) != false) {
+            $namespace = substr($string, 0, $index);
 
-        return $kernal->hasMiddleware(\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class);
-    }
-
-    /**
-     * Gets the code that call the file-upload's method.
-     *
-     * @param array $fields
-     *
-     * @return string
-     */
-    protected function getFillables(array $fields)
-    {
-        $names = [];
-
-        foreach ($fields as $field) {
-            if ($field->isOnFormView && !$field->isFile()) {
-                $names[] = sprintf("'%s'", $field->name);
+            if (!empty($namespace)) {
+                return $this->getUseClassCommand($namespace);
             }
         }
 
-        return sprintf('[%s]', implode(',', $names));
+        return null;
     }
 
     /**
-     * Gets laravel ready field validation format from a given string
-     *
-     * @param string $validations
+     * Gets the content of a controller-getdata-method stub.
      *
      * @return string
      */
-    protected function getValidationRules(array $fields)
+    protected function getDataMethodStubContent()
     {
-        $validations = '';
+        $stubName = 'controller-getdata-method';
 
-        foreach ($fields as $field) {
-
-            $rules = $field->getValidationRule();
-            $customRules = $this->extractCustomValidationRules($rules);
-
-            if (!empty($rules)) {
-
-                if ($field->isFile()) {
-                    $rules = array_filter($rules, function ($rule) {
-                        return $rule != 'required';
-                    });
-                }
-
-                if (!empty($customRules) || $field->isFile()) {
-
-                    $standardRules = array_diff($rules, $customRules);
-                    $shortCustomRules = $this->extractCustomValidationShortName($customRules);
-
-                    $wrappedRules = array_merge(Helpers::wrapItems($standardRules), $shortCustomRules);
-                    $validations .= sprintf("        '%s' => [%s],\n    ", $field->name, implode(',', $wrappedRules));
-                } else {
-                    $validations .= sprintf("        '%s' => '%s',\n    ", $field->name, implode('|', $rules));
-                }
-            }
+        if (Helpers::isNewerThanOrEqualTo('5.5')) {
+            $stubName .= '-5.5';
         }
 
-        return $validations;
+        return $this->getStubContent($stubName);
     }
 
     /**
-     * Extracts the custom validation rules' short name from the given rules array.
+     * Get a string to set a given $variable with a $key and $value pair
      *
-     * @param array $rules
-     *
-     * @return array
-     */
-    protected function extractCustomValidationShortName(array $rules)
-    {
-        $customRules = array_map(function ($rule) {
-            $fullname = $this->getCustomRuleFullName($rule);
-
-            if ($this->canHaveUsingCommand($fullname)) {
-                $shortName = $this->getCustomRuleShortName($fullname);
-
-                return $this->makeCustomRuleCall($shortName);
-            }
-
-            return $this->makeCustomRuleCall($fullname);
-
-        }, $rules);
-
-        return $customRules;
-    }
-
-    /**
-     * Extracts the custom validation rules' short name from the given rules array.
-     *
-     * @param array $rules
-     *
-     * @return array
-     */
-    protected function extractCustomValidationNamespaces(array $rules)
-    {
-        $customRules = array_filter($rules, function ($rule) {
-            $fullname = $this->getCustomRuleFullName($rule);
-
-            return $this->canHaveUsingCommand($fullname);
-        });
-
-        $customRules = array_map(function ($rule) {
-            return $this->getCustomRuleFullName($rule);
-        }, $customRules);
-
-        return array_unique($customRules);
-    }
-
-    /**
-     * Extracts the custom validation rules from the given rules array.
-     *
-     * @param array $rules
-     *
-     * @return array
-     */
-    protected function extractCustomValidationRules(array $rules)
-    {
-        $customRules = array_filter($rules, function ($rule) {
-            return $this->isCustomRule($rule);
-        });
-
-        return $customRules;
-    }
-
-    /**
-     * Checks if the givin rule is a custom validation rule
-     *
-     * @param string $rule
-     *
-     * @return bool
-     */
-    protected function isCustomRule($rule)
-    {
-        return starts_with(trim($rule), 'new ');
-    }
-
-    /**
-     * Make a custom rule call
-     *
-     * @param string $rule
+     * @param string $key
+     * @param string $value
+     * @param string $variable
      *
      * @return string
      */
-    protected function makeCustomRuleCall($rule)
+    protected function getArrayReadyString($key, $value, $variable = '$data')
     {
-        return sprintf('new %s', $rule);
+        $value = trim(rtrim($value, ';'));
+
+        return sprintf("%s['%s'] = %s;", $variable, $key, $value);
     }
 
     /**
-     * Get the short name of the given custom validation rule.
+     * Gets the method that calls the getData()
      *
-     * @param string $rule
-     *
-     * @return string
-     */
-    protected function getCustomRuleShortName($rule)
-    {
-        $name = $this->getCustomRuleFullName($rule);
-
-        return class_basename($name);
-    }
-
-    /**
-     * Checks if a class name starts with a slash \
-     *
-     * @param string $fullname
-     *
-     * @return bool
-     */
-    protected function canHaveUsingCommand($fullname)
-    {
-        return !starts_with($fullname, '\\');
-    }
-
-    /**
-     * Get the full class name of the given custom valiation rule.
-     *
-     * @param string $rule
-     *
-     * @return string
-     */
-    protected function getCustomRuleFullName($rule)
-    {
-        return str_replace(['new ', ';', ' '], '', trim($rule));
-    }
-
-    /**
-     * Gets the code that is needed to check for bool property.
-     *
-     * @param array $fields
-     *
-     * @return string
-     */
-    protected function getBooleanSnippet(array $fields, $requestVariable = '$this')
-    {
-        $code = '';
-
-        foreach ($fields as $field) {
-            if ($field->isBoolean() && $field->isCheckbox()) {
-                $code .= sprintf("        \$data['%s'] = %s->has('%s');", $field->name, $requestVariable, $field->name) . PHP_EOL;
-            }
-        }
-
-        return $code;
-    }
-
-    /**
-     * Gets the validation rules for the attachment files
-     *
-     * @param array $fields
-     * @param object $input
-     * @param string $requestVariable
-     *
-     * @return string
-     */
-    protected function getFileValidationSnippet(array $fields, $input, $requestVariable = '$this')
-    {
-        $validation = [];
-
-        $stub = <<<EOF
-        if ([% request_variable %]->route()->getAction()['as'] == '[% store_route_name %]' || [% request_variable %]->has('custom_delete_[% field_name %]')) {
-            array_push(\$rules['[% field_name %]'], 'required');
-        }
-EOF;
-
-        foreach ($fields as $field) {
-            if ($field->isFile() && $field->isRequired()) {
-                $stubCopy = $stub;
-
-                $this->replaceTemplate('field_name', $field->name, $stubCopy)
-                    ->replaceRouteNames($stubCopy, $this->getModelName($input->modelName), $input->prefix)
-                    ->replaceRequestVariable($stubCopy, $requestVariable);
-
-                $validation[] = $stubCopy;
-            }
-        }
-
-        return implode(PHP_EOL, $validation);
-    }
-
-    /**
-     * Gets the code that call the file-upload's method.
-     *
-     * @param array $fields
-     *
-     * @return string
-     */
-    protected function getFileSnippet(array $fields, $requestName = '$this')
-    {
-        $code = '';
-        $template = <<<EOF
-        if (%s->has('custom_delete_%s')) {
-            \$data['%s'] = %s;
-        }
-        if (%s->hasFile('%s')) {
-            \$data['%s'] = \$this->moveFile(%s->file('%s'));
-        }
-
-EOF;
-
-        foreach ($fields as $field) {
-            if ($field->isFile()) {
-                $code .= sprintf($template,
-                    $requestName,
-                    $field->name,
-                    $field->name,
-                    $field->isNullable() ? 'null' : "''",
-                    $requestName,
-                    $field->name,
-                    $field->name,
-                    $requestName,
-                    $field->name);
-            }
-        }
-
-        return $code;
-    }
-
-    /**
-     * Gets the code that is needed to convert empty string to null.
-     *
-     * @param array $fields
-     *
-     * @return string
-     */
-    protected function getStringToNullSnippet(array $fields)
-    {
-        if ($this->isConvertEmptyStringsToNullRegistered()) {
-            return '';
-        }
-
-        $code = '';
-
-        foreach ($fields as $field) {
-            if ($field->isNullable && !$field->isPrimary && !$field->isAutoIncrement && !$field->isRequired() && !$field->isBoolean() && !$field->isFile()) {
-                $code .= sprintf("        \$data['%s'] = !empty(\$request->input('%s')) ? \$request->input('%s') : null;", $field->name, $field->name, $field->name) . PHP_EOL;
-            }
-        }
-
-        return $code;
-    }
-
-    /**
-     * Gets the method's stub that handels the file uploading.
-     *
-     * @param array $fields
      * @param bool $withFormRequest
      *
      * @return string
      */
-    protected function getUploadFileMethod(array $fields, $withFormRequest = false)
+    protected function getCallDataMethod($withFormRequest)
     {
-        if (!$withFormRequest && Config::createMoveFileMethod() && $this->containsfile($fields)) {
-            $stubName = 'controller-upload-method';
-            if (Helpers::isNewerThanOrEqualTo()) {
-                $stubName .= '-5.3';
-            }
+        if ($withFormRequest) {
+            return sprintf('%s->getData()', $this->requestVariable);
+        }
 
-            return $this->getStubContent($stubName, $this->getTemplateName());
+        return sprintf('$this->getData(%s)', $this->requestVariable);
+    }
+
+    /**
+     * Gets a clean command-line arguments and options.
+     *
+     * @return object
+     */
+    protected function getCommandInput()
+    {
+        $modelName = trim($this->argument('model-name'));
+        $cName = trim($this->option('controller-name'));
+        $controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($modelName);
+        $prefix = ($this->option('routes-prefix') == 'default-form') ? Helpers::makeRouteGroup($modelName) : $this->option('routes-prefix');
+        $perPage = intval($this->option('models-per-page'));
+        $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
+        $langFile = $this->option('language-filename') ?: self::makeLocaleGroup($modelName);
+        $withFormRequest = $this->option('with-form-request');
+        $force = $this->option('force');
+        $modelDirectory = $this->option('model-directory');
+        $controllerDirectory = trim($this->option('controller-directory'));
+
+        $formRequestName = Helpers::makeFormRequestName($modelName);
+        $template = $this->getTemplateName();
+        $formRequestDirectory = trim($this->option('form-request-directory'));
+        $extends = $this->generatorOption('controller-extends');
+        $withAuth = $this->option('with-auth');
+
+        return (object) compact(
+            'formRequestDirectory',
+            'modelName',
+            'prefix',
+            'perPage',
+            'modelDirectory',
+            'langFile',
+            'withFormRequest',
+            'formRequestName',
+            'force',
+            'resourceFile',
+            'template',
+            'controllerName',
+            'extends',
+            'withAuth',
+            'controllerDirectory'
+        );
+    }
+
+    /**
+     * Converts given array of variables to a compact statements.
+     *
+     * @param array $variables
+     *
+     * @return string
+     */
+    protected function getCompactVariables(array $variables)
+    {
+        if (empty($variables)) {
+            return '';
+        }
+
+        return sprintf(', compact(%s)', implode(',', Arr::wrapItems($variables)));
+    }
+
+    /**
+     * Gets the needed compact variables for the edit/create views.
+     *
+     * @param array $fields
+     *
+     * @return string
+     */
+    protected function getCompactVariablesFor(array $fields, $modelName, $view)
+    {
+        $variables = [];
+
+        if (!empty($modelName)) {
+            $variables[] = $modelName;
+        }
+
+        if ($view == 'form') {
+            $collections = $this->getRelationCollections($fields, $view);
+
+            foreach ($collections as $collection) {
+                $variables[] = $collection->getCollectionName();
+            }
+        }
+
+        return $this->getCompactVariables($variables);
+    }
+
+    /**
+     * Gets controller's constructor.
+     *
+     * @param bool $withAuth
+     *
+     * @return string
+     */
+    protected function getConstructor($withAuth)
+    {
+        $stub = $this->getStubContent('controller-constructor');
+
+        $middleware = $withAuth ? '$this->middleware(\'' . $this->getAuthMiddleware() . '\');' : '';
+
+        $this->replaceAuthMiddlewear($stub, $middleware);
+
+        $starts = strpos($stub, '{');
+        $ends = strrpos($stub, '}');
+
+        if ($starts !== false && $ends !== false) {
+            $content = trim(substr($stub, $starts + 1, $ends - $starts - 1));
+            if (!empty($content)) {
+                return $stub;
+            }
         }
 
         return '';
     }
 
     /**
-     * Replaces the file snippet for the given stub.
+     * Gets name of the middleware
      *
-     * @param $stub
-     * @param $snippet
-     *
-     * @return $this
+     * @return string
      */
-    protected function replaceFileSnippet(&$stub, $snippet)
+    protected function getAuthMiddleware()
     {
-        return $this->replaceTemplate('file_snippet', $snippet, $stub);
+        return 'auth';
     }
 
     /**
-     * Replaces the file_validation_snippet for the given stub.
+     * Gets the code to extend the controller.
      *
-     * @param $stub
-     * @param $snippet
+     * @param string $namespace
      *
-     * @return $this
+     * @return string
      */
-    protected function replaceFileValidationSnippet(&$stub, $snippet)
+    protected function getControllerExtends($namespace)
     {
-        return $this->replaceTemplate('file_validation_snippet', $snippet, $stub);
+        $class = Str::extractClassFromString($namespace);
+        if (!empty($class)) {
+            return sprintf('extends %s', $class);
+        }
+
+        return '';
     }
 
     /**
-     * Replaces the fillable snippet for the given stub.
+     * Gets the controllers namespace
      *
-     * @param  string  $fillable
+     * @param string $path
      *
-     * @return $this
+     * @return string
      */
-    protected function replaceFillables(&$stub, $fillable)
+    protected function getControllersNamespace($path)
     {
-        return $this->replaceTemplate('fillable', $fillable, $stub);
+        $path = Helpers::getAppNamespace($this->getControllerPath(), $path);
+
+        return Helpers::fixNamespace($path);
     }
 
     /**
-     * Replaces the boolean snippet for the given stub.
+     * Gets the destenation file to be created.
      *
-     * @param  string  $stub
-     * @param  string  $snippet
+     * @param string $name
+     * @param string $path
      *
-     * @return $this
+     * @return string
      */
-    protected function replaceBooleadSnippet(&$stub, $snippet)
+    protected function getDestenationFile($name, $path)
     {
-        return $this->replaceTemplate('boolean_snippet', $snippet, $stub);
+        if (!empty($path)) {
+            $path = Helpers::getPathWithSlash($path);
+        }
 
+        $fileName = app_path($this->getControllerPath($path . $name . '.php'));
+
+        return Helpers::fixPathSeparator($fileName);
     }
 
     /**
-     * Replaces useCommandPlaceHolder
+     * Gets the full class name to extend
      *
-     * @param  string  $stub
-     * @param  string  $commands
-     *
-     * @return $this
+     * @return string
      */
-    protected function replaceUseCommandPlaceholder(&$stub, $commands)
+    protected function getFullClassToExtend()
     {
-        return $this->replaceTemplate('use_command_placeholder', $commands, $stub);
+        $extend = $this->generatorOption('controller-extends');
+
+        if (empty($extend)) {
+            return '';
+        }
+
+        if ($this->isExtendsDefault()) {
+            return $this->getDefaultClassToExtend();
+        }
+
+        return Helpers::fixNamespace($extend);
     }
 
     /**
-     * Replaces the form-request's name for the given stub.
+     * Gets the default class name to extend
      *
-     * @param  string  $stub
-     * @param  string  $snippet
+     * @param string $extend
      *
-     * @return $this
+     * @return string
      */
-    protected function replaceStringToNullSnippet(&$stub, $snippet)
+    protected function getDefaultClassToExtend()
     {
-        return $this->replaceTemplate('string_to_null_snippet', $snippet, $stub);
+        $base = Config::getApiControllersPath();
+        $controller = trim($this->option('controller-directory'));
+
+        return Helpers::fixNamespace(Helpers::getAppNamespace($base, $controller, 'Controller'));
     }
 
     /**
-     * Replaces the request_name_comment for the given stub.
+     * Checks if the controller extends the default "Controller" class
      *
-     * @param $stub
-     * @param $comment
-     *
-     * @return $this
+     * @return bool
      */
-    protected function replaceRequestNameComment(&$stub, $comment)
+    protected function isExtendsDefault()
     {
-        return $this->replaceTemplate('request_name_comment', $comment, $stub);
+        return $this->option('controller-extends') == 'default-controller';
     }
 
     /**
-     * Gets the comment for the request name
+     * Gets the setter action for the given field on-store.
+     *
+     * @param array $fields
+     * @param string $view
+     *
+     * @return string
+     */
+    protected function getOnStoreAction(array $fields)
+    {
+        $final = [];
+
+        foreach ($fields as $field) {
+            $action = Str::extractClassFromString($field->onStore);
+            if (!empty($action)) {
+                $final[] = $this->getArrayReadyString($field->name, $action);
+            }
+        }
+
+        return implode(PHP_EOL, $final);
+    }
+
+    /**
+     * Gets the setter action for the given field on-update.
+     *
+     * @param array $fields
+     * @param string $view
+     *
+     * @return string
+     */
+    protected function getOnUpdateAction(array $fields)
+    {
+        $final = [];
+
+        foreach ($fields as $field) {
+            $action = Str::extractClassFromString($field->onUpdate);
+            if (!empty($action)) {
+                $final[] = $this->getArrayReadyString($field->name, $action);
+            }
+        }
+
+        return implode(PHP_EOL, $final);
+    }
+
+    /**
+     * Gets the relation accessor for the given foreign renationship.
+     *
+     * @param CrestApps\CodeGenerator\Models\ForeignRelationship $collection
+     *
+     * @return string
+     */
+    protected function getRelationAccessor(ForeignRelationship $collection)
+    {
+        return sprintf(
+            '$%s = %s::pluck(\'%s\',\'%s\')->all();',
+            $collection->getCollectionName(),
+            $collection->getForeignModel(),
+            $collection->getField(),
+            $collection->getPrimaryKeyForForeignModel()
+        );
+    }
+
+    /**
+     * Gets the needed compact variables for the edit/create views.
+     *
+     * @param array $fields
+     *
+     * @return array
+     */
+    protected function getRelationCollections(array $fields, $view)
+    {
+        $variables = [];
+
+        foreach ($fields as $field) {
+            if ($field->hasForeignRelation() && $field->isOnView($view)) {
+                $variables[] = $field->getForeignRelation();
+            }
+        }
+
+        return $variables;
+    }
+
+    /**
+     * Gets the Requests namespace
+     *
+     * @param string $name
+     * @param string $path
+     *
+     * @return string
+     */
+    protected function getRequestsNamespace($name, $path)
+    {
+        if (!empty($path)) {
+            $path = Str::finish($path, '\\');
+        }
+
+        $path = Helpers::getAppNamespace() . Config::getRequestsPath($path);
+
+        return Helpers::convertSlashToBackslash($path) . $name;
+    }
+
+    /**
+     * Gets the needed compact variables for the edit/create views.
+     *
+     * @param array $fields
+     *
+     * @return string
+     */
+    protected function getRequiredRelationCollections(array $fields)
+    {
+        $variables = [];
+
+        $collections = $this->getRelationCollections($fields, 'form');
+
+        foreach ($collections as $collection) {
+            $accesor = $this->getRelationAccessor($collection);
+
+            if (!in_array($accesor, $variables)) {
+                $variables[] = $accesor;
+            }
+        }
+
+        return implode(PHP_EOL, $variables);
+    }
+
+    /**
+     * Gets the needed models to use for in the controller.
+     *
+     * @param array $fields
+     * @param array $additions
+     *
+     * @return string
+     */
+    protected function getRequiredUseClasses(array $fields, array $additions = [])
+    {
+        $commands = [];
+
+        foreach ($additions as $addition) {
+            $commands[] = $this->getUseClassCommand($addition);
+        }
+
+        $commands = array_merge($commands, $this->getNamespacesForUsedRelations($fields));
+
+        // Attempt to include classes that don't start with \\ with using command.
+        foreach ($fields as $field) {
+            if (!empty($field->onStore) && !in_array($field->onStore, $commands)) {
+                $commands[] = $this->extractNamespace($field->onStore);
+            }
+
+            if (!empty($field->onUpdate) && !in_array($field->onUpdate, $commands)) {
+                $commands[] = $this->extractNamespace($field->onUpdate);
+            }
+
+            // Extract the name spaces from he custom rules
+            $customRules = $this->extractCustomValidationRules($field->getValidationRule());
+            $namespaces = $this->extractCustomValidationNamespaces($customRules);
+            foreach ($namespaces as $namespace) {
+                $commands[] = $this->getUseClassCommand($namespace);
+            }
+        }
+        $commands = array_unique($commands);
+        sort($commands);
+
+        return implode(PHP_EOL, $commands);
+    }
+
+    /**
+     * Get an array of all relations that are used for relations.
+     *
+     * @param array $fields
+     *
+     * @return array
+     */
+    protected function getNamespacesForUsedRelations(array $fields)
+    {
+        $commands = [];
+        $collections = $this->getRelationCollections($fields, 'form');
+
+        foreach ($collections as $collection) {
+            $command = $this->getUseClassCommand($collection->getFullForeignModel());
+
+            if (!in_array($command, $commands)) {
+                $commands[] = $this->getUseClassCommand($collection->getFullForeignModel());
+            }
+        }
+
+        return $commands;
+    }
+
+    /**
+     * Gets the type hinted request name
      *
      * @param string $name
      *
      * @return string
      */
-    protected function getRequestNameComment($name)
+    protected function getTypeHintedRequestName($name)
     {
-        return sprintf('@param %s %s ', $name, $this->requestVariable);
+        return sprintf('%s %s', $name, $this->requestVariable);
     }
 
     /**
-     * Replaces the visibility level of a given stub
+     * Gets the needed compact variables for the edit/create views.
      *
-     * @param  string  $stub
-     * @param  string  $level
+     * @param array $fields
+     * @param string $view
+     *
+     * @return string
+     */
+    protected function getWithRelationFor(array $fields, $view)
+    {
+        $variables = [];
+        $collections = $this->getRelationCollections($fields, $view);
+
+        foreach ($collections as $collection) {
+            if (!in_array($collection->name, $variables)) {
+                $variables[] = strtolower($collection->name);
+            }
+        }
+
+        return $this->getWithRelationsStatement($variables);
+    }
+
+    /**
+     * Converts given array of relation name to a with() statements.
+     *
+     * @param array $variables
+     *
+     * @return string
+     */
+    protected function getWithRelationsStatement(array $relations)
+    {
+        if (empty($relations)) {
+            return '';
+        }
+
+        return sprintf('with(%s)->', implode(',', Arr::wrapItems($relations)));
+    }
+
+    /**
+     * Checks if a given fields array conatins at least one multiple answers' field.
+     *
+     * @param array
+     *
+     * @return bool
+     */
+    protected function isContainMultipleAnswers(array $fields)
+    {
+        $filtered = array_filter($fields, function ($field) {
+            return $field->isMultipleAnswers();
+        });
+
+        return count($filtered) > 0;
+    }
+
+    /**
+     * Calls the create:form-request command
+     *
+     * @param  CrestApps\CodeGenerator\Models\ViewInput $input
      *
      * @return $this
      */
-    protected function replaceMethodVisibilityLevel(&$stub, $level)
+    protected function makeFormRequest($input)
     {
-        return $this->replaceTemplate('visibility_level', $level, $stub);
+        $this->callSilent(
+            'create:form-request',
+            [
+                'model-name' => $input->modelName,
+                '--class-name' => $input->formRequestName,
+                '--with-auth' => $input->withAuth,
+                '--resource-file' => $input->resourceFile,
+                '--template-name' => $input->template,
+                '--routes-prefix' => $this->option('routes-prefix'),
+                '--form-request-directory' => $input->formRequestDirectory,
+                '--force' => $input->force,
+            ]
+        );
+
+        return $this;
     }
 
     /**
-     * Replaces get_data_method template.
+     * Replaces the auth middleware
+     *
+     * @param  string  $stub
+     * @param  string  $middleware
+     *
+     * @return $this
+     */
+    protected function replaceAuthMiddlewear(&$stub, $middleware)
+    {
+        return $this->replaceTemplate('auth_middleware', $middleware, $stub);
+    }
+
+    /**
+     * Replaces call_get_data
      *
      * @param  string  $stub
      * @param  string  $code
      *
      * @return $this
      */
-    protected function replaceGetDataMethod(&$stub, $code)
+    protected function replaceCallDataMethod(&$stub, $code)
     {
-        return $this->replaceTemplate('get_data_method', $code, $stub);
+        return $this->replaceTemplate('call_get_data', $code, $stub);
     }
 
+    /**
+     * Replaces the auth contructor
+     *
+     * @param  string  $stub
+     * @param  string  $contructor
+     *
+     * @return $this
+     */
+    protected function replaceConstructor(&$stub, $contructor)
+    {
+        return $this->replaceTemplate('constructor', $contructor, $stub);
+    }
+
+    /**
+     * Replaces controller_extends
+     *
+     * @param  string  $stub
+     * @param  string  $commands
+     *
+     * @return $this
+     */
+    protected function replaceControllerExtends(&$stub, $commands)
+    {
+        return $this->replaceTemplate('controller_extends', $commands, $stub);
+    }
+
+    /**
+     * Replaces the data_variable.
+     *
+     * @param  string  $stub
+     * @param  string  $commands
+     *
+     * @return $this
+     */
+    protected function replaceDataVariable(&$stub, $commands)
+    {
+        return $this->replaceTemplate('data_variable', $commands, $stub);
+    }
+
+    /**
+     * Replaces the upload-method's code for the given stub.
+     *
+     * @param $stub
+     * @param $method
+     *
+     * @return $this
+     */
+    protected function replaceFileMethod(&$stub, $method)
+    {
+        return $this->replaceTemplate('upload_method', $method, $stub);
+    }
+
+    /**
+     * Replaces on_store_setter
+     *
+     * @param  string  $stub
+     * @param  string  $commands
+     *
+     * @return $this
+     */
+    protected function replaceOnStoreAction(&$stub, $commands)
+    {
+        return $this->replaceTemplate('on_store_setter', $commands, $stub);
+    }
+
+    /**
+     * Replaces on_update_setter
+     *
+     * @param  string  $stub
+     * @param  string  $commands
+     *
+     * @return $this
+     */
+    protected function replaceOnUpdateAction(&$stub, $commands)
+    {
+        return $this->replaceTemplate('on_update_setter', $commands, $stub);
+    }
+
+    /**
+     * Replaces the models per page total for the given stub.
+     *
+     * @param $stub
+     * @param $total
+     *
+     * @return $this
+     */
+    protected function replacePaginationNumber(&$stub, $total)
+    {
+        return $this->replaceTemplate('models_per_page', $total, $stub);
+    }
+
+    /**
+     * Replaces relationCollections for the given stub.
+     *
+     * @param $stub
+     * @param $collections
+     *
+     * @return $this
+     */
+    protected function replaceRelationCollections(&$stub, $collections)
+    {
+        return $this->replaceTemplate('relation_collections', $collections, $stub);
+    }
+
+    /**
+     * Replace sthe form-request's fullname for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    protected function replaceRequestFullName(&$stub, $name)
+    {
+        return $this->replaceTemplate('request_fullname', $name, $stub);
+    }
+
+    /**
+     * Replaces the form-request's name for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    protected function replaceRequestName(&$stub, $name)
+    {
+        return $this->replaceTemplate('request_name', $name, $stub);
+    }
+
+    /**
+     * Replaces request variable.
+     *
+     * @param  string  $stub
+     * @param  string  $variable
+     *
+     * @return $this
+     */
+    protected function replaceRequestVariable(&$stub, $variable)
+    {
+        return $this->replaceTemplate('request_variable', $variable, $stub);
+    }
+
+    /**
+     * It Replaces the templates of the givin $labels
+     *
+     * @param string $stub
+     * @param array $items
+     *
+     * @return $this
+     */
+    protected function replaceStandardLabels(&$stub, array $items)
+    {
+        foreach ($items as $labels) {
+            foreach ($labels as $label) {
+                $text = $label->isPlain ? sprintf("'%s'", $label->text) : sprintf("trans('%s')", $label->getAccessor());
+                $stub = $this->strReplace($label->template, $text, $stub);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Replaces the type_hinted_request_name for the given stub.
+     *
+     * @param $stub
+     * @param $code
+     *
+     * @return $this
+     */
+    protected function replaceTypeHintedRequestName(&$stub, $code)
+    {
+        return $this->replaceTemplate('type_hinted_request_name', $code, $stub);
+    }
+
+    /**
+     * Replaces withRelationsForIndex for the given stub.
+     *
+     * @param $stub
+     * @param $relations
+     *
+     * @return $this
+     */
+    protected function replaceWithRelationsForIndex(&$stub, $relations)
+    {
+        return $this->replaceTemplate('with_relations_for_index', $relations, $stub);
+    }
+
+    /**
+     * Replaces withRelationsForShow for the given stub.
+     *
+     * @param $stub
+     * @param $relations
+     *
+     * @return $this
+     */
+    protected function replaceWithRelationsForShow(&$stub, $relations)
+    {
+        return $this->replaceTemplate('with_relations_for_show', $relations, $stub);
+    }
+
+    /**
+     * Processes common tasks
+     *
+     * @param object $input
+     * @param CrestApps\CodeGenerator\Models\Resource $resource
+     * @param string $stub
+     *
+     * @return $this
+     */
+    protected function processCommonTasks($input, $resource, &$stub)
+    {
+        $this->ChangeRequestType($input);
+
+        $dataMethod = $this->getDataMethod($resource->fields, $this->requestNameSpace . '\\' . $this->requestName, $input);
+        $languages = array_keys(self::getLanguageItems($resource->fields));
+        $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields, $this->isCollectiveTemplate());
+        $namespacesToUse = $this->getRequiredUseClasses($resource->fields, $this->getAdditionalNamespaces($input));
+
+        return $this->replaceGetDataMethod($stub, $dataMethod)
+            ->replaceCallDataMethod($stub, $this->getCallDataMethod($input->withFormRequest))
+            ->replaceUseCommandPlaceholder($stub, $namespacesToUse)
+            ->replaceModelName($stub, $input->modelName)
+            ->replaceNamespace($stub, $this->getControllersNamespace($input->controllerDirectory))
+            ->replaceControllerExtends($stub, $this->getControllerExtends($this->getFullClassToExtend()))
+            ->replaceConstructor($stub, $this->getConstructor($input->withAuth))
+            ->replacePaginationNumber($stub, $input->perPage)
+            ->replaceFileMethod($stub, $this->getUploadFileMethod($resource->fields, $this->getFullClassToExtend(), $input->withFormRequest))
+            ->replaceWithRelationsForIndex($stub, $this->getWithRelationFor($resource->fields, 'index'))
+            ->replaceWithRelationsForShow($stub, $this->getWithRelationFor($resource->fields, 'show'))
+            ->replaceRelationCollections($stub, $this->getRequiredRelationCollections($resource->fields))
+            ->replaceOnStoreAction($stub, $this->getOnStoreAction($resource->fields))
+            ->replaceOnUpdateAction($stub, $this->getOnUpdateAction($resource->fields))
+            ->replaceAppName($stub, Helpers::getAppName())
+            ->replaceControllerName($stub, $input->controllerName)
+            ->replaceDataVariable($stub, $this->dataVariable)
+            ->replaceRequestName($stub, $this->requestName)
+            ->replaceRequestFullName($stub, $this->requestNameSpace)
+            ->replaceRequestVariable($stub, $this->requestVariable)
+            ->replaceTypeHintedRequestName($stub, $this->getTypeHintedRequestName($this->requestName))
+            ->replaceStandardLabels($stub, $viewLabels->getLabels());
+    }
+
+    /**
+     * Gets any additional classes to include in the use statement
+     *
+     * @param object $input
+     *
+     * @return array
+     */
+    protected function getAdditionalNamespaces($input)
+    {
+        return [
+            self::getModelNamespace($input->modelName, $input->modelDirectory),
+            $this->requestNameSpace,
+            $this->getFullClassToExtend(),
+        ];
+    }
+
+    /**
+     * Changes the request to a form-request when required.
+     *
+     * @param object $input
+     *
+     * @return void
+     */
+    protected function ChangeRequestType($input)
+    {
+        if (!$input->withFormRequest) {
+            return;
+        }
+
+        $this->requestName = $input->formRequestName;
+        $this->requestNameSpace = $this->getRequestsNamespace($this->requestName, $input->formRequestDirectory);
+
+        if (!$this->option('without-form-request')) {
+            $this->makeFormRequest($input);
+        }
+    }
+
+    /**
+     * Gets the controller stub.
+     *
+     * @return string
+     */
+    protected function getControllerStub()
+    {
+        return $this->getStubContent($this->getControllerStubName());
+    }
+
+    /**
+     * Gets the name of the controller stub.
+     *
+     * @return string
+     */
+    protected function getControllerStubName()
+    {
+        return $this->getControllerType();
+    }
+
+    /**
+     * Gets the path to controllers
+     *
+     * @param string $file
+     *
+     * @return string
+     */
+    abstract protected function getControllerPath($file = '');
+
+    /**
+     * Gets the type of the controller
+     *
+     * @return string
+     */
+    abstract protected function getControllerType();
 }
