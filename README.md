@@ -1,16 +1,13 @@
-[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=An%20intelligent%20code%20generator%20for%20Laravel%20framework%20which%20will%20save%20you%20lots%20of%20time!&url=https://github.com/CrestApps/laravel-code-generator&hashtags=laravel,laravel-code-generator,laravel-crud,code-generator,crud-generator,laravel-crud-generator)
 
 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=An%20intelligent%20code%20generator%20for%20Laravel%20framework%20which%20will%20save%20you%20lots%20of%20time!&url=https://github.com/CrestApps/laravel-code-generator&hashtags=laravel,laravel-code-generator,laravel-crud,code-generator,crud-generator,laravel-crud-generator)
 
 ## Introduction
 
-An intelligent code generator for Laravel framework that will save you time! This awesome tool will help you generate resources like views, controllers, routes, migrations, languages and/or form-requests! It is extremely flexible and customizable to cover many use cases. It is shipped with a cross-browser compatible template, along with client-side validation to modernize your application.
+An intelligent code generator for Laravel framework that will save you time! This awesome tool will help you generate resources like views, controllers, routes, migrations, languages and/or form-requests! It is extremely flexible and customizable to cover many on the use cases. It is shipped with cross-browsers compatible template, along with a client-side validation to modernize your application.
 
-<<<<<<< HEAD
-For full documentation and live demo, please visit <a href="https://crestapps.com/laravel-code-generator/docs/2.2" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
-=======
 For full documentation and live demo please visit <a href="https://crestapps.com/laravel-code-generator/docs/2.3" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
->>>>>>> v2.3
+
+**Note: ** The available documentation is for versions <= 2.2. The documentation for vertion 2.3+ is very similar with some exceptions. Please review the <a href="https://github.com/CrestApps/laravel-code-generator/blob/master/CHANGELOG.md" title="ChangeLog">Change Log</a> to get a list of the changes.
 
 ## Features
 
@@ -19,14 +16,10 @@ For full documentation and live demo please visit <a href="https://crestapps.com
 	<li>Create very clean, reusable and highly readable code to build on.</li>
 	<li>Create full resources using a single command with <strong>migration</strong> or from <strong>existing database</strong>.</li>
 	<li>Creates full resources for all of the existing tables in the database using one command.</li>
-<<<<<<< HEAD
-	<li>Allows you to save the fields in a JSON file and recreate resources when the business needs change.</li>
-=======
 	<li>Create full API-based resources using a single command with <strong>migration</strong> or from <strong>existing database</strong>.</li>
 	<li>Create beautiful documentation for your API.</li>
 	<li>Create api-resource and api-resource-collection with Laravel 5.5+.</li>
 	<li>Allows you to save the fields in a JSON file and recreate resources when the business needs changes.</li>
->>>>>>> v2.3
 	<li>Utilizes JSON based resource-file to allow you to define your resources. Resource-file allows you to easily regenerate the resource at any time even when the business rules change.</li>
 	<li>Create standard CRUD controllers with simple or form-request validation.</li>
 	<li>Customizable view’s templates to enable you to change the standard look and feel of your application.</li>
@@ -34,10 +27,10 @@ For full documentation and live demo please visit <a href="https://crestapps.com
     <li>Create named routes with and without group.</li>
     <li>Create standard CRUD views.</li>
     <li>Smart migration engine! Keeps track of all generated migrations to only create the needed migration.</li>
-    <li>Intelligent enough to automatically handle the relations between the models.</li>
+    <li>Intelligent enough to automatically handles the relations between the models.</li>
     <li>Very flexible and rich with configurable options.</li>
     <li>Easy commands to create resource-file; additionally, add or reduce existing resource-file.</li>
-    <li>Full capability to generate multi-language applications.</li>
+    <li>Full capability to generate multi-languages applications.</li>
     <li>Client-side validation.</li>
     <li>File uploading handling.</li>
     <li>Auto store multiple-response in the database.</li>
@@ -52,7 +45,7 @@ For full documentation and live demo please visit <a href="https://crestapps.com
 
 ## Installation
 
-1. To download this package into your laravel project, use the command-line to execute the following command:
+1. To download this package into your laravel project, use the command-line to execute the following command
 
 	```
 	composer require crestapps/laravel-code-generator --dev
@@ -68,18 +61,7 @@ For full documentation and live demo please visit <a href="https://crestapps.com
 	}
 	```
 
-<<<<<<< HEAD
-3. Execute the following command from the command-line to publish the package's config and the default template to start generating awesome code.
-
-	```
-	php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServiceProvider" --tag=default
-	```
-
-
-> A layout is required for the default views! The code generator allows you to create a layout using the command-line. Of course, you can use also your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/ "CSS bootstrap framework") in your layout for the default templates to work properly. Additionally, you can chose to design your own templetes using a different framework or css.
-=======
 > A layout is required for the default views! The code generator allows you to create a layout using the command-line. Of cource you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/ "CSS bootstrap framework") in your layout for the default templates to work properly. Additionally, you can chose to you design your own templetes using a different or no css framework. 
->>>>>>> v2.3
 
 ## Lessons
 Checkout our channel on <a href="https://www.youtube.com/channel/UCkEd0nOoRf3o0ahspAu7Y9w/videos" target="_blank" title="CrestApps YouTube Channel">YouTube.com</a> 
@@ -163,16 +145,6 @@ Do you like this project and want to contribute?
 ## What did you create with this package?
 I'd love to know if your site was generated using this package and list your logo on the documentation site. Please email using my contact info found in `composer.json` file.
 
-## Contribution
-Do you like this project and want to contribute?
-- **HELP WANTED** Version `v2.3` needs to be documented before it can be released. If you are able to contribute, please read the <a href="https://github.com/CrestApps/laravel-code-generator/blob/v2.3/CHANGELOG.md">change-log</a> in <a href="https://github.com/CrestApps/laravel-code-generator/tree/v2.3">v2.3 branch</a> and document it in the <a href="https://github.com/CrestApps/crestapps-site">CrestApps-site</a> repository. For any help, my email can be found in the `composer.json` file, feel free to send me an email.
-- Please start by ***Staring*** this package on GitHub.
-- Sharing this projects with others is your way of saying keep the improvements and new awesome features coming.
-- Report any bugs or send us any comments, idea, thought that you may have about this project as an issue on GitHub.
-
-## What did you create with this package?
-I'd love to know if your site was generated using this package and list your logo on the documentation site. Please email me by using my contact info found in `composer.json` file.
-
 ## Examples
 
 The following example assumes that we are trying to create a CRUD called <var>AssetCategory</var> with the fields listed below.
@@ -187,13 +159,8 @@ The following example assumes that we are trying to create a CRUD called <var>As
 
 <blockquote>
 <p><code>php artisan resource-file:create AssetCategory --fields=id,name,description,is_active</code></p>
-<<<<<<< HEAD
-	<p><small>The above command will create a resource-file named <code>asset_categories</code>, and will save it here <var>/resources/laravel-code-generator/sources/asset_categories.json</var></small></p>
-<p><code>php artisan create:resources AssetCategory --with-migration</code></p>
-=======
 <p><small>The above command will create resource-file names <var>/resources/laravel-code-generator/sources/asset_categories.json</var></small></p>
 <p><code>php artisan create:scaffold AssetCategory --with-migration</code></p>
->>>>>>> v2.3
 <p><small>The above command will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views, the routes, and migration class!</var></small></p>
 </blockquote>
 
@@ -218,13 +185,8 @@ The following example assumes that we are trying to create a CRUD called <var>As
 
 <blockquote>
 <p><code>php artisan resource-file:create AssetCategory --fields=id,name,description,is_active --translation-for=en,ar</code></p>
-<<<<<<< HEAD
-<p><small>The above command will create resource-file named <var>/resources/laravel-code-generator/sources/asset_categories.json</var></small></p>
-<p><code>php artisan create:resources AssetCategory --with-migration</code></p>
-=======
 <p><small>The above command will create resource-file names <var>/resources/laravel-code-generator/sources/asset_categories.json</var></small></p>
 <p><code>php artisan create:scaffold AssetCategory --with-migration</code></p>
->>>>>>> v2.3
 <p><small>The above command will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views, the routes, and migration class!</var></small></p>
 </blockquote>
 
@@ -232,13 +194,8 @@ The following example assumes that we are trying to create a CRUD called <var>As
 
 <blockquote>
 <p><code>php artisan resource-file:create AssetCategory --fields=id,name,description,is_active</code></p>
-<<<<<<< HEAD
-<p><small>The above command will create resource-file named <var>/resources/laravel-code-generator/sources/asset_categories.json</var></small></p>
-<p><code>php artisan create:resources AssetCategory --with-form-request</code></p>
-=======
 <p><small>The above command will create resource-file names <var>/resources/laravel-code-generator/sources/asset_categories.json</var></small></p>
 <p><code>php artisan create:scaffold AssetCategory --with-form-request</code></p>
->>>>>>> v2.3
 <p><small>The above command will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views, the routes, and <var>app/Http/Requests/AssetCategoriesFormRequest</var> class!</var></small></p>
 </blockquote>
 
@@ -246,30 +203,18 @@ The following example assumes that we are trying to create a CRUD called <var>As
 
 <blockquote>
 <p><code>php artisan resource-file:create AssetCategory --fields=id,name,description,is_active</code></p>
-<<<<<<< HEAD
-<p><small>The above command will create resource-file named <var>/resources/laravel-code-generator/sources/asset_categories.json</var></small></p>
-<p><code>php artisan create:resources AssetCategory --with-soft-delete --with-migration</code></p>
-=======
 <p><small>The above command will create resource-file names <var>/resources/laravel-code-generator/sources/asset_categories.json</var></small></p>
 <p><code>php artisan create:scaffold AssetCategory --with-soft-delete --with-migration</code></p>
->>>>>>> v2.3
 <p><small>The above command will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views, the routes, and migration file!</var></small></p>
 </blockquote>
 
 #### Creating resources from existing database
 
 <blockquote>
-<<<<<<< HEAD
-<p><code>php artisan create:resources AssetCategory --table-exists</code></p>
-<p><small>The above command will create resource-file named <var>/resources/laravel-code-generator/sources/asset_categories.json</var>. It is going to assume that the table name is called "asset_categories" in your database. Note, it assumes your table is plural.  If that is not the case, you can use <var>--table-name=some_other_table_name</var></small></p>
-
-<p><small>Then it will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views and routes!</var></small></p>
-=======
 <p><code>php artisan create:scaffold AssetCategory --table-exists</code></p>
 <p><small>The above command will create resource-file names <var>/resources/laravel-code-generator/sources/asset_categories.json</var>. It is going to assume that the table name is called "asset_categories" in your database. If that is not the case, you can use <var>--table-name=some_other_table_name</var></small></p>
 
 <p><small>Then it will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views and the routes!</var></small></p>
->>>>>>> v2.3
 <p><small>You may also create a resource-file from existing database separately using <code>php artisan resource-file:from-database AssetCategory</code></small></p>
 </blockquote>
 
@@ -277,13 +222,8 @@ The following example assumes that we are trying to create a CRUD called <var>As
 #### Creating resources from existing database with translation for English and Arabic
 
 <blockquote>
-<<<<<<< HEAD
-<p><code>php artisan create:resources AssetCategory --translation-for=en,ar --table-exists</code></p>
-<p><small>The above command will create resource-file named <var>/resources/laravel-code-generator/sources/asset_categories.json</var></small></p>
-=======
 <p><code>php artisan create:scaffold AssetCategory --translation-for=en,ar --table-exists</code></p>
 <p><small>The above command will create resource-file names <var>/resources/laravel-code-generator/sources/asset_categories.json</var></small></p>
->>>>>>> v2.3
 <p><small>Then it will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views and the routes!</var></small></p>
 <p><small>You may also create a resource-file from existing database separately using <code>php artisan resource-file:from-database AssetCategory --translation-for=en,ar</code></small></p>
 </blockquote>
@@ -292,15 +232,9 @@ The following example assumes that we are trying to create a CRUD called <var>As
 
 <blockquote>
 <p><code>php artisan resource-file:from-database AssetCategory --translation-for=en,ar</code></p>
-<<<<<<< HEAD
-<p><code>php artisan create:resources AssetCategory</code></p>
-<p><small>The above command will create resource-file named <var>/resources/laravel-code-generator/sources/asset_categories.json</var></small></p>
-<p><small>Then it will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views and routes!</var></small></p>
-=======
 <p><code>php artisan create:scaffold AssetCategory</code></p>
 <p><small>The above command will create resource-file names <var>/resources/laravel-code-generator/sources/asset_categories.json</var></small></p>
 <p><small>Then it will create a model <var>app/Models/AssetCategory</var>, a controller <var>app/Http/Controllers/AssetCategoriesController, all views and the routes!</var></small></p>
->>>>>>> v2.3
 </blockquote>
 
 

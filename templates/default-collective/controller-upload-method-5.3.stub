@@ -12,16 +12,9 @@
             return '';
         }
         
-<<<<<<< HEAD
-        $path = config('codegenerator.files_upload_path', 'uploads');
-        $saved = $file->store('public/' . $path, config('filesystems.default'));
-
-        return substr($saved, 7);
-=======
         $fileName = sprintf('%s.%s', uniqid(), $file->getClientOriginalExtension());
         $destinationPath = config('laravel-code-generator.files_upload_path','uploads');
         $path = $file->move($destinationPath, $fileName);
         
         return $destinationPath . '/' . $fileName;
->>>>>>> v2.3
     }

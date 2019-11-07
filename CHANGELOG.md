@@ -1,4 +1,4 @@
-## v2.3.0
+## v2.3 - v2.4
  - The `create:resources` command have been renamed to `create:scaffold`.
  - The `--fields` option was added to the `create:scaffold` to allow you to scaffold everything using a single command. So you can use the `create:scaffold` command to create resource-file and scaffold all at the same time. For example, `php artisan create:scaffold Test --fields=id,first_field,second_field`. The previous command will first create the resource-file before it create your other resources. The `--fields` option should only be used one time only to create the resource-file not every time.
  - The default value of the option `controller-extends` in the `create:controller` command was changed from `Http\Controllers\Controller` to `default-controller`.
