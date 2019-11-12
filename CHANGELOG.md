@@ -1,4 +1,4 @@
-## v2.3 - v2.4
+## v2.3 - v2.4 (Important read if upgrading from previous versions)
  - The `create:resources` command have been renamed to `create:scaffold`.
  - The `--fields` option was added to the `create:scaffold` to allow you to scaffold everything using a single command. So you can use the `create:scaffold` command to create resource-file and scaffold all at the same time. For example, `php artisan create:scaffold Test --fields=id,first_field,second_field`. The previous command will first create the resource-file before it create your other resources. The `--fields` option should only be used one time only to create the resource-file not every time.
  - The default value of the option `controller-extends` in the `create:controller` command was changed from `Http\Controllers\Controller` to `default-controller`.
@@ -6,13 +6,13 @@
  - The `create_move_file_method` option in the config have been removed. Now simply if you have `moveFile` method defined in the controller base class, generating the method will be skipped. However, if the method does not extsts, it will be generated.
  - Multiple new stubs have been added to the default templates. Any stub name that starts with `api-` have been added.
  - The `route.stub` file have been modified.
-  - The following two properties `is-api-visible` and `api-key` were added to the Field properties to give you control on which field should be visile to the api output and what should it be called incase you want to give it a name other that what is in the database.
-  - The `create:routes` command now has a new option `without-route-clause` which will create the routes without `there` clause for the id. It may be used when the primary key is not an integer. Additionally, the options `--for-api` and `--api-version` have been added to add support for created api-based routes.
-  - added command to create api-resource with/without collection when using Laravel 5.5+.
-  - The `create:api-scaffold` command have been added to allow you to create resources for the api.
-  - The user is no longer required to publish the default templates. This is much better step to prevent upgrade braking when the template are updated during a patch release. The user should publish templates only if he/she want to modify it and rename it. **IMPORTANT** Delete existing default and default-collective templates from the folders from the default publish path of your project.
-  - The user no longer have to publish resource to install the package! One line only is required to install the package on laravel 5.5+ (i.e, composer require crestapps/laravel-code-generator --dev)
-  - **IMPORTANT**: delete the the `codegenerator.php` file from your config folder, then rename the `codegenerator_custom.php` file to `laravel-code-generator.php`. Alternatively, you can delete both `codegenerator.php` and `codegenerator_custom.php`
+ - The following two properties `is-api-visible` and `api-key` were added to the Field properties to give you control on which field should be visile to the api output and what should it be called incase you want to give it a name other that what is in the database.
+ - The `create:routes` command now has a new option `without-route-clause` which will create the routes without `there` clause for the id. It may be used when the primary key is not an integer. Additionally, the options `--for-api` and `--api-version` have been added to add support for created api-based routes.
+ - added command to create api-resource with/without collection when using Laravel 5.5+.
+ - The `create:api-scaffold` command have been added to allow you to create resources for the api.
+ - The user is no longer required to publish the default templates. This is much better step to prevent upgrade braking when the template are updated during a patch release. The user should publish templates only if he/she want to modify it and rename it. **IMPORTANT** Delete existing default and default-collective templates from the folders from the default publish path of your project.
+ - The user no longer have to publish resource to install the package! One line only is required to install the package on laravel 5.5+ (i.e, composer require crestapps/laravel-code-generator --dev)
+ - **IMPORTANT**: delete the the `codegenerator.php` file from your config folder, then rename the `codegenerator_custom.php` file to `laravel-code-generator.php`. Alternatively, you can delete both `codegenerator.php` and `codegenerator_custom.php`
  - Added `--model-extends` option to the create:model command to allow the use to extend a custom default base class.
 
 ## v2.2.7
@@ -26,7 +26,7 @@
  - If you are upgrading from v2.0, v2.1, v2.2, v2.3 to v2.4 or v2.5 make sure you publish the vendor resource. There are some updates to the config file.
  - If you are upgrading from v2.0, v2.1 or v2.2 to v2.3 make sure you publish the vendor resource. There are some updates to the config file.
  - If you are upgrading from v2.0 or v2.1 to v2.2 make sure you publish the vendor resource. There are some changes to the templates that required to be updated.
--- If you are upgrading any version prior v2.2 follow the upgrate instruction on https://crestapps.com/laravel-code-generator/docs/2.2#upgrade-guide
+ - If you are upgrading any version prior v2.2 follow the upgrate instruction on https://crestapps.com/laravel-code-generator/docs/2.2#upgrade-guide
 
 ### Options Changes
 
@@ -36,8 +36,8 @@
  - The **--without-migration** option with **create:resources** command has been reversed. It is now **--with-migration** and should only be passed when you need a new migration created.
  - The options `--names` in the `resource-file:create`, `resource-file:append`, or `resource-file:reduce` has been renamed to `--fields`.
  - `--indexes` and `--relations` have been added to the following commands `resource-file:create`, `resource-file:append`, or `resource-file:reduce` to allow you to interact with the resource-file freely.
- -- The options `--fields`, `--indexes` and `--relations` for the `resource-file:create`, `resource-file:append`, or `resource-file:reduce` commands accept complex string to allow you to pass more values to add to the resource-file.
- -- Added `--without-languages`, `--without-controller`, `--without-form-request`, `--without-views` and `without-model` options to the `create:resources` command.
+ - The options `--fields`, `--indexes` and `--relations` for the `resource-file:create`, `resource-file:append`, or `resource-file:reduce` commands accept complex string to allow you to pass more values to add to the resource-file.
+ - Added `--without-languages`, `--without-controller`, `--without-form-request`, `--without-views` and `without-model` options to the `create:resources` command.
 
 
 ## New Features

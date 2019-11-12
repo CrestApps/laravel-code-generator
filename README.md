@@ -135,6 +135,10 @@ Checkout our channel on <a href="https://www.youtube.com/channel/UCkEd0nOoRf3o0a
 
 > Live demo is available at [CrestApps.com](https://www.crestapps.com/laravel-code-generator/demos/v2-3 "Laravel Code Generator Live Demo"). 
 
+## Upgrading from version  <= 2.2 to 2.3+
+ - Delete the `codegenerator.php` file found in your `config` folder, then rename the `codegenerator_custom.php` file to `laravel-code-generator.php` if one exists. Alternatively, you can delete both `codegenerator.php` and `codegenerator_custom.php`
+
+
 ## Contribution
 Do you like this project and want to contribute?
 - **HELP WANTED** Version `v2.3` needs to be documented before it can be released. If you are able to contribute, please read the <a href="https://github.com/CrestApps/laravel-code-generator/blob/v2.3/CHANGELOG.md">change-log</a> in <a href="https://github.com/CrestApps/laravel-code-generator/tree/v2.3">v2.3 branch</a> and document it in the <a href="https://github.com/CrestApps/crestapps-site">CrestApps-site</a> repository. For any help, my email can be found in the `composer.json` file, feel free to send me an email.
