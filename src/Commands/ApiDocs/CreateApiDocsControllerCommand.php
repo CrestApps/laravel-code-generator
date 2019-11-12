@@ -5,6 +5,7 @@ namespace CrestApps\CodeGenerator\Commands\ApiDocs;
 use CrestApps\CodeGenerator\Commands\Bases\ControllerCommandBase;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Config;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Traits\ApiDocViewsTrait;
 use CrestApps\CodeGenerator\Traits\LanguageTrait;

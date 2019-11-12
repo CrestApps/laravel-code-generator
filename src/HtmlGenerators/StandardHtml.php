@@ -6,6 +6,7 @@ use CrestApps\CodeGenerator\HtmlGenerators\HtmlGeneratorBase;
 use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\Label;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Support\ViewLabelsGenerator;
 
 class StandardHtml extends HtmlGeneratorBase

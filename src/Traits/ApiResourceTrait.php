@@ -4,6 +4,7 @@ namespace CrestApps\CodeGenerator\Traits;
 
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Support\Str;
 
 trait ApiResourceTrait
 {

@@ -8,6 +8,7 @@ use CrestApps\CodeGenerator\Models\MigrationCapsule;
 use CrestApps\CodeGenerator\Models\MigrationTrackerCapsule;
 use CrestApps\CodeGenerator\Models\Resource;
 use CrestApps\CodeGenerator\Support\Arr;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Support\Config;
 use CrestApps\CodeGenerator\Support\Helpers;
 use CrestApps\CodeGenerator\Support\MigrationHistoryTracker;

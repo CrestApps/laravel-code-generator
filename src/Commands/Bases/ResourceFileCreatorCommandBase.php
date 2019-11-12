@@ -4,6 +4,7 @@ namespace CrestApps\CodeGenerator\Commands\Bases;
 
 use CrestApps\CodeGenerator\Commands\Bases\ResourceFileCommandBase;
 use CrestApps\CodeGenerator\Support\Arr;
+use CrestApps\CodeGenerator\Support\Str;
 use CrestApps\CodeGenerator\Support\Helpers;
 
 class ResourceFileCreatorCommandBase extends ResourceFileCommandBase
