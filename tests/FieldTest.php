@@ -42,7 +42,7 @@ class FieldTest extends TestCase
         $this->assertTrue(is_array($fields) && 1 == count($fields));
         $field = $fields[0];
 
-        $this->assertFalse($field->isAutoIncrement);
+        $this->assertTrue($field->isAutoIncrement == 'false');
     }
 
     public function testAutoIncrementFalseIsHonouredWithHyphens()
@@ -53,6 +53,6 @@ class FieldTest extends TestCase
         $this->assertTrue(is_array($fields) && 1 == count($fields));
         $field = $fields[0];
 
-        $this->assertFalse($field->isAutoIncrement);
+        $this->assertTrue($field->isAutoIncrement == 'false');
     }
 }

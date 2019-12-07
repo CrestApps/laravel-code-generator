@@ -2,8 +2,6 @@
 namespace CrestApps\CodeGenerator\DatabaseParsers;
 
 use App;
-use CrestApps\CodeGenerator\DatabaseParsers\ParserBase;
-use CrestApps\CodeGenerator\Models\Field;
 use CrestApps\CodeGenerator\Models\ForeignConstraint;
 use CrestApps\CodeGenerator\Models\ForeignRelationship;
 use CrestApps\CodeGenerator\Models\Index;
@@ -46,6 +44,7 @@ class MysqlParser extends ParserBase
      *
      * @return array
      */
+
     protected function getColumns()
     {
         return DB::select(
@@ -416,5 +415,24 @@ class MysqlParser extends ParserBase
         }
 
         return $finals;
+    }
+
+    public function getTableNames($databaseName)
+    {
+        $tables = [];
+        $tableObjects = DB::select('SHOW TABLES');
+        foreach($tableObjects as $table)
+        {
+            $tableName = $table->{'Tables_in_'.$databaseName};
+
+            //remove trailing "s" in table name
+            $removeS = substr($tableName, -1) == 's' ? substr($tableName, 0, -1) : $tableName;
+            //remove _ from string and convert
+            $modelName = ucfirst(str_replace("_", "", $removeS));
+
+            $tables[$tableName] = $modelName;
+        }
+
+        return $tables;
     }
 }
