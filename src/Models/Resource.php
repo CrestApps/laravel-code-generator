@@ -681,7 +681,7 @@ class Resource implements JsonWriter
      */
     public static function jsonFileContent($filename)
     {
-        $fileFullname = Config::getResourceFilePath($filename);
+        $fileFullname = base_path(Config::getResourceFilePath($filename));
 
         if (!File::exists($fileFullname)) {
             throw new Exception('The resource file ' . $fileFullname . ' was not found! Perhaps, you need to run PHP artisan resource-file:create [model-name]  or resource-file:from-database [model-name] ');
