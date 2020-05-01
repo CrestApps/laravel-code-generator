@@ -7,7 +7,7 @@ return [
     | CodeGenerator config overrides
     |--------------------------------------------------------------------------
     |
-    | It is a good idea to sperate your configuration form the code-generator's
+    | It is a good idea to separate your configuration form the code-generator's
     | own configuration. This way you won't lose any settings/preference
     | you have when upgrading to a new version of the package.
     |
