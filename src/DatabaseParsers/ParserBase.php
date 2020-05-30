@@ -251,4 +251,12 @@ abstract class ParserBase
      * @return array of CrestApps\CodeGenerator\Models\ForeignRelationship;
      */
     abstract protected function getRelations();
+
+    /**
+     * Get all tables in database
+     *
+     * @param $databaseName
+     * @return array
+     */
+    abstract public function getTableNames($databaseName);
 }

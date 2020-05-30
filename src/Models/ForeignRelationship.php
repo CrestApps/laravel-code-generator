@@ -14,6 +14,7 @@ use Exception;
 use File;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
+use OutOfRangeException;
 
 class ForeignRelationship implements JsonWriter
 {
@@ -82,11 +83,11 @@ class ForeignRelationship implements JsonWriter
         $this->parameters = [];
 
         $this->parameters = [];
-		
+
         if(!is_array($parameters)){
             $parameters = Arr::fromString($parameters, '|');
         }
-		
+
         foreach ($parameters as $parameter) {
             $this->parameters[] = Str::eliminateDuplicates($parameter, "\\");
         }
@@ -438,9 +439,9 @@ class ForeignRelationship implements JsonWriter
 					$values[2],
 					$values[0],
 					$field
-				);				
+				);
 			}
-			
+
 			return null;
 		}
 
@@ -483,13 +484,13 @@ class ForeignRelationship implements JsonWriter
         $parts = explode(';', $rawRelation);
         $collection = [];
         foreach ($parts as $part) {
-            if (!str_contains($part, ':')) {
+            if (!Str::contains($part, ':')) {
                 continue;
             }
 
-            list($key, $value) = Str::split([':', '='], $part);
+            list($key, $value) = Str::split(':', $part);
 
-            if (($isParams = in_array($key, ['params', 'param'])) || str_contains($value, '|')) {
+            if (($isParams = in_array($key, ['params', 'param'])) || Str::contains($value, '|')) {
                 $value = explode('|', $value);
 
                 if ($isParams) {

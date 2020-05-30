@@ -8,11 +8,14 @@
 
 namespace CrestApps\CodeGenerator\Tests;
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 
 class ResourceFileCreateCommandTest extends TestCase
 {
+
     public function testCreateResourceFileWithBigIntField()
     {
         $this->mockOutFileSystem();
@@ -44,7 +47,7 @@ class ResourceFileCreateCommandTest extends TestCase
         $this->mockOutFileSystem();
 
         // arguments we're passing in
-        $relString = 'name:foo;type:morphedByMany;params:App\Foo|fooable';
+        $relString = 'name:foo;type:morphMany;params:App\Foo|fooable';
 
         // now call Artisan
         Artisan::call('resource-file:create', ['model-name' => 'TestModel', '--relations' => $relString]);
@@ -63,5 +66,34 @@ class ResourceFileCreateCommandTest extends TestCase
         File::shouldReceive('put')->andReturnNull();
         File::shouldReceive('isDirectory')->andReturn(false);
         File::shouldReceive('makeDirectory')->andReturnNull();
+    }
+
+    public function testCreateResourceFileFromDatabase()
+    {
+        //run test migration
+        Schema::create('users', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('word');
+            $table->string('type');
+            $table->string('sami');
+        });
+        // now call Artisan
+        Artisan::call('resource-file:from-database', [
+            'model-name' => 'User',
+            '--table-name' => 'users'
+        ]);
+        // Vacuous assertion to give PHPUnit something to do instead of complaining about a risky test
+        $this->assertTrue(true);
+        Schema::dropIfExists('users');
+    }
+
+    public function testCreateResourceFileFromDatabaseAllMySQL()
+    {
+        // change config to MySQL
+        $this->app['config']->set('database.default', 'mysql');
+        // now call Artisan
+        Artisan::call('resource-file:from-database-all');
+        // Vacuous assertion to give PHPUnit something to do instead of complaining about a risky test
+        $this->assertTrue(true);
     }
 }

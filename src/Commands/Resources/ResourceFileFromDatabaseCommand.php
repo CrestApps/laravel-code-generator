@@ -57,6 +57,10 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
      */
     public function handle()
     {
+        $this->generate();
+    }
+    public function generate()
+    {
         $file = $this->getDestinationFullname();
 
         if ($this->alreadyExists($file)) {
