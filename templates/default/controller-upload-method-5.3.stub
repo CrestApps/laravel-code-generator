@@ -12,11 +12,7 @@
             return '';
         }
         
-<<<<<<< HEAD
-        $path = config('codegenerator.files_upload_path', 'uploads');
-=======
         $path = config('laravel-code-generator.files_upload_path', 'uploads');
->>>>>>> v2.3
         $saved = $file->store('public/' . $path, config('filesystems.default'));
 
         return substr($saved, 7);
