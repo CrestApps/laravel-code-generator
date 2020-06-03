@@ -947,7 +947,7 @@ return [
         'float' => 'number',
         'integer' => 'number',
         'ipAddress' => 'text',
-        'json' => 'checkbox',
+        'json' => 'textarea',
         'jsonb' => 'checkbox',
         'longText' => 'textarea',
         'macAddress' => 'text',
