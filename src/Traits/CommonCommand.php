@@ -252,7 +252,7 @@ trait CommonCommand
      * @param string $routesPrefix
      * @param string $name
      *
-     * @return $this
+     * @return string
      */
     protected function getDotNotationName($viewDirectory, $routesPrefix, $name = 'index')
     {
@@ -272,10 +272,11 @@ trait CommonCommand
     /**
      * Gets the stub file.
      *
-     *@param string $name
+     * @param string $name
      * @param string $template
      *
      * @return string
+     * @throws Exception
      */
     protected function getStubByName($name, $template = null)
     {
