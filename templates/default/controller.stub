@@ -11,7 +11,7 @@ class [% controller_name %] [% controller_extends %]
     /**
      * Display a listing of the [% model_name_plural %].
      *
-     * @return Illuminate\View\View
+     * @return \Illuminate\View\View
      */
     public function index()
     {
@@ -23,7 +23,7 @@ class [% controller_name %] [% controller_extends %]
     /**
      * Show the form for creating a new [% model_name %].
      *
-     * @return Illuminate\View\View
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -37,7 +37,7 @@ class [% controller_name %] [% controller_extends %]
      *
      * @param [% request_fullname %] [% request_variable %]
      *
-     * @return Illuminate\Http\RedirectResponse | Illuminate\Routing\Redirector
+     * @return \Illuminate\Http\RedirectResponse | \Illuminate\Routing\Redirector
      */
     public function store([% type_hinted_request_name %])
     {
@@ -61,7 +61,7 @@ class [% controller_name %] [% controller_extends %]
      *
      * @param int $id
      *
-     * @return Illuminate\View\View
+     * @return \Illuminate\View\View
      */
     public function show($id)
     {
@@ -75,7 +75,7 @@ class [% controller_name %] [% controller_extends %]
      *
      * @param int $id
      *
-     * @return Illuminate\View\View
+     * @return \Illuminate\View\View
      */
     public function edit($id)
     {
@@ -91,7 +91,7 @@ class [% controller_name %] [% controller_extends %]
      * @param int $id
      * @param [% request_fullname %] [% request_variable %]
      *
-     * @return Illuminate\Http\RedirectResponse | Illuminate\Routing\Redirector
+     * @return \Illuminate\Http\RedirectResponse | \Illuminate\Routing\Redirector
      */
     public function update($id, [% type_hinted_request_name %])
     {
@@ -116,7 +116,7 @@ class [% controller_name %] [% controller_extends %]
      *
      * @param int $id
      *
-     * @return Illuminate\Http\RedirectResponse | Illuminate\Routing\Redirector
+     * @return \Illuminate\Http\RedirectResponse | \Illuminate\Routing\Redirector
      */
     public function destroy($id)
     {
