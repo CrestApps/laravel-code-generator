@@ -539,6 +539,8 @@ class CreateModelCommand extends Command
                 $content = $this->getStubContent('model-mutator-datetime');
                 $this->replaceFieldName($content, $field->name);
 
+                $this->replaceDateFormat($content, $field->dateFormat);
+                
                 $mutators[] = $this->getMutator($field, $content);
             }
         }
