@@ -1,0 +1,10 @@
+    Route::get('/', [[% controller_name %]::class, 'index'])
+         ->name('[% index_route_name %]');
+    Route::get('/show/{[% model_name_singular_variable %]}',[[% controller_name %]::class, 'show'])
+         ->name('[% show_route_name %]')[% route_id_clause %];
+    Route::post('/', [[% controller_name %]::class, 'store'])
+         ->name('[% store_route_name %]');    
+    Route::put('[% model_name_snake %]/{[% model_name_singular_variable %]}', [[% controller_name %]::class, 'update'])
+         ->name('[% update_route_name %]')[% route_id_clause %];
+    Route::delete('/[% model_name_snake %]/{[% model_name_singular_variable %]}',[[% controller_name %]::class, 'destroy'])
+         ->name('[% destroy_route_name %]')[% route_id_clause %];

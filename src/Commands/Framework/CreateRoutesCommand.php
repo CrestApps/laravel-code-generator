@@ -63,7 +63,8 @@ class CreateRoutesCommand extends Command
 
         $stub = $this->getRoutesStub($input->type);
         $controllnerName = $this->getControllerName($input->controllerName, $input->controllerDirectory);
-
+        $controllerNamespace = $this->getControllersNamespace($controllnerName, $input->controllerDirectory);
+        $useControllerLine = $this->getUseClassCommand($controllerNamespace);
         $this->replaceModelName($stub, $input->modelName)
             ->replaceControllerName($stub, $controllnerName)
             ->replaceRouteNames($stub, $this->getModelName($input->modelName), $namePrefix)
@@ -71,8 +72,26 @@ class CreateRoutesCommand extends Command
             ->replaceRouteIdClause($stub, $this->getRouteIdClause($input->withoutRouteClause))
             ->replacePrefix($stub, $namePrefix)
             ->replaceVersion($stub, $this->getVersion($input->apiVersion))
+            ->appendNamespaceToRoutesFile($useControllerLine, $routesFile)
             ->appendToRoutesFile($stub, $routesFile)
             ->info('The routes were added successfully.');
+    }
+
+
+    /**
+     * Gets the controllers namespace
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    protected function getControllersNamespace($controllnerName, $controllerDirectory)
+    {
+        $controllerPath = Config::getControllersPath($controllerDirectory);
+
+        $path = Helpers::getAppNamespace($controllerDirectory, $controllerPath, $controllnerName);
+
+        return Helpers::fixNamespace($path);
     }
 
     protected function getControllerDirectory()
@@ -96,6 +115,10 @@ class CreateRoutesCommand extends Command
             $name = 'api-routes';
         } else if ($type == 'api-docs') {
             $name = 'api-documentation-routes';
+        }
+
+        if (Helpers::isNewerThanOrEqualTo('8.0')) {
+            $name .= '-8';
         }
 
         return $this->getStubContent($name);
@@ -124,9 +147,8 @@ class CreateRoutesCommand extends Command
      */
     protected function getCommandInput()
     {
-
         $modelName = trim($this->argument('model-name'));
-        $controllerName = trim($this->option('controller-name')) ?: Str::postfix($modelName, 'Controller');
+        $controllerName = trim($this->option('controller-name')) ?: Helpers::makeControllerName($modelName);
         $prefix = ($this->option('routes-prefix') == 'default-form') ? Helpers::makeRouteGroup($modelName) : $this->option('routes-prefix');
         $prefix = trim(str_replace('\\', '/', $prefix));
         $template = $this->getTemplateName();
@@ -195,6 +217,30 @@ class CreateRoutesCommand extends Command
     protected function appendToRoutesFile($stub, $routesFile)
     {
         $this->appendContentToFile($routesFile, $stub);
+
+        return $this;
+    }
+
+    protected function appendNamespaceToRoutesFile($using, $routesFile)
+    {
+        $content = $this->getFileContent($routesFile);
+
+        $pattern = '/use\s+([\\a-zA-Z0-9])+\s*;/i';
+
+        $match = preg_match($pattern, $content, $matches);
+
+        if ($match) {
+            $replaceWith = $matches[0];
+            if (!Str::endsWith($matches[0], "\n")) {
+                $replaceWith .= "\n";
+            }
+
+            $replaceWith .= $using;
+            
+            $newContent = str_replace($matches[0], $replaceWith, $content);
+
+            $this->putContentInFile($routesFile, $newContent);
+        }
 
         return $this;
     }

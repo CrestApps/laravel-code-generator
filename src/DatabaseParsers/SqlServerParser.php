@@ -1,5 +1,5 @@
 <?php
-namespace CrestApps\CodeGenerator\DatabaseParser;
+namespace CrestApps\CodeGenerator\DatabaseParsers;
 
 use App;
 use CrestApps\CodeGenerator\Models\Field;

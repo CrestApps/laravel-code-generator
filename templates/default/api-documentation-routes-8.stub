@@ -1,0 +1,2 @@
+Route::get('[% prefix %][% version %]', [[% controller_name %]::class, 'index'])
+     ->name('[% index_route_name %]');
