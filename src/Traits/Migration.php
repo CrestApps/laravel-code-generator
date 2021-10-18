@@ -5,6 +5,7 @@ namespace CrestApps\CodeGenerator\Traits;
 use App;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use CrestApps\CodeGenerator\Support\Str;
 
 trait Migration
 {
