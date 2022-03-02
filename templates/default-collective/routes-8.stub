@@ -10,5 +10,5 @@
          ->name('[% store_route_name %]');
     Route::put('[% model_name_snake %]/{[% model_name_singular_variable %]}', [[% controller_name %]::class, 'update'])
          ->name('[% update_route_name %]')[% route_id_clause %];
-    Route::delete('/[% model_name_snake %]/{[% model_name_singular_variable %]}',[[% controller_name %]::class, 'index'])
+    Route::delete('/[% model_name_snake %]/{[% model_name_singular_variable %]}',[[% controller_name %]::class, 'destroy'])
          ->name('[% destroy_route_name %]')[% route_id_clause %];
