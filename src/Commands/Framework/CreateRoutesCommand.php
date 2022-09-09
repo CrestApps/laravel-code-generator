@@ -62,7 +62,6 @@ class CreateRoutesCommand extends Command
         }
 
         $stub = $this->getRoutesStub($input->type);
-        //$controllnerName = $this->getControllerName($input->controllerName, $input->controllerDirectory);
         $controllerNamespace = $this->getControllersNamespace($input->controllerName, $input->controllerDirectory);
         $useControllerLine = $this->getUseClassCommand($controllerNamespace);
         $this->replaceModelName($stub, $input->modelName)
