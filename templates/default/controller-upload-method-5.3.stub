@@ -2,7 +2,7 @@
     /**
      * Moves the attached file to the server.
      *
-     * @param Symfony\Component\HttpFoundation\File\UploadedFile $file
+     * @param \Symfony\Component\HttpFoundation\File\UploadedFile $file
      *
      * @return string
      */
