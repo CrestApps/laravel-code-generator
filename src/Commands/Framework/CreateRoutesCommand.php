@@ -27,7 +27,7 @@ class CreateRoutesCommand extends Command
                             {--routes-prefix=default-form : Prefix of the route group.}
                             {--controller-directory= : The directory where the controller is under.}
                             {--without-route-clause : Create the routes without where clause for the id.}
-                            {--routes-type= : The type of the route to create "api", "api-docs" or web.}
+                            {--routes-type= : The type of the route to create. (i.e., "api", "api-docs" or "web".)}
                             {--api-version= : The api version to prefix your resurces with.}
                             {--template-name= : The template name to use when generating the code.}';
 
@@ -62,11 +62,11 @@ class CreateRoutesCommand extends Command
         }
 
         $stub = $this->getRoutesStub($input->type);
-        $controllnerName = $this->getControllerName($input->controllerName, $input->controllerDirectory);
-        $controllerNamespace = $this->getControllersNamespace($controllnerName, $input->controllerDirectory);
+        //$controllnerName = $this->getControllerName($input->controllerName, $input->controllerDirectory);
+        $controllerNamespace = $this->getControllersNamespace($input->controllerName, $input->controllerDirectory);
         $useControllerLine = $this->getUseClassCommand($controllerNamespace);
         $this->replaceModelName($stub, $input->modelName)
-            ->replaceControllerName($stub, $controllnerName)
+            ->replaceControllerName($stub, $input->controllerName)
             ->replaceRouteNames($stub, $this->getModelName($input->modelName), $namePrefix)
             ->processRoutesGroup($stub, $input)
             ->replaceRouteIdClause($stub, $this->getRouteIdClause($input->withoutRouteClause))
@@ -89,7 +89,7 @@ class CreateRoutesCommand extends Command
     {
         $controllerPath = Config::getControllersPath($controllerDirectory);
 
-        $path = Helpers::getAppNamespace($controllerDirectory, $controllerPath, $controllnerName);
+        $path = Helpers::getAppNamespace($controllerPath, $controllnerName);
 
         return Helpers::fixNamespace($path);
     }
