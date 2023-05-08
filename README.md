@@ -141,7 +141,8 @@ Checkout our channel on <a href="https://www.youtube.com/channel/UCkEd0nOoRf3o0a
 
 ## Contribution
 Do you like this project and want to contribute?
-- **HELP WANTED** Version `v2.3` needs to be documented before it can be released. If you are able to contribute, please read the <a href="https://github.com/CrestApps/laravel-code-generator/blob/v2.3/CHANGELOG.md">change-log</a> in <a href="https://github.com/CrestApps/laravel-code-generator/tree/v2.3">v2.3 branch</a> and document it in the <a href="https://github.com/CrestApps/crestapps-site">CrestApps-site</a> repository. For any help, my email can be found in the `composer.json` file, feel free to send me an email.
+- **HELP WANTED** Version `v2.3` needs to be documented. If you are able to contribute, please read the <a href="https://github.com/CrestApps/laravel-code-generator/blob/v2.3/CHANGELOG.md">change-log</a> in <a href="https://github.com/CrestApps/laravel-code-generator/tree/v2.3">v2.3 branch</a> and document it in the <a href="https://github.com/CrestApps/crestapps-site">CrestApps-site</a> repository. For any help, my email can be found in the `composer.json` file, feel free to send me an email.
+- **HELP WANTED** Need to create a new theme for Bootstrap 5 and make it the default. If interested, please submit a PR.
 - Please start by ***Staring*** this package on GitHub.
 - Sharing this projects with others is your way of saying keep improvements and new awesome feature coming.
 - Report any bugs or send us any comments, idea, thought that you may have about this project as an issue on GitHub.
