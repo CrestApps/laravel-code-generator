@@ -1,2 +1,2 @@
-            <dt>[% field_title %]</dt>
-            <dd>{{ [% field_value %] }}</dd>
+<dt>[% field_title %]</dt>
+<dd>{{ [% field_value %] }}</dd>

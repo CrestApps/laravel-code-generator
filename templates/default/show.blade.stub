@@ -2,47 +2,61 @@
 
 @section('content')
 
-<div class="panel panel-default">
-    <div class="panel-heading clearfix">
+    <div class="container">
 
-        <span class="pull-left">
-            <h4 class="mt-5 mb-5">{{ isset([% model_header %]) ? [% model_header %] : '[% model_name_title %]' }}</h4>
-        </span>
+        <div class="row justify-content-center">
 
-        <div class="pull-right">
+            <div class="col-md-12">
 
-            <form method="POST" action="{!! route('[% destroy_route_name %]', $[% model_name_singular_variable %]->[% primary_key %]) !!}" accept-charset="UTF-8">
-            <input name="_method" value="DELETE" type="hidden">
-            {{ csrf_field() }}
-                <div class="btn-group btn-group-sm" role="group">
-                    <a href="{{ route('[% index_route_name %]') }}" class="btn btn-primary" title="[% show_all_models %]">
-                        <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
-                    </a>
+                <div class="card">
 
-                    <a href="{{ route('[% create_route_name %]') }}" class="btn btn-success" title="[% create_model %]">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                    </a>
-                    
-                    <a href="{{ route('[% edit_route_name %]', $[% model_name_singular_variable %]->[% primary_key %] ) }}" class="btn btn-primary" title="[% edit_model %]">
-                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                    </a>
+                    <div class="card-header">
 
-                    <button type="submit" class="btn btn-danger" title="[% delete_model %]" onclick="return confirm(&quot;[% confirm_delete %]?&quot;)">
-                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                    </button>
+                        <span class="pull-left">
+                            <h4 class="mt-5 mb-5">{{ isset([% model_header %]) ? [% model_header %] : '[% model_name_title %]' }}</h4>
+                        </span>
+
+                        <div class="pull-right">
+
+                            <form method="POST" action="{!! route('[% destroy_route_name %]', $[% model_name_singular_variable %]->[% primary_key %]) !!}" accept-charset="UTF-8">
+                            @csrf
+                            @method('DELETE')
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ route('[% index_route_name %]') }}" class="btn btn-primary btn-sm" title="[% show_all_models %]">
+                                        <span class="d-none d-sm-inline-block">[% show_all_models %]</span>
+                                        <span class="d-inline-block d-sm-none"><i class="fa-solid fa-list"></i></span>
+                                    </a>
+
+                                    <a href="{{ route('[% create_route_name %]') }}" class="btn btn-success btn-sm" title="[% create_model %]">
+                                        <span class="d-none d-sm-inline-block">[% create_model %]</span>
+                                        <span class="d-inline-block d-sm-none"><i class="fa-solid fa-plus"></i></span>
+                                    </a>
+
+                                    <a href="{{ route('[% edit_route_name %]', $[% model_name_singular_variable %]->[% primary_key %] ) }}" class="btn btn-primary btn-sm" title="[% edit_model %]">
+                                        <span class="d-none d-sm-inline-block">[% edit_model %]</span>
+                                        <span class="d-inline-block d-sm-none"><i class="fa-solid fa-pencil"></i></span>
+                                    </a>
+
+                                    <button type="submit" class="btn btn-danger btn-sm" title="[% delete_model %]" onclick="return confirm(&quot;[% confirm_delete %]?&quot;)">
+                                        <span class="d-none d-sm-inline-block">[% delete_model %]</span>
+                                        <span class="d-inline-block d-sm-none"><i class="fa-solid fa-trash-can"></i></span>
+                                    </button>
+                                </div>
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card-body">
+                        <dl class="dl-horizontal">
+                            [% table_rows %]
+                        </dl>
+                    </div>
+
                 </div>
-            </form>
 
+            </div>
         </div>
-
     </div>
-
-    <div class="panel-body">
-        <dl class="dl-horizontal">
-[% table_rows %]
-        </dl>
-
-    </div>
-</div>
-
 @endsection

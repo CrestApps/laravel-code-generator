@@ -1,1 +1,1 @@
-                            <td>{{ [% field_value %] }}</td>
+<td>{{ [% field_value %] }}</td>
