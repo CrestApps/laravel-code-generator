@@ -1,5 +1,5 @@
 
-<div class="form-group {{ $errors->has('[% field_name %]') ? 'has-error' : '' }}">
+<div class="mb-3 row{{ $errors->has('[% field_name %]') ? ' has-validation' : '' }}">
 [% field_label %]
     <div class="col-md-10">
 [% field_input %]

@@ -7,10 +7,12 @@ use CrestApps\CodeGenerator\Traits\ApiDocViewsTrait;
 use CrestApps\CodeGenerator\Traits\CommonCommand;
 use CrestApps\CodeGenerator\Traits\ScaffoldTrait;
 use Illuminate\Console\Command;
+use CrestApps\CodeGenerator\Support\Helpers;
+use CrestApps\CodeGenerator\Traits\LanguageTrait;
 
 class CreateApiDocsScaffoldCommand extends command
 {
-    use ApiDocViewsTrait, CommonCommand, ScaffoldTrait;
+    use ApiDocViewsTrait, CommonCommand, ScaffoldTrait, LanguageTrait;
 
     /**
      * The console command description.
@@ -169,7 +171,8 @@ class CreateApiDocsScaffoldCommand extends command
     protected function getCommandInput()
     {
         $modelName = $this->argument('model-name');
-        $controllerName = $this->option('controller-name');
+        $cName = trim($this->option('controller-name'));
+        $controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($modelName . 'ApiDocs');
         $prefix = $this->option('routes-prefix');
         $resourceFile = $this->option('resource-file');
         $force = $this->option('force');

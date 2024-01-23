@@ -63,7 +63,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * It gets the views destenation path
+     * It gets the views destination path
      *
      * @param $viewsDirectory
      *
@@ -119,7 +119,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * It generate the destenation view name
+     * It generate the destination view name
      *
      * @param $action
      *
@@ -138,7 +138,7 @@ abstract class ViewsCommandBase extends Command
      *
      * @return $this
      */
-    protected function replaceCommonTemplates(&$stub, ViewInput $input, array $fields)
+    protected function replaceCommonTemplates(&$stub, $input, array $fields)
     {
         $viewLabels = new ViewLabelsGenerator($input->modelName, $fields, $this->isCollectiveTemplate());
 
@@ -222,7 +222,7 @@ abstract class ViewsCommandBase extends Command
     /**
      * Get the view's name of a given file.
      *
-     * @param string $fillname
+     * @param string $filename
      *
      * @return string
      */
@@ -347,7 +347,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * Gets destenation view path
+     * Gets destination view path
      *
      * @param string $viewsDirectory
      * @param string $routesPrefix
@@ -413,7 +413,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * Replace the modele's header fo the given stub.
+     * Replace the model's header for the given stub.
      *
      * @param string $stub
      * @param string $title

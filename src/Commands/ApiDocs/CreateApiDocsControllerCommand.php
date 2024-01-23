@@ -199,7 +199,7 @@ class CreateApiDocsControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Gets the destenation file to be created.
+     * Gets the destination file to be created.
      *
      * @param string $name
      * @param string $path
@@ -262,7 +262,7 @@ class CreateApiDocsControllerCommand extends ControllerCommandBase
     {
         $modelName = trim($this->argument('model-name'));
         $cName = trim($this->option('controller-name'));
-        $controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($modelName);
+        $controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($modelName . 'ApiDocs');
         $prefix = ($this->option('routes-prefix') == 'default-form') ? Helpers::makeRouteGroup($modelName) : $this->option('routes-prefix');
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
         $force = $this->option('force');

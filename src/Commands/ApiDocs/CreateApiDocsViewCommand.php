@@ -35,15 +35,15 @@ class CreateApiDocsViewCommand extends Command
      */
     protected $signature = 'api-docs:create-view
                             {model-name : The model name that this controller will represent.}
-                            {--controller-name= : The name of the controler.}
+                            {--controller-name= : The name of the controller.}
                             {--controller-directory= : The directory where the controller should be created under.}
                             {--resource-file= : The name of the resource-file to import from.}
                             {--routes-prefix=default-form : Prefix of the route group.}
                             {--language-filename= : The languages file name to put the labels in.}
-                            {--with-auth : Generate the controller with Laravel auth middlewear. }
+                            {--with-auth : Generate the controller with Laravel auth middleware. }
                             {--views-directory= : The name of the directory to create the views under.}
-                            {--api-version= : The api version to prefix your resurces with.}
-                            {--layout-name=layouts.api-doc-layout : This will extract the validation into a request form class.}
+                            {--api-version= : The api version to prefix your resources with.}
+                            {--layout-name=layouts.app : This will extract the validation into a request form class.}
                             {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the controller if one already exists.}';
 
@@ -205,7 +205,7 @@ class CreateApiDocsViewCommand extends Command
     }
 
     /**
-     * Gets the destenation file to be created.
+     * Gets the destination file to be created.
      *
      * @param string $name
      * @param string $path

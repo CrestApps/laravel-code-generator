@@ -25,7 +25,7 @@ class CreateViewLayoutCommand extends Command
                             {--layout-directory=layouts : The directory of the layouts.}
                             {--without-validation : This option will create a layout without client-side validation.}
                             {--template-name= : The template name to use when generating the code.}
-                            {--force : Override existsing layout.}';
+                            {--force : Override existing layout.}';
 
     /**
      * The console command description.
@@ -96,7 +96,7 @@ class CreateViewLayoutCommand extends Command
     }
 
     /**
-     * Gets the destenation path.
+     * Gets the destination path.
      *
      * @param string $path
      *
@@ -128,7 +128,7 @@ class CreateViewLayoutCommand extends Command
     }
 
     /**
-     * Replaces the application'd name fo the given stub.
+     * Replaces the application's name for the given stub.
      *
      * @param string $stub
      * @param string $appName

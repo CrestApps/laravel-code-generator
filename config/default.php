@@ -161,7 +161,7 @@ return [
     |--------------------------------------------------------------------------
     |
      */
-    'api_docs_controller_path' => 'Http/Controllers/ApiDocs',
+    'api_docs_controller_path' => 'Http/Controllers',
 
     /*
     |--------------------------------------------------------------------------
@@ -338,10 +338,13 @@ return [
             ],
         ],
         [
-            'match' => ['picture', 'file', 'photo', 'avatar'],
+            'match' => ['picture', 'file', 'photo', 'avatar', 'image', 'document', 'attachment*'],
             'set' => [
                 'is-on-index' => false,
                 'html-type' => 'file',
+                'data-type' => 'string',
+                'data-type-params' => [2500],
+                'validation' => 'file',
             ],
         ],
         [
@@ -373,7 +376,7 @@ return [
             ],
         ],
         [
-            'match' => ['created_at', 'updated_at', 'deleted_at'],
+            'match' => ['created_at', 'updated_at', 'deleted_at', 'modified_at'],
             'set' => [
                 'data-type' => 'datetime',
                 'is-on-form' => false,

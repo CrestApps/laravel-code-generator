@@ -1,149 +1,194 @@
-<!DOCTYPE html>
-<html lang="{{ App::getLocale() }}">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', '[% application_name %]') }}</title>
+<!doctype html>
+<html lang="{{ App::getLocale() }}" data-bs-theme="auto">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <title>{{ config('app.name', '[% application_name %]') }}</title>
+        <script>
+            const darkThemeName = 'dark';
+            const lightThemeName = 'light';
+            const getTenantName = () => document.documentElement.getAttribute('data-tenant') || '';
+            const getStoredTheme = () => localStorage.getItem(getTenantName() + '-admintheme');
+            const setStoredTheme = theme => localStorage.setItem(getTenantName() + '-admintheme', theme);
+            const getPreferredTheme = () => {
+                const storedTheme = getStoredTheme()
+                if (storedTheme) {
+                    return storedTheme;
+                }
 
-    <!-- Styles -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? darkThemeName : lightThemeName;
+            }
+            const setTheme = theme => {
+                if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.setAttribute('data-bs-theme', darkThemeName);
+                } else {
+                    document.documentElement.setAttribute('data-bs-theme', theme);
+                }
+            }
+            const getAdminPreferenceKey = () => getTenantName() + '-adminPreferences';
+            const getAdminPreferences = () => JSON.parse(localStorage.getItem(getAdminPreferenceKey()));
+            const setAdminPreferences = (adminPreferences) => {
+                const key = getAdminPreferenceKey();
 
-    {{-- <link href="{{ asset('css/app.css') }}" rel="stylesheet"> --}}
+                localStorage.setItem(key, JSON.stringify(adminPreferences));
+                Cookies.set(key, JSON.stringify(adminPreferences), { expires: 360 });
+            };
 
-    <style>
-        body {
-            padding-top: 65px;
-            padding-bottom: 20px;
-        }
+            const themeObserver = new MutationObserver(function (mutations) {
 
-        /* Set padding to keep content from hitting the edges */
-        .body-content {
-            padding-left: 15px;
-            padding-right: 15px;
-        }
+                for (let i = 0; i < mutations.length; i++) {
+                    for (let j = 0; j < mutations[i].addedNodes.length; j++) {
 
-        /* Override the default bootstrap behavior where horizontal description lists 
-           will truncate terms that are too long to fit in the left column.
-           Also, add a 8pm to the bottom margin
-        */
-        .dl-horizontal dt {
-            white-space: normal;
-            margin-bottom: 8px;
-        }
+                        if (mutations[i].addedNodes[j].tagName == 'BODY') {
+                            setTheme(getPreferredTheme());
 
-        /* Set width on the form input elements since they're 100% wide by default */
-        input,
-        select,
-        textarea,
-        .uploaded-file-group,
-        .input-width-input {
-            max-width: 380px;
-        }
+                            // we're done: 
+                            themeObserver.disconnect();
+                        };
+                    }
+                }
+            });
 
-        .input-delete-container {
-            width: 46px !important;
-        }
+            themeObserver.observe(document.documentElement, {
+                childList: true,
+                subtree: true
+            });
 
-        /* Vertically align the table cells inside body-panel */
-        .panel-body .table > tr > td
-        {
-            vertical-align: middle;
-        }
+            const showActiveTheme = (theme, focus = false) => {
+                const themeSwitcher = document.querySelector('#bd-theme');
 
-        .panel-body-with-table
-        {
-            padding: 0;
-        }
+                if (!themeSwitcher) {
+                    return;
+                }
 
-        .mt-5 {
-            margin-top: 5px !important;
-        }
+                const themeSwitcherText = document.querySelector('#bd-theme-text');
+                const activeThemeIcon = document.querySelector('.theme-icon-active');
+                const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`);
+                const svgOfActiveBtn = btnToActive.querySelector('.theme-icon');
 
-        .mb-5 {
-            margin-bottom: 5px !important;
-        }
-    </style>
+                btnToActive.classList.add('active');
+                btnToActive.setAttribute('aria-pressed', 'true');
 
-</head>
+                activeThemeIcon.innerHTML = svgOfActiveBtn.innerHTML;
 
-<body>
+                const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`;
+                themeSwitcher.setAttribute('aria-label', themeSwitcherLabel);
 
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar">A</span>
-            <span class="icon-bar">B</span>
-            <span class="icon-bar">C</span>
-          </button>
-          <a href="{!! url('/') !!}" class="navbar-brand">{{ config('app.name', '[% application_name %]') }}</a>
+                const btnsToInactive = document.querySelectorAll(`[data-bs-theme-value]:not([data-bs-theme-value="${theme}"])`);
+
+                for (let i = 0; i < btnsToInactive.length; i++) {
+                    btnsToInactive[i].classList.remove('active');
+                    btnsToInactive[i].setAttribute('aria-pressed', 'false');
+                }
+
+                if (focus) {
+                    themeSwitcher.focus();
+                }
+            }
+
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                const storedTheme = getStoredTheme()
+                if (storedTheme !== lightThemeName && storedTheme !== darkThemeName) {
+                    setTheme(getPreferredTheme());
+                }
+            });
+
+            window.addEventListener('DOMContentLoaded', () => {
+                showActiveTheme(getPreferredTheme());
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', () => {
+                            const theme = toggle.getAttribute('data-bs-theme-value');
+                            setStoredTheme(theme);
+                            setTheme(theme);
+                            showActiveTheme(theme, true);
+                        })
+                    })
+            });
+        </script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+      {{-- <link href="{{ asset('css/app.css') }}" rel="stylesheet"> --}}
+    </head>
+    <body>
+
+    <nav class="navbar-main navbar navbar-expand-lg fixed-stiky bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{!! url('/') !!}">{{ config('app.name', '[% application_name %]') }}</a>
+            
+            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar" aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbar">
+                <div class="navbar-nav d-flex align-items-end justify-content-end w-100">
+                    <ul class="menu menu-main-menu navbar-nav">
+                        <li class="nav-item px-2">
+                            <a class="nav-link active" aria-current="page" href="{!! url('/') !!}">Home</a>
+                        </li>
+                    </ul>
+
+                    <ul class="navbar-nav user-top-navbar">
+                        <li class="nav-item">
+                            <div class="dropdown">
+                                <button class="btn btn-link nav-link dropdown-toggle" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (light)">
+                                    <span class="theme-icon-active">
+                                        <i class="fa-solid fa-sun"></i>
+                                    </span>
+                                    <span class="d-none" id="bd-theme-text">Toggle theme</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end position-absolute" aria-labelledby="bd-theme-text">
+                                    <li>
+                                        <button type="button" class="dropdown-item" data-bs-theme-value="auto" aria-pressed="false">
+                                            <span class="theme-icon">
+                                                <i class="fa-solid fa-circle-half-stroke"></i>
+                                            </span>
+                                            <span class="ps-2">Auto</span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="dropdown-item active" data-bs-theme-value="light" aria-pressed="true">
+                                            <span class="theme-icon">
+                                                <i class="fa-solid fa-sun"></i>
+                                            </span>
+                                            <span class="ps-2">Light</span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="dropdown-item" data-bs-theme-value="dark" aria-pressed="false">
+                                            <span class="theme-icon">
+                                                <i class="fa-solid fa-moon"></i>
+                                            </span>
+                                            <span class="ps-2">Dark</span>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+    
+                        @if (!Auth::check())
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url('/login') }}"> <i class="fa-solid fa-sign-in-alt fa-fw" aria-hidden="true"></i> Log in</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url('/register') }}"> Register</a>
+                            </li>
+                        @endif
+
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div id="navbar" class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="{!! url('/') !!}">Home</a></li>
-          </ul>
-
-          @if (Route::has('login'))
-            <ul class="nav navbar-nav navbar-right">
-            @if (Auth::check())
-                <li><a href="{{ url('/home') }}">Home</a></li>
-            @else
-                <li><a href="{{ url('/login') }}">Login</a></li>
-                <li><a href="{{ url('/register') }}">Register</a></li>
-            @endif
-            </ul>
-          @endif
-
-        </div><!--/.nav-collapse -->
-      </div>
     </nav>
 
-    <div class="container body-content">
+    <div class="container body-content py-3">
         @yield('content')
     </div>
 
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js"
-        integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
-        crossorigin="anonymous"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     {{-- <script src="{{ asset('js/app.js') }}"></script> --}}
-    
-    <script type="text/javascript">
-        $(function(){
-
-            // sends the uploaded file file to the fielselect event
-            $(document).on('change', ':file', function() {
-                var input = $(this);
-                var label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-
-                input.trigger('fileselect', [label]);
-            });
-
-            // Set the label of the uploaded file
-            $(':file').on('fileselect', function(event, label) {
-                $(this).closest('.uploaded-file-group').find('.uploaded-file-name').val(label);
-            });
-            
-            // Deals with the upload file in edit mode
-            $('.custom-delete-file:checkbox').change(function(e){
-                var self = $(this);
-                var container = self.closest('.input-width-input');
-                var display = container.find('.custom-delete-file-name');
-
-                if (self.is(':checked')) {
-                    display.wrapInner('<del></del>');
-                } else {
-                    var del = display.find('del').first();
-                    if (del.is('del')) {
-                        del.contents().unwrap();
-                    }
-                }
-            }).change();
-        });
-    </script>
-</body>
+  </body>
 </html>

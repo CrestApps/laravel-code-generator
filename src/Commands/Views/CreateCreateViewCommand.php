@@ -48,6 +48,7 @@ class CreateCreateViewCommand extends ViewsCommandBase
     protected function handleCreateView()
     {
         $input = $this->getCommandInput();
+
         $resources = Resource::fromFile($input->resourceFile, $input->languageFileName);
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix);
 
@@ -68,7 +69,7 @@ class CreateCreateViewCommand extends ViewsCommandBase
     }
 
     /**
-     * Gets te create form name
+     * Gets the create form name
      *
      * @param string $modelName
      *
@@ -80,7 +81,7 @@ class CreateCreateViewCommand extends ViewsCommandBase
     }
 
     /**
-     * Gets te create form id
+     * Gets the create form id
      *
      * @param string $modelName
      *

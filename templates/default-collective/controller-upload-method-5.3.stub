@@ -2,7 +2,7 @@
     /**
      * Moves the attached file to the server.
      *
-     * @param Symfony\Component\HttpFoundation\File\UploadedFile $file
+     * @param \Symfony\Component\HttpFoundation\File\UploadedFile $file
      *
      * @return string
      */
@@ -12,9 +12,8 @@
             return '';
         }
         
-        $fileName = sprintf('%s.%s', uniqid(), $file->getClientOriginalExtension());
-        $destinationPath = config('laravel-code-generator.files_upload_path','uploads');
-        $path = $file->move($destinationPath, $fileName);
-        
-        return $destinationPath . '/' . $fileName;
+        $path = config('laravel-code-generator.files_upload_path', 'uploads');
+        $saved = $file->store('public/' . $path, config('filesystems.default'));
+
+        return substr($saved, 7);
     }

@@ -2,28 +2,22 @@
 
 @section('content')
 
-    <div class="panel panel-default">
+    <div class="card text-bg-theme">
 
-        <div class="panel-heading clearfix">
-
-            <div class="pull-left">
-                <h4 class="mt-5 mb-5">{{ !empty([% model_header %]) ? [% model_header %] : '[% model_name_title %]' }}</h4>
-            </div>
-
-            <div class="btn-group btn-group-sm pull-right" role="group">
-
+         <div class="card-header d-flex justify-content-between align-items-center p-3">
+            <h4 class="m-0">{{ !empty([% model_header %]) ? [% model_header %] : '[% model_name_title %]' }}</h4>
+            <div>
                 <a href="{{ route('[% index_route_name %]') }}" class="btn btn-primary" title="[% show_all_models %]">
-                    <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                    <span class="fa-solid fa-table-list" aria-hidden="true"></span>
                 </a>
 
-                <a href="{{ route('[% create_route_name %]') }}" class="btn btn-primary" title="[% create_model %]">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                <a href="{{ route('[% create_route_name %]') }}" class="btn btn-secondary" title="[% create_model %]">
+                    <span class="fa-solid fa-plus" aria-hidden="true"></span>
                 </a>
-
             </div>
         </div>
 
-        <div class="panel-body">
+        <div class="card-body">
 
             @if ($errors->any())
                 <ul class="alert alert-danger">
@@ -36,7 +30,6 @@
             {!! Form::model($[% model_name_singular_variable %], [
                 'method' => 'PUT',
                 'route' => ['[% update_route_name %]', $[% model_name_singular_variable %]->[% primary_key %]],
-                'class' => 'form-horizontal',
                 'name' => '[% form_name %]',
                 'id' => '[% form_id %]',
                 [% upload_files %]
@@ -44,10 +37,8 @@
 
             @include ('[% form_view_name %]', ['[% model_name_singular_variable %]' => $[% model_name_singular_variable %],])
 
-            <div class="form-group">
-                <div class="col-md-offset-2 col-md-10">
-                    {!! Form::submit([% update %], ['class' => 'btn btn-primary']) !!}
-                </div>
+            <div class="col-lg-10 col-xl-9 offset-lg-2 offset-xl-3">
+                {!! Form::submit([% update %], ['class' => 'btn btn-primary']) !!}
             </div>
 
             {!! Form::close() !!}

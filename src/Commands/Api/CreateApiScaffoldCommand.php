@@ -193,7 +193,7 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
     }
 
     /**
-     * Get the Api folder after removing the controllers path.
+     * Get the API folder after removing the controllers path.
      *
      * @param string $path
      *
@@ -222,6 +222,9 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
     {
         $input = new ApiScaffoldInput(parent::getCommandInput());
 
+        $cName = trim($this->option('controller-name'));
+
+        $input->controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($input->modelName . 'Api');
         $input->withApiResource = $this->option('with-api-resource');
         $input->apiResourceDirectory = $this->option('api-resource-directory');
         $input->apiResourceCollectionDirectory = $this->option('api-resource-collection-directory');

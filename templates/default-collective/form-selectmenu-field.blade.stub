@@ -1,1 +1,1 @@
-        {!! Form::select('[% field_name %]',[% field_items %],[% field_value %], ['class' => 'form-control[% css_class %]',[% field_multiple %][% required_field %][% placeholder %] ]) !!}
+        {!! Form::select('[% field_name %]',[% field_items %],[% field_value %], ['class' => 'form-select[% css_class %]',[% field_multiple %][% required_field %][% placeholder %] ]) !!}

@@ -295,7 +295,7 @@ trait CommonCommand
     protected function replaceRouteNames(&$stub, $modelName, $routesPrefix, array $actions = null)
     {
         foreach (($actions ?: $this->actions) as $action) {
-            $routeName = $this->getDotNotationName($modelName, $routesPrefix, $action);
+            $routeName = $this->getDotNotationName($this->getModelName($modelName), $routesPrefix, $action);
             $routeTemplate = $this->getRouteName($action);
             $stub = $this->strReplace($routeTemplate, $routeName, $stub);
         }

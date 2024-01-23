@@ -1,6 +1,6 @@
-        <div class="[% field_type %]">
-            <label for="[% item_id %]">
-            	<input id="[% item_id %]" class="[% required_class %][% css_class %]" name="[% field_name %]" type="[% field_type %]" value="[% option_value %]"[% required_field %][% checked_item %]>
+        <div class="form-check [% field_type %]">
+            <input id="[% item_id %]" class="form-check-input[% required_class %][% css_class %]" name="[% field_name %]" type="[% field_type %]" value="[% option_value %]"[% required_field %][% checked_item %]>
+            <label class="form-check-label" for="[% item_id %]">
                 [% item_title %]
             </label>
         </div>
