@@ -23,7 +23,7 @@ class CreateControllerCommand extends ControllerCommandBase
      */
     protected $signature = 'create:controller
                             {model-name : The model name that this controller will represent.}
-                            {--controller-name= : The name of the controler.}
+                            {--controller-name= : The name of the controller.}
                             {--controller-directory= : The directory where the controller should be created under.}
                             {--model-directory= : The path where the model should be created under.}
                             {--views-directory= : The path where the views should be created under.}
@@ -33,7 +33,7 @@ class CreateControllerCommand extends ControllerCommandBase
                             {--language-filename= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
                             {--without-form-request : Generate the controller without the form-request file. }
-                            {--with-auth : Generate the controller with Laravel auth middlewear. }
+                            {--with-auth : Generate the controller with Laravel authentication middleware. }
                             {--template-name= : The template name to use when generating the code.}
                             {--form-request-directory= : The directory of the form-request.}
                             {--controller-extends=default-controller : The base controller to be extend.}

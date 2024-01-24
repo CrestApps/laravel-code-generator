@@ -20,7 +20,7 @@ class Arr extends LaravelArr
     }
 
     /**
-     * Wrapps each item in an array with a given string
+     * Wraps each item in an array with a given string
      *
      * @param array $items
      * @param string $wrapper
@@ -37,8 +37,8 @@ class Arr extends LaravelArr
     }
 
     /**
-     * It splits a given string by a given seperator after trimming each part
-     * from whitespaces and single/double quotes. Any empty string is eliminated.
+     * It splits a given string by a given separator after trimming each part
+     * from white spaces and single/double quotes. Any empty string is eliminated.
      *
      * @param string $str
      * @param string $seperator
@@ -92,8 +92,8 @@ class Arr extends LaravelArr
     }
 
     /**
-     * It trims each element in a givin array and removes the empty elements.
-     * If a callback is passed as a second parameter, the callbacl is applied on each item.
+     * It trims each element in a given array and removes the empty elements.
+     * If a callback is passed as a second parameter, the callback is applied on each item.
      *
      * @param array $items
      * @param function $callback

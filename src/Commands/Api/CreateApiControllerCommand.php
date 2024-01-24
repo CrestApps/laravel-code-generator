@@ -37,7 +37,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
                             {--language-filename= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
                             {--without-form-request : Generate the controller without the form-request file. }
-                            {--with-auth : Generate the controller with Laravel auth middleware. }
+                            {--with-auth : Generate the controller with Laravel authentication middleware. }
                             {--template-name= : The template name to use when generating the code.}
                             {--form-request-directory= : The directory of the form-request.}
                             {--controller-extends=default-controller : The base controller to be extend.}
@@ -499,7 +499,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
         $input = parent::getCommandInput();
 
         $cName = trim($this->option('controller-name'));
-        $input->controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($modelName . 'Api');
+        $input->controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeApiControllerName($modelName);
 
         $input->apiResourceDirectory = trim($this->option('api-resource-directory'));
         $input->apiResourceCollectionDirectory = trim($this->option('api-resource-collection-directory'));

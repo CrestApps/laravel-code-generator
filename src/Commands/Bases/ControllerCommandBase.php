@@ -289,7 +289,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Gets name of the middleware
+     * Gets name of the middleware.
      *
      * @return string
      */
@@ -316,7 +316,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Gets the controllers namespace
+     * Gets the controllers namespace.
      *
      * @param string $path
      *
@@ -330,7 +330,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Gets the destenation file to be created.
+     * Gets the destination file to be created.
      *
      * @param string $name
      * @param string $path
@@ -349,7 +349,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Gets the full class name to extend
+     * Gets the full class name to extend.
      *
      * @return string
      */
@@ -369,7 +369,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Gets the default class name to extend
+     * Gets the default class name to extend.
      *
      * @param string $extend
      *
@@ -438,7 +438,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Gets the relation accessor for the given foreign renationship.
+     * Gets the relation accessor for the given foreign relationship.
      *
      * @param CrestApps\CodeGenerator\Models\ForeignRelationship $collection
      *
@@ -675,7 +675,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Replaces the auth middleware
+     * Replaces the authentication middleware.
      *
      * @param  string  $stub
      * @param  string  $middleware
@@ -701,10 +701,10 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Replaces the auth contructor
+     * Replaces the auth constructor
      *
      * @param  string  $stub
-     * @param  string  $contructor
+     * @param  string  $constructor
      *
      * @return $this
      */
@@ -805,7 +805,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Replace sthe form-request's fullname for the given stub.
+     * Replaces the form-request's full name for the given stub.
      *
      * @param  string  $stub
      * @param  string  $name
@@ -844,7 +844,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * It Replaces the templates of the givin $labels
+     * It Replaces the templates of the given $labels
      *
      * @param string $stub
      * @param array $items
@@ -945,7 +945,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Gets any additional classes to include in the use statement
+     * Gets any additional classes to include in the use statement.
      *
      * @param object $input
      *
@@ -1002,7 +1002,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     }
 
     /**
-     * Gets the path to controllers
+     * Gets the path to controllers.
      *
      * @param string $file
      *
@@ -1011,7 +1011,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
     abstract protected function getControllerPath($file = '');
 
     /**
-     * Gets the type of the controller
+     * Gets the type of the controller.
      *
      * @return string
      */

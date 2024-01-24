@@ -1,1 +1,1 @@
-    {!! Form::label('[% field_name %]',[% field_title %],['class' => 'col-form-label text-lg-end col-lg-2 col-xl-3']) !!}
+    {!! Form::label('[% field_name %]',[% field_title %],['class' => 'col-form-label text-lg-end col-lg-2 col-xl-3'. ($errors->has('[% field_name %]') ? ' is-invalid' : '')]) !!}

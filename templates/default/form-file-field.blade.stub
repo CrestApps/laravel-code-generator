@@ -1,5 +1,5 @@
         <div class="mb-3">
-            <input class="form-control" type="file" name="[% field_name %]" id="[% field_name %]" class="[% css_class %]">
+            <input class="form-control{{ $errors->has('[% field_name %]') ? ' is-invalid' : '' }}" type="file" name="[% field_name %]" id="[% field_name %]" class="[% css_class %]">
         </div>
 
         @if (isset($[% model_name_singular_variable %]->[% field_name %]) && !empty($[% model_name_singular_variable %]->[% field_name %]))

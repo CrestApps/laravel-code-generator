@@ -23,7 +23,6 @@ class CreateViewLayoutCommand extends Command
                             {application-name : The name of your application.}
                             {--layout-filename=app : The layout file name to be created.}
                             {--layout-directory=layouts : The directory of the layouts.}
-                            {--without-validation : This option will create a layout without client-side validation.}
                             {--template-name= : The template name to use when generating the code.}
                             {--force : Override existing layout.}';
 
@@ -51,8 +50,7 @@ class CreateViewLayoutCommand extends Command
             return false;
         }
 
-        $stubName = $input->withoutValidation ? 'layout' : 'layout-with-validation';
-        $stub = $this->getStubContent($stubName, $this->getTemplateName());
+        $stub = $this->getStubContent('layout', $this->getTemplateName());
 
         $this->replaceApplicationName($stub, $input->appName)
             ->createFile($destenationFile, $stub)
@@ -121,10 +119,9 @@ class CreateViewLayoutCommand extends Command
         $appName = trim($this->argument('application-name'));
         $layoutFileName = Str::postfix(trim($this->option('layout-filename')) ?: 'layout-filename', '.blade.php');
         $layoutDirectory = trim($this->option('layout-directory'));
-        $withoutValidation = $this->option('without-validation');
         $force = $this->option('force');
 
-        return (object) compact('appName', 'layoutFileName', 'layoutDirectory', 'withoutValidation', 'force');
+        return (object) compact('appName', 'layoutFileName', 'layoutDirectory', 'force');
     }
 
     /**

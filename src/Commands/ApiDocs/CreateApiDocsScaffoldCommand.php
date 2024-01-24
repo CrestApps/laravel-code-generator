@@ -35,16 +35,16 @@ class CreateApiDocsScaffoldCommand extends command
      */
     protected $signature = 'api-docs:scaffold
                             {model-name : The model name that this controller will represent.}
-                            {--controller-name= : The name of the controler.}
+                            {--controller-name= : The name of the controller.}
                             {--controller-directory= : The directory where the controller should be created under.}
                             {--views-directory= : The path where the views should be created under.}
                             {--resource-file= : The name of the resource-file to import from.}
                             {--routes-prefix=default-form : Prefix of the route group.}
                             {--language-filename= : The languages file name to put the labels in.}
-                            {--with-auth : Generate the controller with Laravel auth middlewear. }
+                            {--with-auth : Generate the controller with Laravel authentication middleware. }
                             {--template-name= : The template name to use when generating the code.}
                             {--controller-extends=default-controller : The base controller to be extend.}
-                            {--api-version= : The api version to prefix your resurces with.}
+                            {--api-version= : The api version to prefix your resources with.}
                             {--force : This option will override the controller if one already exists.}';
 
     /**
@@ -145,7 +145,7 @@ class CreateApiDocsScaffoldCommand extends command
     }
 
     /**
-     * Executes the command that generates the lanaguage entries.
+     * Executes the command that generates the language entries.
      *
      * @param object $input
      *
@@ -172,7 +172,7 @@ class CreateApiDocsScaffoldCommand extends command
     {
         $modelName = $this->argument('model-name');
         $cName = trim($this->option('controller-name'));
-        $controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($modelName . 'ApiDocs');
+        $controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeApiDocsControllerName($modelName . 'ApiDocs');
         $prefix = $this->option('routes-prefix');
         $resourceFile = $this->option('resource-file');
         $force = $this->option('force');

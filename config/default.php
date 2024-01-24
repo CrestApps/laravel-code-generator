@@ -36,7 +36,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | If you want to generate code by using laravel-collective, you must first
-    | install the package. Then add the tamplate name that should be using
+    | install the package. Then add the template name that should be using
     | Laravel-Collective extensions when generating code.
     |
      */
@@ -70,10 +70,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The default path of where the json resource-files are located.
+    | The default path of where the JSON resource-files are located.
     |--------------------------------------------------------------------------
     |
-    | In this path, you can create json file to import the resources from.
+    | In this path, you can create JSON file to import the resources from.
     |
      */
     'resource_file_path' => 'resources/laravel-code-generator/sources',
@@ -231,15 +231,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Patterns to use to generate the html placeholders.
+    | Patterns to use to generate the HTML placeholders.
     |--------------------------------------------------------------------------
     |
     | When creating the fields, the code generator follows a pattern to generate
-    | placeholders for the html code. Here you can define which html-types should
+    | placeholders for the HTML code. Here you can define which html-types should
     | the generator create placeholder for. Also, you can define how would you like
     | the text to read when no placeholder is assigned.
     |
-    | The follwowing templates can be used to. assuming the field name is owner_name
+    | The following templates can be used to. assuming the field name is owner_name
     | [% field_name %]                   <=> "owner name"
     | [% field_name_sentence %]          <=> "Owner name"
     | [% field_name_plural %]            <=> "owner names"
@@ -268,11 +268,11 @@ return [
     | Key phrases that are will be used to determine if a field should have a relation.
     |--------------------------------------------------------------------------
     |
-    | When creating resources from existing database, the codegenerator scans
-    | the field's name for a mattching pattern. When found, these field are considered
+    | When creating resources from existing database, the code generator scans
+    | the field's name for a matching pattern. When found, these field are considered
     | foreign keys even when the database does not have a foreign constraints.
     | Here you can specify patterns to help the generator understand your
-    | database naming convension.
+    | database naming conversion.
     |
      */
     'common_key_patterns' => [
@@ -467,7 +467,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | A string to postfix the api-resource name with.
+    | A string to post fix the api-resource name with.
     |--------------------------------------------------------------------------
     |
     | If you don't like to post fix the api-resource with "Resource" you can
@@ -478,7 +478,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | A string to postfix the collection-api-resource name with.
+    | A string to post fix the collection-api-resource name with.
     |--------------------------------------------------------------------------
     |
     | If you don't like to post fix the collection-api-resource with "Collection"
@@ -498,7 +498,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | A string to postfix the form-request name with.
+    | A string to post fix the form-request name with.
     |--------------------------------------------------------------------------
     |
     | If you don't like to post fix the form-request with "FormRequest" you can
@@ -509,7 +509,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Defining non-english or irregular plurals
+    | Defining non-English or irregular plurals
     |--------------------------------------------------------------------------
     |
     | The code-generator heavily uses Laravel helpers "str_plural()"
@@ -539,7 +539,7 @@ return [
     | The "in-function-with-collective" key of the sub array, tell the generator that,
     | this string would be used in a function or not.
     |
-    | The follwowing templates can be used. Assuming the model name is AssetCategory
+    | The following templates can be used. Assuming the model name is AssetCategory
     | [% model_name %]                   <=> "asset category"
     | [% model_name_sentence %]          <=> "Asset category"
     | [% model_name_plural %]            <=> "asset categories"
@@ -661,7 +661,7 @@ return [
             'template' => 'this_parameter_is_an_http_header',
         ],
         'request_was_successful' => [
-            'text' => 'Request was successfull.',
+            'text' => 'Request was successfully.',
             'template' => 'request_was_successful',
         ],
         'boolean_title' => [
@@ -810,7 +810,7 @@ return [
     | Here you can define labels to be used when creating the api-documentation.
     | You can define how would you like the text to be generated.
     |
-    | The follwowing templates can be used. Assuming the model name is AssetCategory
+    | The following templates can be used. Assuming the model name is AssetCategory
     | [% model_name %]                   <=> "asset category"
     | [% model_name_sentence %]          <=> "Asset category"
     | [% model_name_plural %]            <=> "asset categories"
@@ -843,12 +843,12 @@ return [
         'the_total_of_available_pages' => 'The total of the available pages.',
         'store_route_description' => 'Create new [% model_name %].',
         'store_route_response_description' => 'The API\'s response will be JSON based data. The JSON object will be structured as follow',
-        'update_route_description' => 'Update existsing [% model_name %].',
+        'update_route_description' => 'Update existing [% model_name %].',
         'update_route_response_description' => 'The API\'s response will be JSON based data. The JSON object will be structured as follow',
-        'show_route_description' => 'Retrieve existsing [% model_name %].',
+        'show_route_description' => 'Retrieve existing [% model_name %].',
         'show_route_response_description' => 'The API\'s response will be JSON based data. The JSON object will be structured as follow',
         'the_id_of_model_to_retrieve' => 'The unique id of the [% model_name %] to retrieve',
-        'destroy_route_description' => 'Delete existsing [% model_name %].',
+        'destroy_route_description' => 'Delete existing [% model_name %].',
         'destroy_route_response_description' => 'The API\'s response will be JSON based data. The JSON object will be structured as follow',
         'the_id_of_model_to_delete' => 'The id of the [% model_name %] to delete.',
         'general_description' => 'Allows you to list, create, edit, show and delete [% model_name_plural %].',
@@ -932,7 +932,7 @@ return [
     | Eloquent method to html-type mapping.
     |--------------------------------------------------------------------------
     |
-    | This is the mapping used to convert database-column into html field
+    | This is the mapping used to convert database-column into HTML field
     |
      */
     'eloquent_type_to_html_type' => [

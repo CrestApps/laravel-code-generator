@@ -38,7 +38,7 @@ class CreateApiResourceCommand extends Command
                             {--model-directory= : The path where the model should be created under.}
                             {--template-name= : The template name to use when generating the code.}
                             {--collection : Create a resource collection.}
-                            {--api-version= : The api version to prefix your resurces with.}
+                            {--api-version= : The api version to prefix your resources with.}
                             {--force : Override the model if one already exists.}';
 
     /**
@@ -144,7 +144,7 @@ class CreateApiResourceCommand extends Command
     }
 
     /**
-     * Gets the destenation file to be created.
+     * Gets the destination file to be created.
      *
      * @param string $name
      * @param bool $isCollection

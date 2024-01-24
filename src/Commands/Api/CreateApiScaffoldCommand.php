@@ -22,7 +22,7 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
      */
     protected $signature = 'create:api-scaffold
                             {model-name : The model name that this resource will represent.}
-                            {--controller-name= : The name of the controler.}
+                            {--controller-name= : The name of the controller.}
                             {--controller-directory= : The directory where the controller should be created under. }
                             {--controller-extends=default-controller : The base controller to be extend.}
                             {--model-directory= : The path of the model.}
@@ -34,10 +34,10 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
                             {--models-per-page=25 : The amount of models per page for index pages.}
                             {--language-filename= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
-                            {--with-auth : Generate the controller with Laravel auth middlewear. }
+                            {--with-auth : Generate the controller with Laravel authentication middleware. }
                             {--table-name= : The name of the table.}
                             {--primary-key=id : The name of the primary key.}
-                            {--with-soft-delete : Enables softdelete future should be enable in the model.}
+                            {--with-soft-delete : Enables soft-delete future should be enable in the model.}
                             {--without-languages : Generate the resource without the language files. }
                             {--without-model : Generate the resource without the model file. }
                             {--without-controller : Generate the resource without the controller file. }
@@ -49,13 +49,13 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
                             {--engine-name= : A specific engine name.}
                             {--template-name= : The template name to use when generating the code.}
                             {--table-exists : This option will attempt to fetch the field from existing database table.}
-                            {--translation-for= : A comma seperated string of languages to create fields for.}
+                            {--translation-for= : A comma separated string of languages to create fields for.}
                             {--with-api-resource : Generate the controller with both api-resource and api-resource-collection classes.}
                             {--with-api-docs : Create full api documentation.}
                             {--api-resource-directory= : The directory where the api-resource should be created.}
                             {--api-resource-collection-directory= : The directory where the api-resource-collection should be created.}
                             {--api-resource-name= : The api-resource file name.}
-                            {--api-version= : The api version to prefix your resurces with.}
+                            {--api-version= : The api version to prefix your resources with.}
                             {--api-resource-collection-name= : The api-resource-collection file name.}
                             {--force : This option will override the controller if one already exists.}';
 
@@ -224,7 +224,7 @@ class CreateApiScaffoldCommand extends CreateScaffoldCommandBase
 
         $cName = trim($this->option('controller-name'));
 
-        $input->controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($input->modelName . 'Api');
+        $input->controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeApiControllerName($input->modelName);
         $input->withApiResource = $this->option('with-api-resource');
         $input->apiResourceDirectory = $this->option('api-resource-directory');
         $input->apiResourceCollectionDirectory = $this->option('api-resource-collection-directory');

@@ -66,7 +66,7 @@ class CreateLanguageCommand extends Command
     }
 
     /**
-     * Gets the destenation file.
+     * Gets the destination file.
      *
      * @param CrestApps\CodeGenerator\Models\Resource $resource
      * @param string $modelName
@@ -95,7 +95,7 @@ class CreateLanguageCommand extends Command
     }
 
     /**
-     * Gets the destenation file.
+     * Gets the destination file.
      *
      * @param array $path
      * @param string $name
@@ -127,7 +127,7 @@ class CreateLanguageCommand extends Command
     }
 
     /**
-     * Checks if a languge has a key int he in-memory collection.
+     * Checks if a language has a key int he in-memory collection.
      *
      * @param string $key
      * @param string $language
@@ -299,7 +299,7 @@ class CreateLanguageCommand extends Command
     }
 
     /**
-     * Replace the messages fo the given stub.
+     * Replace the messages from the given stub.
      *
      * @param string $stub
      * @param string $messages

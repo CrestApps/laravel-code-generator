@@ -69,7 +69,7 @@ class CodeGeneratorServiceProvider extends ServiceProvider
             'CrestApps\CodeGenerator\Commands\ApiDocs\CreateApiDocsControllerCommand',
             'CrestApps\CodeGenerator\Commands\ApiDocs\CreateApiDocsScaffoldCommand',
             'CrestApps\CodeGenerator\Commands\ApiDocs\CreateApiDocsViewCommand',
-                'CrestApps\CodeGenerator\Commands\Resources\ResourceFileFromDatabaseAllCommand'
+            'CrestApps\CodeGenerator\Commands\Resources\ResourceFileFromDatabaseAllCommand'
         ];
 
         if (Helpers::isNewerThanOrEqualTo()) {

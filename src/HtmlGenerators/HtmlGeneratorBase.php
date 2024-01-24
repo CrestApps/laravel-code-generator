@@ -55,7 +55,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets html field for the current set fields.
+     * Gets HTML field for the current set fields.
      *
      * @return string
      */
@@ -95,8 +95,8 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets html code for the show view using the current fields colelction.
-     * If an value is passed, it will only generate the raws based on the given fields
+     * Gets HTML code for the show view using the current fields collection.
+     * If an value is passed, it will only generate the rows based on the given fields
      *
      * @param array $fields
      *
@@ -117,7 +117,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets show row html code for the given field.
+     * Gets show row HTML code for the given field.
      *
      * @param string $stub
      * @param CreatApps\Models\Field $field
@@ -135,7 +135,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets the value to use in the show view
+     * Gets the value to use in the show view.
      *
      * @param Field $field
      *
@@ -151,8 +151,8 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets header cells' html code for the index view using the current fields colelction.
-     * If an value is passed, it will only generate the raws based on the given fields
+     * Gets header cells' HTML code for the index view using the current fields collection.
+     * If an value is passed, it will only generate the rows based on the given fields
      *
      * @param array $fields
      *
@@ -193,8 +193,8 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets header body's html code for the index view using the current fields colelction.
-     * If an value is passed, it will only generate the raws based on the given fields
+     * Gets header body's HTML code for the index view using the current fields collection.
+     * If an value is passed, it will only generate the rows based on the given fields
      *
      * @param array $fields
      *
@@ -214,7 +214,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets index body cell html code for the given field.
+     * Gets index body cell HTML code for the given field.
      *
      * @param string $stub
      * @param CreatApps\Models\Field $field
@@ -233,7 +233,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the selectedValue fo the given stub.
+     * Replace the selectedValue for the given stub.
      *
      * @param string $stub
      * @param string $value
@@ -248,7 +248,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the checkedItem fo the given stub.
+     * Replace the checkedItem for the given stub.
      *
      * @param string $stub
      * @param string $value
@@ -263,7 +263,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the fieldValue fo the given stub.
+     * Replace the fieldValue for the given stub.
      *
      * @param string $stub
      * @param string $value
@@ -341,7 +341,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets the html min value.
+     * Gets the HTML min value.
      *
      * @param mix (int|float) $validationMinValue
      * @param mix (int|float) $fieldMinValue
@@ -358,7 +358,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets the html max value.
+     * Gets the HTML max value.
      *
      * @param mix (int|float) $validationMaxValue
      * @param mix (int|float) $fieldMaxValue
@@ -375,7 +375,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets creates an checkbox/radio button html field for a given field.
+     * Gets creates an checkbox/radio button HTML field for a given field.
      *
      * @param CrestApps\CodeGeneraotor\Support\Field $field
      * @param CrestApps\CodeGeneraotor\Support\ValidationParser $parser
@@ -405,7 +405,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets creates a checkbox or radio button html field for a given field.
+     * Gets creates a checkbox or radio button HTML field for a given field.
      *
      * @param CrestApps\CodeGeneraotor\Support\Field $field
      * @param CrestApps\CodeGeneraotor\Support\Label $option
@@ -432,7 +432,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets field name ending with square brakets
+     * Gets field name ending with square brackets
      *
      * @param string $name
      *
@@ -444,7 +444,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets creates an select menu html field for a given field.
+     * Gets creates an select menu HTML field for a given field.
      *
      * @param CrestApps\CodeGeneraotor\Support\Field $field
      * @param CrestApps\CodeGeneraotor\Support\ValidationParser $parser
@@ -475,7 +475,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets the fields accessor
+     * Gets the fields accessor.
      *
      * @param CrestApps\CodeGeneraotor\Support\Field $field
      *
@@ -493,7 +493,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets the fields item accessor
+     * Gets the fields item accessor.
      *
      * @param CrestApps\CodeGeneraotor\Support\Field $field
      *
@@ -510,7 +510,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets the field value accesor.
+     * Gets the field value accessor.
      *
      * @param CrestApps\CodeGeneraotor\Support\Field $field
      *
@@ -555,7 +555,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets creates an password html5 field for a given field.
+     * Gets creates an password HTML5 field for a given field.
      *
      * @param CrestApps\CodeGeneraotor\Support\Field $field
      *
@@ -617,7 +617,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets creates an password html5 field for a given field.
+     * Gets creates an password HTML5 field for a given field.
      *
      * @param CrestApps\CodeGeneraotor\Support\Field $field
      * @param CrestApps\CodeGeneraotor\Support\ValidationParser $parser
@@ -647,7 +647,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets creates an standard html5 field for a given field.
+     * Gets creates an standard HTML5 field for a given field.
      *
      * @param CrestApps\CodeGeneraotor\Support\Field $field
      * @param CrestApps\CodeGeneraotor\Support\ValidationParser $parser
@@ -678,7 +678,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets the gretest value of the given parameters. It ignores null or empty string.
+     * Gets the greatest value of the given parameters. It ignores null or empty string.
      *
      * @return numeric
      */
@@ -731,7 +731,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Creates html label from a given field
+     * Creates HTML label from a given field
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      *
@@ -747,7 +747,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Creates html label.
+     * Creates HTML label.
      *
      * @param string $name
      * @param CrestApps\CodeGenerator\Models\Label $label
@@ -781,7 +781,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Gets the required class arrribute
+     * Gets the required class attribute
      *
      * @param string $class
      *
@@ -843,7 +843,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the fieldName fo the given stub.
+     * Replace the fieldName for the given stub.
      *
      * @param string $stub
      * @param string $fieldName
@@ -858,7 +858,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the fieldItem fo the given stub.
+     * Replace the fieldItem for the given stub.
      *
      * @param string $stub
      * @param string $name
@@ -888,7 +888,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the fieldValueAccessor fo the given stub.
+     * Replace the fieldValueAccessor for the given stub.
      *
      * @param string $stub
      * @param string $name
@@ -903,7 +903,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the minValue fo the given stub.
+     * Replace the minValue for the given stub.
      *
      * @param string $stub
      * @param string $minValue
@@ -918,7 +918,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the maxValue fo the given stub.
+     * Replace the maxValue for the given stub.
      *
      * @param string $stub
      * @param string $maxValue
@@ -933,7 +933,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the minLength fo the given stub.
+     * Replace the minLength for the given stub.
      *
      * @param string $stub
      * @param string $minLength
@@ -948,7 +948,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the maxLength fo the given stub.
+     * Replace the maxLength for the given stub.
      *
      * @param string $stub
      * @param string $maxLength
@@ -963,7 +963,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the requiredField fo the given stub.
+     * Replace the requiredField for the given stub.
      *
      * @param string $stub
      * @param string $required
@@ -978,7 +978,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the placeholder fo the given stub.
+     * Replace the placeholder for the given stub.
      *
      * @param string $stub
      * @param string $placeholder
@@ -993,7 +993,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the fieldValue fo the given stub.
+     * Replace the fieldValue for the given stub.
      *
      * @param string $stub
      * @param string $fieldValue
@@ -1008,7 +1008,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the optionValue fo the given stub.
+     * Replace the optionValue for the given stub.
      *
      * @param string $stub
      * @param string $optionValue
@@ -1023,7 +1023,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the requiredClass fo the given stub.
+     * Replace the requiredClass for the given stub.
      *
      * @param string $stub
      * @param string $class
@@ -1038,7 +1038,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the itemId fo the given stub.
+     * Replace the itemId for the given stub.
      *
      * @param string $stub
      * @param string $fieldValue
@@ -1053,7 +1053,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the itemTitle fo the given stub.
+     * Replace the itemTitle for the given stub.
      *
      * @param string $stub
      * @param string $itemTitle
@@ -1068,7 +1068,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the fieldType fo the given stub.
+     * Replace the fieldType for the given stub.
      *
      * @param string $stub
      * @param string $fieldType
@@ -1083,7 +1083,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the CssClass fo the given stub.
+     * Replace the CssClass for the given stub.
      *
      * @param string $stub
      * @param CrestApps\CodeGenerator\Models\Label $label
@@ -1099,7 +1099,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the fieldTitle fo the given stub.
+     * Replace the fieldTitle for the given stub.
      *
      * @param string $stub
      * @param CrestApps\CodeGenerator\Models\Label $label
@@ -1115,7 +1115,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the fieldValidationHelper fo the given stub.
+     * Replace the fieldValidationHelper for the given stub.
      *
      * @param string $stub
      * @param string $helper
@@ -1130,7 +1130,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the fieldLabel fo the given stub.
+     * Replace the fieldLabel for the given stub.
      *
      * @param string $stub
      * @param string $fieldLabel
@@ -1145,7 +1145,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * Replace the fieldInput fo the given stub.
+     * Replace the fieldInput for the given stub.
      *
      * @param string $stub
      * @param string $fieldInput
@@ -1205,7 +1205,7 @@ abstract class HtmlGeneratorBase
     }
 
     /**
-     * It gets converts an array to a stringbase array for the views.
+     * It gets converts an array to a string base array for the views.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      *
@@ -1351,7 +1351,7 @@ abstract class HtmlGeneratorBase
     abstract protected function getMultipleSelectedValue($name, $valueAccessor, $defaultValue);
 
     /**
-     * Gets the html steps attribute.
+     * Gets the HTML steps attribute.
      *
      * @param int value
      *

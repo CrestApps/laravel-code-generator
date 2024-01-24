@@ -88,7 +88,7 @@ class MigrationChangeCapsule implements JsonWriter, ChangeDetector
     }
 
     /**
-     * Gets array of the paramets
+     * Gets array of the parameters.
      *
      * @return array
      */

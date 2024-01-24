@@ -243,7 +243,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     }
 
     /**
-     * Gets the best value accessor for the view
+     * Gets the best value accessor for the view.
      *
      * @param string $modelVariable
      * @param string $property
@@ -278,7 +278,7 @@ class LaravelCollectiveHtml extends HtmlGeneratorBase
     }
 
     /**
-     * Gets the html steps attribute.
+     * Gets the HTML steps attribute.
      *
      * @param int value
      *

@@ -18,7 +18,7 @@ class SqlServerParser extends ParserBase
     protected $tableName;
 
     /**
-     * The databasename
+     * The database name
      *
      * @var array
      */
@@ -103,7 +103,7 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Gets array of field after transfering each column meta into field.
+     * Gets array of field after transferring each column meta into field.
      *
      * @param array $columns
      *
@@ -133,7 +133,7 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the unsiged flag for a given field.
+     * Set the unsigned flag for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
@@ -151,7 +151,7 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Set the html type for a given field.
+     * Set the HTML type for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
@@ -296,7 +296,7 @@ class SqlServerParser extends ParserBase
     }
 
     /**
-     * Gets the eloquent method to html
+     * Gets the eloquent method to HTML
      *
      * @return array
      */

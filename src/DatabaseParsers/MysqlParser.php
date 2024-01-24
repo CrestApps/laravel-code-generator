@@ -241,7 +241,7 @@ class MysqlParser extends ParserBase
     }
 
     /**
-     * Gets the field after transfering it from a given query object.
+     * Gets the field after transferring it from a given query object.
      *
      * @param object $column
      *
@@ -292,7 +292,7 @@ class MysqlParser extends ParserBase
     }
 
     /**
-     * Gets the type params
+     * Gets the type parameters.
      *
      * @param string $length
      * @param string $dataType

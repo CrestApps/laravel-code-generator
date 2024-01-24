@@ -311,7 +311,7 @@ class ForeignRelationship implements JsonWriter
         }
 
         if (count($columns) == 0) {
-            // At this poing we know the column have not yet been identified
+            // At this point, we know the column have not yet been identified
             // which also mean that the model does not exists or the table
             // does not existing in the database.
             // Try to find the columns from the resource-file if one found.

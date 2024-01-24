@@ -474,7 +474,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * Converts the protection into a json-ready array
+     * Converts the protection into an array.
      *
      * @return array
      */
@@ -501,7 +501,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * Converts the fields into a json-ready array
+     * Converts the fields into an array.
      *
      * @return array
      */
@@ -513,7 +513,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * Converts the relations into a json-ready array
+     * Converts the relations into a an array.
      *
      * @return array
      */
@@ -525,7 +525,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * Converts the indexes into a json-ready array
+     * Converts the indexes into a an array.
      *
      * @return array
      */
@@ -537,7 +537,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * It transfres a given string to a collection of field
+     * It transfers a given string to a collection of field
      *
      * @param string|json $json
      * @param string $localeGroup
@@ -553,7 +553,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * It transfres a given JSON string to a collection of field
+     * It transfers a given JSON string to a collection of field
      *
      * @param string|json $json
      * @param string $localeGroup
@@ -579,7 +579,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * It transfres a gving array to a resource
+     * It transfers a given array to a resource
      *
      * @param array $properties
      * @param string $localeGroup
@@ -635,7 +635,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * Gets a relation collection from a peoperties collection.
+     * Gets a relation collection from a properties collection.
      *
      * @param $filename
      *
@@ -655,7 +655,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * Gets a relation collection from a peoperties collection.
+     * Gets a relation collection from a properties collection.
      *
      * @param $filename
      *
@@ -673,7 +673,7 @@ class Resource implements JsonWriter
     }
 
     /**
-     * Gets the content of the resource json file.
+     * Gets the content of the resource JSON file.
      *
      * @param $filename
      *

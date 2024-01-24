@@ -41,19 +41,13 @@ class [% controller_name %] [% controller_extends %]
      */
     public function store([% type_hinted_request_name %])
     {
-        try {
-            [% call_affirm %]
-            $[% data_variable %] = [% call_get_data %];
-            [% on_store_setter %]
-            [% model_name_class %]::create($[% data_variable %]);
+        [% call_affirm %]
+        $[% data_variable %] = [% call_get_data %];
+        [% on_store_setter %]
+        [% model_name_class %]::create($[% data_variable %]);
 
-            return redirect()->route('[% index_route_name %]')
-                ->with('success_message', [% model_was_added %]);
-        } catch (Exception $exception) {
-
-            return back()->withInput()
-                ->withErrors(['unexpected_error' => [% unexpected_error %]]);
-        }
+        return redirect()->route('[% index_route_name %]')
+            ->with('success_message', [% model_was_added %]);
     }
 
     /**
@@ -95,20 +89,14 @@ class [% controller_name %] [% controller_extends %]
      */
     public function update($id, [% type_hinted_request_name %])
     {
-        try {
-            [% call_affirm %]
-            $[% data_variable %] = [% call_get_data %];
-            [% on_update_setter %]
-            $[% model_name_singular_variable %] = [% model_name_class %]::findOrFail($id);
-            $[% model_name_singular_variable %]->update($[% data_variable %]);
+        [% call_affirm %]
+        $[% data_variable %] = [% call_get_data %];
+        [% on_update_setter %]
+        $[% model_name_singular_variable %] = [% model_name_class %]::findOrFail($id);
+        $[% model_name_singular_variable %]->update($[% data_variable %]);
 
-            return redirect()->route('[% index_route_name %]')
-                ->with('success_message', [% model_was_updated %]);
-        } catch (Exception $exception) {
-
-            return back()->withInput()
-                ->withErrors(['unexpected_error' => [% unexpected_error %]]);
-        }        
+        return redirect()->route('[% index_route_name %]')
+            ->with('success_message', [% model_was_updated %]);  
     }
 
     /**

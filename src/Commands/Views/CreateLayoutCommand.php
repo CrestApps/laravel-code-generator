@@ -18,9 +18,8 @@ class CreateLayoutCommand extends Command
                             {application-name : The name of your application.}
                             {--layout-filename=app : The layout file name to be created.}
                             {--layout-directory=layouts : The directory of the layouts.}
-                            {--without-validation : This option will create a layout without client-side validation.}
                             {--template-name= : The template name to use when generating the code.}
-                            {--force : Override existsing layout.}';
+                            {--force : Override existing layout.}';
 
     /**
      * The console command description.
@@ -42,7 +41,6 @@ class CreateLayoutCommand extends Command
                 'application-name' => $this->argument('application-name'),
                 '--layout-filename' => $this->option('layout-filename'),
                 '--layout-directory' => $this->option('layout-directory'),
-                '--without-validation' => $this->option('without-validation'),
                 '--template-name' => $this->option('template-name'),
                 '--force' => $this->option('force'),
             ]

@@ -45,7 +45,7 @@ For full documentation and live demo please visit <a href="https://crestapps.com
 
 ## Installation
 
-1. To download this package into your laravel project, use the command-line to execute the following command
+1. To download this package into your Laravel project, use the command-line to execute the following command
 
 	```
 	composer require crestapps/laravel-code-generator --dev
@@ -61,7 +61,7 @@ For full documentation and live demo please visit <a href="https://crestapps.com
 	}
 	```
 
-> A layout is required for the default views! The code generator allows you to create a layout using the command-line. Of cource you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/ "CSS bootstrap framework") in your layout for the default templates to work properly. Additionally, you can chose to you design your own templetes using a different or no css framework. 
+> A layout is required for the default views! The code generator allows you to create a layout using the command-line. Of course you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/ "CSS bootstrap framework") in your layout for the default templates to work properly. Additionally, you can chose to you design your own templates using a different or no css framework. 
 
 ## Lessons
 Checkout our channel on <a href="https://www.youtube.com/channel/UCkEd0nOoRf3o0ahspAu7Y9w/videos" target="_blank" title="CrestApps YouTube Channel">YouTube.com</a> 
@@ -93,6 +93,12 @@ Checkout our channel on <a href="https://www.youtube.com/channel/UCkEd0nOoRf3o0a
 	    <li>php artisan create:api-scaffold [model-name]</li>
 	    <li>php artisan create:api-controller [model-name]</li>
 	    <li>php artisan create:api-resources [model-name]</li>
+    </ul>
+</li>
+<li>
+	<strong>API Documentations commands</strong>
+	<ul>
+	    <li>php artisan api-docs:scaffold [model-name]</li>
 	    <li>php artisan api-doc:create-controller [model-name]</li>
 	    <li>php artisan api-doc:create-view [model-name]</li>
     </ul>

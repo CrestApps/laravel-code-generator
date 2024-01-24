@@ -22,7 +22,7 @@ class Label
     /**
      * Is the label plain text or not
      *
-     * @var vool
+     * @var bool
      */
     public $isPlain = true;
 
@@ -48,7 +48,7 @@ class Label
     public $id;
 
     /**
-     * The template to use for replacment.
+     * The template to use for replacement.
      *
      * @var string
      */

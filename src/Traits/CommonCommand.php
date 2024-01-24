@@ -90,7 +90,7 @@ trait CommonCommand
     }
 
     /**
-     * Gets the relation accessor for the given foreign renationship.
+     * Gets the relation accessor for the given foreign relationship.
      *
      * @param string $name
      *
@@ -367,7 +367,7 @@ trait CommonCommand
     }
 
     /**
-     * Get the givin file content.
+     * Get the given file content.
      *
      * @param  string  $file
      *
@@ -379,7 +379,7 @@ trait CommonCommand
     }
 
     /**
-     * Get the givin file content.
+     * Get the given file content.
      *
      * @param  string  $file
      *
@@ -493,7 +493,7 @@ trait CommonCommand
     }
 
     /**
-     * Checks if the givin field is an instance of a field or not.
+     * Checks if the given field is an instance of a field or not.
      *
      * @return string
      */
@@ -540,7 +540,7 @@ trait CommonCommand
     }
 
     /**
-     * Checks if a given fields array conatins at least one file field
+     * Checks if a given fields array contains at least one file field
      *
      * @param array
      *

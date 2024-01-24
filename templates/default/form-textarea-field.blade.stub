@@ -1,1 +1,1 @@
-        <textarea class="form-control[% css_class %]" name="[% field_name %]" id="[% field_name %]"[% min_length %][% max_length %][% min_value %][% max_value %][% required_field %][% placeholder %]>[% field_value %]</textarea>
+        <textarea class="form-control{{ $errors->has('[% field_name %]') ? ' is-invalid' : '' }}[% css_class %]" name="[% field_name %]" id="[% field_name %]"[% min_length %][% max_length %][% min_value %][% max_value %][% required_field %][% placeholder %]>[% field_value %]</textarea>

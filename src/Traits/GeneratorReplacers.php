@@ -37,7 +37,7 @@ trait GeneratorReplacers
     }
 
     /**
-     * It Replaces the templates of the givin $labels
+     * It Replaces the templates of the given $labels
      *
      * @param string $stub
      * @param array $items
@@ -71,7 +71,7 @@ trait GeneratorReplacers
     }
 
     /**
-     * Replace the controller_name fo the given stub.
+     * Replace the controller_name for the given stub.
      *
      * @param string $stub
      * @param string $modelName
@@ -97,7 +97,7 @@ trait GeneratorReplacers
     }
 
     /**
-     * Replace the app_name fo the given stub.
+     * Replace the app_name for the given stub.
      *
      * @param string $stub
      * @param string $modelName
@@ -110,7 +110,7 @@ trait GeneratorReplacers
     }
 
     /**
-     * Replace the namespace fo the given stub.
+     * Replace the namespace for the given stub.
      *
      * @param string $stub
      * @param string $modelName

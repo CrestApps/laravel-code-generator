@@ -76,7 +76,7 @@ class ValidationParser
     protected $numeric;
 
     /**
-     * Conditional requied rule
+     * Conditional required rule
      *
      * @var mix
      */
@@ -174,7 +174,7 @@ class ValidationParser
     }
 
     /**
-     * Checks if the rules conatins a required rule
+     * Checks if the rules contains a required rule
      *
      * @return bool
      */
@@ -242,7 +242,7 @@ class ValidationParser
     }
 
     /**
-     * Checks if the rules is valid numer
+     * Checks if the rules is valid number.
      *
      * @return bool
      */
@@ -266,7 +266,7 @@ class ValidationParser
     }
 
     /**
-     * Checks if the rules is nullable
+     * Checks if the rules is nullable.
      *
      * @return bool
      */
@@ -280,7 +280,7 @@ class ValidationParser
     }
 
     /**
-     * Checks if the rules is interger.
+     * Checks if the rules is integer.
      *
      * @return bool
      */

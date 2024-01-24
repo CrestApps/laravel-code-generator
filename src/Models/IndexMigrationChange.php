@@ -72,6 +72,7 @@ class IndexMigrationChange extends MigrationChangeBase implements JsonWriter, Ch
 
         return $change;
     }
+    
     /**
      * Get the migration change after comparing two given fields
      *

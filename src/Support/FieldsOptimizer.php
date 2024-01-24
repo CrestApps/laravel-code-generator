@@ -45,7 +45,7 @@ class FieldsOptimizer
     }
 
     /**
-     * Optemizes the fields.
+     * Optimizes the fields.
      *
      * @return void
      */

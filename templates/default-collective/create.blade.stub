@@ -16,17 +16,21 @@
         <div class="card-body">
 
             @if ($errors->any())
-                <ul class="alert alert-danger">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+                <div class="alert alert-danger" role="alert">
+                    <ul class="list-unstyled mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
             @endif
 
             {!! Form::open([
                 'route' => '[% store_route_name %]',
                 'name' => '[% form_name %]',
                 'id' => '[% form_id %]',
+                'class' => 'needs-validation',
+                'novalidate' => true,
                 [% upload_files %]
                 ])
             !!}

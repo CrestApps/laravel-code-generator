@@ -38,7 +38,7 @@ class CreateModelCommand extends Command
                             {--resource-file= : The name of the resource-file to import from.}
                             {--language-filename= : The languages file name to put the labels in.}
                             {--model-directory= : The directory where the model should be created.}
-                            {--with-soft-delete : Enables softdelete future should be enable in the model.}
+                            {--with-soft-delete : Enables soft-delete future should be enable in the model.}
                             {--without-timestamps : Prevent Eloquent from maintaining both created_at and the updated_at properties.}
                             {--template-name= : The template name to use when generating the code.}
                             {--model-extends=default-model : The base model to be extend.}
@@ -131,7 +131,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Gets the destenation file to be created.
+     * Gets the destination file to be created.
      *
      * @param string $name
      * @param string $path
@@ -473,13 +473,13 @@ class CreateModelCommand extends Command
     /**
      * Wraps each non-empty item in an array with single quote.
      *
-     * @param  array  $arrguments
+     * @param  array  $arguments
      *
      * @return string
      */
-    protected function joinArguments(array $arrguments)
+    protected function joinArguments(array $arguments)
     {
-        return implode(',', Arr::wrapItems(Arr::removeEmptyItems($arrguments)));
+        return implode(',', Arr::wrapItems(Arr::removeEmptyItems($arguments)));
     }
 
     /**
@@ -875,7 +875,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Replaces the replationships for the given stub.
+     * Replaces the relationships for the given stub.
      *
      * @param $stub
      * @param array $relationMethods
@@ -888,7 +888,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Replaces the replation type for the given stub.
+     * Replaces the relation type for the given stub.
      *
      * @param string $stub
      * @param string $type
@@ -901,7 +901,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Replaces the replation name for the given stub.
+     * Replaces the relation name for the given stub.
      *
      * @param string $stub
      * @param string $name
@@ -914,7 +914,7 @@ class CreateModelCommand extends Command
     }
 
     /**
-     * Replaces the replation params for the given stub.
+     * Replaces the relation parameters for the given stub.
      *
      * @param string $stub
      * @param string $params

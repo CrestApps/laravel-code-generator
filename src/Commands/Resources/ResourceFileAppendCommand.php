@@ -19,10 +19,10 @@ class ResourceFileAppendCommand extends ResourceFileCreatorCommandBase
     protected $signature = 'resource-file:append
                             {model-name : The model name that these files represent.}
                             {--resource-filename= : The destination file name to append too.}
-                            {--fields= : A comma seperate field names.}
-                            {--indexes= : A comma seperated index string.}
-                            {--relations= : A comma seperated realtion string.}
-                            {--translation-for= : A comma seperated string of languages to create fields for.}';
+                            {--fields= : A comma separate field names.}
+                            {--indexes= : A comma separated index string.}
+                            {--relations= : A comma separated relation string.}
+                            {--translation-for= : A comma separated string of languages to create fields for.}';
 
     /**
      * The console command description.

@@ -198,7 +198,7 @@ class Config
     }
 
     /**
-     * Gets the eloquent's method to html
+     * Gets the Eloquent's method to HTML
      *
      * @return array
      */

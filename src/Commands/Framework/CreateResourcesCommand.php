@@ -16,7 +16,7 @@ class CreateResourcesCommand extends Command
      */
     protected $signature = 'create:resources
                             {model-name : The model name that this resource will represent.}
-                            {--controller-name= : The name of the controler.}
+                            {--controller-name= : The name of the controller.}
                             {--controller-directory= : The directory where the controller should be created under. }
                             {--controller-extends=default-controller : The base controller to be extend.}
                             {--model-directory= : The path of the model.}
@@ -28,10 +28,10 @@ class CreateResourcesCommand extends Command
                             {--models-per-page=25 : The amount of models per page for index pages.}
                             {--language-filename= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
-                            {--with-auth : Generate the controller with Laravel auth middlewear. }
+                            {--with-auth : Generate the controller with Laravel authentication middleware. }
                             {--table-name= : The name of the table.}
                             {--primary-key=id : The name of the primary key.}
-                            {--with-soft-delete : Enables softdelete future should be enable in the model.}
+                            {--with-soft-delete : Enables soft-delete future should be enable in the model.}
                             {--without-languages : Generate the resource without the language files. }
                             {--without-model : Generate the resource without the model file. }
                             {--without-controller : Generate the resource without the controller file. }
@@ -45,7 +45,7 @@ class CreateResourcesCommand extends Command
                             {--layout-name=layouts.app : This will extract the validation into a request form class.}
                             {--template-name= : The template name to use when generating the code.}
                             {--table-exists : This option will attempt to fetch the field from existing database table.}
-                            {--translation-for= : A comma seperated string of languages to create fields for.}
+                            {--translation-for= : A comma separated string of languages to create fields for.}
                             {--force : This option will override the controller if one already exists.}';
 
     /**
@@ -72,7 +72,7 @@ class CreateResourcesCommand extends Command
     }
 
     /**
-     * Get a commbined array of arguments and callable options.
+     * Get a combined array of arguments and callable options.
      *
      * @return array
      */

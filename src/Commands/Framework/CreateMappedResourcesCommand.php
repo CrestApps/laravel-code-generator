@@ -26,11 +26,11 @@ class CreateMappedResourcesCommand extends Command
                             {--models-per-page=25 : The amount of models per page for index pages.}
                             {--language-filename= : The languages file name to put the labels in.}
                             {--table-name= : The name of the table.}
-                            {--controller-name= : The name of the controler.}
+                            {--controller-name= : The name of the controller.}
                             {--with-form-request : This will extract the validation into a request form class.}
-                            {--with-auth : Generate the controller with Laravel auth middlewear. }
+                            {--with-auth : Generate the controller with Laravel authentication middleware. }
                             {--with-migration : Prevent creating a migration for this resource.}
-                            {--with-soft-delete : Enables softdelete future should be enable in the model.}
+                            {--with-soft-delete : Enables soft-delete future should be enable in the model.}
                             {--without-timestamps : Prevent Eloquent from maintaining both created_at and the updated_at properties.}
                             {--without-languages : Generate the resource without the language files. }
                             {--without-model : Generate the resource without the model file. }
@@ -44,7 +44,7 @@ class CreateMappedResourcesCommand extends Command
                             {--table-exists : This option will attempt to fetch the field from existing database table.}
                             {--routes-prefix=default-form : Prefix of the route group.}
                             {--primary-key=id : The name of the primary key.}
-                            {--translation-for= : A comma seperated string of languages to create fields for.}
+                            {--translation-for= : A comma separated string of languages to create fields for.}
                             {--form-request-directory= : The directory of the form-request.}
                             {--mapping-filename= : The name of the resource mapping file.}
                             {--force : This option will override the controller if one already exists.}';
@@ -195,7 +195,7 @@ class CreateMappedResourcesCommand extends Command
     }
 
     /**
-     * Gets the value of a property of a givig object if exists.
+     * Gets the value of a property of a given object if exists.
      *
      * @param object $object
      * @param string $name

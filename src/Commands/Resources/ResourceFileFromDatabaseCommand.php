@@ -33,7 +33,7 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
                             {--table-name= : The database table name to fetch the field from.}
                             {--database-name= : The database name the table is stored in.}
                             {--resource-filename= : The destination file name to create.}
-                            {--translation-for= : A comma seperated string of languages to create fields for.}
+                            {--translation-for= : A comma separated string of languages to create fields for.}
                             {--force : This option will override the view if one already exists.}';
 
     /**
@@ -149,7 +149,7 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
     }
 
     /**
-     * Gets the destenation filename.
+     * Gets the destination filename.
      *
      * @return string
      */
@@ -191,7 +191,7 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
     }
 
     /**
-     * Gets the languages to create lang keys for.
+     * Gets the languages to create language keys for.
      *
      * @return array
      */
@@ -201,7 +201,7 @@ class ResourceFileFromDatabaseCommand extends ResourceFileCommandBase
     }
 
     /**
-     * Gets migration fullname
+     * Gets migration full name.
      *
      * @param string $name
      *
