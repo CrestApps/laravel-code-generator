@@ -23,7 +23,7 @@ class FieldsOptimizer
     protected $fields = [];
 
     /**
-     * Create a new optemizer instance.
+     * Create a new optimizer instance.
      *
      * @param array $mappers
      *

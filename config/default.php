@@ -338,12 +338,22 @@ return [
             ],
         ],
         [
-            'match' => ['picture', 'file', 'photo', 'avatar', 'image', 'document', 'attachment*'],
+            'match' => ['picture', 'photo', 'avatar', 'image'],
             'set' => [
                 'is-on-index' => false,
                 'html-type' => 'file',
                 'data-type' => 'string',
-                'data-type-params' => [2500],
+                'data-type-params' => [255],
+                'validation' => 'image',
+            ],
+        ],
+        [
+            'match' => ['file', 'document', 'attachment*'],
+            'set' => [
+                'is-on-index' => false,
+                'html-type' => 'file',
+                'data-type' => 'string',
+                'data-type-params' => [255],
                 'validation' => 'file',
             ],
         ],
