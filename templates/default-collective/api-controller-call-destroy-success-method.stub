@@ -1,4 +1,0 @@
-return $this->successResponse(
-			    [% model_was_deleted %],
-			    $this->transform($[% model_name_singular_variable %])
-			);

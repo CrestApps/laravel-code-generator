@@ -1,1 +1,0 @@
-return json_decode($value) ?: [];

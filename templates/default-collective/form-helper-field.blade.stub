@@ -1,1 +1,0 @@
-        {!! $errors->first('[% field_name %]', '<p class="form-text text-muted">:message</p>') !!}

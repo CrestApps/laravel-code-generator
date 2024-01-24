@@ -1,6 +1,0 @@
-        <div class="form-check form-check-inline[% field_type %]">
-            {!! Form::[% field_type %]('[% field_name %]', '[% option_value %]', [% checked_item %], ['id' => '[% item_id %]', 'class' => 'form-check-input[% required_class %][% css_class %]' . ($errors->has('[% field_name %]') ? ' is-invalid' : ''), [% required_field %] ]) !!}
-            <label class="form-check-label" for="[% item_id %]">
-                [% item_title %]
-            </label>
-        </div>

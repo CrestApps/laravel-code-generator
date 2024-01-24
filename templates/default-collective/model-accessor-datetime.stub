@@ -1,1 +1,0 @@
-return \DateTime::createFromFormat('[% date_format %]', $value);
