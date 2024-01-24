@@ -64,7 +64,7 @@ class CreateApiDocsViewCommand extends Command
 
         $stub = $this->getStubContent('api-documentation-index');
 
-        $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields, $this->isCollectiveTemplate());
+        $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields);
 
         // The replaceAuthorizedRequestForIndex() method must be executed before replaceAuthorizationCall()
         return $this->replaceAuthorizedRequestForIndex($stub, $this->getAuthorizedRequestForIndex($input->withAuth, $resource->getApiDocLabels(), $viewLabels->getLabels()))

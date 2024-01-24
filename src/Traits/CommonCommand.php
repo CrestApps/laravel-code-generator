@@ -514,7 +514,7 @@ trait CommonCommand
         $templateName = $templateName ?: Config::getDefaultTemplateName();
         $path = base_path(Config::getTemplatesPath() . Helpers::getPathWithSlash($templateName));
 
-        if (!File::isDirectory($path) && in_array($templateName, ['default', 'default-collective'])) {
+        if (!File::isDirectory($path) && in_array($templateName, ['default'])) {
             // If the default templates are not published, utilize the default package path.
 
             $path = __DIR__ . '/../../templates/' . $templateName;
@@ -525,18 +525,6 @@ trait CommonCommand
         }
 
         return Helpers::getPathWithSlash($path);
-    }
-
-    /**
-     * Checks the given template if it is a Laravel-Collective template or not.
-     *
-     * @param string $template
-     *
-     * @return bool
-     */
-    protected function isCollectiveTemplate($template = null)
-    {
-        return in_array($template ?: $this->getTemplateName(), Config::getCollectiveTemplates());
     }
 
     /**

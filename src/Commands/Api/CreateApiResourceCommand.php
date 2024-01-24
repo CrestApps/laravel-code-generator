@@ -37,7 +37,6 @@ class CreateApiResourceCommand extends Command
                             {--api-resource-collection-name= : The api-resource-collection file name.}
                             {--model-directory= : The path where the model should be created under.}
                             {--template-name= : The template name to use when generating the code.}
-                            {--collection : Create a resource collection.}
                             {--api-version= : The api version to prefix your resources with.}
                             {--force : Override the model if one already exists.}';
 
@@ -58,22 +57,22 @@ class CreateApiResourceCommand extends Command
         $input = $this->getCommandInput();
 
         $resource = Resource::fromFile($input->resourceFile, 'CrestApps');
-        $apiResourceFileName = $this->getApiFileName($input->modelName, $input->isCollection);
+        $apiResourceFileName = $this->getApiFileName($input->modelName);
 
-        $destenationFile = $this->getDestenationFile($apiResourceFileName, $input->isCollection);
+        $destenationFile = $this->getDestenationFile($apiResourceFileName);
 
-        if ($this->hasErrors($resource, $destenationFile, $input->isCollection)) {
+        if ($this->hasErrors($resource, $destenationFile)) {
             return false;
         }
 
-        $stub = $this->getStubContent($this->getFileTitle($input->isCollection));
-        $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields, $this->isCollectiveTemplate());
+        $stub = $this->getStubContent($this->getFileTitle());
+        $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields);
 
-        return $this->replaceNamespace($stub, $this->getClassNamepace($input->isCollection))
-            ->replaceModelApiArray($stub, $this->getModelApiArray($resource->fields, $input->modelName, $input->isCollection))
+        return $this->replaceNamespace($stub, $this->getClassNamepace())
+            ->replaceModelApiArray($stub, $this->getModelApiArray($resource->fields, $input->modelName))
             ->replaceApiResourceClass($stub, $apiResourceFileName)
             ->replaceApiResourceCollectionClass($stub, $this->getApiResourceCollectionClassName($input->modelName))
-            ->replaceTransformMethod($stub, $this->getTransformMethod($input, $resource->fields, $input->isCollection, $input->isCollection))
+            ->replaceTransformMethod($stub, $this->getTransformMethod($input, $resource->fields))
             ->replaceStandardLabels($stub, $viewLabels->getLabels())
             ->replaceModelName($stub, $input->modelName)
             ->replaceModelFullname($stub, self::getModelNamespace($input->modelName, $input->modelDirectory))
@@ -82,35 +81,24 @@ class CreateApiResourceCommand extends Command
     }
 
     /**
-     * Gets the namespace for the api class.
-     *
-     * @param bool $isCollection
+     * Gets the namespace for the API class.
      *
      * @return string
      */
-    protected function getClassNamepace($isCollection)
+    protected function getClassNamepace()
     {
-        if ($isCollection) {
-            return $this->getApiResourceCollectionNamespace();
-        }
-
         return $this->getApiResourceNamespace();
     }
 
     /**
-     * Gets the file name for the api class.
+     * Gets the file name for the API class.
      *
      * @param string $modelName
-     * @param bool $isCollection
      *
      * @return string
      */
-    protected function getApiFileName($modelName, $isCollection)
+    protected function getApiFileName($modelName)
     {
-        if ($isCollection) {
-            return $this->getApiResourceCollectionClassName($modelName);
-        }
-
         return $this->getApiResourceClassName($modelName);
     }
 
@@ -123,10 +111,10 @@ class CreateApiResourceCommand extends Command
      *
      * @return bool
      */
-    protected function hasErrors(Resource $resource, $destenationFile, $isCollection)
+    protected function hasErrors(Resource $resource, $destenationFile)
     {
         $hasErrors = false;
-        $title = $this->getFileTitle($isCollection);
+        $title = $this->getFileTitle();
 
         if ($resource->isProtected($title)) {
             $this->warn('The ' . $title . ' is protected and cannot be regenerated. To regenerate the file, unprotect it from the resource-file.');
@@ -147,19 +135,12 @@ class CreateApiResourceCommand extends Command
      * Gets the destination file to be created.
      *
      * @param string $name
-     * @param bool $isCollection
      *
      * @return string
      */
-    protected function getDestenationFile($name, $isCollection = false)
-    {
-        if ($isCollection) {
-            $path = $this->getApiResourceCollectionPath();
-        } else {
-            $path = $this->getApiResourcePath();
-        }
-
-        $path = Str::trimStart($path, Helpers::getAppNamespace());
+    protected function getDestenationFile($name)
+    {    
+        $path = Str::trimStart($this->getApiResourcePath(), Helpers::getAppNamespace());
 
         return app_path($path . $name . '.php');
     }
@@ -174,7 +155,6 @@ class CreateApiResourceCommand extends Command
         $modelName = trim($this->argument('model-name'));
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
         $template = $this->getTemplateName();
-        $isCollection = $this->option('collection');
         $modelDirectory = trim($this->option('model-directory'));
         $apiVersion = trim($this->option('api-version'));
 
@@ -182,7 +162,6 @@ class CreateApiResourceCommand extends Command
             'modelName',
             'resourceFile',
             'template',
-            'isCollection',
             'modelDirectory'
         );
     }

@@ -83,7 +83,7 @@ class CreateLanguageCommand extends Command
             $languages[$lang] = array_merge($current, $docLabels);
         }
 
-        $viewLabels = new ViewLabelsGenerator($modelName, $resource->fields, $this->isCollectiveTemplate());
+        $viewLabels = new ViewLabelsGenerator($modelName, $resource->fields);
         $standardLabels = $viewLabels->getTranslatedLabels(array_keys($languages));
 
         //Merge the standard labels to the fields label

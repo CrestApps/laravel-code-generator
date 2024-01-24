@@ -22,7 +22,7 @@ For full documentation and live demo please visit <a href="https://crestapps.com
 	<li>Allows you to save the fields in a JSON file and recreate resources when the business needs changes.</li>
 	<li>Utilizes JSON based resource-file to allow you to define your resources. Resource-file allows you to easily regenerate the resource at any time even when the business rules change.</li>
 	<li>Create standard CRUD controllers with simple or form-request validation.</li>
-	<li>Customizable view’s templates to enable you to change the standard look and feel of your application.</li>
+	<li>Customizable view templates to enable you to change the standard look and feel of your application.</li>
     <li>Create model with relations.</li>
     <li>Create named routes with and without group.</li>
     <li>Create standard CRUD views.</li>

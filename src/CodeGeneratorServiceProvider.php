@@ -26,11 +26,6 @@ class CodeGeneratorServiceProvider extends ServiceProvider
         $this->publishes([
             $dir . 'templates/default' => $this->codeGeneratorBase('templates/default'),
         ], 'default-template');
-
-        // publish the defaultcollective-template
-        $this->publishes([
-            $dir . 'templates/default-collective' => $this->codeGeneratorBase('templates/default-collective'),
-        ], 'default-collective-template');
     }
 
     /**

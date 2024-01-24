@@ -917,7 +917,7 @@ abstract class ControllerCommandBase extends ControllerRequestCommandBase
 
         $dataMethod = $this->getDataMethod($resource->fields, $this->requestNameSpace . '\\' . $this->requestName, $input);
         $languages = array_keys(self::getLanguageItems($resource->fields));
-        $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields, $this->isCollectiveTemplate());
+        $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields);
         $namespacesToUse = $this->getRequiredUseClasses($resource->fields, $this->getAdditionalNamespaces($input));
 
         return $this->replaceGetDataMethod($stub, $dataMethod)

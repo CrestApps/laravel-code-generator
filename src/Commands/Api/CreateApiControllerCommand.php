@@ -267,7 +267,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
     {
         $stub = $this->getStubContent('api-controller-call-' . $method . '-success-method');
 
-        $viewLabels = new ViewLabelsGenerator($modelName, $fields, $this->isCollectiveTemplate());
+        $viewLabels = new ViewLabelsGenerator($modelName, $fields);
 
         $this->replaceModelName($stub, $modelName)
             ->replaceStandardLabels($stub, $viewLabels->getLabels())
@@ -289,7 +289,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
     {
         $stub = $this->getStubContent('api-controller-call-' . $method . '-api-resource');
 
-        $viewLabels = new ViewLabelsGenerator($modelName, $fields, $this->isCollectiveTemplate());
+        $viewLabels = new ViewLabelsGenerator($modelName, $fields);
 
         $this->replaceModelName($stub, $modelName)
             ->replaceStandardLabels($stub, $viewLabels->getLabels())

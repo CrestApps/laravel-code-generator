@@ -140,7 +140,7 @@ abstract class ViewsCommandBase extends Command
      */
     protected function replaceCommonTemplates(&$stub, $input, array $fields)
     {
-        $viewLabels = new ViewLabelsGenerator($input->modelName, $fields, $this->isCollectiveTemplate());
+        $viewLabels = new ViewLabelsGenerator($input->modelName, $fields);
 
         $standardLabels = $viewLabels->getLabels();
 
@@ -270,10 +270,6 @@ abstract class ViewsCommandBase extends Command
      */
     protected function getFileUploadAttribute($template)
     {
-        if ($this->isCollectiveTemplate($template)) {
-            return "'files' => true,";
-        }
-
         return ' enctype="multipart/form-data"';
     }
 
@@ -309,7 +305,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * It checks of a destination view exists or not
+     * It checks of a destination view exists or not.
      *
      * @param string $viewsDirectory
      * @param string $routesPrefix
@@ -325,7 +321,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * It called tha create-locale command to generate the locale config
+     * It calls the create-locale command to generate the locale config
      *
      * @param string $langFile
      * @param string $fields
@@ -395,7 +391,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * Gets a new instance of the proper html generator.
+     * Gets a new instance of the proper HTML generator.
      *
      * @param array $fields
      * @param string $modelName
@@ -405,10 +401,6 @@ abstract class ViewsCommandBase extends Command
      */
     protected function getHtmlGenerator(array $fields, $modelName, $template)
     {
-        if ($this->isCollectiveTemplate($template)) {
-            return new LaravelCollectiveHtml($fields, $modelName, $template);
-        }
-
         return new StandardHtml($fields, $modelName, $template);
     }
 

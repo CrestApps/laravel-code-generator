@@ -32,20 +32,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Array of templates that should be generated with Laravel-Collective.
-    |--------------------------------------------------------------------------
-    |
-    | If you want to generate code by using laravel-collective, you must first
-    | install the package. Then add the template name that should be using
-    | Laravel-Collective extensions when generating code.
-    |
-     */
-    'laravel_collective_templates' => [
-        'default-collective',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | The default path of where the uploaded files live.
     |--------------------------------------------------------------------------
     |
@@ -59,7 +45,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | The default output format for datetime fields.
+    | The default output format for DateTime fields.
     |--------------------------------------------------------------------------
     |
     | This output format can also be changed at the field level using the
@@ -546,7 +532,6 @@ return [
     | The "key" of the array is the value to be used in the locale files.
     | The "text" key of the sub array, is the string to display in the view or add to the locale files.
     | The "template" key of the sub array, is the string to be use in the view for replacement.
-    | The "in-function-with-collective" key of the sub array, tell the generator that,
     | this string would be used in a function or not.
     |
     | The following templates can be used. Assuming the model name is AssetCategory
@@ -583,7 +568,6 @@ return [
         'delete' => [
             'text' => 'Delete [% model_name_title %]',
             'template' => 'delete_model',
-            'in-function-with-collective' => true,
         ],
         'edit' => [
             'text' => 'Edit [% model_name_title %]',
@@ -600,17 +584,14 @@ return [
         'add' => [
             'text' => 'Add',
             'template' => 'add',
-            'in-function-with-collective' => true,
         ],
         'update' => [
             'text' => 'Update',
             'template' => 'update',
-            'in-function-with-collective' => true,
         ],
         'confirm_delete' => [
             'text' => 'Click Ok to delete [% model_name_title %].',
             'template' => 'confirm_delete',
-            'in-function-with-collective' => true,
         ],
         'none_available' => [
             'text' => 'No [% model_name_plural_title %] Available.',
