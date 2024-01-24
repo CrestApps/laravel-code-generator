@@ -38,7 +38,7 @@ abstract class ParserBase
     protected $tableName;
 
     /**
-     * The databasename
+     * The database name
      *
      * @var array
      */
@@ -143,7 +143,7 @@ abstract class ParserBase
     }
 
     /**
-     * Gets array of field after transfering each column meta into field.
+     * Gets array of field after transferring each column meta into field.
      *
      * @param array $fields
      *
@@ -161,7 +161,7 @@ abstract class ParserBase
     }
 
     /**
-     * Get the html type for a given field.
+     * Get the HTML type for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type
@@ -180,7 +180,7 @@ abstract class ParserBase
     }
 
     /**
-     * Set the html type for a given field.
+     * Set the HTML type for a given field.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $type

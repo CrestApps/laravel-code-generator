@@ -77,7 +77,7 @@ trait Migration
 
     /**
      * Get all the ran migrations is a key value array where the key in the
-     * migration file name and the value is the fullname of the class.
+     * migration file name and the value is the full name of the class.
      *
      *
      * @return array

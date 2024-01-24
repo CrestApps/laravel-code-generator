@@ -50,7 +50,7 @@ class ControllerRequestCommandBase extends Command
     }
 
     /**
-     * Gets laravel ready field validation format from a given string
+     * Gets Laravel ready field validation format from a given string
      *
      * @param array $fields
      *
@@ -81,7 +81,7 @@ class ControllerRequestCommandBase extends Command
     }
 
     /**
-     * Gets laravel ready field validation format for a given field
+     * Gets Laravel ready field validation format for a given field
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param string $customRules
@@ -167,7 +167,7 @@ class ControllerRequestCommandBase extends Command
     }
 
     /**
-     * Checks if the givin rule is a custom validation rule
+     * Checks if the given rule is a custom validation rule
      *
      * @param string $rule
      *
@@ -205,7 +205,7 @@ class ControllerRequestCommandBase extends Command
     }
 
     /**
-     * Checks if a class name starts with a slash \
+     * Checks if a class name starts with a slash \.
      *
      * @param string $fullname
      *
@@ -217,7 +217,7 @@ class ControllerRequestCommandBase extends Command
     }
 
     /**
-     * Get the full class name of the given custom valiation rule.
+     * Get the full class name of the given custom validation rule.
      *
      * @param string $rule
      *
@@ -347,7 +347,7 @@ EOF;
     }
 
     /**
-     * Gets the method's stub that handels the file uploading.
+     * Gets the method's stub that handles the file uploading.
      *
      * @param array $fields
      * @param string $baseClass
@@ -412,7 +412,7 @@ EOF;
     }
 
     /**
-     * Replaces the fillable snippet for the given stub.
+     * Replaces the fallible snippet for the given stub.
      *
      * @param  string  $fillable
      *

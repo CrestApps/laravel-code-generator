@@ -48,6 +48,7 @@ class CreateFormViewCommand extends ViewsCommandBase
     {
         $input = $this->getCommandInput();
         $resources = Resource::fromFile($input->resourceFile, $input->languageFileName);
+
         $destenationFile = $this->getDestinationViewFullname($input->viewsDirectory, $input->prefix);
 
         if ($this->canCreateView($destenationFile, $input->force, $resources)) {
@@ -65,7 +66,7 @@ class CreateFormViewCommand extends ViewsCommandBase
     }
 
     /**
-     * Replaces the form field's html code in a given stub.
+     * Replaces the form field's HTML code in a given stub.
      *
      * @param string $stub
      * @param string $fields

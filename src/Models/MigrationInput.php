@@ -42,7 +42,7 @@ class MigrationInput
     public $resourceFile;
 
     /**
-     * The tamplate to use
+     * The template to use
      *
      * @var string
      */
@@ -80,7 +80,7 @@ class MigrationInput
     }
 
     /**
-     * Gets array of the paramets
+     * Gets array of the parameters.
      *
      * @return array
      */

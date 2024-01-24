@@ -21,7 +21,7 @@ class ResourceFileRefreshCommand extends ResourceFileCommandBase
     protected $signature = 'resource-file:refresh
                             {model-name : The model name that these files represent.}
                             {--resource-filename= : The destination file name to append too.}
-                            {--translation-for= : A comma seperated string of languages to create fields for.}';
+                            {--translation-for= : A comma separated string of languages to create fields for.}';
     /**
      * The console command description.
      *

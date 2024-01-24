@@ -28,7 +28,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
      */
     protected $signature = 'create:api-controller
                             {model-name : The model name that this controller will represent.}
-                            {--controller-name= : The name of the controler.}
+                            {--controller-name= : The name of the controller.}
                             {--controller-directory= : The directory where the controller should be created under.}
                             {--model-directory= : The path where the model should be created under.}
                             {--resource-file= : The name of the resource-file to import from.}
@@ -37,7 +37,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
                             {--language-filename= : The languages file name to put the labels in.}
                             {--with-form-request : This will extract the validation into a request form class.}
                             {--without-form-request : Generate the controller without the form-request file. }
-                            {--with-auth : Generate the controller with Laravel auth middlewear. }
+                            {--with-auth : Generate the controller with Laravel authentication middleware. }
                             {--template-name= : The template name to use when generating the code.}
                             {--form-request-directory= : The directory of the form-request.}
                             {--controller-extends=default-controller : The base controller to be extend.}
@@ -46,7 +46,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
                             {--api-resource-collection-directory= : The directory where the api-resource-collection should be created.}
                             {--api-resource-name= : The api-resource file name.}
                             {--api-resource-collection-name= : The api-resource-collection file name.}
-                            {--api-version= : The api version to prefix your resurces with.}
+                            {--api-version= : The api version to prefix your resources with.}
                             {--force : This option will override the controller if one already exists.}';
 
     /**
@@ -74,7 +74,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
 
         if ($input->withApiResource) {
             if (!Helpers::isApiResourceSupported()) {
-                $this->info('Api-resource is not supported in the current Laravel version. To use Api-resource, pleae upgrade to Laravel 5.5+.');
+                $this->info('Api-resource is not supported in the current Laravel version. To use Api-resource, please upgrade to Laravel 5.5+.');
                 $this->warn('*** Continuing without create api-resource! ***');
             } else {
                 $this->makeApiResource($input, false)
@@ -162,7 +162,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
     protected function getNamespacesForUsedRelations(array $fields)
     {
         // Since there is no create/edit forms in the API controller,
-        // No need for any relation's namespances.
+        // No need for any relation's namespaces.
 
         return [];
     }
@@ -267,7 +267,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
     {
         $stub = $this->getStubContent('api-controller-call-' . $method . '-success-method');
 
-        $viewLabels = new ViewLabelsGenerator($modelName, $fields, $this->isCollectiveTemplate());
+        $viewLabels = new ViewLabelsGenerator($modelName, $fields);
 
         $this->replaceModelName($stub, $modelName)
             ->replaceStandardLabels($stub, $viewLabels->getLabels())
@@ -289,7 +289,7 @@ class CreateApiControllerCommand extends ControllerCommandBase
     {
         $stub = $this->getStubContent('api-controller-call-' . $method . '-api-resource');
 
-        $viewLabels = new ViewLabelsGenerator($modelName, $fields, $this->isCollectiveTemplate());
+        $viewLabels = new ViewLabelsGenerator($modelName, $fields);
 
         $this->replaceModelName($stub, $modelName)
             ->replaceStandardLabels($stub, $viewLabels->getLabels())
@@ -497,6 +497,9 @@ class CreateApiControllerCommand extends ControllerCommandBase
     protected function getCommandInput()
     {
         $input = parent::getCommandInput();
+
+        $cName = trim($this->option('controller-name'));
+        $input->controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeApiControllerName($modelName);
 
         $input->apiResourceDirectory = trim($this->option('api-resource-directory'));
         $input->apiResourceCollectionDirectory = trim($this->option('api-resource-collection-directory'));

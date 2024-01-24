@@ -26,11 +26,6 @@ class CodeGeneratorServiceProvider extends ServiceProvider
         $this->publishes([
             $dir . 'templates/default' => $this->codeGeneratorBase('templates/default'),
         ], 'default-template');
-
-        // publish the defaultcollective-template
-        $this->publishes([
-            $dir . 'templates/default-collective' => $this->codeGeneratorBase('templates/default-collective'),
-        ], 'default-collective-template');
     }
 
     /**
@@ -69,7 +64,7 @@ class CodeGeneratorServiceProvider extends ServiceProvider
             'CrestApps\CodeGenerator\Commands\ApiDocs\CreateApiDocsControllerCommand',
             'CrestApps\CodeGenerator\Commands\ApiDocs\CreateApiDocsScaffoldCommand',
             'CrestApps\CodeGenerator\Commands\ApiDocs\CreateApiDocsViewCommand',
-                'CrestApps\CodeGenerator\Commands\Resources\ResourceFileFromDatabaseAllCommand'
+            'CrestApps\CodeGenerator\Commands\Resources\ResourceFileFromDatabaseAllCommand'
         ];
 
         if (Helpers::isNewerThanOrEqualTo()) {

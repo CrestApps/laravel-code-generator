@@ -38,7 +38,7 @@ class CreateMigrationCommand extends MigrationCommandBase
                             {--resource-file= : The name of the resource-file to import from.}
                             {--template-name= : The template name to use when generating the code.}
                             {--without-timestamps : Prevent Eloquent from maintaining both created_at and the updated_at properties.}
-                            {--with-soft-delete : Enables softdelete future should be enable in the model.}
+                            {--with-soft-delete : Enables soft-delete future should be enable in the model.}
                             {--force : This option will override the migration if one already exists.}';
 
     /**
@@ -197,7 +197,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Gets migration fullname
+     * Gets migration full name.
      *
      * @param string $name
      * @param string $tableName
@@ -329,7 +329,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Gets Foreign contstrains from given fields.
+     * Gets Foreign constrains from given fields.
      *
      * @param array of CrestApps\CodeGenerator\Models\Field $field
      *
@@ -573,7 +573,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Constructs the second parameter to the enum type method
+     * Constructs the second parameter to the Enum type method
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      *
@@ -632,7 +632,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Creates a leading space to keep the lines alligned the same in the output file.
+     * Creates a leading space to keep the lines aligned the same in the output file.
      *
      * @param int $multiplier
      * @param bool $prependNewline
@@ -1141,7 +1141,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds 'updated_at' and 'created_at' columns to a given propery.
+     * Adds 'updated_at' and 'created_at' columns to a given property.
      *
      * @param string $property
      * @param bool $without
@@ -1159,7 +1159,7 @@ class CreateMigrationCommand extends MigrationCommandBase
     }
 
     /**
-     * Adds 'delete_at' columns to a given propery.
+     * Adds 'delete_at' columns to a given property.
      *
      * @param string $property
      * @param bool $withSoftDelete

@@ -90,7 +90,7 @@ trait CommonCommand
     }
 
     /**
-     * Gets the relation accessor for the given foreign renationship.
+     * Gets the relation accessor for the given foreign relationship.
      *
      * @param string $name
      *
@@ -295,7 +295,7 @@ trait CommonCommand
     protected function replaceRouteNames(&$stub, $modelName, $routesPrefix, array $actions = null)
     {
         foreach (($actions ?: $this->actions) as $action) {
-            $routeName = $this->getDotNotationName($modelName, $routesPrefix, $action);
+            $routeName = $this->getDotNotationName($this->getModelName($modelName), $routesPrefix, $action);
             $routeTemplate = $this->getRouteName($action);
             $stub = $this->strReplace($routeTemplate, $routeName, $stub);
         }
@@ -367,7 +367,7 @@ trait CommonCommand
     }
 
     /**
-     * Get the givin file content.
+     * Get the given file content.
      *
      * @param  string  $file
      *
@@ -379,7 +379,7 @@ trait CommonCommand
     }
 
     /**
-     * Get the givin file content.
+     * Get the given file content.
      *
      * @param  string  $file
      *
@@ -493,7 +493,7 @@ trait CommonCommand
     }
 
     /**
-     * Checks if the givin field is an instance of a field or not.
+     * Checks if the given field is an instance of a field or not.
      *
      * @return string
      */
@@ -514,7 +514,7 @@ trait CommonCommand
         $templateName = $templateName ?: Config::getDefaultTemplateName();
         $path = base_path(Config::getTemplatesPath() . Helpers::getPathWithSlash($templateName));
 
-        if (!File::isDirectory($path) && in_array($templateName, ['default', 'default-collective'])) {
+        if (!File::isDirectory($path) && in_array($templateName, ['default'])) {
             // If the default templates are not published, utilize the default package path.
 
             $path = __DIR__ . '/../../templates/' . $templateName;
@@ -528,19 +528,7 @@ trait CommonCommand
     }
 
     /**
-     * Checks the given template if it is a Laravel-Collective template or not.
-     *
-     * @param string $template
-     *
-     * @return bool
-     */
-    protected function isCollectiveTemplate($template = null)
-    {
-        return in_array($template ?: $this->getTemplateName(), Config::getCollectiveTemplates());
-    }
-
-    /**
-     * Checks if a given fields array conatins at least one file field
+     * Checks if a given fields array contains at least one file field
      *
      * @param array
      *

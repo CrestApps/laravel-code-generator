@@ -158,16 +158,6 @@ class Config
     }
 
     /**
-     * Gets the template names that uses Laravel-Collective
-     *
-     * @return array
-     */
-    public static function getCollectiveTemplates()
-    {
-        return self::getArrayBaseValue('laravel_collective_templates');
-    }
-
-    /**
      * Gets the default template name.
      *
      * @return string
@@ -198,7 +188,7 @@ class Config
     }
 
     /**
-     * Gets the eloquent's method to html
+     * Gets the Eloquent's method to HTML
      *
      * @return array
      */

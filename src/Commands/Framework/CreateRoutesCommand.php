@@ -28,7 +28,7 @@ class CreateRoutesCommand extends Command
                             {--controller-directory= : The directory where the controller is under.}
                             {--without-route-clause : Create the routes without where clause for the id.}
                             {--routes-type= : The type of the route to create. (i.e., "api", "api-docs" or "web".)}
-                            {--api-version= : The api version to prefix your resurces with.}
+                            {--api-version= : The api version to prefix your resources with.}
                             {--template-name= : The template name to use when generating the code.}';
 
     /**

@@ -30,6 +30,31 @@ class Helpers
     }
 
     /**
+     * Makes a api-docs controller name from a given model name
+     *
+     * @param string $modelName
+     *
+     * @return string
+     */
+    public static function makeApiDocsControllerName($modelName)
+    {
+        return self::makeControllerName($modelName . 'ApiDocs');
+    }
+
+    /**
+     * Makes a api controller name from a given model name
+     *
+     * @param string $modelName
+     *
+     * @return string
+     */
+    public static function makeApiControllerName($modelName)
+    {
+        return self::makeControllerName($modelName . 'Api');
+    }
+
+
+    /**
      * Makes an api-resource name from a given model name
      *
      * @param string $modelName
@@ -104,7 +129,7 @@ class Helpers
     }
 
     /**
-     * Gets the app namespace afer concatenating any given paths to it
+     * Gets the app namespace after concatenating any given paths to it
      *
      * @param mix $paths
      *
@@ -192,7 +217,7 @@ class Helpers
     }
 
     /**
-     * Makes the json file name
+     * Makes the JSON file name
      *
      * @param string $modelName
      *
@@ -206,7 +231,7 @@ class Helpers
     }
 
     /**
-     * Check if the current laravel version has api-support
+     * Check if the current Laravel version has api-support
      *
      * @return bool
      */

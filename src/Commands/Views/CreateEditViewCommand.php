@@ -68,7 +68,7 @@ class CreateEditViewCommand extends ViewsCommandBase
     }
 
     /**
-     * Gets te create form name
+     * Gets the create form name.
      *
      * @param string $modelName
      *
@@ -80,7 +80,7 @@ class CreateEditViewCommand extends ViewsCommandBase
     }
 
     /**
-     * Gets te create form id
+     * Gets the create form id.
      *
      * @param string $modelName
      *

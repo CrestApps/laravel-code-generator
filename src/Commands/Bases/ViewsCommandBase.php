@@ -63,7 +63,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * It gets the views destenation path
+     * It gets the views destination path
      *
      * @param $viewsDirectory
      *
@@ -119,7 +119,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * It generate the destenation view name
+     * It generate the destination view name
      *
      * @param $action
      *
@@ -138,9 +138,9 @@ abstract class ViewsCommandBase extends Command
      *
      * @return $this
      */
-    protected function replaceCommonTemplates(&$stub, ViewInput $input, array $fields)
+    protected function replaceCommonTemplates(&$stub, $input, array $fields)
     {
-        $viewLabels = new ViewLabelsGenerator($input->modelName, $fields, $this->isCollectiveTemplate());
+        $viewLabels = new ViewLabelsGenerator($input->modelName, $fields);
 
         $standardLabels = $viewLabels->getLabels();
 
@@ -222,7 +222,7 @@ abstract class ViewsCommandBase extends Command
     /**
      * Get the view's name of a given file.
      *
-     * @param string $fillname
+     * @param string $filename
      *
      * @return string
      */
@@ -270,10 +270,6 @@ abstract class ViewsCommandBase extends Command
      */
     protected function getFileUploadAttribute($template)
     {
-        if ($this->isCollectiveTemplate($template)) {
-            return "'files' => true,";
-        }
-
         return ' enctype="multipart/form-data"';
     }
 
@@ -309,7 +305,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * It checks of a destination view exists or not
+     * It checks of a destination view exists or not.
      *
      * @param string $viewsDirectory
      * @param string $routesPrefix
@@ -325,7 +321,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * It called tha create-locale command to generate the locale config
+     * It calls the create-locale command to generate the locale config
      *
      * @param string $langFile
      * @param string $fields
@@ -347,7 +343,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * Gets destenation view path
+     * Gets destination view path
      *
      * @param string $viewsDirectory
      * @param string $routesPrefix
@@ -395,7 +391,7 @@ abstract class ViewsCommandBase extends Command
     }
 
     /**
-     * Gets a new instance of the proper html generator.
+     * Gets a new instance of the proper HTML generator.
      *
      * @param array $fields
      * @param string $modelName
@@ -405,15 +401,11 @@ abstract class ViewsCommandBase extends Command
      */
     protected function getHtmlGenerator(array $fields, $modelName, $template)
     {
-        if ($this->isCollectiveTemplate($template)) {
-            return new LaravelCollectiveHtml($fields, $modelName, $template);
-        }
-
         return new StandardHtml($fields, $modelName, $template);
     }
 
     /**
-     * Replace the modele's header fo the given stub.
+     * Replace the model's header for the given stub.
      *
      * @param string $stub
      * @param string $title

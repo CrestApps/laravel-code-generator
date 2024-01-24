@@ -1,1 +1,0 @@
-$this->attributes['[% field_name %]'] = !empty($value) ? \DateTime::createFromFormat($this->getDateFormat(), $value) : null;

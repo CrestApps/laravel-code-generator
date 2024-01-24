@@ -122,7 +122,7 @@ trait ApiResourceTrait
     }
 
     /**
-     * Gets the api-resource's destenation path
+     * Gets the api-resource's destination path
      *
      * @return string
      */
@@ -140,7 +140,7 @@ trait ApiResourceTrait
     }
 
     /**
-     * Gets the api-resource-collection's destenation path
+     * Gets the api-resource-collection's destination path
      *
      * @return string
      */
@@ -179,7 +179,7 @@ trait ApiResourceTrait
     }
 
     /**
-     * Replaces the model fullname for the given stub,
+     * Replaces the model full name for the given stub.
      *
      * @param  string  $stub
      * @param  string  $name
@@ -255,5 +255,4 @@ trait ApiResourceTrait
     {
         return $this->replaceTemplate('transform_method_name', $name, $stub);
     }
-
 }

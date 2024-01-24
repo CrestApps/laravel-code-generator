@@ -21,7 +21,7 @@ class CreateFormRequestCommand extends ControllerRequestCommandBase
                             {--resource-file= : The name of the resource-file to import from.}
                             {--routes-prefix=default-form : Prefix of the route group.}
                             {--template-name= : The template name to use when generating the code.}
-                            {--with-auth : Generate the form-request with Laravel auth middlewear. }
+                            {--with-auth : Generate the form-request with Laravel authentication middleware. }
                             {--form-request-directory= : The directory of the form-request.}
                             {--force : This option will override the form-request if one already exists.}';
 
@@ -119,7 +119,7 @@ class CreateFormRequestCommand extends ControllerRequestCommandBase
     }
 
     /**
-     * Gets the boolean value that the autherize() method will return.
+     * Gets the boolean value that the authorize() method will return.
      *
      * @param array $fields
      *
@@ -176,7 +176,7 @@ class CreateFormRequestCommand extends ControllerRequestCommandBase
     }
 
     /**
-     * Gets the destenation's fullname
+     * Gets the destination's full name.
      *
      * @param string $name
      * @param string $path
@@ -189,7 +189,7 @@ class CreateFormRequestCommand extends ControllerRequestCommandBase
     }
 
     /**
-     * Gets the Requests namespace
+     * Gets the Requests namespace.
      *
      * @param string $path
      *

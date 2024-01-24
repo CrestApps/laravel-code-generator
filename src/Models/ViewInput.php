@@ -31,7 +31,7 @@ class ViewInput
     public $viewsDirectory;
 
     /**
-     * The provided route's pre-fix
+     * The provided route's prefix
      *
      * @var string
      */
@@ -77,7 +77,7 @@ class ViewInput
     }
 
     /**
-     * Gets array of the paramets
+     * Gets array of the parameters
      *
      * @return array
      */

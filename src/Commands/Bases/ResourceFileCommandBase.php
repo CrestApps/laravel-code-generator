@@ -25,7 +25,7 @@ class ResourceFileCommandBase extends Command
     }
 
     /**
-     * Gets the destenation filename.
+     * Gets the destination filename.
      *
      * @param string $name
      *

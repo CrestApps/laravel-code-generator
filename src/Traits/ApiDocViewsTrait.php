@@ -42,7 +42,7 @@ trait ApiDocViewsTrait
     }
 
     /**
-     * Gets destenation view path
+     * Gets destination view path
      *
      * @param string $viewsDirectory
      * @param string $routesPrefix

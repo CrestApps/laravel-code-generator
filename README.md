@@ -7,7 +7,7 @@ An intelligent code generator for Laravel framework that will save you time! Thi
 
 For full documentation and live demo please visit <a href="https://crestapps.com/laravel-code-generator/docs/2.3" target="_blank" title="Laravel Code Generator Documentation">CrestApps.com</a>
 
-**Note: ** The available documentation is for versions <= 2.2. The documentation for vertion 2.3+ is very similar with some exceptions. Please review the <a href="https://github.com/CrestApps/laravel-code-generator/blob/master/CHANGELOG.md" title="ChangeLog">Change Log</a> to get a list of the changes.
+**Note: ** The available documentation is for versions <= 2.2. The documentation for version 2.3+ is very similar with some exceptions. Please review the <a href="https://github.com/CrestApps/laravel-code-generator/blob/master/CHANGELOG.md" title="ChangeLog">Change Log</a> to get a list of the changes.
 
 ## Features
 
@@ -22,7 +22,7 @@ For full documentation and live demo please visit <a href="https://crestapps.com
 	<li>Allows you to save the fields in a JSON file and recreate resources when the business needs changes.</li>
 	<li>Utilizes JSON based resource-file to allow you to define your resources. Resource-file allows you to easily regenerate the resource at any time even when the business rules change.</li>
 	<li>Create standard CRUD controllers with simple or form-request validation.</li>
-	<li>Customizable view’s templates to enable you to change the standard look and feel of your application.</li>
+	<li>Customizable view templates to enable you to change the standard look and feel of your application.</li>
     <li>Create model with relations.</li>
     <li>Create named routes with and without group.</li>
     <li>Create standard CRUD views.</li>
@@ -34,18 +34,18 @@ For full documentation and live demo please visit <a href="https://crestapps.com
     <li>Client-side validation.</li>
     <li>File uploading handling.</li>
     <li>Auto store multiple-response in the database.</li>
-    <li>Create form-request to clean up your controller and increase your code reusability.</li>
+    <li>Create form-request to clean up your controller and increase your code re-usability.</li>
     <li>Create view's layouts with and without client-side validation.</li>
     <li>Change the template at run time to generate different views.</li>
     <li>Ability to generate views with and without Laravel-Collective.</li>
-    <li>Nicely handles any date, time or datetime field.</li>
+    <li>Nicely handles any date, time or DateTime field.</li>
     <li>Auto handles any boolean field.</li>
     <li>Very easy to use with lots of documentation.</li>
 </ul>
 
 ## Installation
 
-1. To download this package into your laravel project, use the command-line to execute the following command
+1. To download this package into your Laravel project, use the command-line to execute the following command
 
 	```
 	composer require crestapps/laravel-code-generator --dev
@@ -53,7 +53,7 @@ For full documentation and live demo please visit <a href="https://crestapps.com
  
 2. **(You may skip this step when using Laravel >= 5.5)** To bootstrap the packages into your project while using command-line only, open the app/Providers/AppServiceProvider.php file in your project. Then, add the following code to the register() method.
 
-	Add the following line to bootstrap laravel-code-generator to the framework.
+	Add the following line to bootstrap `laravel-code-generator` to the framework.
 
 	```
 	if ($this->app->runningInConsole()) {
@@ -61,7 +61,7 @@ For full documentation and live demo please visit <a href="https://crestapps.com
 	}
 	```
 
-> A layout is required for the default views! The code generator allows you to create a layout using the command-line. Of cource you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/ "CSS bootstrap framework") in your layout for the default templates to work properly. Additionally, you can chose to you design your own templetes using a different or no css framework. 
+> A layout is required for the default views! The code generator allows you to create a layout using the command-line. Of course you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/ "CSS bootstrap framework") in your layout for the default templates to work properly. Additionally, you can chose to you design your own templates using a different or no css framework. 
 
 ## Lessons
 Checkout our channel on <a href="https://www.youtube.com/channel/UCkEd0nOoRf3o0ahspAu7Y9w/videos" target="_blank" title="CrestApps YouTube Channel">YouTube.com</a> 
@@ -93,6 +93,12 @@ Checkout our channel on <a href="https://www.youtube.com/channel/UCkEd0nOoRf3o0a
 	    <li>php artisan create:api-scaffold [model-name]</li>
 	    <li>php artisan create:api-controller [model-name]</li>
 	    <li>php artisan create:api-resources [model-name]</li>
+    </ul>
+</li>
+<li>
+	<strong>API Documentations commands</strong>
+	<ul>
+	    <li>php artisan api-docs:scaffold [model-name]</li>
 	    <li>php artisan api-doc:create-controller [model-name]</li>
 	    <li>php artisan api-doc:create-view [model-name]</li>
     </ul>
@@ -250,4 +256,3 @@ The following example assumes that we are trying to create a CRUD called <var>As
 ## License
 
 "Laravel Code Generator" is an open-sourced software licensed under the <a href="https://opensource.org/licenses/MIT" target="_blank" title="MIT license">MIT license</a>
-

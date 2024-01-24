@@ -17,9 +17,9 @@ class ResourceFileReduceCommand extends ResourceFileCommandBase
     protected $signature = 'resource-file:reduce
                             {model-name : The model name that these files represent.}
                             {--resource-filename= : The destination file name to reduce.}
-                            {--fields= : A comma seperate field names.}
-                            {--indexes= : A comma seperated index string.}
-                            {--relations= : A comma seperated realtion string.}';
+                            {--fields= : A comma separate field names.}
+                            {--indexes= : A comma separated index string.}
+                            {--relations= : A comma separated relation string.}';
 
     /**
      * The console command description.

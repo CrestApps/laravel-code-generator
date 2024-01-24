@@ -117,7 +117,7 @@ class StandardHtml extends HtmlGeneratorBase
     }
 
     /**
-     * It gets converts an array to a stringbase array for the views.
+     * It gets converts an array to a string base array for the views.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      *
@@ -194,7 +194,7 @@ class StandardHtml extends HtmlGeneratorBase
     }
 
     /**
-     * Gets the best value accessor for the view
+     * Gets the best value accessor for the view.
      *
      * @param string $modelVariable
      * @param string $property
@@ -295,7 +295,7 @@ class StandardHtml extends HtmlGeneratorBase
     }
 
     /**
-     * Creates html label.
+     * Creates HTML label.
      *
      * @param string $name
      * @param CrestApps\CodeGenerator\Models\Label $label
@@ -313,7 +313,7 @@ class StandardHtml extends HtmlGeneratorBase
     }
 
     /**
-     * Gets the html steps attribute.
+     * Gets the HTML steps attribute.
      *
      * @param int value
      *

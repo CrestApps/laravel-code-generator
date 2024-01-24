@@ -92,7 +92,7 @@ class MigrationTrackerCapsule implements JsonWriter
     }
 
     /**
-     * Get the difference between a givin resource and the
+     * Get the difference between a given resource and the
      * resource in the current migration
      *
      * @param CrestApps\CodeGenerator\Models\Resource $resourceA
@@ -302,7 +302,7 @@ class MigrationTrackerCapsule implements JsonWriter
     }
 
     /**
-     * Get the total migratins
+     * Get the total migrations.
      *
      * @return int
      */
@@ -423,7 +423,7 @@ class MigrationTrackerCapsule implements JsonWriter
     }
 
     /**
-     * Gets array of the paramets
+     * Gets array of the parameters.
      *
      * @return array
      */

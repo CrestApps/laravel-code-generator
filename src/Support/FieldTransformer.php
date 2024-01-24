@@ -52,7 +52,7 @@ class FieldTransformer
     protected $languages = [];
 
     /**
-     * It transfres a gining array to a collection of field
+     * It transfers a given array to a collection of field
      *
      * @param array $collection
      * @param string $localeGroup
@@ -69,7 +69,7 @@ class FieldTransformer
     }
 
     /**
-     * It transfres a gining array to a collection of field
+     * It transfers a given array to a collection of field
      *
      * @param string $str
      * @param string $localeGroup
@@ -135,7 +135,7 @@ class FieldTransformer
     }
 
     /**
-     * It transfres a gining string to a collection of field
+     * It transfers a given string to a collection of field
      *
      * @param string|json $json
      * @param string $localeGroup
@@ -184,7 +184,7 @@ class FieldTransformer
     }
 
     /**
-     * It transfres the raw fields into Fields by setting the $this->fields array
+     * It transfers the raw fields into Fields by setting the $this->fields array
      *
      * @return $this
      */
@@ -192,7 +192,7 @@ class FieldTransformer
     {
         $names = array_column($this->rawFields, 'name');
         if (array_unique($names) !== $names) {
-            throw new Exception('Each field name must be unique. Please check the profided field names');
+            throw new Exception('Each field name must be unique. Please check the predefined field names');
         }
 
         $mappers = [];

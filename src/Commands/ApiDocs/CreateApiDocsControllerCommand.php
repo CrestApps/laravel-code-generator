@@ -35,16 +35,16 @@ class CreateApiDocsControllerCommand extends ControllerCommandBase
      */
     protected $signature = 'api-docs:create-controller
                             {model-name : The model name that this controller will represent.}
-                            {--controller-name= : The name of the controler.}
+                            {--controller-name= : The name of the controller.}
                             {--controller-directory= : The directory where the controller should be created under.}
                             {--views-directory= : The path where the views should be created under.}
                             {--resource-file= : The name of the resource-file to import from.}
                             {--routes-prefix=default-form : Prefix of the route group.}
                             {--language-filename= : The languages file name to put the labels in.}
-                            {--with-auth : Generate the controller with Laravel auth middlewear. }
+                            {--with-auth : Generate the controller with Laravel authentication middlewere. }
                             {--template-name= : The template name to use when generating the code.}
                             {--controller-extends=default-controller : The base controller to be extend.}
-                            {--api-version= : The api version to prefix your resurces with.}
+                            {--api-version= : The api version to prefix your resources with.}
                             {--force : This option will override the controller if one already exists.}';
 
     /**
@@ -199,7 +199,7 @@ class CreateApiDocsControllerCommand extends ControllerCommandBase
     }
 
     /**
-     * Gets the destenation file to be created.
+     * Gets the destination file to be created.
      *
      * @param string $name
      * @param string $path
@@ -262,7 +262,7 @@ class CreateApiDocsControllerCommand extends ControllerCommandBase
     {
         $modelName = trim($this->argument('model-name'));
         $cName = trim($this->option('controller-name'));
-        $controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($modelName);
+        $controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeApiDocsControllerName($modelName);
         $prefix = ($this->option('routes-prefix') == 'default-form') ? Helpers::makeRouteGroup($modelName) : $this->option('routes-prefix');
         $resourceFile = trim($this->option('resource-file')) ?: Helpers::makeJsonFileName($modelName);
         $force = $this->option('force');

@@ -101,7 +101,7 @@ class MigrationHistoryTracker
     }
 
     /**
-     * Checks if a migration tracker exists for a given datatable
+     * Checks if a migration tracker exists for a given data table
      *
      * @param string $tableName
      *
@@ -170,7 +170,7 @@ class MigrationHistoryTracker
     }
 
     /**
-     * Removeds a migration entry from the file given the table name.
+     * Removes a migration entry from the file given the table name.
      *
      * @param string $tableName
      *

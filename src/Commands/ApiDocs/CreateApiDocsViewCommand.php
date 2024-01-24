@@ -26,7 +26,7 @@ class CreateApiDocsViewCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create view to render the api-documenations.';
+    protected $description = 'Create view to render the api-documentations.';
 
     /**
      * The name and signature of the console command.
@@ -35,15 +35,15 @@ class CreateApiDocsViewCommand extends Command
      */
     protected $signature = 'api-docs:create-view
                             {model-name : The model name that this controller will represent.}
-                            {--controller-name= : The name of the controler.}
+                            {--controller-name= : The name of the controller.}
                             {--controller-directory= : The directory where the controller should be created under.}
                             {--resource-file= : The name of the resource-file to import from.}
                             {--routes-prefix=default-form : Prefix of the route group.}
                             {--language-filename= : The languages file name to put the labels in.}
-                            {--with-auth : Generate the controller with Laravel auth middlewear. }
+                            {--with-auth : Generate the controller with Laravel authentication middleware. }
                             {--views-directory= : The name of the directory to create the views under.}
-                            {--api-version= : The api version to prefix your resurces with.}
-                            {--layout-name=layouts.api-doc-layout : This will extract the validation into a request form class.}
+                            {--api-version= : The api version to prefix your resources with.}
+                            {--layout-name=layouts.app : This will extract the validation into a request form class.}
                             {--template-name= : The template name to use when generating the code.}
                             {--force : This option will override the controller if one already exists.}';
 
@@ -64,7 +64,7 @@ class CreateApiDocsViewCommand extends Command
 
         $stub = $this->getStubContent('api-documentation-index');
 
-        $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields, $this->isCollectiveTemplate());
+        $viewLabels = new ViewLabelsGenerator($input->modelName, $resource->fields);
 
         // The replaceAuthorizedRequestForIndex() method must be executed before replaceAuthorizationCall()
         return $this->replaceAuthorizedRequestForIndex($stub, $this->getAuthorizedRequestForIndex($input->withAuth, $resource->getApiDocLabels(), $viewLabels->getLabels()))
@@ -121,7 +121,7 @@ class CreateApiDocsViewCommand extends Command
     }
 
     /**
-     * It gets the views destenation path
+     * It gets the views destination path
      *
      * @param $viewsDirectory
      *
@@ -205,7 +205,7 @@ class CreateApiDocsViewCommand extends Command
     }
 
     /**
-     * Gets the destenation file to be created.
+     * Gets the destination file to be created.
      *
      * @param string $name
      * @param string $path
@@ -346,7 +346,7 @@ class CreateApiDocsViewCommand extends Command
     }
 
     /**
-     * It generate the destenation view name
+     * It generate the destination view name
      *
      * @param $action
      *
@@ -370,7 +370,7 @@ class CreateApiDocsViewCommand extends Command
         $hasErrors = false;
 
         if ($resource->isProtected('api-documentation')) {
-            $this->warn('The api-documentation is protected and cannot be regenerated. To regenerate the file, unprotect it from the resource file.');
+            $this->warn('The api-documentation is protected and cannot be regenerated. To regenerate the file, unprotected it from the resource file.');
 
             $hasErrors = true;
         }
@@ -548,7 +548,7 @@ class CreateApiDocsViewCommand extends Command
     {
         $modelName = trim($this->argument('model-name'));
         $cName = trim($this->option('controller-name'));
-        $controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeControllerName($modelName);
+        $controllerName = $cName ? Str::finish($cName, Config::getControllerNamePostFix()) : Helpers::makeApiDocsControllerName($modelName);
         $controllerDirectory = trim($this->option('controller-directory'));
         $viewsDirectory = trim($this->option('views-directory'));
         $layoutName = trim($this->option('layout-name'));

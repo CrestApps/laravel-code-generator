@@ -21,7 +21,7 @@ trait ScaffoldTrait
     }
 
     /**
-     * Gets the model name in plain english from a given model name.
+     * Gets the model name in plain English from a given model name.
      *
      * @param string $modelName
      *

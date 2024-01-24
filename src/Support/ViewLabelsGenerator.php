@@ -43,18 +43,11 @@ class ViewLabelsGenerator
     protected $defaultLang;
 
     /**
-     * Generate labels for collective template?
-     *
-     * @var bool
-     */
-    protected $isCollectiveTemplate;
-
-    /**
      * Create a new transformer instance.
      *
      * @return void
      */
-    public function __construct($modelName, array $fields, $isCollectiveTemplate)
+    public function __construct($modelName, array $fields)
     {
         if (empty($modelName)) {
             throw new Exception("$modelName must have a valid value");
@@ -64,7 +57,6 @@ class ViewLabelsGenerator
         $this->fields = $fields;
         $this->localeGroup = self::makeLocaleGroup($modelName);
         $this->defaultLang = App::getLocale();
-        $this->isCollectiveTemplate = $isCollectiveTemplate;
     }
 
     /**
@@ -142,21 +134,7 @@ class ViewLabelsGenerator
 
         $label = new Label($text, $this->localeGroup, $isPlain, $lang, $key);
         $label->template = $properties['template'];
-        $label->isInFunction = $this->isInFunction($properties);
 
         return $label;
-    }
-
-    /**
-     * Checks if the given properties request to put the label in a function.
-     *
-     * @param array $properties
-     *
-     * @return bool
-     */
-    protected function isInFunction(array $properties)
-    {
-        return $this->isCollectiveTemplate
-            && (isset($properties['in-function-with-collective']) && $properties['in-function-with-collective']);
     }
 }

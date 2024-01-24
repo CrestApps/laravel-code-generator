@@ -193,7 +193,7 @@ class Str extends LaravelStr
     }
 
     /**
-     * Makes the proper english case given name and a file type
+     * Makes the proper English case given name and a file type
      *
      * @param string $name
      * @param string $key
@@ -212,7 +212,7 @@ class Str extends LaravelStr
     }
 
     /**
-     * Adds a preFix string at the begining of another given string if it does not already ends with it.
+     * Adds a preFix string at the beginning of another given string if it does not already ends with it.
      *
      * @param  string  $name
      * @param  string  $fix
@@ -246,7 +246,7 @@ class Str extends LaravelStr
     }
 
     /**
-     * Replaces any non-english letters with an empty string
+     * Replaces any non-English letters with an empty string
      *
      * @param string $str
      * @param bool $keep

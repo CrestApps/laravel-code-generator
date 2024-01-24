@@ -7,14 +7,14 @@ return [
     | CodeGenerator config overrides
     |--------------------------------------------------------------------------
     |
-    | It is a good idea to sperate your configuration form the code-generator's
+    | It is a good idea to separate your configuration form the code-generator's
     | own configuration. This way you won't lose any settings/preference
     | you have when upgrading to a new version of the package.
     |
     | Additionally, you will always know any the configuration difference between
     | the default config than your own.
     |
-    | To override the setting that is found in the codegenerator.php file, you'll
+    | To override the setting that is found in the 'config/default.php' file, you'll
     | need to create identical key here with a different value
     |
     | IMPORTANT: When overriding an option that is an array, the configurations

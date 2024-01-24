@@ -1,6 +1,0 @@
-    /**
-    * The database primary key value.
-    *
-    * @var string
-    */
-    protected $primaryKey = '[% primary_key %]';

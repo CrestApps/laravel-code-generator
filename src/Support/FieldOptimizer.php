@@ -33,7 +33,7 @@ class FieldOptimizer
     protected $meta;
 
     /**
-     * Create a new optemizer instance.
+     * Create a new optimizer instance.
      *
      * @param CrestApps\CodeGenerator\Models\Field $field
      * @param array $meta
@@ -176,7 +176,7 @@ class FieldOptimizer
         if ($this->field->hasForeignRelation()) {
             // At this point we know the field has a foreign relation
             // set the htmlType to select since the user will have to select an item(s)
-            // from a colelction
+            // from a collection
             $this->field->htmlType = 'select';
         }
 
@@ -198,7 +198,7 @@ class FieldOptimizer
     }
 
     /**
-     * If the property name is "id" or if the field is primary or autoincrement.
+     * If the property name is "id" or if the field is primary or auto increment.
      * Ensure, the datatype is set to be valid otherwise make it "int".
      * It also make sure the primary column does not appears on the views unless it specified
      *
