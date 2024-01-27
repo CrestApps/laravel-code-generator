@@ -51,3 +51,12 @@ Explore the project's source code on [GitHub](https://github.com/CrestApps/larav
 #### Default template dependencies
 
  - **[CSS bootstrap Framework.](http://getbootstrap.com/)** This is only required with the default template. You are free to make your own template.
+
+#### (Optional) Client-side validation dependencies
+
+ - **[jQuery.](https://jquery.com/)** Required only if you want to take advantage of the client
+ - **[jQuery Validation Plugin.](https://jqueryvalidation.org/)** Only if you want to take advantage of the client side validation.
+
+#### (Optional) Using Laravel-Collective
+
+Laravel-Code-Generator is fully capable of generating views using Laravel-Collective. To Generate views using it, you must first install Laravel-Collective into your project. Instructions on how to use it can be found [Laravel-Collective](using-laravel-collective.md)

@@ -65,11 +65,6 @@ The following example assumes that we are trying to create a CRUD called AssetCa
  - description
  - is_active
 
-:::info
-
-A layout is required for the default views! You can use <a href="#view-layout">command</a> to create a layout using the command-line. Of course you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/) in your layout for the default templates to work properly. Additionally, you can chose to design your own templates using a different or no css framework.
-::::
-
 
 ### Basic example
 
@@ -178,7 +173,7 @@ Then it will create a model `app/Models/AssetCategory`, a controller `app/Http/C
 All examples below assumes that you already created a [resource-file](./resource-file.md) (i.e resources/codegenerator-fields/posts.json. This file can be created using the following command `php artisan resource-file:create Post --fields=id,title,details,is_active`)
 :::
 
-### <a name="view-layout">How to create "views-layout"?</a>
+### How to create "views-layout"?
 
 :::note[To create a new layout for your application.]
 

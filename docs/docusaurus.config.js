@@ -8,12 +8,12 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'My Site',
-  tagline: 'Dinosaurs are cool',
+  title: 'Laravel Code Generator',
+  tagline: 'A clean code generator for Laravel framework that will save you time! This awesome tool will help you generate resources like views, controllers, routes, migration, language or request forms! It is extremely flexible and customizable. It is shipped with cross-browsers compatibility template, and client-side validation to make your application awesome!',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://your-docusaurus-site.example.com',
+  url: 'https://www.crestapps.com',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
@@ -44,14 +44,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
-        },
-        blog: {
-          showReadingTime: true,
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://github.com/CrestApps/laravel-code-generator/docs/docs/edit/master/',
         },
         theme: {
           customCss: './src/css/custom.css',
@@ -65,6 +58,10 @@ const config = {
     ({
       // Replace with your project's social card
       image: 'img/docusaurus-social-card.jpg',
+      colorMode: {
+        defaultMode: 'dark',
+        disableSwitch: false
+      },
       navbar: {
         logo: {
           alt: 'CrestApps Logo',
@@ -78,6 +75,12 @@ const config = {
             label: 'Tutorial',
           },
           {
+            type: 'docsVersionDropdown',
+            position: 'right',
+            lastVersion: '2.3.0',
+            dropdownActiveClassDisabled: true,
+          },
+          {
             href: 'https://github.com/MikeAlhayek/laravel-code-generator',
             label: 'GitHub',
             position: 'right',
@@ -88,10 +91,10 @@ const config = {
         style: 'dark',
         links: [
           {
-            title: 'Docs',
+            title: 'Laravel Code Generator',
             items: [
               {
-                label: 'Tutorial',
+                label: 'Documentation',
                 to: '/docs/intro',
               },
             ],
@@ -100,32 +103,11 @@ const config = {
             title: 'Community',
             items: [
               {
-                label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-              },
-              {
-                label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus',
-              },
-              {
-                label: 'Twitter',
-                href: 'https://twitter.com/docusaurus',
-              },
-            ],
-          },
-          {
-            title: 'More',
-            items: [
-              {
-                label: 'Blog',
-                to: '/blog',
-              },
-              {
                 label: 'GitHub',
-                href: 'https://github.com/facebook/docusaurus',
-              },
+                href: 'https://github.com/MikeAlhayek/laravel-code-generator',
+              }
             ],
-          },
+          }
         ],
         copyright: `Copyright © ${new Date().getFullYear()} CrestApps, Inc.`,
       },

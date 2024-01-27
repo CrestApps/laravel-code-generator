@@ -21,19 +21,13 @@ if ($this->app->runningInConsole()) {
 }
 ```
 
-#### Optional Steps
-
-If you like to override default settings, you may execute the following command to publish a default configuration file to `/config/laravel-code-generator.php`
+3. Execute the following command from the command-line to publish the package's config and the default template to start generating awesome code.
 
 ```
-php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServiceProvider" --tag=config
+php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServiceProvider" --tag=default
 ```
 
-If you like to override the default template, you may execute the following command to publish the default template to `/resources/laravel-code-generator/templates/default`
-
-```
-php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServiceProvider" --tag=default-template
-```
+A layout is required for the default views! The code generator allows you to create a layout using the command-line. Of course you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/) in your layout for the default templates to work properly. Additionally, you can chose to design your own templates using a different or no css framework. For more info on how to create a custom template [click here](https://crestapps.com/laravel-code-generator/docs/2.2#how-to-create-custom-template)!
 
 ### Demo
 

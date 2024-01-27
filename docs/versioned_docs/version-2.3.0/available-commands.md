@@ -9,7 +9,7 @@ The option in between the square brackets `[]` must be replaced with a variable 
 
  - **Main commands**
      - php artisan create:layout \[application-name\]
-     - php artisan create:scaffold \[model-name\]
+     - php artisan create:resources \[model-name\]
      - php artisan create:controller \[model-name\]
      - php artisan create:model \[model-name\]
      - php artisan create:form-request \[model-name\]
@@ -36,14 +36,6 @@ The option in between the square brackets `[]` must be replaced with a variable 
      - php artisan migrate:reset-all
      - php artisan migrate:refresh-all
      - php artisan migrate:status-all
- - **API generation commands**
-     - php artisan create:api-scaffold
-     - php artisan create:api-controller
-     - php artisan create:api-resource
- - **API documentation generation commands**
-     - php artisan api-docs:scaffold
-     - php artisan api-docs:create-controller
-     - php artisan api-docs:create-view
 
 ## Important Naming Convention
 
@@ -65,11 +57,6 @@ The following example assumes that we are trying to create a CRUD called AssetCa
  - description
  - is_active
 
-:::info
-
-A layout is required for the default views! You can use <a href="#view-layout">command</a> to create a layout using the command-line. Of course you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/) in your layout for the default templates to work properly. Additionally, you can chose to design your own templates using a different or no css framework.
-::::
-
 
 ### Basic example
 
@@ -77,10 +64,10 @@ A layout is required for the default views! You can use <a href="#view-layout">c
 php artisan resource-file:create AssetCategory --fields=id,name,description,is_active
 ```
 
-The above command will create [resource-file](./resource-file.md) names `/resources/laravel-code-generator/asset_categories.json`
+The above command will create [resource-file](./resource-file.md) names `/resources/codegenerator-files/asset_categories.json`
 
 ```
-php artisan create:scaffold AssetCategory
+php artisan create:resources AssetCategory```
 ```
 The above command will create a model `app/Models/AssetCategory`, a controller `app/Http/Controllers/AssetCategoriesController`, all views, the routes, and migration file!
 
@@ -91,10 +78,10 @@ The above command will create a model `app/Models/AssetCategory`, a controller `
 php artisan resource-file:create AssetCategory --fields=id,name,description,is_active --translation-for=en,ar
 ```
 
-The above command will create [resource-file](./resource-file.md) names `/resources/laravel-code-generator/asset_categories.json`
+The above command will create [resource-file](./resource-file.md) names `/resources/codegenerator-files/asset_categories.json`
 
 ```
-php artisan create:scaffold AssetCategory
+php artisan create:resources AssetCategory
 ```
 
 The above command will create a model `app/Models/AssetCategory`, a controller `app/Http/Controllers/AssetCategoriesController`, all views, the routes, and migration file!
@@ -106,10 +93,10 @@ The above command will create a model `app/Models/AssetCategory`, a controller `
 php artisan resource-file:create AssetCategory --fields=id,name,description,is_active
 ```
 
-The above command will create [resource-file](./resource-file.md) names `/resources/laravel-code-generator/asset_categories.json`
+The above command will create [resource-file](./resource-file.md) names `/resources/codegenerator-files/asset_categories.json`
 
 ```
-php artisan create:scaffold AssetCategory --with-form-request
+php artisan create:resources AssetCategory --with-form-request
 ```
 
 The above command will create a model `app/Models/AssetCategory`, a controller `app/Http/Controllers/AssetCategoriesController`, all views, the routes, and migration file!
@@ -121,10 +108,10 @@ The above command will create a model `app/Models/AssetCategory`, a controller `
 php artisan resource-file:create AssetCategory --fields=id,name,description,is_active
 ```
 
-The above command will create [resource-file](./resource-file.md) names `/resources/laravel-code-generator/asset_categories.json``
+The above command will create [resource-file](./resource-file.md) names `/resources/codegenerator-files/asset_categories.json``
 
 ```
-php artisan create:scaffold AssetCategory --with-soft-delete --with-migration
+php artisan create:resources AssetCategory --with-soft-delete --with-migration
 ```
 
 The above command will create a model `app/Models/AssetCategory`, a controller `app/Http/Controllers/AssetCategoriesController`, all views, the routes, and migration file!
@@ -133,10 +120,10 @@ The above command will create a model `app/Models/AssetCategory`, a controller `
 ### Creating resources from existing database.
 
 ```
-php artisan create:scaffold AssetCategory --table-exists
+php artisan create:resources AssetCategory --table-exists
 ```
 
-The above command will create [resource-file](./resource-file.md) names `/resources/laravel-code-generator/asset_categories.json`
+The above command will create [resource-file](./resource-file.md) names `/resources/codegenerator-files/asset_categories.json`
 
 Then it will create a model `app/Models/AssetCategory`, a controller `app/Http/Controllers/AssetCategoriesController`, all views and the routes!
 
@@ -146,10 +133,10 @@ You may also create a resource-file from existing database separately using `php
 ### Creating resources from existing database with translation for English and Arabic
 
 ```
-php artisan create:scaffold AssetCategory --table-exists --translation-for=en,ar
+php artisan create:resources AssetCategory --table-exists --translation-for=en,ar
 ```
 
-The above command will create [resource-file](./resource-file.md) names `/resources/laravel-code-generator/asset_categories.json``
+The above command will create [resource-file](./resource-file.md) names `/resources/codegenerator-files/asset_categories.json``
 
 Then it will create a model `app/Models/AssetCategory`, a controller `app/Http/Controllers/AssetCategoriesController`, all views and the routes!
 
@@ -163,10 +150,10 @@ php artisan resource-file:form-database AssetCategory --translation-for=en,ar
 
 ```
 php artisan resource-file:form-database AssetCategory --translation-for=en,ar
-php artisan create:scaffold AssetCategory
+php artisan create:resources AssetCategory
 ```
 
-The above command will create [resource-file](./resource-file.md) names `/resources/laravel-code-generator/asset_categories.json`
+The above command will create [resource-file](./resource-file.md) names `/resources/codegenerator-files/asset_categories.json`
 
 Then it will create a model `app/Models/AssetCategory`, a controller `app/Http/Controllers/AssetCategoriesController`, all views and the routes!
 
@@ -178,7 +165,7 @@ Then it will create a model `app/Models/AssetCategory`, a controller `app/Http/C
 All examples below assumes that you already created a [resource-file](./resource-file.md) (i.e resources/codegenerator-fields/posts.json. This file can be created using the following command `php artisan resource-file:create Post --fields=id,title,details,is_active`)
 :::
 
-### <a name="view-layout">How to create "views-layout"?</a>
+### How to create "views-layout"?
 
 :::note[To create a new layout for your application.]
 
@@ -207,20 +194,20 @@ All examples below assumes that you already created a [resource-file](./resource
 :::note[Create multiple resources at the same time. It can be invoked every time the resource-file is modified to recreate the resources all over again.]
 
  ```
- php artisan create:scaffold [model-name]
+ php artisan create:resources [model-name]
  ```
 
  The argument `[model-name]` should be replaced with the name of the model you are creating. For example: 
 
  ```
- php artisan create:scaffold Post
+ php artisan create:resources Post
  ```
 
  | Option | Description | Default |
  | ----------- | ----------- | ----------- |
  | <a name="resource-file">--resource-file</a> | The name of the file to import resource from. This option allows you to have all resources such as fields, indexes and relations in one JSON file, and then import it from the command line. This is a powerful feature which makes it easy to configure the fields, then reuse the same fields in multiple command now or in the future. More documentation on how to manage [resource-file](./resource-file.md) can be found in the "Managing fields using JSON file" section.  | the plural-form of the model name. If the model name is AssetCategory, the name will then be asset_categories.json |
  | <a name="controller-name">--controller-name</a> | The name of the controller to create. If the provided value does not end with the word "Controller" it will be appended. | The controller's name will be generated using the plural-form of the giving model's name. In the above example, the controller will be called "PostsController". |
- | <a name="controller-extends">--controller-extends</a> | Specify which class should the controller extends. Note: the default value is  can be set change by modifying config file (i.e `config/laravel-code-generator.php`). | `default-controller` which means use the settings from the configurations by default `Http\Controllers\Controller`  |
+ | <a name="controller-extends">--controller-extends</a> | Specify which class should the controller extends. Note: the default value can be set change by modifying config file (i.e `config/laravel-code-generator.php`). | `Http\Controllers\Controller`  |
  | <a name="with-auth">--with-auth</a> | Adds the `auth:api` to the controller which prevents any un-authenticated users to access the resources. |  |
  | <a name="routes-prefix">--routes-prefix</a> | Prefix of the route group. | `default-form` which uses the plural-form of the model name. However, this is something can be changed from the configuration file `plural_names_for` key. |
  | <a name="models-per-page">--models-per-page</a> | How many models to show per page on the index view. | `25` |
@@ -240,9 +227,9 @@ All examples below assumes that you already created a [resource-file](./resource
  | <a name="model-directory">--model-directory</a> | A directory where the model will be created under. The default path where the model will be created can be set from the config file `config/laravel-code-generator.php`.|  |
  | <a name="views-directory">--views-directory</a> | The name of the directory to create the views under. If this option is left out, the views will be created in `/resources/views` |  |
  | <a name="form-request-directory">--form-request-directory</a> | The directory where the form-request should be created under.<br /><br /> For example, if the word "Frontend" was provided, the form-request will be created in `App/Http/Requests/Frontend` directory. The default path where the form-request will be created can be set from the config file `config/laravel-code-generator.php` |
- | --fields | [Described below](#fields) |  |
  | --template-name | [Described above](#template-name) |  |
  | --force | This option will override the layout if one already exists. |  |
+
 :::
 
 
@@ -363,9 +350,6 @@ The argument `[model-name]` should be replaced with the name of the model you ar
  | ----------- | ----------- | ----------- |
  | --controller-name | [Described above](#controller-name) |
  | --routes-prefix | [Described above](#routes-prefix) |
- | <a name="without-route-clause">--without-route-clause</a> | Create the routes without where clause for the id. It may be used when the primary key is not an integer |
- | <a name="for-api">--for-api</a> | Create API based routes. |
-  | <a name="for-version">--for-version</a> | provide the version of the api to create the routes for. |
  | --table-name | [Described above](#table-name) |
  | --template-name | [Described above](#template-name) |
 :::
