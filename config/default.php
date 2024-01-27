@@ -892,6 +892,7 @@ return [
         'macaddress' => 'macAddress',
         'mediuminteger' => 'mediumInteger',
         'mediumint' => 'mediumInteger',
+        'tinytext' => 'tinyText',
         'mediumtext' => 'mediumText',
         'smallInteger' => 'smallInteger',
         'smallint' => 'smallInteger',
