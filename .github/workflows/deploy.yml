@@ -14,7 +14,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 18 # Use Node.js 18 here
+          node-version: 18
 
       - name: Install dependencies
         run: npm install
@@ -22,8 +22,11 @@ jobs:
       - name: Build site
         run: npm run build
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Deploy Files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./build/
+          
