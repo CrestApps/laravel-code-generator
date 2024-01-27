@@ -2,7 +2,8 @@ on:
   push:
     branches:
       - master
-
+    paths:
+      - docs
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -21,10 +22,6 @@ jobs:
       - name: Build site
         run: npm run build
         working-directory: ./docs
-
-      - name: Use the value
-        id: step_two
-        run: ls
           
       - name: Deploy Files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
