@@ -24,8 +24,7 @@ jobs:
 
       - name: Use the value
         id: step_two
-        run: |
-          "ls -a"
+        run: ls
           
       - name: Deploy Files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
