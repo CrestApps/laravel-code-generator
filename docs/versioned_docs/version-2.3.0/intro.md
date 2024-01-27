@@ -59,4 +59,4 @@ Explore the project's source code on [GitHub](https://github.com/CrestApps/larav
 
 #### (Optional) Using Laravel-Collective
 
-Laravel-Code-Generator is fully capable of generating views using Laravel-Collective. To Generate views using it, you must first install Laravel-Collective into your project. Instructions on how to use it can be found [Laravel-Collective](./using-laravel-collective)
+Laravel-Code-Generator is fully capable of generating views using Laravel-Collective. To Generate views using it, you must first install Laravel-Collective into your project. Instructions on how to use it can be found [Laravel-Collective](./laravel-collective)

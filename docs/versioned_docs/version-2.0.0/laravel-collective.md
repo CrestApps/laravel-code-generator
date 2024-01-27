@@ -23,7 +23,7 @@ There are two ways to generate views using Laravel-Collective
 
 - Via the package configuration
 
-  > Open the config file of the package /config/codegenerator.php change the value of the key template to default-collective
+  > Open the config file of the package `/config/codegenerator.php` change the value of the key template to default-collective
 
 - Or, via command-line
 
