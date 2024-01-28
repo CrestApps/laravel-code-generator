@@ -20,8 +20,8 @@ const config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'facebook', // Usually your GitHub org/user name.
-  projectName: 'docusaurus', // Usually your repo name.
+  organizationName: 'CrestApps', // Usually your GitHub org/user name.
+  projectName: 'laravel-code-generator', // Usually your repo name.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -75,7 +75,7 @@ const config = {
           {
             type: 'docsVersionDropdown',
             position: 'right',
-            lastVersion: '2.3.0',
+            lastVersion: '3.0.x',
             dropdownActiveClassDisabled: true,
           },
           {

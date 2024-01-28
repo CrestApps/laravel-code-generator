@@ -29,3 +29,8 @@
   --ifm-color-primary-lightest: #f1c474;
   --ifm-background-color: #292929;
 }
+
+.responsive-video {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+}
