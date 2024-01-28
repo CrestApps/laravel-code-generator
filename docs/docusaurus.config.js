@@ -70,7 +70,7 @@ const config = {
             type: 'docSidebar',
             sidebarId: 'docsSidebar',
             position: 'left',
-            label: 'Tutorial',
+            label: 'Documentations',
           },
           {
             type: 'docsVersionDropdown',

@@ -29,9 +29,16 @@ php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServ
 
 A layout is required for the default views! The code generator allows you to create a layout using the command-line. Of course you can use your own layout. You'll only need to include [CSS bootstrap framework](http://getbootstrap.com/) in your layout for the default templates to work properly. Additionally, you can chose to design your own templates using a different or no css framework. For more info on how to create a custom template [click here](https://crestapps.com/laravel-code-generator/docs/2.2#how-to-create-custom-template)!
 
-### Demo
 
-Below a video to demonstrate how to use most of the package commands.
+### Getting Started Videos
+
+####  How to use Laravel Code Generator to generate production ready code in seconds! 
 
 <iframe width="840" height="472" src="https://www.youtube.com/embed/l21qNcsMAWg?si=RbBsmeN06mq-o_5n" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+####  Create a CRUDs for all your database tables in seconds using Laravel and Laravel-Code-Generator
+
+<iframe width="840" height="472" src="https://www.youtube.com/embed/infoecfXOCw?si=DYGOJjS7zgeNsrjv" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 

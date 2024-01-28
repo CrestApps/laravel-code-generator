@@ -35,9 +35,13 @@ If you like to override the default template, you may execute the following comm
 php artisan vendor:publish --provider="CrestApps\CodeGenerator\CodeGeneratorServiceProvider" --tag=default-template
 ```
 
-### Demo
+### Getting Started Videos
 
-Below a video to demonstrate how to use most of the package commands.
+####  How to use Laravel Code Generator to generate production ready code in seconds! 
 
 <iframe width="840" height="472" src="https://www.youtube.com/embed/l21qNcsMAWg?si=RbBsmeN06mq-o_5n" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
+
+####  Create a CRUDs for all your database tables in seconds using Laravel and Laravel-Code-Generator
+
+<iframe width="840" height="472" src="https://www.youtube.com/embed/infoecfXOCw?si=DYGOJjS7zgeNsrjv" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
