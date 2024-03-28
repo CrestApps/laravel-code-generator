@@ -23,6 +23,10 @@ class ControllerRequestCommandBase extends Command
      */
     protected function isConvertEmptyStringsToNullRegistered()
     {
+        if (Helpers::isNewerThanOrEqualTo('11')) {
+            return true;
+        }
+
         $kernalClass = sprintf('\\%s\\Http\\Kernel', Helpers::getAppName());
         $kernal = $this->getLaravel()->make($kernalClass);
 
