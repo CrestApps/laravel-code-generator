@@ -26,9 +26,9 @@ jobs:
         working-directory: ./docs
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          personal_token: ${{ secrets.GITHUB_TOKEN }}  # GitHub token for authentication
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages  # Branch where your GitHub Pages content will be deployed
-          folder: ./docs/build  # Path to the build output folder
-          
+          publish_dir: ./docs/build  # Path to the build output folder
+          cname: crestapps.github.io
