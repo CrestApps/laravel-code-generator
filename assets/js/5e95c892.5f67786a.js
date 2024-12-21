@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunklaravel_code_generator=self.webpackChunklaravel_code_generator||[]).push([[9647],{9502:(e,r,a)=>{a.r(r),a.d(r,{default:()=>o});a(6540);var s=a(4164),c=a(1003),l=a(7559),n=a(2831),t=a(781),u=a(4848);function o(e){return(0,u.jsx)(c.e3,{className:(0,s.A)(l.G.wrapper.docsPages),children:(0,u.jsx)(t.A,{children:(0,n.v)(e.route.routes)})})}}}]);
