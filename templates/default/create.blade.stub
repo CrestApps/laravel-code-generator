@@ -8,7 +8,7 @@
             <h4 class="m-0">[% create_model %]</h4>
             <div>
                 <a href="{{ route('[% index_route_name %]') }}" class="btn btn-primary" title="[% show_all_models %]">
-                    <span class="fa-solid fa-table-list" aria-hidden="true"></span>
+                    <span class="fas fa-table" aria-hidden="true"></span>
                 </a>
             </div>
         </div>
